@@ -62,6 +62,8 @@ bash .aikit-config/scripts/attach.sh --preset frontend-team   # или: attach.s
 
 ## 4. План доработок (по приоритету)
 
+> Актуальный порядок работ — в [docs/roadmap.md](../roadmap.md). Ниже — исходная редакция плана на момент исследования.
+
 ### P1. Миграция на современный формат
 1. **Skills вместо commands.** Перевести `base/skills/*.md` и `profiles/*/skills/*.md` в `SKILL.md`-формат; переписать `description` под автовызов; положить рядом шаблоны (например, шаблоны memory-writer).
 2. **Plugin + marketplace.** Каждый профиль/пресет — плагин; установка `/plugin marketplace add undef1ned-dev/ai-kit` → `/plugin install <plugin>`. `attach.sh` оставить как fallback.
