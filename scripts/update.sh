@@ -6,7 +6,7 @@
 #   bash .aikit-config/scripts/update.sh --auto   — авто-обновление без подтверждений
 #
 # Что делает:
-#   1. Тянет последние изменения из aikit-config
+#   1. Тянет последние изменения aikit-config (только если он подключён как submodule)
 #   2. Показывает что изменилось с момента установки
 #   3. Автоматически обновляет агентов и скиллы (они не кастомизируются)
 #   4. Для CLAUDE.md — показывает diff и предлагает обновить
@@ -134,14 +134,25 @@ echo ""
 # =============================================================================
 log_section "Обновление aikit-config"
 
-cd "$CONFIG_ROOT"
-BEFORE_HASH="$(git rev-parse HEAD 2>/dev/null || echo "unknown")"
-git pull origin main --quiet 2>/dev/null && log_ok "Получены последние изменения" \
-  || { log_warn "git pull не удался — работаю с локальной версией"; }
-AFTER_HASH="$(git rev-parse HEAD 2>/dev/null || echo "unknown")"
-NEW_VERSION="$(get_repo_version)"
+BEFORE_HASH="$(git -C "$CONFIG_ROOT" rev-parse HEAD 2>/dev/null || echo "unknown")"
+CONFIG_REL="${CONFIG_ROOT#"$PROJECT_ROOT"/}"
 
-cd "$PROJECT_ROOT"
+# Обновляем кит только если он подключён к проекту как submodule —
+# иначе это чей-то рабочий репозиторий, и git pull в нём недопустим
+if [[ "$CONFIG_REL" == "$CONFIG_ROOT" ]] || \
+   ! git -C "$PROJECT_ROOT" config -f .gitmodules --get-regexp '^submodule\..*\.path$' 2>/dev/null \
+     | awk '{print $2}' | grep -qx "$CONFIG_REL"; then
+  log_warn "aikit-config не подключён как submodule — пропускаю загрузку, работаю с локальной версией"
+elif [[ -n "$(git -C "$CONFIG_ROOT" status --porcelain 2>/dev/null)" ]]; then
+  log_warn "В $CONFIG_REL есть локальные изменения — пропускаю загрузку, работаю с локальной версией"
+elif git -C "$PROJECT_ROOT" submodule update --remote --quiet -- "$CONFIG_REL" 2>/dev/null; then
+  log_ok "Получены последние изменения"
+else
+  log_warn "Не удалось обновить submodule — работаю с локальной версией"
+fi
+
+AFTER_HASH="$(git -C "$CONFIG_ROOT" rev-parse HEAD 2>/dev/null || echo "unknown")"
+NEW_VERSION="$(get_repo_version)"
 
 # Ничего не изменилось?
 if [[ "$BEFORE_HASH" == "$AFTER_HASH" ]]; then

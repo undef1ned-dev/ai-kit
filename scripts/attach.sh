@@ -72,7 +72,7 @@ with open(sys.argv[1], encoding="utf-8") as fh:
     data = json.load(fh)
 profiles = data.get("compatible_profiles") or []
 print("\n".join(profiles))
-' "$pack_json"
+' "$pack_json" | tr -d '\r'
   fi
 }
 
@@ -91,7 +91,7 @@ if isinstance(value, list):
     print("\n".join(str(item) for item in value))
 elif value is not None:
     print(value)
-' "$preset_json" "$field_name"
+' "$preset_json" "$field_name" | tr -d '\r'
   fi
 }
 
@@ -211,11 +211,12 @@ for pack in $PACKS_LIST; do
   COMPATIBLE_PROFILES="$(read_pack_compatible_profiles "$PACK_JSON")"
   [[ -z "$COMPATIBLE_PROFILES" ]] && continue
 
+  # В мульти-профиле пак достаточно совместить хотя бы с одним профилем (например, ai-пак для backend в fullstack)
+  PACK_MATCHED=false
   for p in $PROFILE_LIST; do
-    if ! echo "$COMPATIBLE_PROFILES" | grep -qx "$p" 2>/dev/null; then
-      log_err "Пак '$pack' не совместим с профилем '$p'"
-    fi
+    echo "$COMPATIBLE_PROFILES" | grep -qx "$p" 2>/dev/null && PACK_MATCHED=true
   done
+  $PACK_MATCHED || log_err "Пак '$pack' не совместим ни с одним из профилей: $PROFILES_ARG"
 done
 
 MULTI_PROFILE=false
@@ -291,8 +292,41 @@ if [[ -n "$SETTINGS_FILES" ]] && command -v jq &>/dev/null; then
          LAST_P="$(echo "$PROFILE_LIST" | awk '{print $NF}')"; \
          cp "$CONFIG_ROOT/profiles/$LAST_P/settings.json" "$TARGET_SETTINGS" 2>/dev/null || true; }
   log_ok ".claude/settings.json создан (merged $FILES_COUNT файлов)"
+elif [[ -n "$SETTINGS_FILES" ]] && command -v python3 &>/dev/null; then
+  # Та же логика, что и в jq-ветке: deep merge, allow/deny объединяются без дублей
+  FILES_COUNT="$(echo "$SETTINGS_FILES" | wc -w | tr -d ' ')"
+  # shellcheck disable=SC2086
+  python3 -c '
+import json, sys
+
+def deep_merge(base, layer):
+    for key, value in layer.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            deep_merge(base[key], value)
+        else:
+            base[key] = value
+    return base
+
+merged = {}
+for path in sys.argv[2:]:
+    with open(path, encoding="utf-8") as fh:
+        layer = json.load(fh)
+    perms = {k: list(merged.get("permissions", {}).get(k, [])) for k in ("allow", "deny")}
+    deep_merge(merged, layer)
+    for key, items in perms.items():
+        for item in layer.get("permissions", {}).get(key, []):
+            if item not in items:
+                items.append(item)
+        if items:
+            merged.setdefault("permissions", {})[key] = sorted(items)
+
+with open(sys.argv[1], "w", encoding="utf-8", newline="\n") as fh:
+    json.dump(merged, fh, ensure_ascii=False, indent=2)
+    fh.write("\n")
+' "$TARGET_SETTINGS" $SETTINGS_FILES
+  log_ok ".claude/settings.json создан (merged $FILES_COUNT файлов, python)"
 elif [[ -n "$SETTINGS_FILES" ]]; then
-  log_warn "jq не установлен — копирую только последний профиль"
+  log_warn "Нет ни jq, ни python3 — копирую только последний профиль"
   LAST_P="$(echo "$PROFILE_LIST" | awk '{print $NF}')"
   cp "$CONFIG_ROOT/profiles/$LAST_P/settings.json" "$TARGET_SETTINGS" 2>/dev/null || true
   log_ok ".claude/settings.json создан (только $LAST_P)"
@@ -453,12 +487,12 @@ echo "  .claude/.config-version    — версия конфигурации"
 echo ""
 echo "Следующие шаги:"
 echo "  1. Заполни PRODUCT.md — агенты читают его для контекста"
-echo "  2. Установи переменные окружения (GITLAB_TOKEN и др.)"
+echo "  2. Установи переменные окружения для MCP-серверов профиля (FIGMA_TOKEN, DATABASE_URL и др.)"
 echo "  3. После первой содержательной задачи запусти /capture-memory"
 if $MULTI_PROFILE; then
   echo ""
   echo "Подсказка мульти-профиль:"
   echo "  Скиллы/агенты с конфликтами получили префикс платформы."
-  echo "  Например: ios-implement-feature, fastapi-implement-feature"
+  echo "  Например: vue-implement-feature, fastapi-implement-feature"
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
