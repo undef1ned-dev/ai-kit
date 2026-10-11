@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(echo *)",
+      "Bash(cat *)",
+      "Bash(mkdir *)",
+      "Bash(touch *)",
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git diff *)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Write(**/.env)",
+      "Edit(**/.env)",
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)"
+    ]
+  },
+  "mcpServers": {
+    "gitlab": {
+      "command": "npx",
+      "args": ["-y", "@zereight/mcp-gitlab"],
+      "env": {
+        "GITLAB_PERSONAL_ACCESS_TOKEN": "${GITLAB_TOKEN}",
+        "GITLAB_API_URL": "https://gitlab.idacloud.ru/api/v4"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+  }
+}

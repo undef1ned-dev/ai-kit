@@ -1,0 +1,39 @@
+{
+  "profile": "python-django",
+  "description": "Dynamic capability routing for Django agents by app layer and responsibility.",
+  "modes": [
+    {
+      "name": "model-admin",
+      "file_globs": ["apps/**/models.py", "apps/**/models/**/*.py", "apps/**/admin.py"],
+      "owned_by": ["django-coder", "django-reviewer", "django-tester", "django-admin-expert"],
+      "suggested_skills": ["setup-admin", "implement-feature", "new-app"],
+      "focus": [
+        "model design and migrations",
+        "admin usability and performance",
+        "verbose names and ORM conventions"
+      ]
+    },
+    {
+      "name": "api-layer",
+      "file_globs": ["apps/**/views.py", "apps/**/views/**/*.py", "apps/**/serializers.py", "apps/**/serializers/**/*.py", "apps/**/urls.py"],
+      "owned_by": ["django-coder", "django-reviewer", "django-tester"],
+      "suggested_skills": ["implement-feature", "new-app"],
+      "focus": [
+        "DRF views and serializers",
+        "validation and response shape",
+        "permission boundaries"
+      ]
+    },
+    {
+      "name": "service-query",
+      "file_globs": ["apps/**/services.py", "apps/**/services/**/*.py", "apps/**/filters.py", "apps/**/tasks.py", "apps/**/tests/**/*.py"],
+      "owned_by": ["django-coder", "django-reviewer", "django-tester"],
+      "suggested_skills": ["implement-feature", "new-app"],
+      "focus": [
+        "business logic placement",
+        "query efficiency and filtering",
+        "background tasks and test isolation"
+      ]
+    }
+  ]
+}

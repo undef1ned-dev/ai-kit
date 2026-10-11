@@ -1,0 +1,55 @@
+---
+title: "Quick Start"
+description: "Use AIKit after installation."
+---
+
+The first working flow is short: bootstrap, verify, then run one task command.
+
+Start after the install preset has been attached to the target repository.
+
+## 1. Bootstrap The Project
+
+```text
+/aikit-bootstrap-project
+```
+
+Read `BOOTSTRAP_REPORT` before you continue. Confirm:
+
+- detected project type is correct;
+- selected references are safe;
+- ignored paths include secrets, dependencies and build output;
+- the suggested first task matches your goal.
+
+## 2. Check Install Readiness
+
+```text
+/aikit-doctor --scope install
+```
+
+Doctor should return install status, checked surfaces, evidence paths and repair guidance.
+
+## 3. Choose One Task Command
+
+Use one command for one job:
+
+```text
+/implement-feature
+/design-implement
+/design-review
+/security-check
+```
+
+Most implementation work starts with `/implement-feature`. Use design commands only when design is the main input. Use `/security-check` for secrets, auth, dependency or permission review.
+
+## 4. Validate The Result
+
+Run the project tests or checks that match the work. If AIKit files changed, run Doctor again before treating the task as complete.
+
+## Stop Conditions
+
+Stop and repair before task work if:
+
+- `BOOTSTRAP_REPORT` selects unsafe refs;
+- Doctor reports a blocker;
+- expected command surfaces are missing;
+- the next task command does not match the work.

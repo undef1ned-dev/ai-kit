@@ -1,0 +1,10 @@
+{
+  "name": "devops",
+  "label": "Pack: DevOps",
+  "version": "1.0.0",
+  "description": "DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
+  "compatible_profiles": ["python-fastapi", "python-django", "vue-nuxt"],
+  "agents": ["devops-engineer"],
+  "skills": ["dockerize", "setup-ci"],
+  "source": "local"
+}

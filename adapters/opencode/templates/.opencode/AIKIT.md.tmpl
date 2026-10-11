@@ -1,0 +1,22 @@
+# AIKit In {{ADAPTER_LABEL}}
+
+Этот runtime workspace подготовлен для `{{ADAPTER_LABEL}}`.
+
+## Что уже установлено
+
+- `AIKIT.md` в корне workspace
+- `.aikit/agents/` и `.aikit/skills/`
+- `{{MEMORY_PATH}}/` с seeded memory AIKit
+
+## OpenCode-specific entrypoints
+
+OpenCode поддерживает project-level runtime config в `.opencode/` и markdown agents в `.opencode/agents/`.
+
+Для продолжения развития самого AIKit используй:
+- `.opencode/CONTINUE_AIKIT_MAINTAINER.md`
+
+## Ограничения текущей интеграции
+
+- OpenCode adapter пока experimental.
+- Runtime-specific детали должны жить в `adapters/opencode/`.
+- Core не должен подстраиваться под OpenCode-specific layout без необходимости.

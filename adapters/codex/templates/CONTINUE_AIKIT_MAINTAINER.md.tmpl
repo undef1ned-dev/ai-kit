@@ -1,0 +1,59 @@
+# Continue AIKit Maintenance In {{ADAPTER_LABEL}}
+
+Используй пакет AIKit как runtime bundle для `{{ADAPTER_LABEL}}`.
+
+## Runtime context
+
+- Runtime: `{{ADAPTER_RUNTIME}}`
+- Status: `{{ADAPTER_STATUS}}`
+- Profiles in bundle: `{{PROFILES}}`
+- Canonical memory path: `{{MEMORY_PATH}}`
+
+## What to do
+
+Продолжай развитие самого репозитория AIKit через агента `aikit-maintainer`.
+
+### Сначала прочитай
+
+1. `AIKIT.md`
+2. `.codex/agents/aikit-maintainer.md`
+3. `.aikit/runtime-operating-protocol.md`
+4. `.aikit/runtime-continuation-contract.md`
+5. `.aikit/runtime-tools.json`
+6. `.codex/memory/INDEX.md`
+7. `.codex/memory/features/aikit-repo/INDEX.md`
+8. `.codex/memory/features/aikit-repo/patterns.md`
+
+### Дальше работай так
+
+- используй `aikit-maintainer` как основной workflow;
+- пользователь пишет задачу тебе в CLI, а internal Python tools выбираешь и запускаешь ты сам;
+- для routing/retrieval/workflow orchestration используй `.aikit/runtime-operating-protocol.md`;
+- для resumed flow, bundle handoff и lineage используй `.aikit/runtime-continuation-contract.md`;
+- для выбора internal validators and tools используй `.aikit/runtime-tools.json`;
+- для Codex-native inspection используй `.codex/agents/`, `.codex/skills/`, `.codex/commands/` и `.codex/memory/`;
+- считай этот bundle experimental runtime package, а не production installer;
+- не меняй `core` под runtime-specific детали без явной причины;
+- если добавляешь runtime-specific поведение для Codex, держи его в adapter layer.
+
+### Рекомендуемый стартовый prompt
+
+```text
+Используй aikit-maintainer чтобы продолжить развитие репозитория AIKit в runtime {{ADAPTER_RUNTIME}}.
+
+Задача: <опиши что нужно улучшить>
+
+Перед изменениями:
+- прочитай AIKIT.md
+- прочитай .codex/agents/aikit-maintainer.md
+- прочитай .aikit/runtime-operating-protocol.md
+- прочитай .aikit/runtime-continuation-contract.md
+- прочитай .aikit/runtime-tools.json
+- прочитай .codex/memory/INDEX.md
+- прочитай .codex/memory/features/aikit-repo/INDEX.md
+
+После изменений:
+- прогоняй validation matrix
+- обнови memory AIKit
+- верни AIKIT_MAINTENANCE_REPORT
+```

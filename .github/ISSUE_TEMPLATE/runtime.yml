@@ -1,0 +1,36 @@
+name: Runtime issue
+description: Report a Codex, GLM or OpenCode runtime workspace failure.
+title: "[runtime]: "
+labels:
+  - runtime
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets, tokens, private repository content, proprietary source snippets or personal credentials."
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime
+      options:
+        - Codex
+        - GLM
+        - OpenCode
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Runtime workspace command
+      description: Paste the command shape that failed. Do not include secrets.
+      placeholder: "python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace <path>"
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+      description: Describe the expected result and the actual result.
+    validations:
+      required: true
+

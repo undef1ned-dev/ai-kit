@@ -1,0 +1,36 @@
+name: Build Docs Artifact
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate docs
+        run: |
+          python3 scripts/generate-profile-docs.py
+          python3 scripts/generate-catalog.py
+
+      - name: Upload generated docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aikit-docs
+          path: |
+            docs
+            docs-site
+          if-no-files-found: error

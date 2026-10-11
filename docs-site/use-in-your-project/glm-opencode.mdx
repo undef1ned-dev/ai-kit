@@ -1,0 +1,35 @@
+---
+title: "GLM And OpenCode"
+description: "Use AIKit through GLM or OpenCode runtime workspaces."
+---
+
+GLM and OpenCode use the same workspace-sync shape as Codex.
+
+## GLM
+
+```text
+/aikit-runtime-workspace glm --preset frontend-team --workspace /tmp/aikit-glm
+```
+
+## OpenCode
+
+```text
+/aikit-runtime-workspace opencode --preset frontend-team --workspace /tmp/aikit-opencode
+```
+
+Expected result:
+
+- runtime entrypoints;
+- runtime tools metadata;
+- continuation contract;
+- local memory root;
+- profile and preset-specific command surface.
+
+## Verify
+
+```text
+/aikit-doctor --scope install
+```
+
+Use these paths for evaluation and workspace-based adoption. Use Claude Code when you want the primary attach-based flow.
+

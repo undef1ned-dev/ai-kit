@@ -1,0 +1,40 @@
+---
+title: "Runtime Adapters"
+description: "How AIKit works across Claude Code, Codex, GLM and OpenCode."
+---
+
+AIKit keeps one shared project model and publishes runtime-specific surfaces through adapters.
+
+| Runtime | Best for | First path |
+| --- | --- | --- |
+| Claude Code | Primary attach-based workflow. | `bash .aikit-config/scripts/attach.sh --preset frontend-team` |
+| Codex | Workspace-sync evaluation and Codex command mirror. | `/aikit-runtime-workspace codex --preset frontend-team --workspace /tmp/aikit-codex` |
+| GLM | Workspace-sync evaluation for GLM runtime. | `/aikit-runtime-workspace glm --preset frontend-team --workspace /tmp/aikit-glm` |
+| OpenCode | Workspace-sync evaluation for OpenCode. | `/aikit-runtime-workspace opencode --preset frontend-team --workspace /tmp/aikit-opencode` |
+
+## Support State
+
+| Runtime | Current support state |
+| --- | --- |
+| Claude Code | primary attach flow |
+| Codex | active workspace-sync runtime |
+| GLM | active workspace-sync runtime |
+| OpenCode | active workspace-sync runtime |
+
+## Support Quality Gate
+
+`ADAPTER_SUPPORT_SCORECARD` is the local quality gate for adapter support evidence. It ranks install/update, recovery and docs parity signals without adding new runtime capability claims.
+
+## Choose Claude Code When
+
+- you want the most established attach flow;
+- slash commands are the primary interface;
+- the repository should receive `.claude/commands` and `.claude/agents`.
+
+## Choose Runtime Workspace When
+
+- you want to evaluate Codex, GLM or OpenCode;
+- you need runtime entrypoints and continuation metadata;
+- you want a workspace path separate from the source repository.
+
+Always verify with Doctor before starting delivery work.

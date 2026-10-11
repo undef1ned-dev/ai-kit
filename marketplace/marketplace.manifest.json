@@ -1,0 +1,93 @@
+{
+  "version": "1.0.0",
+  "status": "internal-experimental",
+  "model": "curated-registry",
+  "sections": [
+    {
+      "name": "packs",
+      "kind": "extension-pack",
+      "source": "packs/*/pack.json",
+      "description": "Domain and workflow extensions that layer on top of base profiles."
+    },
+    {
+      "name": "presets",
+      "kind": "distribution-bundle",
+      "source": "presets/*.json",
+      "description": "Curated install bundles combining profiles, packs and a recommended adapter."
+    },
+    {
+      "name": "adapters",
+      "kind": "runtime-adapter",
+      "source": "adapters/*/adapter.manifest.json",
+      "description": "Runtime delivery layer for Claude, Codex, GLM and OpenCode."
+    }
+  ],
+  "featured": {
+    "packs": ["quality", "devops"],
+    "presets": ["frontend-team", "fullstack-web"],
+    "adapters": ["claude", "codex", "glm"]
+  },
+  "distribution_channels": [
+    {
+      "name": "docs-surface",
+      "kind": "documentation",
+      "targets": ["packs", "presets", "adapters"],
+      "delivery": "Generated markdown and HTML docs inside docs/."
+    },
+    {
+      "name": "workspace-install",
+      "kind": "runtime-install",
+      "targets": ["presets", "adapters"],
+      "delivery": "attach/build/install/update scripts for Claude and runtime adapters."
+    },
+    {
+      "name": "artifact-bundles",
+      "kind": "distribution-artifact",
+      "targets": ["presets", "adapters"],
+      "delivery": "Built adapter bundles and generated docs artifacts for internal sharing."
+    }
+  ],
+  "publishing_workflows": [
+    {
+      "name": "pack-curation",
+      "target_kind": "pack",
+      "eligibility": [
+        "pack.json is valid",
+        "compatible_profiles references real profiles",
+        "skills and agents exist",
+        "validate-config passes"
+      ],
+      "delivery_channels": ["docs-surface"],
+      "owner": "aikit-maintainer"
+    },
+    {
+      "name": "preset-distribution",
+      "target_kind": "preset",
+      "eligibility": [
+        "preset manifest is valid",
+        "recommended_adapter references a supported runtime",
+        "preset resolves through resolve-preset.py",
+        "validate-config passes"
+      ],
+      "delivery_channels": ["docs-surface", "workspace-install", "artifact-bundles"],
+      "owner": "aikit-maintainer"
+    },
+    {
+      "name": "adapter-promotion",
+      "target_kind": "adapter",
+      "eligibility": [
+        "adapter manifest is valid",
+        "build/install fixtures pass",
+        "if active: update contract exists",
+        "maturity review is documented"
+      ],
+      "delivery_channels": ["docs-surface", "workspace-install", "artifact-bundles"],
+      "owner": "aikit-maintainer"
+    }
+  ],
+  "publishing_rules": [
+    "Only manifests that pass validate-config and generated docs sync are eligible for marketplace listing.",
+    "Experimental adapters may be featured, but must be explicitly labeled by maturity.",
+    "Packs and presets are curated registry entries, not user-uploaded marketplace items."
+  ]
+}

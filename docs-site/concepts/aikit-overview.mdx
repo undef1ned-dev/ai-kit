@@ -1,0 +1,52 @@
+---
+title: "AIKit Overview"
+description: "The core concepts behind AIKit."
+---
+
+AIKit packages repeatable AI engineering workflows for real repositories.
+
+The model is:
+
+```text
+project task
+  -> profile
+  -> preset or pack
+  -> runtime adapter
+  -> command
+  -> validation
+```
+
+## Profiles
+
+Profiles describe the project shape. Public profiles currently cover:
+
+- `vue-nuxt`
+- `python-fastapi`
+- `python-django`
+
+Each profile defines task routing, specialist agents and validation expectations.
+
+## Presets
+
+Presets combine profiles and packs into installable team shapes:
+
+- `frontend-team`
+- `backend-api`
+- `backend-django`
+- `fullstack-web`
+
+Start with a preset when you want the fastest install path.
+
+## Commands
+
+Commands are the user-facing surface. You should not need to choose individual agents for normal work.
+
+Start with:
+
+```text
+/aikit-bootstrap-project
+/implement-feature
+```
+
+Use specialized commands only when the task clearly needs them.
+

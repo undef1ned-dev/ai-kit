@@ -1,0 +1,20 @@
+# AIKit In {{ADAPTER_LABEL}}
+
+Этот runtime workspace подготовлен для `{{ADAPTER_LABEL}}`.
+
+## Что уже установлено
+
+- `AIKIT.md` в корне workspace
+- `.aikit/agents/` и `.aikit/skills/`
+- `{{MEMORY_PATH}}/` с seeded memory AIKit
+
+## Основной continuation path
+
+Для продолжения развития самого AIKit используй:
+- `.glm/CONTINUE_AIKIT_MAINTAINER.md`
+
+## Ограничения текущей интеграции
+
+- GLM adapter пока experimental.
+- Runtime-specific детали должны жить только в `adapters/glm/`.
+- Не объявляй GLM production-ready раньше, чем install flow и continuation будут проверены в реальном runtime.

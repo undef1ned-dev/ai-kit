@@ -1,0 +1,9 @@
+{
+  "name": "backend-api",
+  "label": "Backend API",
+  "description": "FastAPI-focused backend setup with quality, devops, and AI tooling.",
+  "profiles": ["python-fastapi"],
+  "packs": ["quality", "devops", "ai"],
+  "recommended_adapter": "claude",
+  "source": "aikit-core"
+}

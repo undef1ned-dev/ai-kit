@@ -1,0 +1,32 @@
+---
+title: "Config And Generated Artifacts"
+description: "How to inspect AIKit install artifacts."
+---
+
+AIKit install artifacts are local and reviewable.
+
+## Config Markers
+
+| Path | Purpose |
+| --- | --- |
+| `.claude/.config-version` | Installed version marker for Claude Code attach. |
+| `.aikit/runtime-entrypoints.json` | Runtime launcher metadata for workspace adapters. |
+| `.aikit/runtime-tools.json` | Runtime-visible tool metadata. |
+| `.aikit/runtime-continuation-contract.md` | Resume rules for runtime workspaces. |
+
+## Generated Command Surfaces
+
+| Path | Purpose |
+| --- | --- |
+| `.claude/commands/` | Claude Code slash commands. |
+| `.claude/agents/` | Claude Code specialist agents. |
+| `.codex/commands/` | Codex workspace command mirror. |
+
+## Inspect A Plan
+
+```text
+/aikit-install-update inspect --preset frontend-team --adapter codex --json
+```
+
+Use this before updating a workspace when you need a machine-readable plan.
+

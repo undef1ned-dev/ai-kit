@@ -1,0 +1,33 @@
+name: Docs issue
+description: Report stale, unclear or missing public AIKit documentation.
+title: "[docs]: "
+labels:
+  - docs
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets, tokens, private repository content, proprietary source snippets or personal credentials."
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link or name the public docs page.
+      placeholder: "docs-site/get-started/installation.mdx"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Explain what is stale, unclear or missing.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected wording or behavior
+      description: Describe the change that would make the page accurate.
+    validations:
+      required: true
+

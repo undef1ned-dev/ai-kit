@@ -1,0 +1,78 @@
+---
+title: "Installation"
+description: "Install AIKit in an existing project and verify the setup."
+---
+
+Install AIKit from the target project, then run bootstrap and Doctor before starting implementation work.
+
+## Recommended Path
+
+```bash
+git submodule add git@github.com:undef1ned-dev/ai-kit.git .aikit-config
+git submodule update --init
+bash .aikit-config/scripts/attach.sh --preset frontend-team
+```
+
+Expected result: AIKit writes Claude Code project commands, agents, memory files and version metadata into the repository.
+
+Primary files to expect:
+
+- `CLAUDE.md`
+- `.claude/commands/`
+- `.claude/agents/`
+- `.aikit/memory/`
+
+## Verify The Install
+
+Run bootstrap first:
+
+```text
+/aikit-bootstrap-project
+```
+
+Read `BOOTSTRAP_REPORT`. It should show the detected project, selected evidence, ignored paths and the recommended first task.
+
+Then run:
+
+```text
+/aikit-doctor --scope install
+```
+
+Expected result: `DOCTOR_REPORT` confirms install readiness or names a repair path.
+
+## Runtime Workspace Alternative
+
+Use this path when evaluating a non-Claude runtime:
+
+```text
+/aikit-runtime-workspace codex --preset frontend-team --workspace /tmp/aikit-codex
+```
+
+For GLM or OpenCode, replace `codex` with `glm` or `opencode`.
+
+Runtime workspace writes `.aikit/runtime-entrypoints.json`, `.aikit/runtime-tools.json` and `.aikit/runtime-continuation-contract.md` in the target workspace.
+
+## Update An Existing Workspace
+
+Claude:
+
+```bash
+bash .aikit-config/scripts/update.sh
+```
+
+Runtime workspace:
+
+```text
+/aikit-runtime-workspace codex --preset frontend-team --workspace /tmp/aikit-codex --operation update
+```
+
+Run `/aikit-doctor --scope install` after update.
+
+## Stop Conditions
+
+Stop before delivery work if:
+
+- bootstrap selects unsafe files;
+- Doctor reports a blocked install;
+- the selected preset does not match the project;
+- the next task command does not match the work you intend to do.

@@ -1,0 +1,89 @@
+{
+  "name": "opencode-tui",
+  "runtime": "opencode",
+  "status": "active",
+  "label": "OpenCode TUI",
+  "description": "Production-supported runtime adapter for OpenCode TUI. Reuses AIKit core through workspace install/update flow and OpenCode-specific launcher files.",
+  "entrypoint_style": "prompt-and-command-presets",
+  "config_roots": [".opencode/", ".aikit/"],
+  "install_script": "scripts/install-adapter-package.py",
+  "install_type": "workspace-sync",
+  "update_script": "scripts/update-adapter-package.py",
+  "generated_artifacts": [
+    ".opencode/",
+    ".aikit/agents/",
+    ".aikit/memory/",
+    ".aikit/runtime-graph.json",
+    ".aikit/runtime-entrypoints.json",
+    ".aikit/runtime-operating-protocol.md",
+    ".aikit/runtime-continuation-contract.md",
+    ".aikit/runtime-tools.json",
+    ".aikit/mcp-tool-plane.json",
+    "CONTINUE_AIKIT_MAINTAINER.md",
+    ".opencode/AIKIT.md",
+    ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
+    ".opencode/runtime-graph.json",
+    ".opencode/entrypoints.json",
+    ".opencode/agents/README.md"
+  ],
+  "memory_path": ".aikit/memory",
+  "graph_execution": {
+    "status": "exploratory",
+    "shared_artifact": ".aikit/runtime-graph.json",
+    "runtime_artifact": ".opencode/runtime-graph.json",
+    "supports_parallel_handoff": false,
+    "purpose": "OpenCode runtime can inspect packaged workflow DAG metadata and graph-aware handoff hints from the installed workspace."
+  },
+  "runtime_entrypoints": [
+    {
+      "name": "opencode-runtime-guide",
+      "path": ".opencode/AIKIT.md",
+      "kind": "guide",
+      "purpose": "Runtime-specific AIKit instructions for OpenCode workspaces."
+    },
+    {
+      "name": "continue-maintainer",
+      "path": ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
+      "kind": "continuation",
+      "purpose": "Continue developing AIKit inside OpenCode using the maintainer handoff prompt."
+    },
+    {
+      "name": "packaged-agents",
+      "path": ".aikit/agents/",
+      "kind": "agent-entry",
+      "purpose": "Canonical maintainer agent packaged for OpenCode runtime."
+    },
+    {
+      "name": "runtime-operating-protocol",
+      "path": ".aikit/runtime-operating-protocol.md",
+      "kind": "protocol",
+      "purpose": "Rules for OpenCode agents to choose internal AIKit tools, memory updates and RAG refreshes without exposing scripts as the primary user interface."
+    },
+    {
+      "name": "runtime-continuation-contract",
+      "path": ".aikit/runtime-continuation-contract.md",
+      "kind": "continuation-contract",
+      "purpose": "Rules for resumed flows, bundle handoff, session lineage and next-step orchestration in OpenCode workspaces."
+    },
+    {
+      "name": "runtime-tools-registry",
+      "path": ".aikit/runtime-tools.json",
+      "kind": "tool-registry",
+      "purpose": "Machine-readable registry of internal AIKit tools OpenCode agents can use for orchestration, memory, RAG and validation."
+    },
+    {
+      "name": "mcp-tool-plane",
+      "path": ".aikit/mcp-tool-plane.json",
+      "kind": "provider-tool-plane",
+      "purpose": "Runtime-native MCP provider matrix for OpenCode agents, keeping Figma/GitHub tools separate from local shell commands."
+    }
+  ],
+  "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",
+  "source_layers": ["base", "profiles", "packs", "scripts", "docs"],
+  "notes": [
+    "OpenCode runtime now treated as production-supported inside AIKit",
+    "Uses workspace install flow through scripts/install-adapter-package.py",
+    "Should consume core through adapter packaging without copying Claude-specific contracts into core",
+    "Production-supported runtime through workspace update flow"
+  ]
+}

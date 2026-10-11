@@ -1,0 +1,53 @@
+{
+  "name": "claude-code",
+  "runtime": "claude",
+  "status": "active",
+  "label": "Claude Code",
+  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/commands, .claude/settings.json and .claude/memory.",
+  "entrypoint_style": "slash-commands",
+  "config_roots": ["CLAUDE.md", ".claude/"],
+  "generated_artifacts": [
+    "CLAUDE.md",
+    ".claude/agents/",
+    ".claude/commands/",
+    ".claude/settings.json",
+    ".claude/.config-version",
+    ".claude/memory/",
+    ".aikit/runtime-graph.json"
+  ],
+  "memory_path": ".claude/memory",
+  "graph_execution": {
+    "status": "integrated",
+    "shared_artifact": ".aikit/runtime-graph.json",
+    "supports_parallel_handoff": false,
+    "purpose": "Claude keeps workflow orchestration in core policy/docs, but still publishes graph metadata for parity with other runtimes."
+  },
+  "runtime_entrypoints": [
+    {
+      "name": "claude-instructions",
+      "path": "CLAUDE.md",
+      "kind": "guide",
+      "purpose": "Primary instruction surface for Claude Code in attached projects."
+    },
+    {
+      "name": "claude-commands",
+      "path": ".claude/commands/",
+      "kind": "command-surface",
+      "purpose": "Slash-command entry layer for packaged skills in Claude runtime."
+    },
+    {
+      "name": "claude-agents",
+      "path": ".claude/agents/",
+      "kind": "agent-surface",
+      "purpose": "Runtime agent directory consumed by Claude Code."
+    }
+  ],
+  "attach_script": "scripts/attach.sh",
+  "update_script": "scripts/update.sh",
+  "source_layers": ["base", "profiles", "packs", "scripts", "docs"],
+  "notes": [
+    "Current production adapter",
+    "Source of truth still partly uses Claude-specific naming",
+    "Compatibility baseline for future adapters"
+  ]
+}

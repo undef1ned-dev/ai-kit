@@ -1,0 +1,45 @@
+name: Install issue
+description: Report an AIKit install, update, bootstrap or Doctor failure.
+title: "[install]: "
+labels:
+  - install
+  - needs-triage
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets, tokens, private repository content, proprietary source snippets or personal credentials."
+  - type: input
+    id: version
+    attributes:
+      label: AIKit version
+      description: Use the version shown in the Release Center.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: runtime
+    attributes:
+      label: Runtime
+      options:
+        - Claude Code
+        - Codex
+        - GLM
+        - OpenCode
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: Paste the command shape that failed. Do not include secrets.
+      placeholder: "bash .aikit-config/scripts/attach.sh --preset frontend-team"
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+      description: Describe the expected result and the actual result.
+    validations:
+      required: true
+

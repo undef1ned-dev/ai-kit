@@ -1,0 +1,10 @@
+{
+  "name": "ai",
+  "label": "Pack: AI",
+  "version": "1.0.0",
+  "description": "AI-разработка: проектирование LLM-интеграций, оптимизация промптов, агентные пайплайны",
+  "compatible_profiles": ["python-fastapi", "python-django"],
+  "agents": ["ai-architect", "prompt-engineer"],
+  "skills": ["design-prompt", "audit-prompts"],
+  "source": "local"
+}

@@ -1,0 +1,149 @@
+{
+  "version": "1.0.0",
+  "profile": "vue-nuxt",
+  "label": "Vue/Nuxt UI Kit Contract",
+  "description": "Canonical frontend UI kit contract for retrieval, design review and future context-pack generation in the vue-nuxt profile.",
+  "token_sources": [
+    {
+      "name": "profile-theme-contract",
+      "kind": "css-variables",
+      "path_globs": [
+        "profiles/vue-nuxt/uikit.manifest.json",
+        "profiles/vue-nuxt/agents/vue-design-bridge.md"
+      ],
+      "token_categories": ["color", "spacing", "radius", "elevation", "motion", "z-index"]
+    },
+    {
+      "name": "tailwind-theme-contract",
+      "kind": "tailwind-theme",
+      "path_globs": [
+        "profiles/vue-nuxt/CLAUDE.md",
+        "profiles/vue-nuxt/uikit.manifest.json"
+      ],
+      "token_categories": ["color", "spacing", "typography", "radius", "elevation"]
+    },
+    {
+      "name": "app-config-theme-contract",
+      "kind": "app-config",
+      "path_globs": [
+        "profiles/vue-nuxt/settings.json",
+        "profiles/vue-nuxt/agents/vue-design-bridge.md",
+        "profiles/vue-nuxt/uikit.manifest.json"
+      ],
+      "token_categories": ["color", "typography", "motion"]
+    }
+  ],
+  "primitive_families": [
+    {
+      "name": "action",
+      "purpose": "Interactive controls that trigger primary or secondary user actions.",
+      "canonical_components": ["AppButton", "IconButton", "ActionLink"],
+      "allowed_contexts": ["page", "component", "layout", "modal"],
+      "preferred_states": ["default", "hover", "focus", "disabled", "loading"]
+    },
+    {
+      "name": "form",
+      "purpose": "Inputs and controls used in capture and validation flows.",
+      "canonical_components": ["AppInput", "AppSelect", "AppCheckbox", "AppTextarea"],
+      "allowed_contexts": ["page", "component", "modal", "drawer"],
+      "preferred_states": ["default", "focus", "error", "disabled", "readonly"]
+    },
+    {
+      "name": "feedback",
+      "purpose": "Status, helper and transient feedback primitives.",
+      "canonical_components": ["AppAlert", "AppToast", "StatusBadge", "EmptyState"],
+      "allowed_contexts": ["page", "component", "layout"],
+      "preferred_states": ["info", "success", "warning", "error", "loading"]
+    },
+    {
+      "name": "layout",
+      "purpose": "Containers and visual shells that compose sections and pages.",
+      "canonical_components": ["AppCard", "SectionShell", "Stack", "Grid"],
+      "allowed_contexts": ["page", "component", "layout"],
+      "preferred_states": ["default", "interactive", "selected"]
+    },
+    {
+      "name": "navigation",
+      "purpose": "Primitives for route switching, filtering and orientation.",
+      "canonical_components": ["Tabs", "Breadcrumbs", "FilterBar", "SidebarNav"],
+      "allowed_contexts": ["page", "layout"],
+      "preferred_states": ["default", "active", "disabled"]
+    },
+    {
+      "name": "data-display",
+      "purpose": "Primitives for tables, lists, metrics and rich data presentation.",
+      "canonical_components": ["DataTable", "ListView", "MetricCard", "KeyValueList"],
+      "allowed_contexts": ["page", "component"],
+      "preferred_states": ["default", "empty", "loading", "error", "selected"]
+    }
+  ],
+  "component_contracts": [
+    {
+      "name": "AppButton",
+      "family": "action",
+      "variants": ["primary", "secondary", "ghost", "danger"],
+      "slots": ["default", "leadingIcon", "trailingIcon"],
+      "states": ["default", "hover", "focus", "disabled", "loading"],
+      "token_categories": ["color", "spacing", "typography", "radius", "motion"],
+      "allowed_contexts": ["page", "component", "layout", "modal"]
+    },
+    {
+      "name": "AppCard",
+      "family": "layout",
+      "variants": ["default", "interactive", "outlined", "elevated"],
+      "slots": ["header", "default", "footer"],
+      "states": ["default", "hover", "selected"],
+      "token_categories": ["color", "spacing", "radius", "elevation"],
+      "allowed_contexts": ["page", "component", "layout"]
+    },
+    {
+      "name": "StatusBadge",
+      "family": "feedback",
+      "variants": ["neutral", "info", "success", "warning", "error"],
+      "slots": ["default", "icon"],
+      "states": ["default"],
+      "token_categories": ["color", "spacing", "typography", "radius"],
+      "allowed_contexts": ["page", "component", "data-row"]
+    },
+    {
+      "name": "FilterBar",
+      "family": "navigation",
+      "variants": ["inline", "segmented", "drawer"],
+      "slots": ["default", "actions"],
+      "states": ["default", "active", "disabled"],
+      "token_categories": ["color", "spacing", "typography", "motion"],
+      "allowed_contexts": ["page", "layout"]
+    },
+    {
+      "name": "DataTable",
+      "family": "data-display",
+      "variants": ["comfortable", "compact", "bordered"],
+      "slots": ["header", "row", "empty", "footer"],
+      "states": ["default", "empty", "loading", "error", "selected"],
+      "token_categories": ["color", "spacing", "typography", "elevation", "z-index"],
+      "allowed_contexts": ["page", "component"]
+    }
+  ],
+  "usage_rules": [
+    {
+      "name": "reuse-first-primitives",
+      "rule": "If a screen can be composed from an existing primitive family, prefer reuse over introducing a new base component.",
+      "reason": "Retrieval and design review should bias toward system consistency before local invention."
+    },
+    {
+      "name": "feature-wrapper-over-base-fork",
+      "rule": "If the UI differs only in composition, create a feature wrapper instead of forking the base primitive.",
+      "reason": "This keeps the base UI kit stable while allowing product-specific flows."
+    },
+    {
+      "name": "token-before-hardcode",
+      "rule": "Colors, spacing, typography, radius and elevation should come from token sources before any local hardcoded value is introduced.",
+      "reason": "Design-aware retrieval depends on stable token categories and consistent visual language."
+    },
+    {
+      "name": "gap-before-new-primitive",
+      "rule": "If no canonical primitive matches the need, record a component gap before recommending a new base primitive.",
+      "reason": "This makes design-system expansion explicit and explainable."
+    }
+  ]
+}

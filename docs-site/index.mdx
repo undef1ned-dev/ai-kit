@@ -1,0 +1,46 @@
+---
+title: "AIKit"
+description: "Reusable agent workflows, runtime adapters and project commands for AI-assisted engineering."
+---
+
+AIKit gives an existing repository a working AI engineering layer: install a preset, run bootstrap, verify the setup, then start one task command.
+
+```bash
+git submodule add git@github.com:undef1ned-dev/ai-kit.git .aikit-config
+git submodule update --init
+bash .aikit-config/scripts/attach.sh --preset frontend-team
+```
+
+After install:
+
+```text
+/aikit-bootstrap-project
+/aikit-doctor --scope install
+```
+
+Use AIKit when you want repeatable project setup for Claude Code, Codex, GLM or OpenCode without hand-building agents, commands and memory rules for every repository.
+
+## What AIKit Adds
+
+- project commands for bootstrap, implementation, design and security tasks;
+- profile-aware agents for Vue/Nuxt, FastAPI and Django projects;
+- presets for backend, frontend and full-stack teams;
+- runtime adapters for Claude Code, Codex, GLM and OpenCode;
+- reviewable local memory and install metadata.
+
+## Start Here
+
+1. Install AIKit with the recommended command.
+2. Run bootstrap and read `BOOTSTRAP_REPORT`.
+3. Verify setup with Doctor.
+4. Choose one task command.
+
+<CardGroup cols={2}>
+  <Card title="Install AIKit" href="/get-started/installation">
+    Add AIKit to a repository and verify the first setup.
+  </Card>
+  <Card title="Choose A Runtime" href="/concepts/runtime-adapters">
+    Compare Claude Code, Codex, GLM and OpenCode paths.
+  </Card>
+</CardGroup>
+

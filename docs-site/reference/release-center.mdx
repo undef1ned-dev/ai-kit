@@ -1,0 +1,40 @@
+---
+title: "Release Center"
+description: "Current AIKit release state and update path."
+---
+
+Use this page to confirm whether a workspace should update before starting new AIKit work.
+
+## Current Version
+
+Current version: `0.1.0`
+
+Latest released version: `0.1.0`
+
+Latest release date: `2026-04-20`
+
+## Should I Update?
+
+Local support analytics and release candidate evidence triage is staged for review. No release is published.
+
+Candidate review status: `candidate-review-only`
+
+Claude workspace update:
+
+```bash
+bash .aikit-config/scripts/update.sh
+```
+
+Runtime workspace update:
+
+```text
+/aikit-runtime-workspace <adapter> --preset <preset> --workspace <path> --operation update
+```
+
+## Verify After Update
+
+```text
+/aikit-doctor --scope install
+```
+
+Stop if Doctor reports a blocker or the expected command surfaces are missing.

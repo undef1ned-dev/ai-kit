@@ -1,0 +1,125 @@
+{
+  "version": "1.0.0",
+  "profile": "python-fastapi",
+  "label": "FastAPI API Surface Contract",
+  "description": "Canonical API surface contract for FastAPI profile retrieval, planning and future backend context-pack generation.",
+  "contract_sources": [
+    {
+      "name": "router-registration",
+      "kind": "router",
+      "path_globs": ["profiles/python-fastapi/agents/fastapi-architect.md", "profiles/python-fastapi/capabilities.json"],
+      "concerns": ["contract", "registration"]
+    },
+    {
+      "name": "schema-contracts",
+      "kind": "schema",
+      "path_globs": ["profiles/python-fastapi/agents/fastapi-architect.md", "profiles/python-fastapi/profile.manifest.json"],
+      "concerns": ["contract", "validation"]
+    },
+    {
+      "name": "service-model-boundary",
+      "kind": "service",
+      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/agents/fastapi-architect.md"],
+      "concerns": ["persistence", "auth"]
+    },
+    {
+      "name": "migration-test-surface",
+      "kind": "migration",
+      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/skills/add-migration.md"],
+      "concerns": ["operations", "testing"]
+    }
+  ],
+  "surface_families": [
+    {
+      "name": "contract",
+      "purpose": "Request and response contract surface for FastAPI endpoints.",
+      "canonical_artifacts": ["routers/**/*.py", "schemas/**/*.py", "main.py"],
+      "allowed_contexts": ["feature-work", "review-only", "migration-work"],
+      "required_concerns": ["contract", "validation", "registration"]
+    },
+    {
+      "name": "handler",
+      "purpose": "Endpoint handlers and route registration logic.",
+      "canonical_artifacts": ["routers/**/*.py", "main.py"],
+      "allowed_contexts": ["feature-work", "debug-fix"],
+      "required_concerns": ["contract", "auth"]
+    },
+    {
+      "name": "service",
+      "purpose": "Business logic and orchestration behind API handlers.",
+      "canonical_artifacts": ["services/**/*.py", "models/**/*.py"],
+      "allowed_contexts": ["feature-work", "migration-work", "debug-fix"],
+      "required_concerns": ["persistence", "auth"]
+    },
+    {
+      "name": "persistence",
+      "purpose": "Database model and migration surface.",
+      "canonical_artifacts": ["models/**/*.py", "migrations/**/*.py", "alembic/**/*.py"],
+      "allowed_contexts": ["feature-work", "migration-work"],
+      "required_concerns": ["persistence", "operations"]
+    },
+    {
+      "name": "integration",
+      "purpose": "Cross-service, auth and external system boundaries.",
+      "canonical_artifacts": ["core/**/*.py", "services/**/*.py"],
+      "allowed_contexts": ["feature-work", "debug-fix"],
+      "required_concerns": ["auth", "contract"]
+    },
+    {
+      "name": "operations",
+      "purpose": "Testing and migration safety around API changes.",
+      "canonical_artifacts": ["tests/**/*.py", "migrations/**/*.py", "alembic/**/*.py"],
+      "allowed_contexts": ["review-only", "migration-work", "feature-work"],
+      "required_concerns": ["testing", "operations"]
+    }
+  ],
+  "endpoint_contracts": [
+    {
+      "name": "collection-endpoint",
+      "family": "contract",
+      "methods": ["GET", "POST"],
+      "auth_model": "per-endpoint explicit",
+      "request_artifacts": ["Create schema", "Query params schema"],
+      "response_artifacts": ["List response schema", "Created resource schema"],
+      "dependency_artifacts": ["Router registration", "Service method", "Pydantic models"],
+      "allowed_contexts": ["feature-work", "review-only"]
+    },
+    {
+      "name": "resource-endpoint",
+      "family": "handler",
+      "methods": ["GET", "PATCH", "DELETE"],
+      "auth_model": "per-endpoint explicit",
+      "request_artifacts": ["Path params", "Update schema"],
+      "response_artifacts": ["Resource response schema", "204 no-content contract"],
+      "dependency_artifacts": ["Service method", "Persistence lookup", "Router registration"],
+      "allowed_contexts": ["feature-work", "debug-fix", "review-only"]
+    },
+    {
+      "name": "migration-affecting-change",
+      "family": "persistence",
+      "methods": ["SCHEMA_CHANGE"],
+      "auth_model": "not-applicable",
+      "request_artifacts": ["Model update", "Migration note"],
+      "response_artifacts": ["Migration artifact", "Test coverage update"],
+      "dependency_artifacts": ["SQLAlchemy model", "Alembic migration", "Tests"],
+      "allowed_contexts": ["migration-work", "feature-work"]
+    }
+  ],
+  "usage_rules": [
+    {
+      "name": "schema-before-handler-leak",
+      "rule": "Request and response contracts should be expressed through schemas before handler-local ad-hoc payload logic.",
+      "reason": "This keeps FastAPI retrieval focused on stable API contracts instead of incidental implementation details."
+    },
+    {
+      "name": "service-before-router-logic",
+      "rule": "Business logic should live in service and model layers, not inside router handlers.",
+      "reason": "Retrieval and review should clearly separate API surface from business behavior."
+    },
+    {
+      "name": "migration-explicitness",
+      "rule": "Any persistence-affecting change must be treated as contract-affecting and accompanied by migration-aware reasoning.",
+      "reason": "Backend retrieval must be able to surface operational impact, not only code changes."
+    }
+  ]
+}

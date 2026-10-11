@@ -1,0 +1,61 @@
+# Continue AIKit Maintenance In {{ADAPTER_LABEL}}
+
+Используй пакет AIKit как runtime bundle для `{{ADAPTER_LABEL}}`.
+
+## Runtime context
+
+- Runtime: `{{ADAPTER_RUNTIME}}`
+- Status: `{{ADAPTER_STATUS}}`
+- Profiles in bundle: `{{PROFILES}}`
+- Canonical memory path: `{{MEMORY_PATH}}`
+
+## Primary goal
+
+Твоя основная задача в GLM-runtime: продолжать развитие репозитория AIKit через `aikit-maintainer`, сохраняя разделение между `core` и `adapters`.
+
+## Сначала прочитай
+
+1. `AIKIT.md`
+2. `.aikit/agents/aikit-maintainer.md`
+3. `.aikit/runtime-operating-protocol.md`
+4. `.aikit/runtime-continuation-contract.md`
+5. `.aikit/runtime-tools.json`
+6. `{{MEMORY_PATH}}/INDEX.md`
+7. `{{MEMORY_PATH}}/features/aikit-repo/INDEX.md`
+8. `{{MEMORY_PATH}}/features/aikit-repo/patterns.md`
+
+## Правила continuation flow
+
+- продолжай работу от накопленного memory;
+- пользователь работает через GLM CLI, а internal Python tools выбираешь и запускаешь ты сам;
+- для routing/retrieval/workflow orchestration используй `.aikit/runtime-operating-protocol.md`;
+- для resumed flow, bundle handoff и lineage используй `.aikit/runtime-continuation-contract.md`;
+- для выбора internal validators and tools используй `.aikit/runtime-tools.json`;
+- не объявляй GLM adapter production-ready, пока integration не вышла за пределы builder smoke-pass;
+- любые runtime-specific детали держи в `adapters/glm/`;
+- если меняешь `core`, оцени влияние хотя бы на `claude`, `codex`, `glm`.
+
+## Рекомендуемый стартовый prompt
+
+```text
+Используй aikit-maintainer чтобы продолжить развитие репозитория AIKit для runtime {{ADAPTER_RUNTIME}}.
+
+Контекст:
+- это experimental/planned adapter layer
+- source of truth находится в core AIKit
+- memory path в этом bundle: {{MEMORY_PATH}}
+
+Перед изменениями:
+- прочитай AIKIT.md
+- прочитай .aikit/agents/aikit-maintainer.md
+- прочитай .aikit/runtime-operating-protocol.md
+- прочитай .aikit/runtime-continuation-contract.md
+- прочитай .aikit/runtime-tools.json
+- прочитай {{MEMORY_PATH}}/INDEX.md
+- прочитай {{MEMORY_PATH}}/features/aikit-repo/INDEX.md
+
+После изменений:
+- прогони validation matrix
+- обнови memory AIKit
+- верни AIKIT_MAINTENANCE_REPORT
+```

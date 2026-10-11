@@ -1,0 +1,9 @@
+{
+  "name": "frontend-team",
+  "label": "Frontend Team",
+  "description": "Vue/Nuxt frontend setup with quality and delivery tooling.",
+  "profiles": ["vue-nuxt"],
+  "packs": ["quality", "devops"],
+  "recommended_adapter": "claude",
+  "source": "aikit-core"
+}

@@ -1,0 +1,37 @@
+# Continue AIKit Maintenance In {{ADAPTER_LABEL}}
+
+Используй пакет AIKit как runtime bundle для `{{ADAPTER_LABEL}}`.
+
+Этот adapter пока planned, поэтому основной смысл bundle:
+- зафиксировать adapter contract;
+- дать единый continuation prompt для `aikit-maintainer`;
+- не смешивать runtime-specific packaging с core-слоем.
+
+## Сначала прочитай
+
+1. `AIKIT.md`
+2. `.aikit/agents/aikit-maintainer.md`
+3. `.aikit/runtime-operating-protocol.md`
+4. `.aikit/runtime-continuation-contract.md`
+5. `.aikit/runtime-tools.json`
+6. `{{MEMORY_PATH}}/INDEX.md`
+7. `{{MEMORY_PATH}}/features/aikit-repo/INDEX.md`
+
+## Как работать
+
+- пользователь пишет задачу в OpenCode TUI, а internal Python tools выбираешь и запускаешь ты сам;
+- для routing/retrieval/workflow orchestration используй `.aikit/runtime-operating-protocol.md`;
+- для resumed flow, bundle handoff и lineage используй `.aikit/runtime-continuation-contract.md`;
+- для выбора internal validators and tools используй `.aikit/runtime-tools.json`;
+- не смешивай runtime-specific packaging с core-слоем.
+
+## Рекомендуемый стартовый prompt
+
+```text
+Используй aikit-maintainer чтобы продолжить развитие AIKit под runtime {{ADAPTER_RUNTIME}}.
+
+Работай через core + adapters модель.
+Перед изменениями прочитай AIKIT.md, .aikit/runtime-operating-protocol.md, .aikit/runtime-continuation-contract.md и memory.
+Также прочитай .aikit/runtime-tools.json перед выбором internal validators/tools.
+После изменений прогони validation matrix и обнови memory.
+```

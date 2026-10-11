@@ -1,0 +1,9 @@
+{
+  "name": "backend-django",
+  "label": "Backend Django",
+  "description": "Django backend setup with admin-friendly quality and platform tooling.",
+  "profiles": ["python-django"],
+  "packs": ["quality", "devops", "ai"],
+  "recommended_adapter": "claude",
+  "source": "aikit-core"
+}

@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.pyc
+.idea/
+.claude/settings.local.json
+.aikit/runtime/agent-tasks/
+.aikit/runtime/frontend-comparison-timeline/
+.aikit/runtime/workflow-hooks/
+.aikit/runtime/knowledge-store/
+.aikit/runtime/observations/
+.worktrees/
+
+# Claude Code (локальные настройки MCP — у каждого свои пути)
+.claude/settings.json

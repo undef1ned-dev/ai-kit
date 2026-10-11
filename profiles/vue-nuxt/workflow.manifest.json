@@ -1,0 +1,119 @@
+{
+  "profile": "vue-nuxt",
+  "default_recipe": "feature-delivery",
+  "workflow_taxonomy": {
+    "domain_family": "frontend",
+    "domain_contract": "frontend-core-delivery",
+    "stack_specialization": "nuxt-ssr-uikit",
+    "core_step_roles": ["architecture", "implementation", "testing", "review"],
+    "specialized_step_roles": ["design-translation", "template-context"]
+  },
+  "frontend_task_workflows": {
+    "context_gate": {
+      "required": true,
+      "before_step": "coder",
+      "output_block": "FRONTEND_INTELLIGENCE_CONTEXT",
+      "source_refs": [
+        "profiles/vue-nuxt/uikit.manifest.json"
+      ],
+      "fallback": "manual-context-read"
+    },
+    "task_kinds": [
+      {
+        "kind": "page",
+        "mode": "page",
+        "recipe": "design-to-code",
+        "required_context": ["figma-to-code-context", "live-uikit-scan", "component-reuse-recommendations", "drift-report-v2"],
+        "governance": ["ssr-hydration-safe", "uikit-reuse-first", "provider-context-review-required"]
+      },
+      {
+        "kind": "component",
+        "mode": "component",
+        "recipe": "design-to-code",
+        "required_context": ["figma-to-code-context", "live-uikit-scan", "component-reuse-recommendations", "drift-report-v2"],
+        "governance": ["typed-component-api", "uikit-reuse-first", "component-gap-review-required"]
+      },
+      {
+        "kind": "composable",
+        "mode": "composable",
+        "recipe": "feature-delivery",
+        "required_context": ["live-uikit-scan", "project-evidence", "component-reuse-recommendations"],
+        "governance": ["ssr-safe-side-effects", "reactivity-contract", "project-evidence-required"]
+      },
+      {
+        "kind": "store",
+        "mode": "store",
+        "recipe": "feature-delivery",
+        "required_context": ["live-uikit-scan", "project-evidence", "component-reuse-recommendations"],
+        "governance": ["pinia-state-ownership", "transition-state-coverage", "project-evidence-required"]
+      }
+    ]
+  },
+  "recipes": [
+    {
+      "name": "feature-delivery",
+      "description": "Full delivery flow for frontend feature work.",
+      "intents": ["new-artifact", "small-patch", "feature-work", "debug-fix", "refactor-only", "migration-work"],
+      "execution_mode": "graph",
+      "steps": [
+        { "id": "architect", "agent": "vue-architect", "role": "architecture", "output_block": "ARCHITECT_PLAN" },
+        { "id": "coder", "agent": "vue-coder", "role": "implementation", "depends_on": ["architect"], "input_blocks": ["ARCHITECT_PLAN"], "output_block": "CODER_RESULT" },
+        { "id": "tester", "agent": "vue-tester", "role": "testing", "depends_on": ["coder"], "input_blocks": ["CODER_RESULT"], "output_block": "TESTER_RESULT" },
+        { "id": "reviewer", "agent": "vue-reviewer", "role": "review", "depends_on": ["coder", "tester"], "input_blocks": ["CODER_RESULT", "TESTER_RESULT"], "output_block": "REVIEW_RESULT" }
+      ]
+    },
+    {
+      "name": "test-pass",
+      "description": "Focused validation flow for test-oriented tasks.",
+      "intents": ["test-only"],
+      "execution_mode": "linear",
+      "steps": [
+        { "id": "tester", "agent": "vue-tester", "role": "testing", "output_block": "TESTER_RESULT" }
+      ]
+    },
+    {
+      "name": "review-pass",
+      "description": "Focused review flow for analysis and audit tasks.",
+      "intents": ["review-only", "design-alignment"],
+      "execution_mode": "linear",
+      "steps": [
+        { "id": "reviewer", "agent": "vue-reviewer", "role": "review", "output_block": "REVIEW_RESULT" }
+      ]
+    },
+    {
+      "name": "design-to-code",
+      "description": "Design-to-code flow for Figma-driven frontend implementation work.",
+      "intents": ["design-implementation"],
+      "execution_mode": "graph",
+      "overlay_contract": {
+        "class": "prepend-overlay",
+        "entry_step": "design-bridge",
+        "base_recipe": "feature-delivery",
+        "rejoin_step": "architect",
+        "replaces_canonical_spine": false
+      },
+      "steps": [
+        { "id": "design-bridge", "agent": "vue-design-bridge", "role": "design-translation", "output_block": "DESIGN_IMPLEMENTATION_BRIEF" },
+        { "id": "architect", "agent": "vue-architect", "role": "architecture", "depends_on": ["design-bridge"], "input_blocks": ["DESIGN_IMPLEMENTATION_BRIEF"], "output_block": "ARCHITECT_PLAN" },
+        { "id": "coder", "agent": "vue-coder", "role": "implementation", "depends_on": ["architect"], "input_blocks": ["DESIGN_IMPLEMENTATION_BRIEF", "ARCHITECT_PLAN"], "output_block": "CODER_RESULT" },
+        { "id": "tester", "agent": "vue-tester", "role": "testing", "depends_on": ["coder"], "input_blocks": ["DESIGN_IMPLEMENTATION_BRIEF", "CODER_RESULT"], "output_block": "TESTER_RESULT" },
+        { "id": "reviewer", "agent": "vue-reviewer", "role": "review", "depends_on": ["coder", "tester"], "input_blocks": ["DESIGN_IMPLEMENTATION_BRIEF", "CODER_RESULT", "TESTER_RESULT"], "output_block": "REVIEW_RESULT" }
+      ]
+    },
+    {
+      "name": "template-kickoff",
+      "description": "Focused workflow start for choosing a frontend task template before implementation.",
+      "intents": ["design-alignment"],
+      "execution_mode": "linear",
+      "overlay_contract": {
+        "class": "context-only-overlay",
+        "entry_step": "design-bridge",
+        "feeds_recipe": "design-to-code",
+        "replaces_canonical_spine": false
+      },
+      "steps": [
+        { "id": "design-bridge", "agent": "vue-design-bridge", "role": "template-context", "output_block": "FRONTEND_INTELLIGENCE_CONTEXT" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+# AIKit In {{ADAPTER_LABEL}}
+
+Этот runtime workspace подготовлен для `{{ADAPTER_LABEL}}`.
+
+## Что уже установлено
+
+- `AIKIT.md` в корне workspace — сводная инструкция по core и выбранным profiles
+- `.aikit/agents/` — packaged agents
+- `.aikit/skills/` — packaged skills
+- `{{MEMORY_PATH}}/` — memory для continuation
+- `.codex/agents/` — Codex-native mirror packaged agents
+- `.codex/skills/` — Codex-native mirror packaged skills
+- `.codex/memory/` — Codex-native memory mirror
+- `.codex/commands/` — packaged skills plus command-first AIKit entrypoints
+
+## С чего начать
+
+1. Прочитай `AIKIT.md`
+2. Прочитай `.codex/agents/aikit-maintainer.md`
+3. Если продолжаешь развитие самого AIKit — открой `.codex/CONTINUE_AIKIT_MAINTAINER.md`
+
+## Практический режим
+
+- Это experimental adapter install, а не production runtime contract.
+- Runtime-specific настройки для Codex держи в `adapters/codex/`.
+- Core-изменения не должны захардкодить Codex-специфику.

@@ -1,0 +1,127 @@
+{
+  "profile": "vue-nuxt",
+  "description": "Dynamic capability routing for Vue/Nuxt agents by file type and task shape.",
+  "modes": [
+    {
+      "name": "page",
+      "file_globs": ["pages/**/*.vue"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-page", "design-implement", "implement-feature", "add-tests"],
+      "focus": [
+        "SSR and hydration safety",
+        "useAsyncData or useFetch strategy",
+        "SEO and route-level UX states"
+      ]
+    },
+    {
+      "name": "component",
+      "file_globs": ["components/**/*.vue"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-component", "design-implement", "implement-feature", "add-tests"],
+      "focus": [
+        "typed props, emits, slots",
+        "minimal template logic",
+        "reusable component API"
+      ]
+    },
+    {
+      "name": "layout",
+      "file_globs": ["layouts/**/*.vue"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["design-implement", "implement-feature", "add-tests"],
+      "focus": [
+        "app shell composition",
+        "navigation and slot boundaries",
+        "global UI state without page coupling"
+      ]
+    },
+    {
+      "name": "app-shell",
+      "file_globs": ["app.vue"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["design-implement", "implement-feature", "add-tests"],
+      "focus": [
+        "root app composition",
+        "global providers and wrappers",
+        "startup and hydration safety"
+      ]
+    },
+    {
+      "name": "nuxt-config",
+      "file_globs": ["nuxt.config.ts", "nuxt.config.js", "nuxt.config.mjs"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["implement-feature", "add-tests"],
+      "focus": [
+        "Nuxt runtime and module configuration",
+        "SSR or build implications",
+        "safe environment and public runtime config boundaries"
+      ]
+    },
+    {
+      "name": "tooling-config",
+      "file_globs": ["vitest.config.ts", "vitest.config.js", "playwright.config.ts", "playwright.config.js", "eslint.config.js", "eslint.config.mjs", ".eslintrc.js", ".eslintrc.cjs"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["implement-feature", "add-tests"],
+      "focus": [
+        "frontend tooling stability",
+        "test runner and lint config correctness",
+        "environment and path alias consistency"
+      ]
+    },
+    {
+      "name": "composable",
+      "file_globs": ["composables/use*.ts"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-composable", "implement-feature", "add-tests"],
+      "focus": [
+        "reactivity correctness",
+        "VueUse reuse",
+        "SSR-safe side effects"
+      ]
+    },
+    {
+      "name": "store",
+      "file_globs": ["stores/*.ts"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-store", "implement-feature", "add-tests"],
+      "focus": [
+        "Pinia state ownership",
+        "actions and transitions",
+        "optimistic updates and persistence"
+      ]
+    },
+    {
+      "name": "server-route",
+      "file_globs": ["server/api/**/*.ts"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-server-route", "implement-feature", "add-tests"],
+      "focus": [
+        "Nitro route patterns",
+        "auth and proxy safety",
+        "response normalization"
+      ]
+    },
+    {
+      "name": "middleware",
+      "file_globs": ["middleware/**/*.ts"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-middleware", "implement-feature", "add-tests"],
+      "focus": [
+        "route guard boundaries",
+        "SSR and client navigation safety",
+        "auth and redirect correctness"
+      ]
+    },
+    {
+      "name": "plugin",
+      "file_globs": ["plugins/**/*.ts"],
+      "owned_by": ["vue-coder", "vue-reviewer", "vue-tester"],
+      "suggested_skills": ["new-plugin", "implement-feature", "add-tests"],
+      "focus": [
+        "Nuxt plugin lifecycle",
+        "provide and injection safety",
+        "client/server scoping"
+      ]
+    }
+  ]
+}

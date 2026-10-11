@@ -1,0 +1,53 @@
+{
+  "profile": "python-fastapi",
+  "label": "Python FastAPI",
+  "domain": "backend-fastapi",
+  "taxonomy": {
+    "operating_class": "product-project",
+    "direction": "backend",
+    "ecosystem": "python",
+    "framework": "fastapi",
+    "domain_family": "backend",
+    "stack_profile": "python-fastapi",
+    "core_role_set": ["architect", "coder", "tester", "reviewer"],
+    "specialized_role_set": ["langgraph-expert"],
+    "global_role_set": ["cross-project-analyst", "release-manager", "security-auditor", "memory-writer"],
+    "role_aliases": {
+      "architect": "fastapi-architect",
+      "coder": "fastapi-coder",
+      "tester": "fastapi-tester",
+      "reviewer": "fastapi-reviewer",
+      "langgraph-expert": "fastapi-langgraph-expert"
+    },
+    "pack_compatibility": {
+      "recommended": ["quality", "devops", "ai"],
+      "compatible": ["quality", "devops", "ai"],
+      "blocked": []
+    },
+    "special_surfaces": ["api-surface", "openapi", "langgraph"],
+    "workflow_contract": {
+      "domain_contract": "backend-core-delivery",
+      "stack_specialization": "fastapi-openapi-service"
+    }
+  },
+  "specialist_overlay_contracts": {
+    "langgraph-expert": {
+      "class": "implementation-advisor",
+      "entry_agent": "fastapi-langgraph-expert",
+      "base_recipe": "feature-delivery",
+      "activation_gate": "ARCHITECT_PLAN.AGENT_NEEDED",
+      "rejoin_step": "coder",
+      "output_block": "LANGGRAPH_IMPLEMENTATION_BRIEF",
+      "replaces_canonical_spine": false
+    }
+  },
+  "keywords": ["fastapi", "pydantic", "sqlalchemy", "router", "schema", "alembic", "langgraph"],
+  "path_signals": ["routers/", "schemas/", "models/", "migrations/", "tests/", "main.py"],
+  "default_chain": ["fastapi-architect", "fastapi-coder", "fastapi-tester", "fastapi-reviewer"],
+  "recommended_skills": ["implement-feature", "new-router", "add-migration"],
+  "review_agent": "fastapi-reviewer",
+  "tester_agent": "fastapi-tester",
+  "capability_manifest": "capabilities.json",
+  "workflow_manifest": "workflow.manifest.json",
+  "recommended_packs": ["quality", "devops", "ai"]
+}
