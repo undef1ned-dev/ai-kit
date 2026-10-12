@@ -29,7 +29,9 @@ bash .aikit-config/scripts/attach.sh vue-nuxt+python-fastapi
 
 ## Основные команды
 
-- `/implement-feature` — реализация фичи через цепочку architect → coder → tester → reviewer.
+- `/implement-feature` — реализация фичи через цепочку architect → coder → tester + reviewer; `--tdd` — сначала тесты, `--worktree` — в отдельном git worktree.
+- `/fix-bug` — исправление бага: тест, который ловит баг, затем фикс.
+- `/check-feature` — запуск приложения и проверка фичи в браузере.
 - `/workflow` — визард: определяет тип задачи и строит цепочку агентов.
 - `/design-implement` — реализация, где основной вход — дизайн.
 - `/design-review` — проверка реализации на соответствие UI kit и макету.

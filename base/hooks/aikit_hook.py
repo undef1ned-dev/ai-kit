@@ -37,6 +37,7 @@ from pathlib import Path
 
 BLOCK_EXIT_CODE = 2
 PROFILES_FILE = Path(".aikit") / "profiles.json"
+WORKTREES_DIR = Path(".aikit") / "worktrees"
 MEMORY_INDEX = Path(".aikit") / "memory" / "INDEX.md"
 PRODUCT_FILE = Path("PRODUCT.md")
 PRODUCT_TEMPLATE_MARKER = "[Название продукта]"
@@ -193,18 +194,21 @@ def split_commands(command: str) -> tuple[list[list[str]], dict[str, str]]:
     return commands, bodies
 
 
-def git_subcommand(tokens: list[str]) -> tuple[str, list[str]]:
-    """("commit", args) for `git [-C dir] [-c k=v] commit args`; ("", []) for anything else."""
+def git_subcommand(tokens: list[str]) -> tuple[str, list[str], str]:
+    """("commit", args, dir) for `git [-C dir] [-c k=v] commit args`; ("", [], "") for anything else."""
     while tokens and re.match(r"^\w+=", tokens[0]):
         tokens = tokens[1:]
     if not tokens or Path(tokens[0]).name not in {"git", "git.exe"}:
-        return "", []
+        return "", [], ""
     index = 1
+    directory = ""
     while index < len(tokens) and tokens[index].startswith("-"):
+        if tokens[index] == "-C" and index + 1 < len(tokens):
+            directory = tokens[index + 1]
         index += 2 if tokens[index] in {"-C", "-c"} else 1
     if index >= len(tokens):
-        return "", []
-    return tokens[index], tokens[index + 1 :]
+        return "", [], ""
+    return tokens[index], tokens[index + 1 :], directory
 
 
 def resolve_heredocs(text: str, bodies: dict[str, str]) -> str:
@@ -321,16 +325,17 @@ def check_shell(event: dict) -> str | None:
         return None
     cwd = session_cwd(event)
     for tokens in commands:
-        subcommand, args = git_subcommand(tokens)
+        subcommand, args, directory = git_subcommand(tokens)
+        git_cwd = cwd / directory
         if subcommand == "add":
-            staged = env_files_to_stage(args, cwd)
+            staged = env_files_to_stage(args, git_cwd)
             if staged:
                 return (
                     f"git add добавит в индекс {', '.join(staged)} — .env-файлы с секретами не коммитятся. "
                     "Добавь их в .gitignore и укажи нужные файлы явно."
                 )
         elif subcommand == "commit":
-            message = commit_message(args, bodies, cwd)
+            message = commit_message(args, bodies, git_cwd)
             problem = check_commit(message) if message is not None else None
             if problem:
                 return problem
@@ -376,11 +381,21 @@ def load_profiles(project: Path) -> dict[str, dict]:
     return {name: spec for name, spec in profiles.items() if isinstance(spec, dict)}
 
 
-def profile_for(path: Path, project: Path, profiles: dict[str, dict]) -> tuple[str, Path] | None:
+def checkout_for(path: Path, project: Path) -> Path:
+    """The checkout that holds the file: a worktree of /implement-feature --worktree or the project itself."""
+    worktrees = (project / WORKTREES_DIR).resolve()
+    try:
+        parts = path.relative_to(worktrees).parts
+    except ValueError:
+        return project
+    return worktrees / parts[0] if len(parts) > 1 else project
+
+
+def profile_for(path: Path, checkout: Path, profiles: dict[str, dict]) -> tuple[str, Path] | None:
     """The profile whose root holds the file (the deepest root wins) and that treats it as code."""
     best: tuple[int, str, Path] | None = None
     for name, spec in profiles.items():
-        root = (project / str(spec.get("root") or ".")).resolve()
+        root = (checkout / str(spec.get("root") or ".")).resolve()
         try:
             path.relative_to(root)
         except ValueError:
@@ -443,6 +458,17 @@ def read_state(project: Path, session_id: str) -> dict:
         return {}
 
 
+def pending_profiles(state: dict, project: Path) -> list[tuple[str, str]]:
+    """Profiles with changed code and the checkout they were changed in."""
+    items = []
+    for item in state.get("pending", []):
+        if isinstance(item, str):
+            items.append((item, str(project)))
+        elif isinstance(item, list) and len(item) == 2:
+            items.append((str(item[0]), str(item[1])))
+    return items
+
+
 def write_state(project: Path, session_id: str, state: dict) -> None:
     path = state_path(project, session_id)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -460,18 +486,19 @@ def post_tool_use(event: dict) -> int:
         return 0
     session_id = str(event.get("session_id") or "default")
     state = read_state(project, session_id)
-    pending = set(state.get("pending", []))
+    pending = {tuple(item) for item in pending_profiles(state, project)}
     touched = set(state.get("touched", []))
     reports = []
     for path, _ in written_files(event):
         if not path.is_file():
             continue
-        match = profile_for(path.resolve(), project, profiles)
+        checkout = checkout_for(path.resolve(), project)
+        match = profile_for(path.resolve(), checkout, profiles)
         if not match:
             continue
         name, root = match
         relative = path.resolve().relative_to(root).as_posix()
-        pending.add(name)
+        pending.add((name, str(checkout)))
         touched.add(path.resolve().as_posix())
         commands = profiles[name].get("commands", {})
         if commands.get("format") and "{files}" in commands["format"]:
@@ -480,7 +507,7 @@ def post_tool_use(event: dict) -> int:
             result = run_command(commands["lint"], root, [relative], LINT_TIMEOUT_SECONDS)
             if result and result[0] != 0:
                 reports.append(f"Линтер профиля {name} нашёл проблемы в {relative}:\n{tail(result[1])}")
-    write_state(project, session_id, {**state, "pending": sorted(pending), "touched": sorted(touched)})
+    write_state(project, session_id, {**state, "pending": sorted([list(item) for item in pending]), "touched": sorted(touched)})
     if reports:
         emit({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "AIKit: " + "\n\n".join(reports)}})
     return 0
@@ -495,20 +522,20 @@ def stop(event: dict) -> int:
     profiles = load_profiles(project)
     session_id = str(event.get("session_id") or "default")
     state = read_state(project, session_id)
-    pending = [name for name in state.get("pending", []) if name in profiles]
     output: dict = {}
     notes = []
     failures = []
-    for name in pending:
-        test = profiles[name].get("commands", {}).get("test")
-        if not test:
+    for name, checkout in pending_profiles(state, project):
+        test = profiles.get(name, {}).get("commands", {}).get("test")
+        if not test or not Path(checkout).is_dir():
             continue
-        root = (project / str(profiles[name].get("root") or ".")).resolve()
+        root = (Path(checkout) / str(profiles[name].get("root") or ".")).resolve()
+        where = root.relative_to(project).as_posix() if root.is_relative_to(project) else str(root)
         result = run_command(test, root, [], TEST_TIMEOUT_SECONDS)
         if result is None:
-            notes.append(f"код профиля {name} изменён, но тесты не запустились (`{test}`) — проверь вручную")
+            notes.append(f"код профиля {name} изменён, но тесты не запустились (`{test}` в {where}) — проверь вручную")
         elif result[0] != 0:
-            failures.append(f"Тесты профиля {name} упали (`{test}` в {profiles[name].get('root') or '.'}):\n{tail(result[1])}")
+            failures.append(f"Тесты профиля {name} упали (`{test}` в {where}):\n{tail(result[1])}")
     if failures and not event.get("stop_hook_active"):
         output.update({"decision": "block", "reason": "AIKit: " + "\n\n".join(failures) + "\n\nИсправь код или тесты и запусти их снова."})
     elif failures:
