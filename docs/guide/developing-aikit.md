@@ -14,7 +14,7 @@
 
 | Путь | Что это |
 |---|---|
-| `base/` | Ядро: `CLAUDE.md` (базовые правила), `agents/`, `skills/<name>/SKILL.md`, `settings.json`, `mcp.json`, `PRODUCT.md` (шаблон), `memory/` (шаблон памяти) |
+| `base/` | Ядро: `CLAUDE.md` (базовые правила), `agents/`, `skills/<name>/SKILL.md`, `hooks/` (скрипт хуков и плагин OpenCode), `settings.json`, `mcp.json`, `PRODUCT.md` (шаблон), `memory/` (шаблон памяти) |
 | `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `CLAUDE.md`, `agents/`, `skills/`, `settings.json`, `mcp.json` |
 | `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json` |
 | `presets/*.json` | Пресеты: `name`, `label`, `description`, `profiles`, `packs` |
@@ -43,6 +43,7 @@
 | `scripts/update-adapter-package.py` | Обновляет установку Codex или OpenCode |
 | `scripts/profile_contract.py` | Собирает `.aikit/profiles.json`: контракты, поиск `root`, сохранение правок проекта |
 | `scripts/mcp_config.py` | Пишет MCP-серверы в `.mcp.json`, `.codex/config.toml`, `opencode.json` |
+| `scripts/hooks_config.py` | Копирует `base/hooks/aikit_hook.py` в `.aikit/hooks/` и подключает его: `hooks` в `.claude/settings.json`, `.codex/hooks.json`, плагин OpenCode |
 | `scripts/new-profile.py` | Создаёт профиль из шаблона ([Как добавить стек](adding-a-stack.md)) |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/resolve-preset.py`, `preset_utils.py` | Разбор пресетов |
@@ -70,6 +71,10 @@
 ### Пресет
 
 `presets/<name>.json`: `name`, `label`, `description`, `profiles`, `packs`. Smoke-тесты CI сами прогоняют каждый пресет.
+
+### Хук
+
+Логика всех хуков — в `base/hooks/aikit_hook.py`: один обработчик на событие (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`), вход — JSON в формате Claude Code и Codex. Плагин `base/hooks/opencode-plugin.js` переводит события OpenCode в тот же формат. Новое событие — запись в `EVENTS` в `scripts/hooks_config.py` и обработчик в скрипте. Скрипт без зависимостей, Python 3.9+. Каждое правило — сценарий в `scripts/ci/test-hooks.py`.
 
 ### MCP-сервер
 
@@ -108,9 +113,9 @@ bash scripts/ci/run-all.sh
 
 | Проверка | Что ловит |
 |---|---|
-| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок |
-| `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте |
-| `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime |
+| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; сценарии хуков (`scripts/ci/test-hooks.py`) |
+| `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
+| `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
 | `scripts/ci/smoke-new-profile.sh` | Профиль из шаблона ставится без правок ядра, вместе с пайплайном, в монорепо |
 
 CI (`.github/workflows/ci.yml`) запускает то же самое на Linux и Windows.

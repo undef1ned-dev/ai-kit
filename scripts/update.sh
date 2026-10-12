@@ -49,6 +49,8 @@ source "$SCRIPT_DIR/lib/skills.sh"
 source "$SCRIPT_DIR/lib/mcp.sh"
 # shellcheck source=lib/profiles.sh
 source "$SCRIPT_DIR/lib/profiles.sh"
+# shellcheck source=lib/hooks.sh
+source "$SCRIPT_DIR/lib/hooks.sh"
 
 # =============================================================================
 # Чтение .config-version
@@ -248,7 +250,7 @@ install_kit_mcp "$INSTALLED_PROFILES" "$INSTALLED_PACKS"
 remove_legacy_settings_gitignore
 TARGET_SETTINGS="$PROJECT_ROOT/.claude/settings.json"
 if [[ -f "$TARGET_SETTINGS" ]]; then
-  log_info "settings.json не обновляется автоматически: новые permissions из кита — через повторный attach.sh"
+  log_info "settings.json не обновляется автоматически, кроме хуков AIKit: новые permissions из кита — через повторный attach.sh"
 fi
 
 # =============================================================================
@@ -256,6 +258,12 @@ fi
 # =============================================================================
 log_section "Контракты профилей"
 install_profile_contracts "$INSTALLED_PROFILES"
+
+# =============================================================================
+# Хуки → .aikit/hooks/ + hooks в .claude/settings.json; хуки пользователя сохраняются
+# =============================================================================
+log_section "Хуки"
+install_kit_hooks
 
 # =============================================================================
 # Обновить версию

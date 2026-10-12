@@ -30,7 +30,11 @@ USER_RULES_LINE="Правило пользователя: не трогать э
 printf '# Мои правила\n\n%s\n' "$USER_RULES_LINE" > "$PROJECT_DIR/AGENTS.md"
 # Свой MCP-сервер пользователя — установщик не должен его трогать
 case "$ADAPTER" in
-  codex) mkdir -p "$PROJECT_DIR/.codex" && printf '[mcp_servers.my-server]\ncommand = "my-mcp"\n' > "$PROJECT_DIR/.codex/config.toml" ;;
+  codex)
+    mkdir -p "$PROJECT_DIR/.codex"
+    printf '[mcp_servers.my-server]\ncommand = "my-mcp"\n' > "$PROJECT_DIR/.codex/config.toml"
+    printf '{"hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "my-hook"}]}]}}\n' > "$PROJECT_DIR/.codex/hooks.json"
+    ;;
   opencode) printf '{"mcp": {"my-server": {"type": "local", "command": ["my-mcp"]}}}\n' > "$PROJECT_DIR/opencode.json" ;;
 esac
 
@@ -160,6 +164,31 @@ check_opencode_agents() {
   [[ "$found" == 1 ]]
 }
 
+# Хуки: общий скрипт в .aikit/hooks, обвязка runtime, хук пользователя сохранён; скрипт блокирует ветку не по формату
+check_hooks() {
+  "$PYTHON_BIN" - "$ADAPTER" "$PROJECT_DIR" <<'PY'
+import json, pathlib, subprocess, sys
+adapter, project = sys.argv[1], pathlib.Path(sys.argv[2])
+script = project / ".aikit" / "hooks" / "aikit_hook.py"
+assert script.is_file(), "нет .aikit/hooks/aikit_hook.py"
+if adapter == "codex":
+    hooks = json.loads((project / ".codex" / "hooks.json").read_text(encoding="utf-8"))["hooks"]
+    for event in ("SessionStart", "PreToolUse", "PostToolUse", "Stop"):
+        kit = [group for group in hooks.get(event, []) if "aikit_hook.py" in json.dumps(group)]
+        assert len(kit) == 1, f"{event}: хуков AIKit {len(kit)} вместо 1"
+        assert all(handler.get("commandWindows") for handler in kit[0]["hooks"]), f"{event}: нет commandWindows"
+    assert any(handler.get("command") == "my-hook" for group in hooks["PreToolUse"] for handler in group["hooks"]), "хук пользователя удалён"
+else:
+    plugin = project / ".opencode" / "plugins" / "aikit-hooks.js"
+    assert "aikit_hook.py" in plugin.read_text(encoding="utf-8"), "нет плагина хуков"
+    instructions = json.loads((project / "opencode.json").read_text(encoding="utf-8")).get("instructions", [])
+    assert ".aikit/memory/INDEX.md" in instructions, "память не в instructions"
+event = {"hook_event_name": "PreToolUse", "cwd": str(project), "tool_name": "Bash", "tool_input": {"command": "git checkout -b Bad_Name"}}
+result = subprocess.run([sys.executable, str(script)], input=json.dumps(event).encode("utf-8"), capture_output=True)
+assert result.returncode == 2, f"ветка не по формату не заблокирована: {result.returncode}"
+PY
+}
+
 check_runtime_files() {
   local stage="$1"
   check "AGENTS.md: блок AIKit один, правила пользователя сохранены$stage" check_agents_md
@@ -178,6 +207,7 @@ check_runtime_files() {
       ;;
   esac
   check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp
+  check "хуки AIKit в родном формате runtime, хук пользователя сохранён$stage" check_hooks
   check "в домашнюю папку ничего не записано$stage" test -z "$(ls -A "$FAKE_HOME")"
 }
 
