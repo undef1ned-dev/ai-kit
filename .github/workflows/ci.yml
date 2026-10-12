@@ -65,6 +65,10 @@ jobs:
           done
           exit $status
 
+      - name: Smoke new profile from template
+        if: success() || failure()
+        run: bash scripts/ci/smoke-new-profile.sh "$RUNNER_TEMP/new-profile"
+
       # settings.json merge fallback when jq is not installed
       - name: Smoke attach.sh without jq
         if: runner.os == 'Linux' && (success() || failure())
