@@ -20,11 +20,11 @@ context_blocks: ["ARCHITECT_PLAN"]
 
 ## Память проекта — прочитай перед работой
 
-Если `.claude/memory/INDEX.md` существует:
-1. Прочитай `.claude/memory/INDEX.md`
-2. Прочитай `.claude/memory/corrections/vue-coder.md` если существует
-3. Прочитай релевантные файлы из `.claude/memory/decisions/` и `.claude/memory/patterns/`
-4. Если задача в конкретном модуле → прочитай `.claude/memory/features/{module}/patterns.md`
+Если `.aikit/memory/INDEX.md` существует:
+1. Прочитай `.aikit/memory/INDEX.md`
+2. Прочитай `.aikit/memory/corrections/vue-coder.md` если существует
+3. Прочитай релевантные файлы из `.aikit/memory/decisions/` и `.aikit/memory/patterns/`
+4. Если задача в конкретном модуле → прочитай `.aikit/memory/features/{module}/patterns.md`
 
 Учитывай накопленные коррекции, решения и паттерны при написании кода.
 

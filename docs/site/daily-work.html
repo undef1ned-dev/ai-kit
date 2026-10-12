@@ -72,7 +72,7 @@
 <h3 id="сохранить-опыт-команды"><a class="anchor" href="#сохранить-опыт-команды" aria-hidden="true">#</a>Сохранить опыт команды</h3>
 <p>После значимой задачи:</p>
 <div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/capture-memory</code></pre></div>
-<p><code>memory-writer</code> запишет принятые решения, найденные паттерны и поправки агентам в <code>.aikit/memory/</code>. Следующие задачи будут их учитывать. <code>/memory-status</code> покажет, что накоплено, а <code>/optimize-memory</code> сожмёт память, когда она разрастётся.</p>
+<p><code>memory-writer</code> запишет принятые решения, найденные паттерны и поправки агентам в <code>.aikit/memory/</code>, а личное и историю задачи отсеет. Потом спросит, как сохранить: оставить в рабочей папке (войдёт в твой PR), отдельным коммитом или отдельным PR на ревью команде. Следующие задачи будут учитывать записанное. <code>/memory-status</code> покажет, что накоплено, а <code>/optimize-memory</code> сожмёт память, когда она разрастётся.</p>
 <h2 id="как-вызвать-агента-напрямую"><a class="anchor" href="#как-вызвать-агента-напрямую" aria-hidden="true">#</a>Как вызвать агента напрямую</h2>
 <p>Скиллы сами запускают нужных агентов. Но агента можно позвать и напрямую — назови его в сообщении:</p>
 <div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента security-auditor: проверь server/api/ на утечку токенов</code></pre></div>
@@ -84,7 +84,7 @@
 <p>Делай:</p>
 <ul><li><code>/implement-feature</code> для фич, обычное сообщение — для мелких правок;</li><li>заполняй <code>PRODUCT.md</code> и обновляй его, когда продукт меняется;</li><li>после крупных задач запускай <code>/capture-memory</code>;</li><li>смотри diff перед коммитом — ответственность за код остаётся за тобой;</li><li>правки под проект вноси в <code>.aikit/profiles.json</code> и в свой текст вне блока AIKit в <code>AGENTS.md</code>.</li></ul>
 <p>Не делай:</p>
-<ul><li>не правь агентов и скиллы кита в <code>.claude/</code> проекта — обновление их перезапишет; улучшения вноси в сам AIKit;</li><li>не клади секреты в <code>.mcp.json</code>, <code>settings.json</code> и другие конфиги — только переменные окружения;</li><li>не добавляй <code>.aikit/memory/</code> и <code>.claude/memory/</code> в <code>.gitignore</code> — память общая для команды;</li><li>не давай агентам права на force push и удаление без подтверждения.</li></ul>
+<ul><li>не правь агентов и скиллы кита в <code>.claude/</code> проекта — обновление их перезапишет; улучшения вноси в сам AIKit;</li><li>не клади секреты в <code>.mcp.json</code>, <code>settings.json</code> и другие конфиги — только переменные окружения;</li><li>не добавляй <code>.aikit/memory/</code> в <code>.gitignore</code> — память общая для команды;</li><li>не давай агентам права на force push и удаление без подтверждения.</li></ul>
     </article>
     <nav class="pager"><a class="pager-prev" href="how-it-works.html"><span>Назад</span>Как это работает</a><a class="pager-next" href="commands.html"><span>Дальше</span>Команды</a></nav>
     <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/daily-work.md">docs/guide/daily-work.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>

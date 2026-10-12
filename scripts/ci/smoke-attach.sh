@@ -157,6 +157,8 @@ cd "$PROJECT_DIR"
 git init -q
 # Монорепо: Nuxt-приложение в web/ — установщик должен найти папку профиля
 mkdir -p web && touch web/nuxt.config.ts
+# Проект на прежней версии кита: память только в .claude/memory/
+mkdir -p .claude/memory/decisions && echo "# JWT, не сессии" > .claude/memory/decisions/001-auth.md
 
 echo "▶ attach.sh"
 bash "$KIT_ROOT/scripts/attach.sh" --preset "$PRESET" > attach.log 2>&1 || { cat attach.log; echo "✗ attach.sh завершился с ошибкой"; exit 1; }
@@ -176,7 +178,8 @@ check "скилл git-branch установлен" test -f .claude/skills/git-br
 check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -rlF "{{" .claude CLAUDE.md'
 check ".mcp.json: серверы с закреплёнными версиями, settings.json без MCP" check_mcp
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
-check "память проекта создана" test -d .aikit/memory
+check "память проекта перенесена из .claude/memory/ прежних версий" test -f .aikit/memory/decisions/001-auth.md
+check "зеркало .claude/memory/ не обновляется: только старое содержимое" test ! -e .claude/memory/INDEX.md
 check "хуки AIKit в .claude/settings.json, скрипт блокирует коммит не по формату" check_hooks
 check "версия конфигурации записана" test -s .claude/.config-version
 

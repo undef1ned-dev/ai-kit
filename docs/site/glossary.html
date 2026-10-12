@@ -56,7 +56,8 @@
 <h3 id="productmd"><a class="anchor" href="#productmd" aria-hidden="true">#</a>PRODUCT.md</h3>
 <p>Описание продукта в корне проекта: что за продукт, для кого, ключевые сущности и сценарии. Агенты читают его, чтобы решения учитывали продукт, а не только код. AIKit создаёт шаблон, заполняет его команда.</p>
 <h3 id="память-проекта"><a class="anchor" href="#память-проекта" aria-hidden="true">#</a>Память проекта</h3>
-<p>Папка <code>.aikit/memory/</code>: решения, паттерны и коррекции агентов, накопленные командой. Её пишет <code>/capture-memory</code> после задачи, <code>/memory-status</code> показывает, что накоплено. <code>.claude/memory/</code> — копия для совместимости с Claude Code.</p>
+<p>Папка <code>.aikit/memory/</code>: решения, паттерны и коррекции агентов, накопленные командой. Хранится в git и общая для всех людей и агентов в любом runtime. Её пишет <code>/capture-memory</code> после задачи, <code>/memory-status</code> показывает, что накоплено.</p>
+<p>Это не то же самое, что встроенная память runtime. Например, auto memory Claude Code (<code>~/.claude/projects/&lt;project&gt;/memory/</code>) личная: её пишет сам Claude по твоим поправкам, и она есть только на твоей машине. Правило «так делаем в проекте» — в <code>.aikit/memory/</code>, «так люблю я» — во встроенную память или <code>CLAUDE.local.md</code>. История задач в память не пишется: она уже есть в git и PR.</p>
 <h2 id="как-устроен-кит"><a class="anchor" href="#как-устроен-кит" aria-hidden="true">#</a>Как устроен кит</h2>
 <h3 id="base"><a class="anchor" href="#base" aria-hidden="true">#</a>Base</h3>
 <p>Ядро кита — папка <code>base/</code>: общие правила, агенты и скиллы, которые ставятся в любой проект: <code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code>, <code>/analyze-mvp</code>, <code>git-commit</code>, память. Ядро ничего не знает о конкретных стеках — всё стековое оно берёт из <a href="#контракт-профиля">контракта профиля</a>.</p>

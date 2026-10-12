@@ -3,7 +3,7 @@
   "runtime": "claude",
   "status": "active",
   "label": "Claude Code",
-  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/skills, .claude/settings.json and .claude/memory.",
+  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/skills, .claude/settings.json and .aikit/memory.",
   "entrypoint_style": "slash-commands",
   "config_roots": ["CLAUDE.md", ".claude/"],
   "generated_artifacts": [
@@ -12,12 +12,12 @@
     ".claude/skills/",
     ".claude/settings.json",
     ".claude/.config-version",
-    ".claude/memory/",
+    ".aikit/memory/",
     ".aikit/profiles.json",
     ".aikit/profiles.kit-defaults.json",
     ".mcp.json"
   ],
-  "memory_path": ".claude/memory",
+  "memory_path": ".aikit/memory",
   "runtime_entrypoints": [
     {
       "name": "claude-instructions",

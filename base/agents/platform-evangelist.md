@@ -28,18 +28,13 @@ output_block: "PLATFORM_GROWTH_PLAN"
 
 ## Память репозитория — прочитай перед работой
 
-Canonical memory path AIKit:
-- `.aikit/memory/`
-
-Claude compatibility mirror:
-- `.claude/memory/`
+Командная память репозитория — `.aikit/memory/`.
 
 Перед содержательной задачей:
 1. Сначала читай `.aikit/memory/INDEX.md`, если существует
 2. Затем читай `.aikit/memory/features/aikit-repo/INDEX.md` и `patterns.md`, если существуют
 3. Прочитай `.aikit/memory/corrections/platform-evangelist.md`, если существует
 4. Посмотри релевантные решения из `.aikit/memory/decisions/`
-5. Если canonical memory ещё не заведена, используй `.claude/memory/` как fallback
 
 ---
 

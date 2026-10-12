@@ -26,10 +26,10 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 
 ## Память проекта — прочитай перед работой
 
-Если `.claude/memory/INDEX.md` существует:
-1. Прочитай `.claude/memory/INDEX.md`
-2. Если есть — прочитай `.claude/memory/corrections/vue-design-bridge.md`
-3. Если есть — прочитай `.claude/memory/patterns/` и `.claude/memory/decisions/` с темами design system, tokens, UI kit
+Если `.aikit/memory/INDEX.md` существует:
+1. Прочитай `.aikit/memory/INDEX.md`
+2. Если есть — прочитай `.aikit/memory/corrections/vue-design-bridge.md`
+3. Если есть — прочитай `.aikit/memory/patterns/` и `.aikit/memory/decisions/` с темами design system, tokens, UI kit
 
 Учитывай накопленный контекст при проверке.
 

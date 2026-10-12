@@ -1,7 +1,7 @@
 ---
 name: "memory-status"
-description: "Показать состояние памяти проекта (.aikit/memory/ и Claude mirror): что накоплено, последние задачи, открытые memory-MR и нужна ли оптимизация. Используй, когда пользователь спрашивает, что записано в памяти проекта."
-version: "1.0.0"
+description: "Показать состояние командной памяти проекта (.aikit/memory/): что накоплено, размер INDEX, открытые memory-PR и нужна ли оптимизация. Используй, когда пользователь спрашивает, что записано в памяти проекта."
+version: "2.0.0"
 profile: "base"
 tags: ["memory", "status", "knowledge"]
 orchestrates: []
@@ -13,60 +13,47 @@ example_prompt: "/memory-status"
 ## 1. Прочитай память
 
 ```bash
-# Размер INDEX
-wc -l .aikit/memory/INDEX.md 2>/dev/null || echo "Memory не инициализирована"
-
-# Количество активных задач
-ls .aikit/memory/tasks/*.md 2>/dev/null | grep -v archive | wc -l || echo 0
-
-# Количество архивных задач
-ls .aikit/memory/tasks/archive/*.md 2>/dev/null | wc -l || echo 0
-
-# Количество решений
-ls .aikit/memory/decisions/*.md 2>/dev/null | grep -v gitkeep | wc -l || echo 0
-
-# Количество паттернов
-ls .aikit/memory/patterns/*.md 2>/dev/null | grep -v gitkeep | wc -l || echo 0
-
-# Количество коррекций
-ls .aikit/memory/corrections/*.md 2>/dev/null | grep -v gitkeep | wc -l || echo 0
-
-# Feature-модули
+wc -l .aikit/memory/INDEX.md 2>/dev/null || echo "Память не инициализирована"
+ls .aikit/memory/decisions/*.md 2>/dev/null | wc -l
+ls .aikit/memory/patterns/*.md 2>/dev/null | wc -l
+ls .aikit/memory/corrections/*.md 2>/dev/null | wc -l
 ls -d .aikit/memory/features/*/ 2>/dev/null || echo "нет"
+find .aikit/memory/tasks -name "*.md" 2>/dev/null | wc -l
+test -d .claude/memory && echo "есть .claude/memory/"
 ```
 
 Если `.aikit/memory/INDEX.md` существует — прочитай его.
 
-## 2. Проверь открытые review requests
+## 2. Открытые memory-PR
 
-Если в runtime доступен GitLab provider — найди открытые MR с memory-изменениями.
-Если доступен GitHub provider — найди открытые PR с memory-изменениями.
-Если provider недоступен — пропусти этот шаг и явно отметь это в отчёте.
+Определи хостинг по `git remote get-url origin`:
+- GitHub и есть `gh` — `gh pr list --state open --search "docs(memory) in:title"`;
+- GitLab и есть `glab` — `glab mr list --search "docs(memory)"`;
+- иначе пропусти шаг и напиши об этом в отчёте.
 
-## 3. Выведи отчёт
+## 3. Отчёт
 
 ```
-📚 Project Memory Status
+📚 Командная память
 
-INDEX:        {N} строк из 60 максимальных  {⚠️ если > 50}
-Задачи:       {N} активных  {+ N архивных если есть}
-Решений:      {N}
-Паттернов:    {N}
-Коррекций:    {N}
-Feature-модули: {список модулей или "нет"}
+INDEX:      {N} строк из 60  {⚠️ если > 50}
+Решений:    {N}
+Паттернов:  {N}
+Коррекций:  {N}
+Модули:     {список или "нет"}
 
-Mirror:
-canonical `.aikit/memory/` → {ok | missing}
-claude `.claude/memory/` → {ok | missing}
+Последние записи:
+{3–5 последних строк из INDEX или "пока пусто"}
 
-Последние задачи:
-{5 последних из INDEX или "нет задач"}
+Открытые memory-PR:
+{список | "нет" | "не проверено: нет gh / glab"}
 
-Открытые memory-MR:
-{список или "нет открытых MR"}
-
-{если INDEX > 50: ⚠️  Рекомендуется запустить /optimize-memory}
-{если memory не инициализирована: ℹ️  Память не инициализирована. Запусти /capture-memory после первой задачи.}
+{если INDEX > 50: ⚠️ Запусти /optimize-memory}
+{если есть логи задач в tasks/: ℹ️ Это формат прежних версий — /optimize-memory перенесёт из них решения}
+{если есть .claude/memory/: ℹ️ .claude/memory/ больше не используется — агенты читают .aikit/memory/. Папку можно удалить}
+{если память не инициализирована: ℹ️ Запусти /capture-memory после первой задачи с решениями}
 ```
+
+Личная память runtime (auto memory Claude Code и т. п.) в этот отчёт не входит: она у каждого разработчика своя.
 
 $ARGUMENTS
