@@ -65,4 +65,5 @@ bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 - [docs-site/index.mdx](docs-site/index.mdx) — исходники сайта документации.
 - [docs/public/](docs/public/) — markdown-документация.
 - [docs/roadmap.md](docs/roadmap.md) — план развития кита.
+- [docs/runtime-support.md](docs/runtime-support.md) — что работает в Claude Code, Codex и OpenCode.
 - [docs/research/](docs/research/) — исследования и планы модернизации.
