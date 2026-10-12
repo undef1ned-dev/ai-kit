@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Check tag matches VERSION
+        run: |
+          expected="v$(tr -d '[:space:]' < VERSION)"
+          if [[ "$GITHUB_REF_NAME" != "$expected" ]]; then
+            echo "Tag $GITHUB_REF_NAME does not match VERSION file ($expected)"
+            exit 1
+          fi
+
+      - name: Run static checks
+        run: bash scripts/ci/static-checks.sh
+
+      - name: Run smoke tests
+        run: |
+          for preset in presets/*.json; do
+            bash scripts/ci/smoke-attach.sh "$(basename "$preset" .json)" "$RUNNER_TEMP"
+          done
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes --verify-tag

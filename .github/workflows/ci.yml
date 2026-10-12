@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static:
+    name: Static checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Run static checks
+        run: bash scripts/ci/static-checks.sh
+
+  smoke:
+    name: Smoke ${{ matrix.preset }} (${{ matrix.os }}${{ matrix.merge == 'python' && ', no jq' || '' }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        preset: [backend-api, backend-django, frontend-team, fullstack-web]
+        merge: [jq]
+        include:
+          # settings.json merge fallback when jq is not installed
+          - os: ubuntu-latest
+            preset: fullstack-web
+            merge: python
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Provide python3 on Windows
+        if: runner.os == 'Windows'
+        run: |
+          command -v python3 >/dev/null || cp "$(command -v python)" "$(dirname "$(command -v python)")/python3.exe"
+          python3 --version
+
+      - name: Remove jq
+        if: matrix.merge == 'python'
+        run: sudo rm -f "$(command -v jq)" && ! command -v jq
+
+      - name: Run smoke test
+        run: bash scripts/ci/smoke-attach.sh "${{ matrix.preset }}" "$RUNNER_TEMP"

@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    paths:
+      - "scripts/generate-*.py"
+      - "profiles/**"
+      - "packs/**"
+      - "presets/**"
+      - "docs/**"
+      - "docs-site/**"
+      - ".github/workflows/build-docs-artifact.yml"
   workflow_dispatch:
 
 permissions:
@@ -14,10 +23,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -27,7 +36,7 @@ jobs:
           python3 scripts/generate-catalog.py
 
       - name: Upload generated docs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aikit-docs
           path: |
