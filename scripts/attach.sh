@@ -110,6 +110,8 @@ profile_prefix() {
 
 # shellcheck source=lib/skills.sh
 source "$SCRIPT_DIR/lib/skills.sh"
+# shellcheck source=lib/mcp.sh
+source "$SCRIPT_DIR/lib/mcp.sh"
 
 # Найти конфликтующие имена файлов (встречаются в 2+ профилях) для заданной поддиректории
 # Использование: find_conflicts <subdir>  — возвращает имена файлов по одному в строке
@@ -268,7 +270,6 @@ if [[ -n "$SETTINGS_FILES" ]] && command -v jq &>/dev/null; then
   MERGE_CMD='reduce .[] as $l ({}; . * $l
     | .permissions.allow = ([(.permissions.allow // []), ($l.permissions.allow // [])] | add | unique)
     | .permissions.deny  = ([(.permissions.deny  // []), ($l.permissions.deny  // [])] | add | unique)
-    | .mcpServers = ((.mcpServers // {}) + ($l.mcpServers // {}))
   )'
   # shellcheck disable=SC2086
   jq -s "$MERGE_CMD" $SETTINGS_FILES > "$TARGET_SETTINGS" 2>/dev/null \
@@ -317,6 +318,12 @@ elif [[ -n "$SETTINGS_FILES" ]]; then
 else
   log_warn "settings.json не найден"
 fi
+
+# =============================================================================
+# MCP-серверы → .mcp.json
+# =============================================================================
+log_section "MCP-серверы"
+install_kit_mcp "$PROFILES_ARG" "$PACKS_LIST"
 
 # =============================================================================
 # Скиллы: base + профили + паки
@@ -402,11 +409,8 @@ log_ok ".claude/memory/ синхронизирована как Claude mirror"
 # .gitignore
 # =============================================================================
 GITIGNORE="$PROJECT_ROOT/.gitignore"
+remove_legacy_settings_gitignore
 if [[ -f "$GITIGNORE" ]]; then
-  if ! grep -q "\.claude/settings\.json" "$GITIGNORE" 2>/dev/null; then
-    printf "\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" >> "$GITIGNORE"
-    log_ok ".gitignore обновлён (добавлен .claude/settings.json)"
-  fi
   if grep -q "\.claude/memory" "$GITIGNORE" 2>/dev/null; then
     log_warn "ВНИМАНИЕ: .claude/memory/ найдена в .gitignore — память проекта должна храниться в git"
   fi
@@ -436,7 +440,8 @@ log_ok "Профиль(и) '$PROFILES_ARG' подключён(ы)!"
 echo ""
 echo "Созданные файлы:"
 echo "  CLAUDE.md                  — правила для Claude"
-echo "  .claude/settings.json      — MCP серверы и permissions"
+echo "  .claude/settings.json      — permissions и настройки (хранится в git)"
+echo "  .mcp.json                  — MCP-серверы (хранится в git)"
 printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"
@@ -446,7 +451,7 @@ echo "  .claude/.config-version    — версия конфигурации"
 echo ""
 echo "Следующие шаги:"
 echo "  1. Заполни PRODUCT.md — агенты читают его для контекста"
-echo "  2. Установи переменные окружения для MCP-серверов профиля (FIGMA_TOKEN, DATABASE_URL и др.)"
+echo "  2. MCP: Figma и Sentry попросят войти (OAuth) при первом вызове"
 echo "  3. После первой содержательной задачи запусти /capture-memory"
 if $MULTI_PROFILE; then
   echo ""

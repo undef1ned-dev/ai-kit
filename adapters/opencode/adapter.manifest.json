@@ -30,7 +30,8 @@
     ".opencode/runtime-graph.json",
     ".opencode/entrypoints.json",
     ".agents/skills/",
-    ".opencode/agents/"
+    ".opencode/agents/",
+    "opencode.json"
   ],
   "memory_path": ".aikit/memory",
   "graph_execution": {

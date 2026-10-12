@@ -31,7 +31,8 @@
     ".codex/AIKIT.md",
     ".codex/CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/runtime-graph.json",
-    ".codex/entrypoints.json"
+    ".codex/entrypoints.json",
+    ".codex/config.toml"
   ],
   "memory_path": ".aikit/memory",
   "graph_execution": {

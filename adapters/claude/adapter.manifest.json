@@ -13,7 +13,8 @@
     ".claude/settings.json",
     ".claude/.config-version",
     ".claude/memory/",
-    ".aikit/runtime-graph.json"
+    ".aikit/runtime-graph.json",
+    ".mcp.json"
   ],
   "memory_path": ".claude/memory",
   "graph_execution": {

@@ -17,6 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import mcp_config
 from memory_paths import ensure_memory_structure
 from preset_utils import resolve_preset
 
@@ -377,24 +378,8 @@ def render_codex_custom_agents(workspace: Path) -> list[dict[str, str]]:
     return rendered
 
 
-def remove_codex_config_block(workspace: Path) -> None:
-    """Drop the block written by earlier AIKit versions: its [agents.<name>] tables are not a Codex format."""
-    config_path = workspace / ".codex" / "config.toml"
-    if not config_path.exists():
-        return
-    original = read_text(config_path)
-    updated = re.sub(r"# BEGIN AIKIT GENERATED.*?# END AIKIT GENERATED\n?", "", original, flags=re.DOTALL)
-    if updated == original:
-        return
-    if updated.strip():
-        write_text(config_path, updated.strip() + "\n")
-    else:
-        config_path.unlink()
-
-
 def prepare_codex_workspace_surface(workspace: Path) -> None:
     render_codex_custom_agents(workspace)
-    remove_codex_config_block(workspace)
 
 
 def remove_previous_native_paths(workspace: Path) -> None:
@@ -597,6 +582,8 @@ def install_package(
             merge_agents_md(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
         if runtime == "codex":
             prepare_codex_workspace_surface(workspace)
+        if runtime in mcp_config.RUNTIMES:
+            mcp_config.install(runtime, workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], packs)
         write_install_summary(adapter, workspace, bundle_root, install_mode)
 
     return adapter

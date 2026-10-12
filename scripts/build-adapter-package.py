@@ -309,7 +309,6 @@ def merge_settings_documents(paths: list[Path]) -> dict:
     merged: dict = {}
     allow: list[str] = []
     deny: list[str] = []
-    mcp_servers: dict = {}
 
     for path in paths:
         if not path.exists():
@@ -329,17 +328,11 @@ def merge_settings_documents(paths: list[Path]) -> dict:
                 if isinstance(item, str) and item not in deny:
                     deny.append(item)
 
-        servers = payload.get("mcpServers")
-        if isinstance(servers, dict):
-            mcp_servers.update(servers)
-
     if allow or deny:
         merged["permissions"] = {
             "allow": allow,
             "deny": deny,
         }
-    if mcp_servers:
-        merged["mcpServers"] = mcp_servers
     return merged
 
 

@@ -44,7 +44,7 @@ ARCHITECT_PLAN должен разделить feature на:
 
 Используй агент fastapi-architect:
 - Прочитай main.py, models/, routers/
-- Проверь схему БД через mcp__postgres__query (если доступно)
+- Проверь схему БД через mcp__postgres__query (если в проекте подключён postgres MCP)
 - Спроектируй: модели, Pydantic-схемы, Service, Router, миграции
 - Выведи ARCHITECT_PLAN
 

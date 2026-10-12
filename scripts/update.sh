@@ -49,6 +49,8 @@ profile_prefix() {
 
 # shellcheck source=lib/skills.sh
 source "$SCRIPT_DIR/lib/skills.sh"
+# shellcheck source=lib/mcp.sh
+source "$SCRIPT_DIR/lib/mcp.sh"
 
 find_conflicts() {
   local subdir="$1"
@@ -288,14 +290,14 @@ fi
 rm -f "$TMP_NEW_CLAUDE"
 
 # =============================================================================
-# settings.json — предупреждение (не обновляем автоматически)
+# MCP-серверы → .mcp.json; settings.json не трогаем — там могут быть правки команды
 # =============================================================================
+log_section "MCP-серверы"
+install_kit_mcp "$INSTALLED_PROFILES" "$INSTALLED_PACKS"
+remove_legacy_settings_gitignore
 TARGET_SETTINGS="$PROJECT_ROOT/.claude/settings.json"
 if [[ -f "$TARGET_SETTINGS" ]]; then
-  log_section "settings.json"
-  log_warn "settings.json не обновляется автоматически"
-  log_info "Он содержит локальные пути MCP-серверов, у каждого разработчика свои."
-  log_info "Если добавлены новые MCP-серверы — перезапусти attach.sh."
+  log_info "settings.json не обновляется автоматически: новые permissions из кита — через повторный attach.sh"
 fi
 
 # =============================================================================

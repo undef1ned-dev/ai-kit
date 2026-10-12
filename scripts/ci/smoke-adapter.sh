@@ -28,6 +28,11 @@ FAKE_HOME="$WORK_DIR/$ADAPTER-$PRESET-home"
 mkdir -p "$PROJECT_DIR" "$FAKE_HOME"
 USER_RULES_LINE="Правило пользователя: не трогать этот текст"
 printf '# Мои правила\n\n%s\n' "$USER_RULES_LINE" > "$PROJECT_DIR/AGENTS.md"
+# Свой MCP-сервер пользователя — установщик не должен его трогать
+case "$ADAPTER" in
+  codex) mkdir -p "$PROJECT_DIR/.codex" && printf '[mcp_servers.my-server]\ncommand = "my-mcp"\n' > "$PROJECT_DIR/.codex/config.toml" ;;
+  opencode) printf '{"mcp": {"my-server": {"type": "local", "command": ["my-mcp"]}}}\n' > "$PROJECT_DIR/opencode.json" ;;
+esac
 
 FAILURES=0
 pass() { echo "  ✓ $1"; }
@@ -92,6 +97,25 @@ for path in agents:
 PY
 }
 
+# MCP в родном формате runtime: context7 из base, версии закреплены, сервер пользователя сохранён
+check_mcp() {
+  "$PYTHON_BIN" - "$ADAPTER" "$PROJECT_DIR" <<'PY'
+import json, pathlib, sys, tomllib
+adapter, project = sys.argv[1], pathlib.Path(sys.argv[2])
+if adapter == "codex":
+    path = project / ".codex" / "config.toml"
+    with open(path, "rb") as f:
+        servers = tomllib.load(f)["mcp_servers"]
+else:
+    path = project / "opencode.json"
+    servers = json.loads(path.read_text(encoding="utf-8"))["mcp"]
+    assert all(server.get("type") in {"local", "remote"} for server in servers.values()), "нет type"
+assert "context7" in servers, "нет context7"
+assert "my-server" in servers, "сервер пользователя удалён"
+assert "@latest" not in path.read_text(encoding="utf-8"), "версия не закреплена"
+PY
+}
+
 # Агенты OpenCode — markdown с description и mode: subagent
 check_opencode_agents() {
   local f found=0
@@ -120,6 +144,7 @@ check_runtime_files() {
       check "агенты OpenCode с description и mode: subagent$stage" check_opencode_agents
       ;;
   esac
+  check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp
   check "в домашнюю папку ничего не записано$stage" test -z "$(ls -A "$FAKE_HOME")"
 }
 

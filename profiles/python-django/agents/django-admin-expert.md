@@ -6,7 +6,7 @@ model: sonnet
 version: "1.0.0"
 profile: "python-django"
 tags: ["django", "admin", "ui"]
-requires_mcp: ["playwright", "postgresql"]
+requires_mcp: ["playwright"]
 example_prompt: "Настрой Django Admin для модели Contract с фильтрами и inline"
 output_block: "ADMIN_IMPLEMENTATION_BRIEF"
 ---

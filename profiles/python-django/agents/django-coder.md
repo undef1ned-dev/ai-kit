@@ -7,7 +7,7 @@ version: "1.0.0"
 profile: "python-django"
 tags: ["django", "python", "implementation"]
 depends_on: ["django-architect"]
-requires_mcp: ["postgresql"]
+requires_mcp: []
 example_prompt: "Реализуй план из ARCHITECT_PLAN"
 output_block: "CODER_RESULT"
 context_files: ["CLAUDE.md"]
