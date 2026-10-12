@@ -49,16 +49,15 @@ Claude compatibility mirror:
 1. `README.md`
 2. `docs/product-story.md`
 3. `docs/get-started.md`
-4. `docs/index.html`
-5. `docs/catalog.html`
-6. `docs/install-matrix.md`
-7. `docs/runtime-maturity-review.md`
-8. `docs/marketplace.md`
-9. `docs/publishing-workflow.md`
-10. `docs/roadmap.md`
-11. `docs/knowledge-platform-roadmap.md`
-12. `docs/cli-runtime-roadmap.md`
-13. `docs/mcp-rag-roadmap.md`, если уже существует
+4. `docs/generated/catalog.html` (собирается `scripts/generate-catalog.py`)
+5. `docs/install-matrix.md`
+6. `docs/runtime-maturity-review.md`
+7. `docs/marketplace.md`
+8. `docs/publishing-workflow.md`
+9. `docs/roadmap.md`
+10. `docs/knowledge-platform-roadmap.md`
+11. `docs/cli-runtime-roadmap.md`
+12. `docs/mcp-rag-roadmap.md`, если уже существует
 14. `docs/execution-log.md`
 15. `docs/cli-agent-operating-protocol.md`
 16. `docs/cli-runtime-continuation-contract.md`

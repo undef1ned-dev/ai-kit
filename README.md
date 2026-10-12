@@ -16,9 +16,10 @@ bash .aikit-config/scripts/attach.sh --preset frontend-team
 
 ```bash
 bash .aikit-config/scripts/attach.sh vue-nuxt --pack quality
+bash .aikit-config/scripts/attach.sh vue-nuxt+python-fastapi
 ```
 
-`attach.sh` создаёт `CLAUDE.md`, `.claude/commands/`, `.claude/agents/`, `.claude/skills/`, `.claude/settings.json`, `PRODUCT.md` и память проекта в `.aikit/memory/`.
+`attach.sh` создаёт `CLAUDE.md`, `.claude/agents/`, `.claude/skills/`, `.claude/settings.json`, `.mcp.json`, `PRODUCT.md`, контракты профилей в `.aikit/profiles.json` и память проекта в `.aikit/memory/`. Профили одного проекта могут жить в разных папках монорепо (`web/`, `api/`) — установщик найдёт их сам.
 
 ## Быстрый старт
 
@@ -63,7 +64,8 @@ bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 ## Документация
 
 - [docs-site/index.mdx](docs-site/index.mdx) — исходники сайта документации.
-- [docs/public/](docs/public/) — markdown-документация.
+- `docs/generated/catalog.html` — каталог агентов и скиллов, собирается `python3 scripts/generate-catalog.py`.
+- [docs/adding-a-stack.md](docs/adding-a-stack.md) — как добавить свой стек: контракт профиля и шаблон `scripts/new-profile.py`.
 - [docs/roadmap.md](docs/roadmap.md) — план развития кита.
 - [docs/runtime-support.md](docs/runtime-support.md) — что работает в Claude Code, Codex и OpenCode.
 - [docs/research/](docs/research/) — исследования и планы модернизации.

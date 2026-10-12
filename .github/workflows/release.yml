@@ -39,6 +39,7 @@ jobs:
               bash scripts/ci/smoke-adapter.sh "$adapter" "$(basename "$preset" .json)" "$RUNNER_TEMP"
             done
           done
+          bash scripts/ci/smoke-new-profile.sh "$RUNNER_TEMP/new-profile"
 
       - name: Create GitHub Release
         env:

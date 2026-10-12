@@ -44,6 +44,7 @@
 | ✅ | `update.sh`: кит обновляется только как submodule и только без локальных правок | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | `base/settings.json`: убран GitLab MCP исходного проекта, добавлено `attribution` (без соавторства) | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | Этап 1: CI на PR (статические проверки + smoke-тест пресетов на Linux и Windows), релиз по тегу, Dependabot | [#3](https://github.com/undef1ned-dev/ai-kit/pull/3) |
+| ✅ | Этап 2: скиллы `<name>/SKILL.md`, агенты и правила в родных папках Claude Code, Codex и OpenCode, MCP из одного источника | [#7](https://github.com/undef1ned-dev/ai-kit/pull/7) |
 
 Хвосты:
 
@@ -65,7 +66,7 @@
 | 1.3 ✅ | `install-adapter-package.py`: пресет `fullstack-web` падает для Codex и OpenCode с «Pack 'ai' is not compatible with profile(s): vue-nuxt» — тот же баг, что был в `attach.sh` (`scripts/build-adapter-package.py:703`). Заодно исправлены: дубль `/implement-feature` в мульти-профиле для Codex и невалидный TOML агентов Codex (не экранировался `\`) |
 | 1.4 ✅ | Smoke-тест установки адаптеров в CI: `install-adapter-package.py` для `codex` и `opencode` × все пресеты, с проверкой файлов, которые реально читает каждый runtime |
 
-### Этап 2. Формат поставки: Skills и MCP
+### Этап 2. Формат поставки: Skills и MCP ✅
 
 Формат `<name>/SKILL.md` (`name` + `description`) — общий стандарт: его читают Claude Code, Codex и OpenCode. Поэтому этап делается сразу для всех runtime.
 
@@ -85,11 +86,12 @@
 
 | # | Задача |
 |---|---|
-| 3.1 | Упростить `profile.manifest.json` до понятного контракта: роль профиля в системе (`web`, `backend`, `mod`, …), агенты по ролям (`architect` / `coder` / `tester` / `reviewer`), команды `lint`, `format`, `test`, `build`, `run`. Лишнюю таксономию и overlay-контракты убрать |
-| 3.2 | Установщики (`attach.sh` и адаптеры) собирают контракты подключённых профилей в один файл проекта (например, `.aikit/profiles.json`) — его читают агенты, скиллы и хуки в любом runtime |
-| 3.3 | Базовые агенты и скиллы (`workflow-runner`, `/implement-feature`, `/workflow`, `/security-check` и др.) берут агентов и команды из контракта, а не из захардкоженных имён |
-| 3.4 | Мульти-профиль как норма: `web+backend` (Nuxt + Node.js) работает так же, как один профиль. Пресеты — просто именованные комбинации профилей и паков |
-| 3.5 | Шаблон нового профиля и инструкция «как добавить стек» — чтобы профиль под Java или любой другой стек собирался без правок ядра |
+| 3.1 ✅ | Упростить `profile.manifest.json` до понятного контракта: роль профиля в системе (`web`, `backend`, `mod`, …), агенты по ролям (`architect` / `coder` / `tester` / `reviewer`), команды `lint`, `format`, `test`, `build`, `run`. Лишнюю таксономию и overlay-контракты убрать. Сделано: контракт — `profile`, `label`, `role`, `stack`, `agents`, `specialists` (агент + условие `when`), `commands` (`{files}` — изменённые файлы; это дефолты, проект переопределит их в 3.2), `path_signals`; удалены `capabilities.json`, `scripts/profile_routing.py`, `scripts/explain-routing.py`, `policies/workflow-policy.json`; статическая проверка следит за полнотой контракта |
+| 3.2 ✅ | Установщики (`attach.sh` и адаптеры) собирают контракты подключённых профилей в один файл проекта (например, `.aikit/profiles.json`) — его читают агенты, скиллы и хуки в любом runtime. Сделано: `scripts/profile_contract.py`; команды проекта сохраняются при обновлении — прежние дефолты кита хранятся в `.aikit/profiles.kit-defaults.json`, команда, равная старому дефолту, обновляется, изменённая или удалённая остаётся как есть |
+| 3.3 ✅ | Базовые агенты и скиллы (`workflow-runner`, `/implement-feature`, `/workflow`, `/security-check` и др.) берут агентов и команды из контракта, а не из захардкоженных имён. Сделано: `/implement-feature` — один общий скилл в `base/skills/`: выбирает профиль по `path_signals`, `role` и `stack`, зовёт агентов по ролям и специалистов по `when`, проверяет результат командами `lint`/`test` проекта; в мульти-профиле идёт сначала по backend, затем по web. Профильные копии, шаблон и `expand-template.py` удалены, требования к плану перенесены в архитекторов профилей. `workflow-runner`, `/workflow`, `/security-check`, `/implement-mvp` и `tech-planner` (BACKEND/WEB SCOPE вместо iOS/Android) работают через `.aikit/profiles.json`. Удалены `workflow.manifest.json` профилей и `runtime-graph.json`, который из них строился; статическая проверка не даёт вписать имя агента профиля в базовые оркестраторы |
+| 3.4 ✅ | Мульти-профиль как норма: `web+backend` (Nuxt + Node.js) работает так же, как один профиль. Пресеты — просто именованные комбинации профилей и паков. Сделано: переименование конфликтующих агентов и скиллов префиксом профиля убрано из `attach.sh`, `update.sh` и сборщика адаптеров (переименованный агент сохранял старый `name` и расходился с контрактом) — вместо него статическая проверка требует уникальных имён агентов и скиллов во всём ките; в контракте `root_markers`, установщик находит папку каждого профиля (`frontend/` с `nuxt.config.ts`, `backend/` с `main.py`) и пишет её в `root` в `.aikit/profiles.json` — правка проекта сохраняется при обновлении, как и команды; `/implement-feature` и `workflow-runner` запускают команды в `root` профиля и считают `path_signals` от него. Профиля Node.js пока нет — он появится по шаблону из 3.5 |
+| 3.5 ✅ | Шаблон нового профиля и инструкция «как добавить стек» — чтобы профиль под Java или любой другой стек собирался без правок ядра. Сделано: шаблон `templates/profile/` (контракт, `CLAUDE.md`, четыре агента по ролям с блоками передачи, `settings.json`), генератор `scripts/new-profile.py` (проверяет имя и уникальность агентов, разрешает в `settings.json` команды профиля), инструкция [docs/adding-a-stack.md](adding-a-stack.md); паки `quality` и `devops` подходят к любому профилю; smoke `smoke-new-profile.sh` создаёт `java-spring` в копии кита, прогоняет статические проверки и ставит `vue-nuxt+java-spring` в монорепо через `attach.sh` и Codex |
+| 3.6 ✅ | Пайплайны профиля — работа, кроме кода (модели и текстуры для мода, документация, локализация). Сделано: необязательное поле `pipelines` в контракте — `{"<имя>": {"when", "steps"}}`; `/implement-feature` и `workflow-runner` запускают пайплайн, если задача подходит под `when`, а если фиче нужен и код — после архитектора с передачей результата кодеру; статическая проверка следит, что агенты шагов существуют; каталог показывает пайплайны; раздел в [docs/adding-a-stack.md](adding-a-stack.md) |
 
 ### Этап 4. Хуки — правила, которые соблюдаются всегда
 
@@ -144,8 +146,8 @@
 
 | # | Задача |
 |---|---|
-| 8.1 | Генераторы: решить, что генерировать и куда; `generate-profile-docs.py` не должен перезаписывать README, `generate-agents-skills-reference.py` — не падать |
-| 8.2 | `docs/public/` и `docs-site/`: переписать под реальный путь (plugin / `attach.sh` → `/implement-feature`), убрать ссылки на удалённые команды, RAG и iOS |
+| 8.1 ✅ | Генераторы: решить, что генерировать и куда. Сделано: оставлен только каталог (`scripts/generate-catalog.py` → `docs/generated/catalog.html`, артефакт CI), остальные генераторы и `docs/public/` удалены. В `docs/public/` остались два документа, которые адаптеры Codex и OpenCode кладут в `.aikit/` (`cli-agent-operating-protocol.md`, `cli-runtime-continuation-contract.md`): они устарели и ждут пересмотра |
+| 8.2 | `docs-site/`: переписать под реальный путь (plugin / `attach.sh` → `/implement-feature`), убрать ссылки на удалённые команды, RAG и iOS |
 | 8.3 | «Шаг 0» у `aikit-maintainer` и `platform-evangelist`: читать только существующие документы (этот roadmap вместо удалённых `docs/roadmap.md`, `docs/execution-log.md` и др.) |
 
 ### Этап 9. Качество агентов

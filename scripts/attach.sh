@@ -103,61 +103,12 @@ get_repo_version() {
   fi
 }
 
-# Короткий префикс профиля: vue-nuxt→vue, python-fastapi→fastapi, python-django→django
-profile_prefix() {
-  echo "$1" | sed 's/python-//; s/-[a-z]*$//'
-}
-
 # shellcheck source=lib/skills.sh
 source "$SCRIPT_DIR/lib/skills.sh"
 # shellcheck source=lib/mcp.sh
 source "$SCRIPT_DIR/lib/mcp.sh"
-
-# Найти конфликтующие имена файлов (встречаются в 2+ профилях) для заданной поддиректории
-# Использование: find_conflicts <subdir>  — возвращает имена файлов по одному в строке
-find_conflicts() {
-  local subdir="$1"
-  local all_files=""
-  for p in $PROFILE_LIST; do
-    local dir="$CONFIG_ROOT/profiles/$p/$subdir"
-    if [[ -d "$dir" ]]; then
-      for f in "$dir"/*.md; do
-        [[ -f "$f" ]] && all_files="${all_files}$(basename "$f")\n"
-      done
-    fi
-  done
-  printf "%b" "$all_files" | sort | uniq -d
-}
-
-# Скопировать файлы профилей в dst с разрешением конфликтов
-# Использование: copy_profile_files <subdir> <dst>
-copy_profile_files() {
-  local subdir="$1"
-  local dst="$2"
-  local conflicts
-  conflicts="$(find_conflicts "$subdir")"
-
-  for p in $PROFILE_LIST; do
-    local src="$CONFIG_ROOT/profiles/$p/$subdir"
-    [[ -d "$src" ]] || continue
-    local prefix
-    prefix="$(profile_prefix "$p")"
-
-    for f in "$src"/*.md; do
-      [[ -f "$f" ]] || continue
-      local fname
-      fname="$(basename "$f")"
-
-      if echo "$conflicts" | grep -qx "$fname" 2>/dev/null; then
-        # Конфликт — копируем с префиксом профиля
-        cp "$f" "$dst/${prefix}-${fname}"
-        log_warn "Конфликт '${fname}' → ${prefix}-${fname} (из $p)"
-      else
-        cp "$f" "$dst/$fname"
-      fi
-    done
-  done
-}
+# shellcheck source=lib/profiles.sh
+source "$SCRIPT_DIR/lib/profiles.sh"
 
 # =============================================================================
 # Валидация
@@ -326,6 +277,12 @@ log_section "MCP-серверы"
 install_kit_mcp "$PROFILES_ARG" "$PACKS_LIST"
 
 # =============================================================================
+# Контракты профилей → .aikit/profiles.json
+# =============================================================================
+log_section "Контракты профилей"
+install_profile_contracts "$PROFILES_ARG"
+
+# =============================================================================
 # Скиллы: base + профили + паки
 # =============================================================================
 log_section "Скиллы"
@@ -345,12 +302,11 @@ AGENTS_DST="$PROJECT_ROOT/.claude/agents"
 BASE_AGENTS="$CONFIG_ROOT/base/agents"
 [[ -d "$BASE_AGENTS" ]] && cp "$BASE_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
 
-if $MULTI_PROFILE; then
-  copy_profile_files "agents" "$AGENTS_DST"
-else
-  P_AGENTS="$CONFIG_ROOT/profiles/$PROFILE_LIST/agents"
+# Имена агентов уникальны во всём ките (статическая проверка), поэтому профили копируются как есть
+for p in $PROFILE_LIST; do
+  P_AGENTS="$CONFIG_ROOT/profiles/$p/agents"
   [[ -d "$P_AGENTS" ]] && cp "$P_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
-fi
+done
 
 for pack in $PACKS_LIST; do
   PACK_AGENTS="$CONFIG_ROOT/packs/$pack/agents"
@@ -442,6 +398,7 @@ echo "Созданные файлы:"
 echo "  CLAUDE.md                  — правила для Claude"
 echo "  .claude/settings.json      — permissions и настройки (хранится в git)"
 echo "  .mcp.json                  — MCP-серверы (хранится в git)"
+echo "  .aikit/profiles.json       — контракты профилей: агенты по ролям, папка и команды (root и команды можно править)"
 printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"
@@ -456,7 +413,6 @@ echo "  3. После первой содержательной задачи з�
 if $MULTI_PROFILE; then
   echo ""
   echo "Подсказка мульти-профиль:"
-  echo "  Скиллы/агенты с конфликтами получили префикс платформы."
-  echo "  Например: vue-implement-feature, fastapi-implement-feature"
+  echo "  /implement-feature и /workflow выбирают профиль по задаче; агенты и папки профилей — в .aikit/profiles.json"
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

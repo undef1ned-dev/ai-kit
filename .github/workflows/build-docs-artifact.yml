@@ -1,4 +1,4 @@
-name: Build Docs Artifact
+name: Build Catalog Artifact
 
 on:
   push:
@@ -6,12 +6,11 @@ on:
       - main
   pull_request:
     paths:
-      - "scripts/generate-*.py"
+      - "scripts/generate-catalog.py"
+      - "base/**"
       - "profiles/**"
       - "packs/**"
       - "presets/**"
-      - "docs/**"
-      - "docs-site/**"
       - ".github/workflows/build-docs-artifact.yml"
   workflow_dispatch:
 
@@ -30,16 +29,12 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate docs
-        run: |
-          python3 scripts/generate-profile-docs.py
-          python3 scripts/generate-catalog.py
+      - name: Generate catalog
+        run: python3 scripts/generate-catalog.py
 
       - name: Upload generated docs artifact
         uses: actions/upload-artifact@v7
         with:
-          name: aikit-docs
-          path: |
-            docs
-            docs-site
+          name: aikit-catalog
+          path: docs/generated/catalog.html
           if-no-files-found: error

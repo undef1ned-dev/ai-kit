@@ -616,4 +616,3 @@ asyncio_mode = "auto"
 
 - `/new-router` — создать новый FastAPI роутер с CRUD и схемами
 - `/add-migration` — сгенерировать и применить Alembic-миграцию
-- `/implement-feature` — реализовать фичу через цепочку агентов

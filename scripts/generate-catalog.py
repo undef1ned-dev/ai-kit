@@ -9,25 +9,12 @@ Usage:
 
 import argparse
 import html
-import importlib.util
 import json
 import os
 import re
 import sys
 from pathlib import Path
 
-def load_template_expander():
-    path = Path(__file__).resolve().with_name('expand-template.py')
-    spec = importlib.util.spec_from_file_location('aikit_expand_template', path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.expand_skill_text
-
-
-expand_skill_text = load_template_expander()
-
-PRIMARY_START_ORDER = ['aikit-bootstrap-project', 'implement-feature']
-OVERLAY_START_SKILLS = ['design-implement', 'design-review', 'setup-admin']
 PRIMARY_ENTRY_SKILLS = {'aikit-bootstrap-project', 'implement-feature', 'security-check'}
 OVERLAY_ENTRY_SKILLS = {'design-implement', 'design-review', 'setup-admin'}
 NO_DELIVERY_START_SKILLS = {'aikit-bootstrap-project'}
@@ -49,11 +36,6 @@ PUBLIC_BASE_AGENT_ALLOWLIST = {
     'ux-writer',
 }
 VISIBLE_COMMAND_OVERVIEW = [
-    {
-        'command': '/aikit-bootstrap-project',
-        'entry': 'primary task entry',
-        'activates': 'BOOTSTRAP_REPORT, no-delivery-chain start',
-    },
     {
         'command': '/implement-feature',
         'entry': 'primary task entry',
@@ -121,8 +103,6 @@ def read_md_files(directory: Path, kind: str) -> list[dict]:
     pattern = '*/SKILL.md' if kind == 'skill' else '*.md'
     for md in sorted(directory.glob(pattern)):
         text = md.read_text(encoding='utf-8')
-        if kind == 'skill':
-            text = expand_skill_text(text)
         fm = parse_frontmatter(text)
         if not fm.get('name'):
             fm['name'] = md.parent.name if kind == 'skill' else md.stem
@@ -141,6 +121,10 @@ def read_json_file(path: Path) -> dict:
         return json.loads(path.read_text(encoding='utf-8'))
     except Exception:
         return {}
+
+
+DEFAULT_PROFILE_COLOR = '#607D8B'
+PROFILE_ROLES = ('architect', 'coder', 'tester', 'reviewer')
 
 
 def is_public_profile(root: Path, profile_name: str) -> bool:
@@ -180,27 +164,26 @@ def collect_data(root: Path) -> dict:
     }
 
     # Profiles
-    profile_meta = {
-        'vue-nuxt':       {'label': 'Vue Nuxt',       'color': '#00C58E', 'stack': 'Vue 3, Nuxt 3, Pinia, VueUse'},
-        'python-django':  {'label': 'Python Django',  'color': '#092E20', 'stack': 'Django 5.x, DRF, Admin'},
-        'python-fastapi': {'label': 'Python FastAPI', 'color': '#009688', 'stack': 'FastAPI 0.115+, SQLAlchemy 2.0, LangGraph'},
+    profile_colors = {
+        'vue-nuxt': '#00C58E',
+        'python-django': '#092E20',
+        'python-fastapi': '#009688',
     }
     profiles_dir = root / 'profiles'
     if profiles_dir.exists():
-        for profile_name, meta in profile_meta.items():
+        for p in sorted(path for path in profiles_dir.iterdir() if path.is_dir()):
+            profile_name = p.name
             if not is_public_profile(root, profile_name):
                 continue
-            p = profiles_dir / profile_name
             agents = read_md_files(p / 'agents', 'agent')
             skills = read_md_files(p / 'skills', 'skill')
             profile_manifest = read_json_file(p / 'profile.manifest.json')
-            capabilities = read_json_file(p / 'capabilities.json')
             if agents or skills:
                 sections[profile_name] = {
-                    **meta,
-                    'description': meta['stack'],
+                    'label': profile_manifest.get('label', profile_name),
+                    'color': profile_colors.get(profile_name, DEFAULT_PROFILE_COLOR),
+                    'description': profile_manifest.get('stack', ''),
                     'profile_manifest': profile_manifest,
-                    'capabilities': capabilities.get('modes', []),
                     'agents': agents,
                     'skills': skills,
                 }
@@ -240,26 +223,6 @@ def entry_class_for_skill(name: str) -> str:
     return 'reference or advanced'
 
 
-def primary_start_for_skill_names(skill_names: list[str]) -> str:
-    skill_set = set(skill_names)
-    for name in PRIMARY_START_ORDER:
-        if name in skill_set:
-            return display_command(name)
-    return '—'
-
-
-def overlay_starts_for_skill_names(skill_names: list[str]) -> list[str]:
-    skill_set = set(skill_names)
-    return [display_command(name) for name in OVERLAY_START_SKILLS if name in skill_set]
-
-
-def start_contract_for_skill_names(skill_names: list[str]) -> str:
-    primary = primary_start_for_skill_names(skill_names)
-    if primary == '/aikit-bootstrap-project':
-        return 'Bootstrap is a no-delivery-chain start; choose a bounded overlay or repo delivery chain only after discovery.'
-    return 'Choose one primary start or one bounded overlay start; overlays do not replace the default chain.'
-
-
 def collect_runtime_adapters(root: Path) -> list[dict]:
     adapters = []
     for manifest in sorted((root / 'adapters').glob('*/adapter.manifest.json')):
@@ -275,38 +238,27 @@ def collect_runtime_adapters(root: Path) -> list[dict]:
 
 
 def collect_workflow_surfaces(root: Path) -> list[dict]:
+    """Delivery chain of each profile, taken from the agents of its contract."""
     workflows = []
-    for manifest in sorted((root / 'profiles').glob('*/workflow.manifest.json')):
+    for manifest in sorted((root / 'profiles').glob('*/profile.manifest.json')):
         data = read_json_file(manifest)
         if data:
             profile_name = data.get('profile', manifest.parent.name)
             if not is_public_profile(root, profile_name):
                 continue
-            recipes = data.get('recipes', [])
+            agents = data.get('agents', {})
             workflows.append({
                 'profile': profile_name,
-                'default_recipe': data.get('default_recipe', 'unknown'),
-                'recipe_count': len(recipes) if isinstance(recipes, list) else 0,
-                'has_frontend_task_workflows': bool(data.get('frontend_task_workflows')),
+                'chain': ' → '.join(agents.get(role, '?') for role in ('architect', 'coder', 'tester', 'reviewer')),
+                'specialist_count': len(data.get('specialists', {})),
             })
     return workflows
-
-
-def collect_evidence_surfaces(root: Path) -> list[dict]:
-    return []
 
 
 def collect_product_context(root: Path) -> dict:
     return {
         'runtime_adapters': collect_runtime_adapters(root),
         'workflow_surfaces': collect_workflow_surfaces(root),
-        'evidence_surfaces': collect_evidence_surfaces(root),
-        'validation_commands': [
-            '/aikit-doctor --check validate-product-docs',
-            '/aikit-doctor --check validate-workflow-fixtures',
-            '/aikit-doctor --check validate-documentation-integrity',
-            '/aikit-doctor --check validate-config',
-        ],
     }
 
 
@@ -497,120 +449,63 @@ def render_section(section_id: str, section: dict) -> str:
     agents = section.get('agents', [])
     skills = section.get('skills', [])
     profile_manifest = section.get('profile_manifest', {})
-    capabilities = section.get('capabilities', [])
 
     agent_cards = ''.join(render_agent_card(a) for a in agents)
     skill_cards = ''.join(render_skill_card(s) for s in skills)
     chain = render_chain_diagram(agents, color)
     profile_summary = ''
     if profile_manifest:
-        available_skills = {skill.get('name', '') for skill in skills}
-
-        def first_existing(*names: str) -> str:
-            for name in names:
-                if name in available_skills:
-                    return f"/{name}"
-            return "inspect-chain"
-
-        entry_paths = {
-            "new-artifact": first_existing(
-                "new-page",
-                "new-component",
-                "new-composable",
-                "new-store",
-                "new-server-route",
-                "new-feature",
-                "new-screen",
-                "new-router",
-                "new-app",
-                "implement-feature",
-            ),
-            "small-patch": first_existing("implement-feature"),
-            "feature-work": first_existing("implement-feature", "implement-mvp"),
-            "test-only": first_existing("add-tests"),
-            "review-only": first_existing("design-review"),
-        }
-        domain = profile_manifest.get('domain', '')
-        taxonomy = profile_manifest.get('taxonomy', {})
-        if not isinstance(taxonomy, dict):
-            taxonomy = {}
-        operating_class = taxonomy.get('operating_class', 'product-project')
-        domain_family = taxonomy.get('domain_family', domain)
-        stack_profile = taxonomy.get('stack_profile', profile_manifest.get('profile', section_id))
-        core_roles = taxonomy.get('core_role_set', [])
-        specialized_roles = taxonomy.get('specialized_role_set', [])
-        role_aliases = taxonomy.get('role_aliases', {})
-        if not isinstance(role_aliases, dict):
-            role_aliases = {}
-        specialized_roles = [role for role in specialized_roles if str(role) not in {'skill-builder'}]
-        role_aliases = {
-            role: agent_id
-            for role, agent_id in role_aliases.items()
-            if str(role) not in {'skill-builder'} and str(agent_id) not in {'skill-builder'}
-        }
-        default_chain = profile_manifest.get('default_chain', [])
-        recommended_packs = profile_manifest.get('recommended_packs', [])
-        recommended_skills = profile_manifest.get('recommended_skills', [])
+        role_agents = profile_manifest.get('agents', {})
+        if not isinstance(role_agents, dict):
+            role_agents = {}
+        specialists = profile_manifest.get('specialists', {})
+        if not isinstance(specialists, dict):
+            specialists = {}
+        pipelines = profile_manifest.get('pipelines', {})
+        if not isinstance(pipelines, dict):
+            pipelines = {}
+        commands = profile_manifest.get('commands', {})
+        if not isinstance(commands, dict):
+            commands = {}
         path_signals = profile_manifest.get('path_signals', [])
-        keywords = profile_manifest.get('keywords', [])
-        mode_cards = ''.join(
+        chain_text = ' → '.join(role_agents[role] for role in PROFILE_ROLES if role in role_agents)
+        specialist_cards = ''.join(
             f'''
 <div class="mode-card">
-  <div class="mode-title">{h(mode.get("name", ""))}</div>
-  <div class="mode-meta">{tag_badges(mode.get("file_globs", []))}</div>
-  <div class="mode-meta">{tag_badges(mode.get("suggested_skills", []))}</div>
-  <div class="mode-desc">{h(", ".join(mode.get("focus", [])))}</div>
+  <div class="mode-title">{h(name)}</div>
+  <div class="mode-meta">{tag_badges([spec.get("agent", "")])}</div>
+  <div class="mode-desc">{h(spec.get("when", ""))}</div>
 </div>'''
-            for mode in capabilities
+            for name, spec in specialists.items()
+            if isinstance(spec, dict)
         )
-        entry_path_cards = ''.join(
+        pipeline_cards = ''.join(
             f'''
 <div class="mode-card">
-  <div class="mode-title">{h(intent)}</div>
-  <div class="mode-meta">{tag_badges([entry])}</div>
-  <div class="mode-desc">{h(" → ".join(default_chain) if entry != "inspect-chain" else "Inspect the matched chain and choose the reviewer/tester path manually.")}</div>
+  <div class="mode-title">{h(name)}</div>
+  <div class="mode-meta">{h(' → '.join(pipeline.get("steps", [])))}</div>
+  <div class="mode-desc">{h(pipeline.get("when", ""))}</div>
 </div>'''
-            for intent, entry in entry_paths.items()
+            for name, pipeline in pipelines.items()
+            if isinstance(pipeline, dict)
         )
-        skill_names = [skill.get('name', '') for skill in skills]
-        primary_start = primary_start_for_skill_names(skill_names)
-        overlay_starts = ', '.join(overlay_starts_for_skill_names(skill_names)) or '—'
-        start_contract = start_contract_for_skill_names(skill_names)
+        command_rows = ''.join(
+            f'<div><span class="summary-label">{h(name)}</span><span class="summary-value"><code>{h(command)}</code></span></div>'
+            for name, command in commands.items()
+        )
         profile_summary = f'''
 <div class="subsection">
-  <h3>Профиль</h3>
+  <h3>Контракт профиля</h3>
   <div class="profile-summary-card">
     <div class="profile-summary-grid">
-      <div><span class="summary-label">Operating class</span><span class="summary-value">{h(operating_class)}</span></div>
-      <div><span class="summary-label">Domain family</span><span class="summary-value">{h(domain_family)}</span></div>
-      <div><span class="summary-label">Legacy domain</span><span class="summary-value">{h(domain)}</span></div>
-      <div><span class="summary-label">Stack profile</span><span class="summary-value">{h(stack_profile)}</span></div>
-      <div><span class="summary-label">Default chain</span><span class="summary-value">{h(" → ".join(default_chain))}</span></div>
-      <div><span class="summary-label">Primary start</span><span class="summary-value">{h(primary_start)}</span></div>
-      <div><span class="summary-label">Overlay starts</span><span class="summary-value">{h(overlay_starts)}</span></div>
-      <div><span class="summary-label">Core roles</span><span class="summary-value">{h(core_roles or "—")}</span></div>
-      <div><span class="summary-label">Specialized roles</span><span class="summary-value">{h(specialized_roles or "—")}</span></div>
-      <div><span class="summary-label">Recommended packs</span><span class="summary-value">{h(recommended_packs or "—")}</span></div>
-      <div><span class="summary-label">Recommended skills</span><span class="summary-value">{h(recommended_skills or "—")}</span></div>
-      <div><span class="summary-label">Start contract</span><span class="summary-value">{h(start_contract)}</span></div>
+      <div><span class="summary-label">Роль</span><span class="summary-value">{h(profile_manifest.get("role", "—"))}</span></div>
+      <div><span class="summary-label">Стек</span><span class="summary-value">{h(profile_manifest.get("stack", "—"))}</span></div>
+      <div><span class="summary-label">Агенты по ролям</span><span class="summary-value">{h(chain_text or "—")}</span></div>
       <div><span class="summary-label">Path signals</span><span class="summary-value">{h(path_signals or "—")}</span></div>
-      <div><span class="summary-label">Keywords</span><span class="summary-value">{h(keywords or "—")}</span></div>
-      <div><span class="summary-label">Capability modes</span><span class="summary-value">{h([m.get("name", "") for m in capabilities])}</span></div>
-      <div><span class="summary-label">Role aliases</span><span class="summary-value">{h([f"{role}→{agent_id}" for role, agent_id in sorted(role_aliases.items())] or "—")}</span></div>
+      {command_rows}
     </div>
-    <div class="subsection">
-      <h3>Recommended Entry Paths</h3>
-      <div class="modes-grid">{entry_path_cards}</div>
-    </div>
-    <div class="subsection">
-      <h3>Workflow Playbook</h3>
-      <div class="summary-value">
-        Default chain runs as: <strong>{h(" → ".join(default_chain))}</strong>.<br>
-        Primary start is <strong>{h(primary_start)}</strong>. Overlay starts are <strong>{h(overlay_starts)}</strong>.<br>
-        Choose one primary start or one bounded overlay start; overlays do not replace canonical delivery.
-      </div>
-    </div>
-    {f'<div class="modes-grid">{mode_cards}</div>' if mode_cards else ''}
+    {f'<div class="subsection"><h3>Специалисты</h3><div class="modes-grid">{specialist_cards}</div></div>' if specialist_cards else ''}
+    {f'<div class="subsection"><h3>Пайплайны</h3><div class="modes-grid">{pipeline_cards}</div></div>' if pipeline_cards else ''}
   </div>
 </div>'''
 
@@ -672,24 +567,10 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
         f'''
 <div class="overview-mini-card">
   <span class="summary-label">{h(workflow.get("profile", ""))}</span>
-  <span class="summary-value">{h(workflow.get("default_recipe", ""))}</span>
-  <span class="badge">{h(str(workflow.get("recipe_count", 0)) + " recipes")}</span>
-  {f'<span class="badge">frontend task workflow</span>' if workflow.get("has_frontend_task_workflows") else ''}
+  <span class="summary-value">{h(workflow.get("chain", ""))}</span>
+  <span class="badge">{h(str(workflow.get("specialist_count", 0)) + " specialists")}</span>
 </div>'''
         for workflow in context.get('workflow_surfaces', [])
-    )
-    evidence_cards = ''.join(
-        f'''
-<div class="overview-mini-card">
-  <span class="summary-label">{h(surface.get("name", ""))}</span>
-  <span class="summary-value">{h(surface.get("path", ""))}</span>
-  <span class="badge">{h(str(surface.get("count", 0)) + " sources")}</span>
-</div>'''
-        for surface in context.get('evidence_surfaces', [])
-    )
-    validator_cards = ''.join(
-        f'<code class="validator-chip">{h(command)}</code>'
-        for command in context.get('validation_commands', [])
     )
     command_cards = ''.join(
         f'''
@@ -705,8 +586,8 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
   <div class="overview-header">
     <div>
       <p class="kicker">Catalog Overview</p>
-      <h1>Profiles, runtimes, workflows, evidence and validators in one local catalog</h1>
-      <p class="overview-copy">Start with Start Here, then use this page as a browse and reference surface. This private-repository compatible page is generated static HTML and does not require GitHub Pages or public hosting.</p>
+      <h1>Профили, runtime, workflow, агенты и скиллы AIKit на одной странице</h1>
+      <p class="overview-copy">Страница собирается из исходников кита командой <code>python3 scripts/generate-catalog.py</code>. Установка — <code>scripts/attach.sh</code>, см. README.</p>
     </div>
     <div class="overview-stats" aria-label="Catalog totals">
       <div><span>{h(total_agents)}</span><small>Agents</small></div>
@@ -724,20 +605,8 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
       <div class="overview-stack">{workflow_cards}</div>
     </div>
     <div class="overview-panel">
-      <h2>Evidence surfaces</h2>
-      <div class="overview-stack">{evidence_cards}</div>
-    </div>
-    <div class="overview-panel">
-      <h2>Validation commands</h2>
-      <div class="validator-list">{validator_cards}</div>
-      <code class="validator-chip">/aikit-docs --refresh catalog</code>
-      <a class="overview-link" href="../public/get-started.md">Return to Get Started for the project-first install and bootstrap path.</a>
-    </div>
-    <div class="overview-panel">
       <h2>Visible commands</h2>
       <div class="overview-stack">{command_cards}</div>
-      <a class="overview-link" href="../public/start-here.md">Start with Start Here before using this catalog as a browse/reference surface.</a>
-      <a class="overview-link" href="../public/profiles-summary.md">Profile-local overlays such as /setup-admin appear only after the profile is known.</a>
     </div>
   </div>
 </section>'''
@@ -1309,20 +1178,6 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <span class="search-icon">🔍</span>
     <input class="search-input" type="text" placeholder="Поиск..." oninput="filterCards(this.value)">
   </div>
-  <div class="header-links">
-    <a class="header-link" href="./index.html">Docs Home</a>
-    <a class="header-link" href="../public/product-story.md">Product Story</a>
-    <a class="header-link" href="../public/start-here.md">Start Here</a>
-    <a class="header-link" href="../public/agents-skills-reference.md">Agents & Skills</a>
-          <a class="header-link" href="../public/release-center.md">Release Center</a>
-          <a class="header-link" href="../public/get-started.md">Get Started</a>
-          <a class="header-link" href="../public/install-matrix.md">Install Matrix</a>
-          <a class="header-link" href="../public/runtime-maturity-review.md">Runtime Review</a>
-          <a class="header-link" href="../public/profiles-summary.md">Profiles Summary</a>
-          <a class="header-link" href="../public/compatibility-matrix.md">Compatibility Matrix</a>
-          <a class="header-link" href="../public/marketplace.md">Marketplace</a>
-          <a class="header-link" href="../public/publishing-workflow.md">Publishing Workflow</a>
-  </div>
   <span class="header-sub">Claude Code · AIKit</span>
 </header>
 
@@ -1418,21 +1273,6 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
 # ─── Main ───────────────────────────────────────────────────────────────────
 
-def legacy_catalog_redirect_stub() -> str:
-    return """<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=./generated/catalog.html">
-  <title>AIKit Catalog Redirect</title>
-</head>
-<body>
-  <p>Moved to <a href="./generated/catalog.html">docs/generated/catalog.html</a>.</p>
-</body>
-</html>
-"""
-
-
 def main():
     parser = argparse.ArgumentParser(description='Generate agents catalog HTML')
     parser.add_argument('--root', default=None,
@@ -1473,10 +1313,6 @@ def main():
 
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(catalog, encoding='utf-8')
-    if args.out is None:
-        legacy_out = root / 'docs' / 'catalog.html'
-        legacy_out.write_text(legacy_catalog_redirect_stub(), encoding='utf-8')
-        print(f'Updated compatibility redirect → {legacy_out}')
     print(f'Done → {out}')
 
 

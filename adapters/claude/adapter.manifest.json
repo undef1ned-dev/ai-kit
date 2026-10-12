@@ -13,16 +13,11 @@
     ".claude/settings.json",
     ".claude/.config-version",
     ".claude/memory/",
-    ".aikit/runtime-graph.json",
+    ".aikit/profiles.json",
+    ".aikit/profiles.kit-defaults.json",
     ".mcp.json"
   ],
   "memory_path": ".claude/memory",
-  "graph_execution": {
-    "status": "integrated",
-    "shared_artifact": ".aikit/runtime-graph.json",
-    "supports_parallel_handoff": false,
-    "purpose": "Claude keeps workflow orchestration in core policy/docs, but still publishes graph metadata for parity with other runtimes."
-  },
   "runtime_entrypoints": [
     {
       "name": "claude-instructions",

@@ -7,7 +7,7 @@
     {
       "name": "router-registration",
       "kind": "router",
-      "path_globs": ["profiles/python-fastapi/agents/fastapi-architect.md", "profiles/python-fastapi/capabilities.json"],
+      "path_globs": ["profiles/python-fastapi/agents/fastapi-architect.md", "profiles/python-fastapi/profile.manifest.json"],
       "concerns": ["contract", "registration"]
     },
     {
@@ -19,13 +19,13 @@
     {
       "name": "service-model-boundary",
       "kind": "service",
-      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/agents/fastapi-architect.md"],
+      "path_globs": ["profiles/python-fastapi/profile.manifest.json", "profiles/python-fastapi/agents/fastapi-architect.md"],
       "concerns": ["persistence", "auth"]
     },
     {
       "name": "migration-test-surface",
       "kind": "migration",
-      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/skills/add-migration/SKILL.md"],
+      "path_globs": ["profiles/python-fastapi/profile.manifest.json", "profiles/python-fastapi/skills/add-migration/SKILL.md"],
       "concerns": ["operations", "testing"]
     }
   ],

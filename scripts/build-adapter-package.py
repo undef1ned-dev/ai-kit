@@ -22,15 +22,13 @@ import re
 import sys
 
 from memory_paths import ensure_memory_structure, find_memory_source
-from docs_paths import resolve_doc_alias
 from preset_utils import resolve_preset
 
 
 ROOT = Path(__file__).resolve().parent.parent
-TEMPLATES_DIR = ROOT / "base" / "skills" / "templates"
 VERSION_FILE = ROOT / "VERSION"
-RUNTIME_OPERATING_PROTOCOL = resolve_doc_alias("cli_agent_operating_protocol_md")
-RUNTIME_CONTINUATION_CONTRACT = resolve_doc_alias("cli_runtime_continuation_contract_md")
+RUNTIME_OPERATING_PROTOCOL = ROOT / "docs" / "public" / "cli-agent-operating-protocol.md"
+RUNTIME_CONTINUATION_CONTRACT = ROOT / "docs" / "public" / "cli-runtime-continuation-contract.md"
 RUNTIME_TOOLS_MANIFEST = ROOT / "knowledge" / "runtime-tools.manifest.json"
 COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventory-fixtures.json"
 PACKAGE_MODE_CONSUMER = "consumer"
@@ -109,41 +107,6 @@ def parse_frontmatter(raw: str) -> dict[str, str]:
     return result
 
 
-def parse_body_blocks(body: str) -> dict[str, str]:
-    blocks: dict[str, str] = {}
-    current_key: str | None = None
-    buf: list[str] = []
-
-    for line in body.splitlines():
-        match = re.match(r"^\[([A-Z][A-Z0-9_]*)\]\s*$", line)
-        if match:
-            if current_key is not None:
-                blocks[current_key] = "\n".join(buf).strip()
-            current_key = match.group(1)
-            buf = []
-            continue
-        buf.append(line)
-
-    if current_key is not None:
-        blocks[current_key] = "\n".join(buf).strip()
-
-    return blocks
-
-
-def expand_template(template_text: str, inline_vars: dict[str, str], blocks: dict[str, str]) -> str:
-    result = template_text
-    for key, value in inline_vars.items():
-        result = result.replace("{{" + key + "}}", value)
-
-    def replace_block(match: re.Match[str]) -> str:
-        key = match.group(1)
-        value = blocks.get(key, "").strip()
-        return (value + "\n") if value else ""
-
-    result = re.sub(r"\{\{([A-Z][A-Z0-9_]*)\}\}\n?", replace_block, result)
-    return re.sub(r"\n{3,}", "\n\n", result)
-
-
 def render_runtime_template(template_text: str, variables: dict[str, str]) -> str:
     result = template_text
     for key, value in variables.items():
@@ -151,61 +114,15 @@ def render_runtime_template(template_text: str, variables: dict[str, str]) -> st
     return result
 
 
-def expand_skill_text(path: Path) -> str:
-    text = path.read_text(encoding="utf-8")
-    raw, body = split_frontmatter(text)
-    fm = parse_frontmatter(raw)
-    template_name = fm.get("template", "").strip()
-    if not template_name:
-        return text
-
-    template_path = TEMPLATES_DIR / f"{template_name}.md.tmpl"
-    if not template_path.exists():
-        return text
-
-    inline_vars = {
-        key[5:]: value
-        for key, value in fm.items()
-        if key.startswith("tvar_")
-    }
-    inline_vars.setdefault("PROFILE", fm.get("profile", ""))
-    inline_vars.setdefault("EXAMPLE_PROMPT", fm.get("example_prompt", ""))
-    blocks = parse_body_blocks(body)
-    return expand_template(template_path.read_text(encoding="utf-8"), inline_vars, blocks)
-
-
-def profile_prefix(profile_name: str) -> str:
-    return re.sub(r"-[a-z0-9]+$", "", profile_name.replace("python-", ""))
-
-
-def find_conflicts(profile_names: list[str], subdir: str) -> set[str]:
-    counts: dict[str, int] = {}
-    for profile_name in profile_names:
-        directory = ROOT / "profiles" / profile_name / subdir
-        if not directory.exists():
-            continue
-        for md in directory.glob("*.md"):
-            counts[md.name] = counts.get(md.name, 0) + 1
-    return {name for name, count in counts.items() if count > 1}
-
-
 def skill_folders(skills_root: Path) -> list[Path]:
     return sorted(path.parent for path in skills_root.glob("*/SKILL.md"))
 
 
-def find_skill_conflicts(profile_names: list[str]) -> set[str]:
-    counts: dict[str, int] = {}
-    for profile_name in profile_names:
-        for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
-            counts[folder.name] = counts.get(folder.name, 0) + 1
-    return {name for name, count in counts.items() if count > 1}
-
-
 def install_skill_folder(source: Path, destination: Path) -> None:
-    """Copy a <name>/SKILL.md skill, expand its template and set name to the folder name (prefixed on conflicts)."""
+    """Copy a <name>/SKILL.md skill and set name to the folder name."""
     shutil.copytree(source, destination)
     skill_file = destination / "SKILL.md"
-    text = expand_skill_text(skill_file)
+    text = skill_file.read_text(encoding="utf-8")
     text = re.sub(r"(?m)^name:.*$", f'name: "{destination.name}"', text, count=1)
     skill_file.write_text(text, encoding="utf-8")
 
@@ -533,45 +450,6 @@ def write_runtime_entrypoints(
             )
 
 
-def write_runtime_graph(adapter: dict, profiles: list[str], bundle_root: Path) -> None:
-    runtime_root = bundle_root / ".aikit"
-    runtime_root.mkdir(parents=True, exist_ok=True)
-    recipes: list[dict[str, object]] = []
-    for profile_name in profiles:
-        workflow_path = ROOT / "profiles" / profile_name / "workflow.manifest.json"
-        if not workflow_path.exists():
-            continue
-        workflow = read_json(workflow_path)
-        recipes.append(
-            {
-                "profile": profile_name,
-                "default_recipe": workflow.get("default_recipe", ""),
-                "recipes": workflow.get("recipes", []),
-            }
-        )
-
-    graph_config = adapter.get("graph_execution", {})
-    graph_manifest = {
-        "adapter": adapter["runtime"],
-        "label": adapter["label"],
-        "profiles": profiles,
-        "graph_execution": graph_config,
-        "workflow_sets": recipes,
-    }
-
-    shared_artifact = graph_config.get("shared_artifact")
-    if isinstance(shared_artifact, str) and shared_artifact.strip():
-        shared_path = bundle_root / shared_artifact
-        shared_path.parent.mkdir(parents=True, exist_ok=True)
-        shared_path.write_text(json.dumps(graph_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-    runtime_artifact = graph_config.get("runtime_artifact")
-    if isinstance(runtime_artifact, str) and runtime_artifact.strip():
-        runtime_path = bundle_root / runtime_artifact
-        runtime_path.parent.mkdir(parents=True, exist_ok=True)
-        runtime_path.write_text(json.dumps(graph_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
 def populate_memory(memory_dir: Path) -> None:
     source_dir = find_memory_source(ROOT)
     if source_dir is not None:
@@ -785,20 +663,13 @@ def build_package(
     for folder in skill_folders(ROOT / "base" / "skills"):
         install_skill_folder(folder, skills_dir / folder.name)
 
-    # Profile agents and skills with conflict-safe names
-    agent_conflicts = find_conflicts(profiles, "agents")
-    skill_conflicts = find_skill_conflicts(profiles)
+    # Profile agents and skills; names are unique across the kit (static check)
     for profile_name in profiles:
-        prefix = profile_prefix(profile_name)
-
         profile_agents = ROOT / "profiles" / profile_name / "agents"
         for md in sorted(profile_agents.glob("*.md")):
-            dst_name = f"{prefix}-{md.name}" if md.name in agent_conflicts else md.name
-            copy_markdown(md, agents_dir / dst_name)
-
+            copy_markdown(md, agents_dir / md.name)
         for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
-            dst_name = f"{prefix}-{folder.name}" if folder.name in skill_conflicts else folder.name
-            install_skill_folder(folder, skills_dir / dst_name)
+            install_skill_folder(folder, skills_dir / folder.name)
 
     # Pack agents and skills
     for pack_name in packs:
@@ -834,7 +705,6 @@ def build_package(
     native_paths += write_native_skills(adapter, bundle_root, skills_dir)
     native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
     write_runtime_entrypoints(adapter, profiles, bundle_root, package_mode)
-    write_runtime_graph(adapter, profiles, bundle_root)
 
     (runtime_root / "adapter.manifest.json").write_text(
         json.dumps(adapter, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -854,7 +724,6 @@ def build_package(
         "continuation_prompt": adapter.get("continuation_prompt", "") if package_mode == PACKAGE_MODE_MAINTAINER else "",
         "bundle_root": str(bundle_root.relative_to(ROOT if bundle_root.is_relative_to(ROOT) else bundle_root.parent)),
         "runtime_entrypoint_count": len(runtime_entrypoints_for_mode(adapter, package_mode)),
-        "graph_execution_status": adapter.get("graph_execution", {}).get("status", ""),
         "codex_native_agent_count": len(list((bundle_root / ".codex" / "agents").glob("*.md"))),
         # Paths outside .aikit/ owned by this package; the installer removes them before the next install
         "native_paths": native_paths,
@@ -879,7 +748,7 @@ def build_package(
         "- `.aikit/adapter.manifest.json` — adapter contract",
         "- `.aikit/package.manifest.json` — generated package metadata",
         "- `.aikit/runtime-entrypoints.json` — runtime-native launcher contract for this adapter",
-        "- `.aikit/runtime-graph.json` — packaged workflow DAG metadata for runtime exploration",
+        "- `.aikit/profiles.json` — profile contracts: agents by role, specialists, commands",
         "- `.aikit/runtime-operating-protocol.md` — rules for CLI agents that call AIKit tools internally",
         "- `.aikit/runtime-continuation-contract.md` — continuation rules for resumed flows, lineage and next-step orchestration",
         "- `.aikit/runtime-tools.json` — machine-readable registry of internal AIKit tools",

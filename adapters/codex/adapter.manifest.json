@@ -20,8 +20,9 @@
     ".codex/agents/",
     ".agents/skills/",
     ".aikit/agents/",
+    ".aikit/profiles.json",
+    ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
-    ".aikit/runtime-graph.json",
     ".aikit/runtime-entrypoints.json",
     ".aikit/runtime-operating-protocol.md",
     ".aikit/runtime-continuation-contract.md",
@@ -30,18 +31,10 @@
     "CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/AIKIT.md",
     ".codex/CONTINUE_AIKIT_MAINTAINER.md",
-    ".codex/runtime-graph.json",
     ".codex/entrypoints.json",
     ".codex/config.toml"
   ],
   "memory_path": ".aikit/memory",
-  "graph_execution": {
-    "status": "exploratory",
-    "shared_artifact": ".aikit/runtime-graph.json",
-    "runtime_artifact": ".codex/runtime-graph.json",
-    "supports_parallel_handoff": false,
-    "purpose": "Codex runtime can inspect packaged workflow DAG metadata and future graph-aware orchestration hints directly from the installed workspace."
-  },
   "runtime_entrypoints": [
     {
       "name": "project-rules",

@@ -3,7 +3,6 @@
   "label": "Pack: Quality",
   "version": "1.0.0",
   "description": "Расширенное качество кода: анализ покрытия тестами, технический долг, рефакторинг",
-  "compatible_profiles": ["python-fastapi", "python-django", "vue-nuxt"],
   "agents": ["quality-analyst"],
   "skills": ["coverage-check", "tech-debt"],
   "source": "local"

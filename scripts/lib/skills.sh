@@ -2,22 +2,15 @@
 # skills.sh — установка скиллов AIKit (<name>/SKILL.md) в .claude/skills/, общая для attach.sh и update.sh
 #
 # Подключается через source. Ожидает переменные CONFIG_ROOT, SCRIPT_DIR, PROFILE_LIST
-# и функции profile_prefix, log_warn из вызывающего скрипта.
+# и функцию log_warn из вызывающего скрипта.
 # После install_kit_skills в INSTALLED_SKILLS — имена установленных скиллов через пробел.
 
-TEMPLATES_DIR="$CONFIG_ROOT/base/skills/templates"
-
-# Имена скиллов, которые есть в 2+ подключённых профилях
-skill_conflicts() {
-  local p f
-  for p in $PROFILE_LIST; do
-    for f in "$CONFIG_ROOT/profiles/$p/skills"/*/SKILL.md; do
-      if [[ -f "$f" ]]; then basename "$(dirname "$f")"; fi
-    done
-  done | sort | uniq -d
+# Префикс профиля, которым прежние версии кита помечали конфликтующие команды: vue-nuxt→vue, python-fastapi→fastapi
+legacy_profile_prefix() {
+  echo "$1" | sed 's/python-//; s/-[a-z]*$//'
 }
 
-# Скопировать папку скилла под именем name, раскрыть шаблон, выставить name во frontmatter
+# Скопировать папку скилла под именем name и выставить name во frontmatter
 install_skill() {
   local src="$1" dst_root="$2" name="$3"
   local dst="$dst_root/$name"
@@ -25,43 +18,27 @@ install_skill() {
   cp -R "${src%/}" "$dst"
   local file="$dst/SKILL.md"
 
-  if grep -q '^template:' "$file"; then
-    if command -v python3 &>/dev/null; then
-      python3 "$SCRIPT_DIR/expand-template.py" "$file" "$TEMPLATES_DIR" >/dev/null
-    else
-      log_warn "python3 не найден — шаблонный скилл $name не раскрыт"
-    fi
-  fi
-
-  # Runtime ищет скилл по name, а он должен совпадать с папкой (у скиллов с префиксом профиля они различаются)
+  # Runtime ищет скилл по name, а он должен совпадать с папкой
   awk -v name="$name" '!done && /^name:/ { print "name: \"" name "\""; done = 1; next } { print }' \
     "$file" > "$file.tmp" && mv "$file.tmp" "$file"
   INSTALLED_SKILLS="${INSTALLED_SKILLS:+$INSTALLED_SKILLS }$name"
 }
 
-# Установить скиллы base, профилей и паков в dst_root
+# Установить скиллы base, профилей и паков в dst_root. Имена скиллов уникальны во всём ките (статическая проверка)
 # Использование: install_kit_skills <dst_root> <packs>
 install_kit_skills() {
   local dst_root="$1" packs="$2"
-  local conflicts p pack prefix dir name
+  local p pack dir
   INSTALLED_SKILLS=""
   mkdir -p "$dst_root"
-  conflicts="$(skill_conflicts)"
 
   for dir in "$CONFIG_ROOT/base/skills"/*/; do
     if [[ -f "${dir}SKILL.md" ]]; then install_skill "$dir" "$dst_root" "$(basename "$dir")"; fi
   done
 
   for p in $PROFILE_LIST; do
-    prefix="$(profile_prefix "$p")"
     for dir in "$CONFIG_ROOT/profiles/$p/skills"/*/; do
-      [[ -f "${dir}SKILL.md" ]] || continue
-      name="$(basename "$dir")"
-      if grep -qx "$name" <<< "$conflicts"; then
-        log_warn "Конфликт скилла '$name' → $prefix-$name (из $p)"
-        name="$prefix-$name"
-      fi
-      install_skill "$dir" "$dst_root" "$name"
+      if [[ -f "${dir}SKILL.md" ]]; then install_skill "$dir" "$dst_root" "$(basename "$dir")"; fi
     done
   done
 
@@ -88,7 +65,7 @@ remove_previous_kit_skills() {
     name="$(basename "$(dirname "$f")")"
     rm -f "$claude_dir/commands/$name.md"
     for p in "$CONFIG_ROOT"/profiles/*/; do
-      prefix="$(profile_prefix "$(basename "$p")")"
+      prefix="$(legacy_profile_prefix "$(basename "$p")")"
       rm -f "$claude_dir/commands/$prefix-$name.md"
     done
   done

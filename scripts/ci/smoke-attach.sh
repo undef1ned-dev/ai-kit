@@ -60,7 +60,7 @@ check_profiles_in_claude_md() {
   done
 }
 
-# Скиллы: <name>/SKILL.md с name = папка и description, шаблоны раскрыты, все из .config-version на месте
+# Скиллы: <name>/SKILL.md с name = папка и description, все из .config-version на месте
 check_skills() {
   "$PYTHON_BIN" - "$PROJECT_DIR/.claude" <<'PY'
 import json, pathlib, re, sys
@@ -76,7 +76,6 @@ for name in expected:
     fields = dict(re.findall(r"(?m)^([\w-]+):\s*(.*)$", match.group(1)))
     assert fields.get("name", "").strip('"') == name, f"name не совпадает с папкой: {name}"
     assert fields.get("description", "").strip(), f"нет description: {name}"
-    assert "template" not in fields, f"шаблон не раскрыт: {name}"
 PY
 }
 
@@ -98,11 +97,46 @@ assert not gitignore.exists() or ".claude/settings.json" not in gitignore.read_t
 PY
 }
 
+# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям, Nuxt найден в web/; правка команды проекта сохранена (если была)
+check_profile_contracts() {
+  "$PYTHON_BIN" - "$PROJECT_DIR" "$KIT_ROOT/presets/$PRESET.json" "${1:-}" <<'PY'
+import json, pathlib, sys
+project, preset, edited = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+expected = json.loads(preset.read_text(encoding="utf-8"))["profiles"]
+contracts = json.loads((project / ".aikit" / "profiles.json").read_text(encoding="utf-8"))["profiles"]
+assert list(contracts) == expected, f"профили {list(contracts)} вместо {expected}"
+for name, contract in contracts.items():
+    assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
+    assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+    expected_root = "web" if name == "vue-nuxt" else "."
+    assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
+if edited:
+    first = contracts[expected[0]]["commands"]
+    assert first.get("test") == "custom-test", "правка команды test затёрта"
+    assert "run" not in first, "удалённая командой run вернулась"
+PY
+}
+
+# Команда проекта правит контракт: своя команда test, без run
+edit_profile_contract() {
+  "$PYTHON_BIN" - "$PROJECT_DIR/.aikit/profiles.json" <<'PY'
+import json, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+commands = next(iter(data["profiles"].values()))["commands"]
+commands["test"] = "custom-test"
+commands.pop("run", None)
+path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+PY
+}
+
 count_files() { find "$1" -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "▶ Пресет $PRESET → $PROJECT_DIR"
 cd "$PROJECT_DIR"
 git init -q
+# Монорепо: Nuxt-приложение в web/ — установщик должен найти папку профиля
+mkdir -p web && touch web/nuxt.config.ts
 
 echo "▶ attach.sh"
 bash "$KIT_ROOT/scripts/attach.sh" --preset "$PRESET" > attach.log 2>&1 || { cat attach.log; echo "✗ attach.sh завершился с ошибкой"; exit 1; }
@@ -114,12 +148,14 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
-check "скиллы установлены: name = папка, есть description, шаблоны раскрыты" check_skills
+check "скиллы установлены: name = папка, есть description" check_skills
+check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f .claude/skills/implement-feature/SKILL.md && ! ls -d .claude/skills/*-implement-feature 2>/dev/null"
 check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
 check "скилл git-commit установлен" test -f .claude/skills/git-commit/SKILL.md
 check "скилл git-branch установлен" test -f .claude/skills/git-branch/SKILL.md
 check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -rlF "{{" .claude CLAUDE.md'
 check ".mcp.json: серверы с закреплёнными версиями, settings.json без MCP" check_mcp
+check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
 check "память проекта создана" test -d .aikit/memory
 check "версия конфигурации записана" test -s .claude/.config-version
 
@@ -132,6 +168,7 @@ echo "# legacy" > .claude/skills/legacy-kit-skill/SKILL.md
 "$PYTHON_BIN" -c 'import json; p = ".mcp.json"; d = json.load(open(p, encoding="utf-8")); d["mcpServers"]["my-server"] = {"command": "my-mcp"}; json.dump(d, open(p, "w", encoding="utf-8"))'
 printf "node_modules/\n\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" > .gitignore
 sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
+edit_profile_contract
 
 echo "▶ update.sh --auto"
 if bash "$KIT_ROOT/scripts/update.sh" --auto > update.log 2>&1; then
@@ -147,6 +184,7 @@ check "старые скиллы и команды кита убраны" test !
 check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md
 check ".mcp.json после обновления: серверы кита и пользователя, .gitignore очищен" check_mcp my-server
 check ".gitignore: свои правила сохранены" grep -qx "node_modules/" .gitignore
+check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Пресет $PRESET: проверок не пройдено — $FAILURES"

@@ -67,16 +67,12 @@ Claude compatibility mirror:
 8. `docs/multi-runtime-architecture.md`
 9. `docs/release-versioning.md`
 10. `scripts/generate-catalog.py`
-11. `scripts/generate-profile-docs.py`
-12. `scripts/generate-marketplace-docs.py`
-13. `scripts/generate-product-docs.py`
-14. если задача про marketplace/distribution direction — `marketplace/marketplace.manifest.json` и `scripts/resolve-marketplace-item.py`
-15. если задача про routing — `scripts/profile_routing.py` и `scripts/explain-routing.py`
-16. если задача про runtime install/update — `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py` и legacy shell flows соответствующего runtime
-17. если задача про профиль — `profile.manifest.json` и `capabilities.json` соответствующего профиля
-18. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
-19. если задача про runtime execution layer — `docs/adapter-runtime-execution.md`
-20. если задача про runtime maturity — `docs/adapter-conformance.md`, `docs/runtime-maturity-review.md`, `docs/adapter-fixtures.json`
+11. если задача про marketplace/distribution direction — `marketplace/marketplace.manifest.json` и `scripts/resolve-marketplace-item.py`
+12. если задача про runtime install/update — `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py` и legacy shell flows соответствующего runtime
+13. если задача про профиль — контракт `profile.manifest.json` соответствующего профиля
+14. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
+15. если задача про runtime execution layer — `docs/adapter-runtime-execution.md`
+16. если задача про runtime maturity — `docs/adapter-conformance.md`, `docs/runtime-maturity-review.md`, `docs/adapter-fixtures.json`
 
 Сформулируй для себя:
 - какой слой системы меняется;
@@ -182,12 +178,9 @@ mkdir -p /tmp/aikit-smoke && cd /tmp/aikit-smoke && git init -q
 bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 ```
 
-### Если менялись агенты, skills, docs каталога или summary
+### Если менялись агенты, skills или каталог
 ```bash
-python3 scripts/generate-profile-docs.py
 python3 scripts/generate-catalog.py
-python3 scripts/generate-marketplace-docs.py
-python3 scripts/generate-product-docs.py
 ```
 
 ### Если менялись shell-скрипты
@@ -198,11 +191,6 @@ bash -n <legacy-runtime-shell-script>
 ### Если менялись Python-скрипты в `scripts/`
 ```bash
 PYTHONPYCACHEPREFIX=/tmp/codex-pycache python3 -m py_compile scripts/*.py
-```
-
-### Если менялись VERSION, CHANGELOG или release docs/scripts
-```bash
-python3 scripts/generate-product-docs.py
 ```
 
 ### Если менялись install flow, adapter templates или runtime launcher files
@@ -239,11 +227,9 @@ python3 scripts/build-adapter-package.py codex --profile vue-nuxt --target /tmp/
 python3 scripts/build-adapter-package.py opencode --profile python-fastapi --target /tmp/aikit-adapters
 ```
 
-### Если менялся routing
-Прогони минимум 1-2 ручных smoke-check сценария:
+### Если менялся контракт профиля (`profile.manifest.json`)
 ```bash
-python3 scripts/explain-routing.py "Измени stores/auth.ts"
-python3 scripts/explain-routing.py "Доработай apps/orders/admin.py"
+bash scripts/ci/static-checks.sh
 ```
 
 Если проверка не нужна — явно скажи почему.
