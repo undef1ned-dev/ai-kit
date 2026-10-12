@@ -50,11 +50,6 @@ PUBLIC_BASE_AGENT_ALLOWLIST = {
 }
 VISIBLE_COMMAND_OVERVIEW = [
     {
-        'command': '/aikit-bootstrap-project',
-        'entry': 'primary task entry',
-        'activates': 'BOOTSTRAP_REPORT, no-delivery-chain start',
-    },
-    {
         'command': '/implement-feature',
         'entry': 'primary task entry',
         'activates': 'architect -> coder -> tester -> reviewer',
@@ -292,21 +287,10 @@ def collect_workflow_surfaces(root: Path) -> list[dict]:
     return workflows
 
 
-def collect_evidence_surfaces(root: Path) -> list[dict]:
-    return []
-
-
 def collect_product_context(root: Path) -> dict:
     return {
         'runtime_adapters': collect_runtime_adapters(root),
         'workflow_surfaces': collect_workflow_surfaces(root),
-        'evidence_surfaces': collect_evidence_surfaces(root),
-        'validation_commands': [
-            '/aikit-doctor --check validate-product-docs',
-            '/aikit-doctor --check validate-workflow-fixtures',
-            '/aikit-doctor --check validate-documentation-integrity',
-            '/aikit-doctor --check validate-config',
-        ],
     }
 
 
@@ -678,19 +662,6 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
 </div>'''
         for workflow in context.get('workflow_surfaces', [])
     )
-    evidence_cards = ''.join(
-        f'''
-<div class="overview-mini-card">
-  <span class="summary-label">{h(surface.get("name", ""))}</span>
-  <span class="summary-value">{h(surface.get("path", ""))}</span>
-  <span class="badge">{h(str(surface.get("count", 0)) + " sources")}</span>
-</div>'''
-        for surface in context.get('evidence_surfaces', [])
-    )
-    validator_cards = ''.join(
-        f'<code class="validator-chip">{h(command)}</code>'
-        for command in context.get('validation_commands', [])
-    )
     command_cards = ''.join(
         f'''
 <div class="overview-mini-card">
@@ -705,8 +676,8 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
   <div class="overview-header">
     <div>
       <p class="kicker">Catalog Overview</p>
-      <h1>Profiles, runtimes, workflows, evidence and validators in one local catalog</h1>
-      <p class="overview-copy">Start with Start Here, then use this page as a browse and reference surface. This private-repository compatible page is generated static HTML and does not require GitHub Pages or public hosting.</p>
+      <h1>Профили, runtime, workflow, агенты и скиллы AIKit на одной странице</h1>
+      <p class="overview-copy">Страница собирается из исходников кита командой <code>python3 scripts/generate-catalog.py</code>. Установка — <code>scripts/attach.sh</code>, см. README.</p>
     </div>
     <div class="overview-stats" aria-label="Catalog totals">
       <div><span>{h(total_agents)}</span><small>Agents</small></div>
@@ -724,20 +695,8 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
       <div class="overview-stack">{workflow_cards}</div>
     </div>
     <div class="overview-panel">
-      <h2>Evidence surfaces</h2>
-      <div class="overview-stack">{evidence_cards}</div>
-    </div>
-    <div class="overview-panel">
-      <h2>Validation commands</h2>
-      <div class="validator-list">{validator_cards}</div>
-      <code class="validator-chip">/aikit-docs --refresh catalog</code>
-      <a class="overview-link" href="../public/get-started.md">Return to Get Started for the project-first install and bootstrap path.</a>
-    </div>
-    <div class="overview-panel">
       <h2>Visible commands</h2>
       <div class="overview-stack">{command_cards}</div>
-      <a class="overview-link" href="../public/start-here.md">Start with Start Here before using this catalog as a browse/reference surface.</a>
-      <a class="overview-link" href="../public/profiles-summary.md">Profile-local overlays such as /setup-admin appear only after the profile is known.</a>
     </div>
   </div>
 </section>'''
@@ -1309,20 +1268,6 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
     <span class="search-icon">🔍</span>
     <input class="search-input" type="text" placeholder="Поиск..." oninput="filterCards(this.value)">
   </div>
-  <div class="header-links">
-    <a class="header-link" href="./index.html">Docs Home</a>
-    <a class="header-link" href="../public/product-story.md">Product Story</a>
-    <a class="header-link" href="../public/start-here.md">Start Here</a>
-    <a class="header-link" href="../public/agents-skills-reference.md">Agents & Skills</a>
-          <a class="header-link" href="../public/release-center.md">Release Center</a>
-          <a class="header-link" href="../public/get-started.md">Get Started</a>
-          <a class="header-link" href="../public/install-matrix.md">Install Matrix</a>
-          <a class="header-link" href="../public/runtime-maturity-review.md">Runtime Review</a>
-          <a class="header-link" href="../public/profiles-summary.md">Profiles Summary</a>
-          <a class="header-link" href="../public/compatibility-matrix.md">Compatibility Matrix</a>
-          <a class="header-link" href="../public/marketplace.md">Marketplace</a>
-          <a class="header-link" href="../public/publishing-workflow.md">Publishing Workflow</a>
-  </div>
   <span class="header-sub">Claude Code · AIKit</span>
 </header>
 
@@ -1418,21 +1363,6 @@ HTML_TEMPLATE = '''<!DOCTYPE html>
 
 # ─── Main ───────────────────────────────────────────────────────────────────
 
-def legacy_catalog_redirect_stub() -> str:
-    return """<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="refresh" content="0; url=./generated/catalog.html">
-  <title>AIKit Catalog Redirect</title>
-</head>
-<body>
-  <p>Moved to <a href="./generated/catalog.html">docs/generated/catalog.html</a>.</p>
-</body>
-</html>
-"""
-
-
 def main():
     parser = argparse.ArgumentParser(description='Generate agents catalog HTML')
     parser.add_argument('--root', default=None,
@@ -1473,10 +1403,6 @@ def main():
 
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(catalog, encoding='utf-8')
-    if args.out is None:
-        legacy_out = root / 'docs' / 'catalog.html'
-        legacy_out.write_text(legacy_catalog_redirect_stub(), encoding='utf-8')
-        print(f'Updated compatibility redirect → {legacy_out}')
     print(f'Done → {out}')
 
 

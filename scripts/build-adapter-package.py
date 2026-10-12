@@ -22,15 +22,14 @@ import re
 import sys
 
 from memory_paths import ensure_memory_structure, find_memory_source
-from docs_paths import resolve_doc_alias
 from preset_utils import resolve_preset
 
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = ROOT / "base" / "skills" / "templates"
 VERSION_FILE = ROOT / "VERSION"
-RUNTIME_OPERATING_PROTOCOL = resolve_doc_alias("cli_agent_operating_protocol_md")
-RUNTIME_CONTINUATION_CONTRACT = resolve_doc_alias("cli_runtime_continuation_contract_md")
+RUNTIME_OPERATING_PROTOCOL = ROOT / "docs" / "public" / "cli-agent-operating-protocol.md"
+RUNTIME_CONTINUATION_CONTRACT = ROOT / "docs" / "public" / "cli-runtime-continuation-contract.md"
 RUNTIME_TOOLS_MANIFEST = ROOT / "knowledge" / "runtime-tools.manifest.json"
 COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventory-fixtures.json"
 PACKAGE_MODE_CONSUMER = "consumer"

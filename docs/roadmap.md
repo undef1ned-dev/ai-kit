@@ -44,6 +44,7 @@
 | ✅ | `update.sh`: кит обновляется только как submodule и только без локальных правок | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | `base/settings.json`: убран GitLab MCP исходного проекта, добавлено `attribution` (без соавторства) | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | Этап 1: CI на PR (статические проверки + smoke-тест пресетов на Linux и Windows), релиз по тегу, Dependabot | [#3](https://github.com/undef1ned-dev/ai-kit/pull/3) |
+| ✅ | Этап 2: скиллы `<name>/SKILL.md`, агенты и правила в родных папках Claude Code, Codex и OpenCode, MCP из одного источника | [#7](https://github.com/undef1ned-dev/ai-kit/pull/7) |
 
 Хвосты:
 
@@ -65,7 +66,7 @@
 | 1.3 ✅ | `install-adapter-package.py`: пресет `fullstack-web` падает для Codex и OpenCode с «Pack 'ai' is not compatible with profile(s): vue-nuxt» — тот же баг, что был в `attach.sh` (`scripts/build-adapter-package.py:703`). Заодно исправлены: дубль `/implement-feature` в мульти-профиле для Codex и невалидный TOML агентов Codex (не экранировался `\`) |
 | 1.4 ✅ | Smoke-тест установки адаптеров в CI: `install-adapter-package.py` для `codex` и `opencode` × все пресеты, с проверкой файлов, которые реально читает каждый runtime |
 
-### Этап 2. Формат поставки: Skills и MCP
+### Этап 2. Формат поставки: Skills и MCP ✅
 
 Формат `<name>/SKILL.md` (`name` + `description`) — общий стандарт: его читают Claude Code, Codex и OpenCode. Поэтому этап делается сразу для всех runtime.
 
@@ -144,8 +145,8 @@
 
 | # | Задача |
 |---|---|
-| 8.1 | Генераторы: решить, что генерировать и куда; `generate-profile-docs.py` не должен перезаписывать README, `generate-agents-skills-reference.py` — не падать |
-| 8.2 | `docs/public/` и `docs-site/`: переписать под реальный путь (plugin / `attach.sh` → `/implement-feature`), убрать ссылки на удалённые команды, RAG и iOS |
+| 8.1 ✅ | Генераторы: решить, что генерировать и куда. Сделано: оставлен только каталог (`scripts/generate-catalog.py` → `docs/generated/catalog.html`, артефакт CI), остальные генераторы и `docs/public/` удалены. В `docs/public/` остались два документа, которые адаптеры Codex и OpenCode кладут в `.aikit/` (`cli-agent-operating-protocol.md`, `cli-runtime-continuation-contract.md`): они устарели и ждут пересмотра |
+| 8.2 | `docs-site/`: переписать под реальный путь (plugin / `attach.sh` → `/implement-feature`), убрать ссылки на удалённые команды, RAG и iOS |
 | 8.3 | «Шаг 0» у `aikit-maintainer` и `platform-evangelist`: читать только существующие документы (этот roadmap вместо удалённых `docs/roadmap.md`, `docs/execution-log.md` и др.) |
 
 ### Этап 9. Качество агентов
