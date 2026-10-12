@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 from collections import Counter
@@ -87,6 +88,17 @@ VISIBLE_COMMAND_CONTRACT = [
 ]
 
 
+def load_template_expander():
+    path = Path(__file__).resolve().with_name("expand-template.py")
+    spec = importlib.util.spec_from_file_location("aikit_expand_template", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.expand_skill_text
+
+
+expand_skill_text = load_template_expander()
+
+
 def display_command(name: str) -> str:
     if name == "phase-forge":
         return "/phaseforge"
@@ -147,16 +159,19 @@ def public_profile_owner(owner: str) -> bool:
 
 
 def collect(kind: str) -> list[dict[str, Any]]:
-    pattern = f"*/{kind}/*.md"
-    files = sorted((ROOT / "base" / kind).glob("*.md"))
+    item_glob = "*/SKILL.md" if kind == "skills" else "*.md"
+    pattern = f"*/{kind}/{item_glob}"
+    files = sorted((ROOT / "base" / kind).glob(item_glob))
     files += sorted((ROOT / "profiles").glob(pattern))
     files += sorted((ROOT / "packs").glob(pattern))
     entries: list[dict[str, Any]] = []
     for path in files:
         text = path.read_text(encoding="utf-8")
+        if kind == "skills":
+            text = expand_skill_text(text)
         frontmatter = parse_frontmatter(text)
         owner_type, owner = owner_for(path)
-        name = str(frontmatter.get("name") or path.stem)
+        name = str(frontmatter.get("name") or (path.parent.name if kind == "skills" else path.stem))
         if kind == "agents" and name in PUBLIC_AGENT_EXCLUSIONS:
             continue
         if owner_type == "base":

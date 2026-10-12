@@ -8,12 +8,15 @@
 #   1. Синтаксис всех *.sh (bash -n) и грубые ошибки через shellcheck, если он установлен
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
+#   4. Генератор каталога видит все скиллы-папки профилей и паков
 
 set -eo pipefail
 
 KIT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$KIT_ROOT"
 PYTHON_BIN="$(command -v python3 || command -v python)"
+# Сообщения с ✗ и кириллицей печатаются и в консоли Windows
+export PYTHONIOENCODING=utf-8
 FAILURES=0
 
 list_files() { git ls-files -z -- "$1" | tr '\0' '\n' | tr -d '\r'; }
@@ -57,6 +60,25 @@ for path in filter(None, (line.strip() for line in sys.stdin)):
         print(f"  ✗ {path}: {e}")
         failed += 1
 sys.exit(1 if failed else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Каталог: все скиллы профилей и паков найдены, у всех есть description"
+"$PYTHON_BIN" -c '
+import importlib.util, pathlib, sys
+spec = importlib.util.spec_from_file_location("catalog", "scripts/generate-catalog.py")
+catalog = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(catalog)
+sections = catalog.collect_data(pathlib.Path("."))
+found = {(key, skill["name"]) for key, section in sections.items() for skill in section["skills"]}
+expected = {(path.parts[1], path.parent.name) for path in pathlib.Path("profiles").glob("*/skills/*/SKILL.md") if path.parts[1] in sections}
+expected |= {("pack-" + path.parts[1], path.parent.name) for path in pathlib.Path("packs").glob("*/skills/*/SKILL.md")}
+missing = sorted(expected - found)
+empty = sorted(skill["name"] for section in sections.values() for skill in section["skills"] if not skill.get("description"))
+for item in missing:
+    print(f"  ✗ скилл не попал в каталог: {item}")
+for name in empty:
+    print(f"  ✗ нет description: {name}")
+sys.exit(1 if missing or empty else 0)
 ' || FAILURES=$((FAILURES + 1))
 
 if [[ "$FAILURES" -gt 0 ]]; then
