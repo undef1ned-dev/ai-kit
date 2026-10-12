@@ -56,7 +56,8 @@ data = json.loads(manifest.read_text(encoding="utf-8"))
 data["pipelines"] = {"api-docs": {"when": "нужна только документация API без изменения кода", "steps": [agent, "spring-reviewer"]}}
 manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
-  (cd "$KIT_COPY" && git add -A)
+  # The catalog page of the docs site shows the new profile — rebuild it, as the author of a profile does
+  (cd "$KIT_COPY" && "$PYTHON_BIN" scripts/generate-docs.py >/dev/null && git add -A)
 }
 
 echo "▶ Копия кита → $KIT_COPY"

@@ -12,6 +12,3 @@ __pycache__/
 
 # Claude Code (локальные настройки MCP — у каждого свои пути)
 .claude/settings.json
-
-# Каталог собирается scripts/generate-catalog.py, в git не хранится
-docs/generated/

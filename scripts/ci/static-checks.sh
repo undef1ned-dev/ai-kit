@@ -8,10 +8,11 @@
 #   1. Синтаксис всех *.sh (bash -n) и грубые ошибки через shellcheck, если он установлен
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
-#   4. Генератор каталога видит все скиллы-папки профилей и паков
+#   4. Каталог документации видит все скиллы-папки профилей и паков
 #   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны)
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
+#   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 
 set -eo pipefail
 
@@ -68,7 +69,7 @@ sys.exit(1 if failed else 0)
 echo "▶ Каталог: все скиллы профилей и паков найдены, у всех есть description"
 "$PYTHON_BIN" -c '
 import importlib.util, pathlib, sys
-spec = importlib.util.spec_from_file_location("catalog", "scripts/generate-catalog.py")
+spec = importlib.util.spec_from_file_location("catalog", "scripts/generate-docs.py")
 catalog = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(catalog)
 sections = catalog.collect_data(pathlib.Path("."))
@@ -161,6 +162,9 @@ for error in errors:
     print(f"  ✗ {error}")
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
+"$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Статические проверки: ошибок — $FAILURES"

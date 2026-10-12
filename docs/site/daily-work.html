@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Работа с агентами — AIKit</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("aikit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="daily-work">
+<header class="topbar">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Меню" data-nav-toggle>☰</button>
+  <a class="brand" href="index.html"><span class="brand-mark">AI</span>Kit<span class="version">v0.1.0</span></a>
+  <div class="search">
+    <input class="search-input" type="search" placeholder="Поиск по документации" aria-label="Поиск" autocomplete="off" data-search>
+    <kbd class="search-key">/</kbd>
+    <div class="search-results" hidden data-search-results></div>
+  </div>
+  <button class="icon-btn" type="button" aria-label="Сменить тему" data-theme-toggle>◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Разделы"><div class="nav-group"><div class="nav-title">Начало</div><ul><li><a href="index.html">Что такое AIKit</a></li><li><a href="glossary.html">Термины</a></li><li><a href="getting-started.html">Установка</a></li></ul></div><div class="nav-group"><div class="nav-title">Как устроено</div><ul><li><a href="how-it-works.html">Как это работает</a></li><li><a href="daily-work.html" class="active" aria-current="page">Работа с агентами</a></li><li><a href="commands.html">Команды</a></li></ul></div><div class="nav-group"><div class="nav-title">Справочник</div><ul><li><a href="catalog.html">Каталог профилей</a></li><li><a href="runtime-support.html">Поддержка runtime</a></li><li><a href="known-issues.html">Известные ошибки</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div><div class="nav-group"><div class="nav-title">Развитие кита</div><ul><li><a href="adding-a-stack.html">Как добавить стек</a></li><li><a href="developing-aikit.html">Разработка AIKit</a></li></ul></div></nav>
+  <main class="content">
+    <article class="doc">
+<h1 class="page-title">Работа с агентами</h1>
+<p>Как ставить задачи, какие сценарии покрывает кит и что делать, если результат не тот. Качество результата больше всего зависит от того, как сформулирована задача.</p>
+<h2 id="как-ставить-задачи"><a class="anchor" href="#как-ставить-задачи" aria-hidden="true">#</a>Как ставить задачи</h2>
+<h3 id="давай-контекст-а-не-одну-команду"><a class="anchor" href="#давай-контекст-а-не-одну-команду" aria-hidden="true">#</a>Давай контекст, а не одну команду</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Плохо:   Добавь кнопку
+Хорошо:  На странице pages/profile.vue добавь кнопку «Выйти» в правый верхний угол.
+         По нажатию — logout() из useAuthStore и переход на /login.</code></pre></div>
+<p>Пути к файлам помогают и тебе, и киту: по ним <code>/implement-feature</code> выбирает профиль.</p>
+<h3 id="описывай-результат-а-не-реализацию"><a class="anchor" href="#описывай-результат-а-не-реализацию" aria-hidden="true">#</a>Описывай результат, а не реализацию</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Плохо:   Создай ProfileHeader.vue, в нём div с img и двумя span…
+Хорошо:  Пользователь видит в профиле аватар, имя и email.
+         По клику на аватар открывается выбор фото.</code></pre></div>
+<p>Как это реализовать по правилам стека, решит архитектор: для этого у него есть <code>CLAUDE.md</code> и код проекта.</p>
+<h3 id="большую-задачу-через-скилл"><a class="anchor" href="#большую-задачу-через-скилл" aria-hidden="true">#</a>Большую задачу — через скилл</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Плохо:   Сделай экран уведомлений с API, тестами и ревью
+Хорошо:  /implement-feature экран уведомлений: список, отметить прочитанным,
+         удалить, бейдж с количеством непрочитанных в шапке</code></pre></div>
+<p>Скилл разобьёт работу между агентами, проверит результат командами проекта и покажет итог. Мелкие правки делай обычным сообщением без скилла — так быстрее.</p>
+<h3 id="отвечай-на-вопросы-агентов"><a class="anchor" href="#отвечай-на-вопросы-агентов" aria-hidden="true">#</a>Отвечай на вопросы агентов</h3>
+<p>Если агент вернул вопросы, цепочка остановится. Это нормально: лучше уточнить до кода, чем переделывать после.</p>
+<h3 id="проверяй-и-уточняй-конкретно"><a class="anchor" href="#проверяй-и-уточняй-конкретно" aria-hidden="true">#</a>Проверяй и уточняй конкретно</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>В NotificationsPanel нет пустого состояния. Если уведомлений нет —
+покажи текст «Пока пусто» и иконку колокольчика.</code></pre></div>
+<h2 id="типовые-сценарии"><a class="anchor" href="#типовые-сценарии" aria-hidden="true">#</a>Типовые сценарии</h2>
+<h3 id="новая-фича"><a class="anchor" href="#новая-фича" aria-hidden="true">#</a>Новая фича</h3>
+<ol class="steps"><li>Проверь, что <code>PRODUCT.md</code> заполнен.</li><li><code>/implement-feature &lt;что нужно сделать&gt;</code>.</li><li>Ответь на вопросы архитектора, если будут.</li><li>Прочитай итог: замечания ревьюера и результат тестов. Попроси исправить, если нужно.</li><li>Посмотри diff, закоммить, открой PR.</li></ol>
+<h3 id="фича-по-макету-vue-nuxt"><a class="anchor" href="#фича-по-макету-vue-nuxt" aria-hidden="true">#</a>Фича по макету (vue-nuxt)</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/design-implement &lt;ссылка на фрейм Figma&gt; — экран оформления заказа</code></pre></div>
+<p>Скилл соберёт из макета implementation brief, сверит его с UI kit и проведёт через цепочку агентов. Чтобы проверить уже готовую реализацию, используй <code>/design-review</code>. Для Figma MCP нужен вход через OAuth — runtime попросит его при первом вызове.</p>
+<h3 id="идея-план-код"><a class="anchor" href="#идея-план-код" aria-hidden="true">#</a>Идея → план → код</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/analyze-mvp система достижений: бейджи за действия в продукте, показываем в профиле</code></pre></div>
+<p><code>mvp-analyst</code> проведёт короткое интервью и запишет анализ в <code>docs/mvp/</code>. Затем <code>/implement-mvp</code> превратит его в технический план по частям системы, а каждую часть реализует <code>/implement-feature</code>.</p>
+<h3 id="тесты-к-готовому-коду"><a class="anchor" href="#тесты-к-готовому-коду" aria-hidden="true">#</a>Тесты к готовому коду</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента vue-tester: напиши тесты для composables/useAuth.ts</code></pre></div>
+<p>Или скилл профиля, если он есть: <code>/add-tests</code> в <code>vue-nuxt</code>. Для backend-профилей — агент <code>fastapi-tester</code> или <code>django-tester</code>.</p>
+<h3 id="ревью-перед-pr"><a class="anchor" href="#ревью-перед-pr" aria-hidden="true">#</a>Ревью перед PR</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента vue-reviewer: проверь изменения в этой ветке</code></pre></div>
+<p><code>/security-check</code> — отдельный аудит безопасности: OWASP Top 10, секреты, авторизация. Запускай его перед релизом и после крупных изменений.</p>
+<h3 id="не-знаешь-с-чего-начать"><a class="anchor" href="#не-знаешь-с-чего-начать" aria-hidden="true">#</a>Не знаешь, с чего начать</h3>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/workflow хочу ускорить загрузку каталога товаров</code></pre></div>
+<p>Визард определит тип задачи, покажет план из агентов и спросит подтверждение.</p>
+<h3 id="сохранить-опыт-команды"><a class="anchor" href="#сохранить-опыт-команды" aria-hidden="true">#</a>Сохранить опыт команды</h3>
+<p>После значимой задачи:</p>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/capture-memory</code></pre></div>
+<p><code>memory-writer</code> запишет принятые решения, найденные паттерны и поправки агентам в <code>.aikit/memory/</code>. Следующие задачи будут их учитывать. <code>/memory-status</code> покажет, что накоплено, а <code>/optimize-memory</code> сожмёт память, когда она разрастётся.</p>
+<h2 id="как-вызвать-агента-напрямую"><a class="anchor" href="#как-вызвать-агента-напрямую" aria-hidden="true">#</a>Как вызвать агента напрямую</h2>
+<p>Скиллы сами запускают нужных агентов. Но агента можно позвать и напрямую — назови его в сообщении:</p>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента security-auditor: проверь server/api/ на утечку токенов</code></pre></div>
+<p>Список агентов с описаниями — в <a href="catalog.html">каталоге</a>.</p>
+<h2 id="если-что-то-пошло-не-так"><a class="anchor" href="#если-что-то-пошло-не-так" aria-hidden="true">#</a>Если что-то пошло не так</h2>
+<div class="table-wrap"><table><thead><tr><th>Что случилось</th><th>Что делать</th></tr></thead><tbody><tr><td>Агент делает не то</td><td>Прерви (Esc в Claude Code) и уточни: «Стоп, я имел в виду не X, а Y»</td></tr><tr><td><code>/implement-feature</code> пишет «AIKit не установлен»</td><td>Нет <code>.aikit/profiles.json</code> — запусти установщик (<a href="getting-started.html">Установка</a>)</td></tr><tr><td>Скилл не находится</td><td>Проверь, что runtime открыт в корне проекта, а скилл есть в <code>.claude/skills/</code> (Codex и OpenCode — <code>.agents/skills/</code>)</td></tr><tr><td>Выбран не тот профиль</td><td>Укажи путь к файлу в задаче или прямо назови профиль: «в профиле python-fastapi»</td></tr><tr><td>Команда <code>lint</code> или <code>test</code> не та, что в проекте</td><td>Поправь <code>commands</code> в <code>.aikit/profiles.json</code> — обновление кита правку сохранит</td></tr><tr><td>Команды запускаются не в той папке монорепо</td><td>Поправь <code>root</code> профиля в <code>.aikit/profiles.json</code></td></tr><tr><td>Агенты не видны в Codex</td><td>Отметь проект доверенным — см. <a href="getting-started.html#установка-в-codex-и-opencode">Установка</a></td></tr><tr><td>Результат не соответствует правилам</td><td>«Это не соответствует правилам из CLAUDE.md, пересмотри решение» — и укажи, какому правилу</td></tr></tbody></table></div>
+<p>Больше случаев — в <a href="known-issues.html">Известных ошибках</a>.</p>
+<h2 id="делай-и-не-делай"><a class="anchor" href="#делай-и-не-делай" aria-hidden="true">#</a>Делай и не делай</h2>
+<p>Делай:</p>
+<ul><li><code>/implement-feature</code> для фич, обычное сообщение — для мелких правок;</li><li>заполняй <code>PRODUCT.md</code> и обновляй его, когда продукт меняется;</li><li>после крупных задач запускай <code>/capture-memory</code>;</li><li>смотри diff перед коммитом — ответственность за код остаётся за тобой;</li><li>правки под проект вноси в <code>.aikit/profiles.json</code> и в свой текст вне блока AIKit в <code>AGENTS.md</code>.</li></ul>
+<p>Не делай:</p>
+<ul><li>не правь агентов и скиллы кита в <code>.claude/</code> проекта — обновление их перезапишет; улучшения вноси в сам AIKit;</li><li>не клади секреты в <code>.mcp.json</code>, <code>settings.json</code> и другие конфиги — только переменные окружения;</li><li>не добавляй <code>.aikit/memory/</code> и <code>.claude/memory/</code> в <code>.gitignore</code> — память общая для команды;</li><li>не давай агентам права на force push и удаление без подтверждения.</li></ul>
+    </article>
+    <nav class="pager"><a class="pager-prev" href="how-it-works.html"><span>Назад</span>Как это работает</a><a class="pager-next" href="commands.html"><span>Дальше</span>Команды</a></nav>
+    <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/daily-work.md">docs/guide/daily-work.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
+  </main>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#как-ставить-задачи">Как ставить задачи</a></li><li class="toc-l3"><a href="#давай-контекст-а-не-одну-команду">Давай контекст, а не одну команду</a></li><li class="toc-l3"><a href="#описывай-результат-а-не-реализацию">Описывай результат, а не реализацию</a></li><li class="toc-l3"><a href="#большую-задачу-через-скилл">Большую задачу — через скилл</a></li><li class="toc-l3"><a href="#отвечай-на-вопросы-агентов">Отвечай на вопросы агентов</a></li><li class="toc-l3"><a href="#проверяй-и-уточняй-конкретно">Проверяй и уточняй конкретно</a></li><li class="toc-l2"><a href="#типовые-сценарии">Типовые сценарии</a></li><li class="toc-l3"><a href="#новая-фича">Новая фича</a></li><li class="toc-l3"><a href="#фича-по-макету-vue-nuxt">Фича по макету (vue-nuxt)</a></li><li class="toc-l3"><a href="#идея-план-код">Идея → план → код</a></li><li class="toc-l3"><a href="#тесты-к-готовому-коду">Тесты к готовому коду</a></li><li class="toc-l3"><a href="#ревью-перед-pr">Ревью перед PR</a></li><li class="toc-l3"><a href="#не-знаешь-с-чего-начать">Не знаешь, с чего начать</a></li><li class="toc-l3"><a href="#сохранить-опыт-команды">Сохранить опыт команды</a></li><li class="toc-l2"><a href="#как-вызвать-агента-напрямую">Как вызвать агента напрямую</a></li><li class="toc-l2"><a href="#если-что-то-пошло-не-так">Если что-то пошло не так</a></li><li class="toc-l2"><a href="#делай-и-не-делай">Делай и не делай</a></li></ul></aside>
+</div>
+<div class="toast" role="status" data-toast>Скопировано</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

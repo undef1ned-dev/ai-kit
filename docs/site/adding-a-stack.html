@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как добавить стек — AIKit</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("aikit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="adding-a-stack">
+<header class="topbar">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Меню" data-nav-toggle>☰</button>
+  <a class="brand" href="index.html"><span class="brand-mark">AI</span>Kit<span class="version">v0.1.0</span></a>
+  <div class="search">
+    <input class="search-input" type="search" placeholder="Поиск по документации" aria-label="Поиск" autocomplete="off" data-search>
+    <kbd class="search-key">/</kbd>
+    <div class="search-results" hidden data-search-results></div>
+  </div>
+  <button class="icon-btn" type="button" aria-label="Сменить тему" data-theme-toggle>◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Разделы"><div class="nav-group"><div class="nav-title">Начало</div><ul><li><a href="index.html">Что такое AIKit</a></li><li><a href="glossary.html">Термины</a></li><li><a href="getting-started.html">Установка</a></li></ul></div><div class="nav-group"><div class="nav-title">Как устроено</div><ul><li><a href="how-it-works.html">Как это работает</a></li><li><a href="daily-work.html">Работа с агентами</a></li><li><a href="commands.html">Команды</a></li></ul></div><div class="nav-group"><div class="nav-title">Справочник</div><ul><li><a href="catalog.html">Каталог профилей</a></li><li><a href="runtime-support.html">Поддержка runtime</a></li><li><a href="known-issues.html">Известные ошибки</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div><div class="nav-group"><div class="nav-title">Развитие кита</div><ul><li><a href="adding-a-stack.html" class="active" aria-current="page">Как добавить стек</a></li><li><a href="developing-aikit.html">Разработка AIKit</a></li></ul></div></nav>
+  <main class="content">
+    <article class="doc">
+<h1 class="page-title">Как добавить стек</h1>
+<p>Профиль — папка <code>profiles/&lt;name&gt;/</code>, которая учит AIKit работать с одним стеком: Java + Spring, Go, Node.js, Flutter и т. д. Ядро кита (установщики, <code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code>, <code>workflow-runner</code>, <code>tech-planner</code>) ничего не знает о конкретных стеках: всё, что ему нужно, оно читает из контракта профиля. Поэтому новый стек добавляется без правок ядра — только новой папкой в <code>profiles/</code>.</p>
+<h2 id="что-такое-контракт-профиля"><a class="anchor" href="#что-такое-контракт-профиля" aria-hidden="true">#</a>Что такое контракт профиля</h2>
+<p>Контракт — файл <code>profiles/&lt;name&gt;/profile.manifest.json</code>. Это договорённость между профилем и ядром: профиль обещает, что у него есть перечисленные агенты и команды, а ядро обещает работать с ними одинаково для любого стека.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>{
+  &quot;profile&quot;: &quot;java-spring&quot;,
+  &quot;label&quot;: &quot;Java Spring&quot;,
+  &quot;role&quot;: &quot;backend&quot;,
+  &quot;stack&quot;: &quot;Java 21, Spring Boot 3, JUnit 5&quot;,
+  &quot;agents&quot;: {
+    &quot;architect&quot;: &quot;spring-architect&quot;,
+    &quot;coder&quot;: &quot;spring-coder&quot;,
+    &quot;tester&quot;: &quot;spring-tester&quot;,
+    &quot;reviewer&quot;: &quot;spring-reviewer&quot;
+  },
+  &quot;specialists&quot;: {},
+  &quot;pipelines&quot;: {},
+  &quot;commands&quot;: {
+    &quot;lint&quot;: &quot;./mvnw checkstyle:check&quot;,
+    &quot;test&quot;: &quot;./mvnw test&quot;,
+    &quot;build&quot;: &quot;./mvnw package&quot;
+  },
+  &quot;root_markers&quot;: [&quot;pom.xml&quot;],
+  &quot;path_signals&quot;: [&quot;src/main/java/&quot;, &quot;src/test/java/&quot;]
+}</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>Поле</th><th>Что значит</th><th>Кто читает</th></tr></thead><tbody><tr><td><code>profile</code></td><td>Имя профиля, совпадает с папкой</td><td>установщики</td></tr><tr><td><code>label</code>, <code>stack</code></td><td>Название и стек для людей и для выбора профиля по задаче</td><td><code>/implement-feature</code>, <code>workflow-runner</code>, каталог</td></tr><tr><td><code>role</code></td><td>Часть системы: <code>backend</code>, <code>web</code> или своя (<code>mobile</code>, <code>mod</code>…). В мульти-профиле backend идёт первым — он фиксирует API</td><td><code>/implement-feature</code>, <code>tech-planner</code></td></tr><tr><td><code>agents</code></td><td>Агенты по ролям: ровно <code>architect</code>, <code>coder</code>, <code>tester</code>, <code>reviewer</code></td><td>все оркестраторы</td></tr><tr><td><code>specialists</code></td><td>Необязательные агенты: <code>{&quot;&lt;имя&gt;&quot;: {&quot;agent&quot;: &quot;&lt;агент&gt;&quot;, &quot;when&quot;: &quot;&lt;когда звать&gt;&quot;}}</code></td><td><code>/implement-feature</code>, <code>workflow-runner</code></td></tr><tr><td><code>pipelines</code></td><td>Необязательные цепочки, кроме кода: <code>{&quot;&lt;имя&gt;&quot;: {&quot;when&quot;: &quot;&lt;когда&gt;&quot;, &quot;steps&quot;: [&quot;&lt;агент&gt;&quot;, …]}}</code></td><td><code>/implement-feature</code>, <code>workflow-runner</code></td></tr><tr><td><code>commands</code></td><td><code>lint</code>, <code>format</code>, <code>test</code> (обязательна), <code>build</code>, <code>run</code>. <code>{files}</code> — изменённые файлы</td><td><code>/implement-feature</code>, агенты, хуки этапа 4</td></tr><tr><td><code>root_markers</code></td><td>Файлы, по которым установщик находит папку профиля в монорепо (<code>pom.xml</code>, <code>go.mod</code>, <code>package.json</code>…)</td><td>установщики</td></tr><tr><td><code>path_signals</code></td><td>Пути внутри папки профиля, по которым задача относится к этому профилю</td><td><code>/implement-feature</code>, <code>workflow-runner</code></td></tr></tbody></table></div>
+<p>При установке контракты всех подключённых профилей собираются в <code>.aikit/profiles.json</code> проекта и дополняются полем <code>root</code> — найденной папкой профиля. Команда проекта может править в этом файле <code>commands</code> и <code>root</code>, обновление кита их не затрёт.</p>
+<h2 id="шаг-1-создать-профиль-из-шаблона"><a class="anchor" href="#шаг-1-создать-профиль-из-шаблона" aria-hidden="true">#</a>Шаг 1 — создать профиль из шаблона</h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/new-profile.py java-spring --role backend --stack &quot;Java 21, Spring Boot 3, JUnit 5&quot; \
+  --test &quot;./mvnw test&quot; --lint &quot;./mvnw checkstyle:check&quot; --build &quot;./mvnw package&quot; \
+  --root-marker pom.xml --path-signal src/main/java/ --path-signal src/test/java/</code></pre></div>
+<p>Скрипт берёт шаблон из <code>templates/profile/</code> и создаёт:</p>
+<div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>profiles/java-spring/
+  profile.manifest.json   — контракт
+  CLAUDE.md               — правила стека (с TODO)
+  settings.json           — разрешения Claude Code на команды профиля (Bash(./mvnw *))
+  agents/
+    spring-architect.md   — выводит ARCHITECT_PLAN
+    spring-coder.md       — CODER_RESULT
+    spring-tester.md      — TESTER_RESULT
+    spring-reviewer.md    — REVIEW_RESULT</code></pre></div>
+<p>Префикс агентов (<code>spring</code>) по умолчанию — последняя часть имени профиля; поменять можно флагом <code>--prefix</code>. Имена агентов и скиллов должны быть уникальны во всём ките — иначе профили нельзя будет подключить вместе.</p>
+<h2 id="шаг-2-наполнить-профиль-знанием-стека"><a class="anchor" href="#шаг-2-наполнить-профиль-знанием-стека" aria-hidden="true">#</a>Шаг 2 — наполнить профиль знанием стека</h2>
+<p>Шаблон рабочий сразу, но агенты знают о стеке только строку <code>stack</code>. Ценность профиля — в том, что ты допишешь:</p>
+<ol><li><strong><code>CLAUDE.md</code></strong> — структура проекта, слои, правила кода, именование, тесты, «динамическая экспертиза» (какой режим включает агент по типу файлов). Образцы — <code>profiles/python-fastapi/CLAUDE.md</code>, <code>profiles/vue-nuxt/CLAUDE.md</code>.</li><li><strong>Агенты</strong> — разделы с <code>TODO</code>: что проектирует архитектор, обязательные пункты плана, правила реализации, тестовый стек, чек-лист ревьюера. Формат блоков (<code>=== ARCHITECT_PLAN ===</code> … <code>=== END PLAN ===</code>) не меняй — по ним агенты передают работу друг другу.</li><li><strong>Специалисты</strong> (по желанию) — свой агент в <code>agents/</code> и запись в <code>specialists</code> с условием <code>when</code>. Пример — <code>admin-expert</code> в <code>profiles/python-django/</code>.</li><li><strong>Пайплайны</strong> (по желанию) — если профиль делает не только код (раздел «Пайплайны» ниже).</li><li><strong>Скиллы</strong> (по желанию) — <code>skills/&lt;name&gt;/SKILL.md</code> для частых задач стека (<code>/new-controller</code>, <code>/add-migration</code>). <code>description</code> пиши под автовызов: что делает + «Используй, когда…». Общие <code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code> уже работают с новым профилем.</li><li><strong>MCP-серверы</strong> (по желанию) — <code>mcp.json</code> в формате <code>{&quot;servers&quot;: {...}}</code>, как в <code>profiles/vue-nuxt/mcp.json</code>. Секреты — только через переменные окружения.</li></ol>
+<h2 id="пайплайны-работа-кроме-кода"><a class="anchor" href="#пайплайны-работа-кроме-кода" aria-hidden="true">#</a>Пайплайны: работа, кроме кода</h2>
+<p>Четыре роли (<code>architect</code>, <code>coder</code>, <code>tester</code>, <code>reviewer</code>) — обязательная цепочка кода. Если профилю нужна другая работа — модели и текстуры для мода, документация, локализация, — опиши её пайплайном: своими агентами в <code>agents/</code> и записью в контракте.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>&quot;pipelines&quot;: {
+  &quot;asset&quot;: {
+    &quot;when&quot;: &quot;нужны модель, текстура или звук для блока, предмета или моба&quot;,
+    &quot;steps&quot;: [&quot;mc-art-director&quot;, &quot;mc-model-maker&quot;, &quot;mc-texture-artist&quot;, &quot;mc-asset-reviewer&quot;]
+  }
+}</code></pre></div>
+<ul><li>Шаги идут по порядку; каждый агент получает задачу и выходной блок предыдущего (<code>output_block</code> во frontmatter, например <code>ART_BRIEF</code> → <code>MODEL_RESULT</code> → <code>TEXTURE_RESULT</code>).</li><li>Задача целиком подходит под <code>when</code> и не меняет код («нарисуй текстуру меча») — <code>/implement-feature</code> и <code>/workflow</code> запускают только пайплайн.</li><li>Фиче нужен и код, и пайплайн («добавь новую руду») — пайплайн идёт после архитектора, его результат получает кодер.</li><li>Отличие от <code>specialists</code>: специалист — один агент, который дополняет цепочку кода; пайплайн — самостоятельная цепочка из нескольких агентов.</li></ul>
+<p>Агент работает текстом. Если шаг должен создать бинарный файл (PNG-текстуру, звук), дай агенту инструмент: скрипт в проекте, который он запускает, или MCP-сервер (ключи — только через переменные окружения).</p>
+<h2 id="шаг-3-проверить"><a class="anchor" href="#шаг-3-проверить" aria-hidden="true">#</a>Шаг 3 — проверить</h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
+bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт собран
+bash scripts/ci/run-all.sh         # всё целиком, включая установку на тестовые проекты</code></pre></div>
+<p>Подключить к своему проекту — отдельно или вместе с другими профилями:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>bash .aikit-config/scripts/attach.sh java-spring
+bash .aikit-config/scripts/attach.sh vue-nuxt+java-spring --pack quality</code></pre></div>
+<p>Если профиль будет частой комбинацией — добавь пресет: <code>presets/&lt;name&gt;.json</code> с полями <code>name</code>, <code>label</code>, <code>description</code>, <code>profiles</code>, <code>packs</code>.</p>
+<h2 id="паки-и-профиль"><a class="anchor" href="#паки-и-профиль" aria-hidden="true">#</a>Паки и профиль</h2>
+<p>Пак (<code>packs/&lt;name&gt;/</code>) — набор агентов и скиллов, не привязанный к одному стеку (<code>quality</code>, <code>devops</code>). Если в <code>pack.json</code> нет <code>compatible_profiles</code>, пак подходит к любому профилю, в том числе новому. Пак <code>ai</code> ограничен Python-профилями — чтобы подключить его к новому стеку, добавь профиль в его <code>compatible_profiles</code>.</p>
+    </article>
+    <nav class="pager"><a class="pager-prev" href="roadmap.html"><span>Назад</span>Roadmap</a><a class="pager-next" href="developing-aikit.html"><span>Дальше</span>Разработка AIKit</a></nav>
+    <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/adding-a-stack.md">docs/guide/adding-a-stack.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
+  </main>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#что-такое-контракт-профиля">Что такое контракт профиля</a></li><li class="toc-l2"><a href="#шаг-1-создать-профиль-из-шаблона">Шаг 1 — создать профиль из шаблона</a></li><li class="toc-l2"><a href="#шаг-2-наполнить-профиль-знанием-стека">Шаг 2 — наполнить профиль знанием стека</a></li><li class="toc-l2"><a href="#пайплайны-работа-кроме-кода">Пайплайны: работа, кроме кода</a></li><li class="toc-l2"><a href="#шаг-3-проверить">Шаг 3 — проверить</a></li><li class="toc-l2"><a href="#паки-и-профиль">Паки и профиль</a></li></ul></aside>
+</div>
+<div class="toast" role="status" data-toast>Скопировано</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

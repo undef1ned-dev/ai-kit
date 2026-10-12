@@ -47,21 +47,12 @@ Claude compatibility mirror:
 
 Перед анализом обязательно прочитай:
 1. `README.md`
-2. `docs/product-story.md`
-3. `docs/get-started.md`
-4. `docs/generated/catalog.html` (собирается `scripts/generate-catalog.py`)
-5. `docs/install-matrix.md`
-6. `docs/runtime-maturity-review.md`
-7. `docs/marketplace.md`
-8. `docs/publishing-workflow.md`
-9. `docs/roadmap.md`
-10. `docs/knowledge-platform-roadmap.md`
-11. `docs/cli-runtime-roadmap.md`
-12. `docs/mcp-rag-roadmap.md`, если уже существует
-14. `docs/execution-log.md`
-15. `docs/cli-agent-operating-protocol.md`
-16. `docs/cli-runtime-continuation-contract.md`
-17. если задача касается runtime adapters — `docs/adapter-runtime-execution.md` и `adapters/*/adapter.manifest.json`
+2. `docs/guide/index.md` и `docs/guide/getting-started.md` — как кит объясняется новичку
+3. `docs/site/catalog.html` (собирается `scripts/generate-docs.py`)
+4. `docs/roadmap.md`
+5. `docs/runtime-support.md`
+6. `docs/guide/known-issues.md`
+7. если задача касается runtime adapters — `adapters/*/adapter.manifest.json`
 
 После чтения сформулируй:
 - что AIKit продаёт как ценность;

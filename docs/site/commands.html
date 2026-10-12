@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Команды — AIKit</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("aikit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="commands">
+<header class="topbar">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Меню" data-nav-toggle>☰</button>
+  <a class="brand" href="index.html"><span class="brand-mark">AI</span>Kit<span class="version">v0.1.0</span></a>
+  <div class="search">
+    <input class="search-input" type="search" placeholder="Поиск по документации" aria-label="Поиск" autocomplete="off" data-search>
+    <kbd class="search-key">/</kbd>
+    <div class="search-results" hidden data-search-results></div>
+  </div>
+  <button class="icon-btn" type="button" aria-label="Сменить тему" data-theme-toggle>◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Разделы"><div class="nav-group"><div class="nav-title">Начало</div><ul><li><a href="index.html">Что такое AIKit</a></li><li><a href="glossary.html">Термины</a></li><li><a href="getting-started.html">Установка</a></li></ul></div><div class="nav-group"><div class="nav-title">Как устроено</div><ul><li><a href="how-it-works.html">Как это работает</a></li><li><a href="daily-work.html">Работа с агентами</a></li><li><a href="commands.html" class="active" aria-current="page">Команды</a></li></ul></div><div class="nav-group"><div class="nav-title">Справочник</div><ul><li><a href="catalog.html">Каталог профилей</a></li><li><a href="runtime-support.html">Поддержка runtime</a></li><li><a href="known-issues.html">Известные ошибки</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div><div class="nav-group"><div class="nav-title">Развитие кита</div><ul><li><a href="adding-a-stack.html">Как добавить стек</a></li><li><a href="developing-aikit.html">Разработка AIKit</a></li></ul></div></nav>
+  <main class="content">
+    <article class="doc">
+<h1 class="page-title">Команды</h1>
+<p>Все скиллы ядра — они есть в любом проекте с AIKit, какие бы профили ни стояли. Скиллы профилей и паков описаны в <a href="catalog.html">каталоге</a>.</p>
+<h2 id="как-вызывать"><a class="anchor" href="#как-вызывать" aria-hidden="true">#</a>Как вызывать</h2>
+<div class="table-wrap"><table><thead><tr><th>Runtime</th><th>Явный вызов</th><th>Список скиллов</th><th>Автовызов</th></tr></thead><tbody><tr><td>Claude Code</td><td><code>/implement-feature &lt;задача&gt;</code></td><td>набери <code>/</code></td><td>да, по <code>description</code> скилла</td></tr><tr><td>Codex</td><td><code>$implement-feature &lt;задача&gt;</code></td><td><code>/skills</code></td><td>да</td></tr><tr><td>OpenCode</td><td>назови скилл в сообщении</td><td>—</td><td>да</td></tr></tbody></table></div>
+<p><strong>Автовызов</strong> значит, что runtime сам запустит скилл, если задача подходит под его описание. Например, на «реализуй страницу заказов» может сработать <code>/implement-feature</code>. Скиллы с пометкой «только явный вызов» сами не запускаются: у них есть побочные эффекты (пишут память, ведут длинный диалог).</p>
+<h2 id="разработка"><a class="anchor" href="#разработка" aria-hidden="true">#</a>Разработка</h2>
+<div class="table-wrap"><table><thead><tr><th>Команда</th><th>Что делает</th><th>Агенты</th></tr></thead><tbody><tr><td><code>/implement-feature</code></td><td>Реализует фичу цепочкой агентов профиля: архитектор → кодер → тестировщик и ревьюер, затем проверка <code>lint</code>/<code>test</code></td><td>агенты профиля по ролям</td></tr><tr><td><code>/workflow</code></td><td>Визард: определяет тип задачи, строит цепочку агентов, ведёт по шагам. Только явный вызов</td><td><code>workflow-runner</code></td></tr></tbody></table></div>
+<h2 id="анализ-и-планирование"><a class="anchor" href="#анализ-и-планирование" aria-hidden="true">#</a>Анализ и планирование</h2>
+<div class="table-wrap"><table><thead><tr><th>Команда</th><th>Что делает</th><th>Агенты</th></tr></thead><tbody><tr><td><code>/analyze-mvp</code></td><td>Разбирает идею фичи: интервью, варианты, бизнес-кейс, риски, RICE; результат — документ в <code>docs/mvp/</code></td><td><code>mvp-analyst</code></td></tr><tr><td><code>/implement-mvp</code></td><td>Превращает MVP-документ в технический план: API-контракт, scope по частям системы, порядок работ</td><td><code>tech-planner</code></td></tr><tr><td><code>/cross-check</code></td><td>Что поменять на другой стороне, если меняется API или формат данных</td><td><code>cross-project-analyst</code></td></tr></tbody></table></div>
+<h2 id="качество-и-безопасность"><a class="anchor" href="#качество-и-безопасность" aria-hidden="true">#</a>Качество и безопасность</h2>
+<div class="table-wrap"><table><thead><tr><th>Команда</th><th>Что делает</th><th>Агенты</th></tr></thead><tbody><tr><td><code>/security-check</code></td><td>Аудит безопасности: OWASP Top 10, секреты в коде и конфигах, авторизация, инъекции</td><td><code>security-auditor</code></td></tr><tr><td><code>/write-ui-texts</code></td><td>Пишет или проверяет тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг</td><td><code>ux-writer</code></td></tr></tbody></table></div>
+<h2 id="память-проекта"><a class="anchor" href="#память-проекта" aria-hidden="true">#</a>Память проекта</h2>
+<div class="table-wrap"><table><thead><tr><th>Команда</th><th>Что делает</th><th>Агенты</th></tr></thead><tbody><tr><td><code>/capture-memory</code></td><td>Записывает решения, паттерны и поправки агентам после задачи в <code>.aikit/memory/</code>. Только явный вызов</td><td><code>memory-writer</code></td></tr><tr><td><code>/memory-status</code></td><td>Показывает, что накоплено в памяти и не пора ли её сжать</td><td>—</td></tr><tr><td><code>/optimize-memory</code></td><td>Архивирует старые задачи и сжимает индекс памяти. Только явный вызов</td><td><code>memory-optimizer</code></td></tr></tbody></table></div>
+<h2 id="расширение-кита"><a class="anchor" href="#расширение-кита" aria-hidden="true">#</a>Расширение кита</h2>
+<div class="table-wrap"><table><thead><tr><th>Команда</th><th>Что делает</th><th>Агенты</th></tr></thead><tbody><tr><td><code>/create-agent</code></td><td>Создаёт нового агента через интервью из 6 фаз</td><td><code>agent-builder</code></td></tr><tr><td><code>/create-skill</code></td><td>Создаёт новый скилл через интервью из 4 фаз</td><td><code>skill-builder</code></td></tr><tr><td><code>/improve-aikit</code></td><td>Развивает сам репозиторий AIKit. Только явный вызов</td><td><code>aikit-maintainer</code></td></tr></tbody></table></div>
+<h2 id="работают-сами"><a class="anchor" href="#работают-сами" aria-hidden="true">#</a>Работают сами</h2>
+<div class="table-wrap"><table><thead><tr><th>Скилл</th><th>Что делает</th></tr></thead><tbody><tr><td><code>git-commit</code></td><td>Сообщения коммитов по Conventional Commits, без <code>Co-Authored-By</code> и приписок «Generated with»</td></tr><tr><td><code>git-branch</code></td><td>Имена веток по Conventional Branch: <code>feat/…</code>, <code>fix/…</code>, <code>chore/…</code></td></tr></tbody></table></div>
+<p>Их не нужно вызывать: runtime применяет их каждый раз, когда создаёт коммит или ветку.</p>
+<h2 id="скиллы-профилей-и-паков"><a class="anchor" href="#скиллы-профилей-и-паков" aria-hidden="true">#</a>Скиллы профилей и паков</h2>
+<div class="table-wrap"><table><thead><tr><th>Где</th><th>Скиллы</th></tr></thead><tbody><tr><td><code>vue-nuxt</code></td><td><code>/new-page</code>, <code>/new-component</code>, <code>/new-composable</code>, <code>/new-store</code>, <code>/new-middleware</code>, <code>/new-plugin</code>, <code>/new-server-route</code>, <code>/add-tests</code>, <code>/design-implement</code>, <code>/design-review</code></td></tr><tr><td><code>python-fastapi</code></td><td><code>/new-router</code>, <code>/add-migration</code></td></tr><tr><td><code>python-django</code></td><td><code>/new-app</code>, <code>/setup-admin</code></td></tr><tr><td>пак <code>quality</code></td><td><code>/coverage-check</code>, <code>/tech-debt</code></td></tr><tr><td>пак <code>devops</code></td><td><code>/dockerize</code>, <code>/setup-ci</code></td></tr><tr><td>пак <code>ai</code></td><td><code>/design-prompt</code>, <code>/audit-prompts</code></td></tr></tbody></table></div>
+<p>Описание каждого — в <a href="catalog.html">каталоге</a>.</p>
+    </article>
+    <nav class="pager"><a class="pager-prev" href="daily-work.html"><span>Назад</span>Работа с агентами</a><a class="pager-next" href="catalog.html"><span>Дальше</span>Каталог профилей</a></nav>
+    <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/commands.md">docs/guide/commands.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
+  </main>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#как-вызывать">Как вызывать</a></li><li class="toc-l2"><a href="#разработка">Разработка</a></li><li class="toc-l2"><a href="#анализ-и-планирование">Анализ и планирование</a></li><li class="toc-l2"><a href="#качество-и-безопасность">Качество и безопасность</a></li><li class="toc-l2"><a href="#память-проекта">Память проекта</a></li><li class="toc-l2"><a href="#расширение-кита">Расширение кита</a></li><li class="toc-l2"><a href="#работают-сами">Работают сами</a></li><li class="toc-l2"><a href="#скиллы-профилей-и-паков">Скиллы профилей и паков</a></li></ul></aside>
+</div>
+<div class="toast" role="status" data-toast>Скопировано</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

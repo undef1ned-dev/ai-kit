@@ -63,9 +63,14 @@ bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 
 ## Документация
 
-- [docs-site/index.mdx](docs-site/index.mdx) — исходники сайта документации.
-- `docs/generated/catalog.html` — каталог агентов и скиллов, собирается `python3 scripts/generate-catalog.py`.
-- [docs/adding-a-stack.md](docs/adding-a-stack.md) — как добавить свой стек: контракт профиля и шаблон `scripts/new-profile.py`.
-- [docs/roadmap.md](docs/roadmap.md) — план развития кита.
-- [docs/runtime-support.md](docs/runtime-support.md) — что работает в Claude Code, Codex и OpenCode.
-- [docs/research/](docs/research/) — исследования и планы модернизации.
+Сайт: **https://undef1ned-dev.github.io/ai-kit/** (или локально — [docs/site/index.html](docs/site/index.html)). Там простыми словами объяснено, что такое AIKit, есть словарь терминов, установка, каталог профилей, известные ошибки и roadmap, а также поиск по всему этому.
+
+Тот же текст в Markdown лежит в [docs/guide/](docs/guide/index.md). Его правят люди и AI-агенты, а сайт собирается из него командой `python3 scripts/generate-docs.py`.
+
+- [Что такое AIKit](docs/guide/index.md) и [термины](docs/guide/glossary.md)
+- [Установка и первая задача](docs/guide/getting-started.md)
+- [Как это работает](docs/guide/how-it-works.md)
+- [Известные ошибки](docs/guide/known-issues.md)
+- [Как добавить стек](docs/guide/adding-a-stack.md)
+- [Разработка AIKit](docs/guide/developing-aikit.md) — устройство репозитория, правила и проверки
+- [Roadmap](docs/roadmap.md) и [поддержка runtime](docs/runtime-support.md)

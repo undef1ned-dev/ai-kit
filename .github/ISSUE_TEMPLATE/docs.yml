@@ -13,7 +13,7 @@ body:
     attributes:
       label: Page
       description: Link or name the public docs page.
-      placeholder: "docs-site/get-started/installation.mdx"
+      placeholder: "docs/guide/getting-started.md"
     validations:
       required: true
   - type: textarea

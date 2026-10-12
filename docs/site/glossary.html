@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Термины — AIKit</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("aikit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="glossary">
+<header class="topbar">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Меню" data-nav-toggle>☰</button>
+  <a class="brand" href="index.html"><span class="brand-mark">AI</span>Kit<span class="version">v0.1.0</span></a>
+  <div class="search">
+    <input class="search-input" type="search" placeholder="Поиск по документации" aria-label="Поиск" autocomplete="off" data-search>
+    <kbd class="search-key">/</kbd>
+    <div class="search-results" hidden data-search-results></div>
+  </div>
+  <button class="icon-btn" type="button" aria-label="Сменить тему" data-theme-toggle>◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Разделы"><div class="nav-group"><div class="nav-title">Начало</div><ul><li><a href="index.html">Что такое AIKit</a></li><li><a href="glossary.html" class="active" aria-current="page">Термины</a></li><li><a href="getting-started.html">Установка</a></li></ul></div><div class="nav-group"><div class="nav-title">Как устроено</div><ul><li><a href="how-it-works.html">Как это работает</a></li><li><a href="daily-work.html">Работа с агентами</a></li><li><a href="commands.html">Команды</a></li></ul></div><div class="nav-group"><div class="nav-title">Справочник</div><ul><li><a href="catalog.html">Каталог профилей</a></li><li><a href="runtime-support.html">Поддержка runtime</a></li><li><a href="known-issues.html">Известные ошибки</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div><div class="nav-group"><div class="nav-title">Развитие кита</div><ul><li><a href="adding-a-stack.html">Как добавить стек</a></li><li><a href="developing-aikit.html">Разработка AIKit</a></li></ul></div></nav>
+  <main class="content">
+    <article class="doc">
+<h1 class="page-title">Термины</h1>
+<p>Словарь AIKit, от общих понятий AI-разработки к устройству кита. Если слово встретилось в документации и непонятно — ищи его здесь, поиск сайта тоже находит термины.</p>
+<h2 id="общие-понятия"><a class="anchor" href="#общие-понятия" aria-hidden="true">#</a>Общие понятия</h2>
+<h3 id="модель"><a class="anchor" href="#модель" aria-hidden="true">#</a>Модель</h3>
+<p>Нейросеть, которая генерирует текст и код: Claude, GPT, GLM. Сама по себе модель не видит файлы и не запускает команды — она только отвечает на текст.</p>
+<h3 id="runtime"><a class="anchor" href="#runtime" aria-hidden="true">#</a>Runtime</h3>
+<p>Программа, которая даёт модели руки: читает и пишет файлы проекта, запускает команды, хранит историю разговора. Её ещё называют <em>AI-агентом</em> или <em>AI-ассистентом</em>. AIKit поддерживает три runtime:</p>
+<ul><li><strong>Claude Code</strong> — от Anthropic: терминал, десктоп-приложение, плагины для IDE;</li><li><strong>Codex</strong> — от OpenAI: CLI, десктоп-приложение, плагины для IDE;</li><li><strong>OpenCode</strong> — открытый runtime, работает с разными моделями.</li></ul>
+<p>Модель и runtime — разные вещи: GLM — модель, её запускают через любой из этих runtime.</p>
+<h3 id="сессия-и-контекст"><a class="anchor" href="#сессия-и-контекст" aria-hidden="true">#</a>Сессия и контекст</h3>
+<p>Сессия — один разговор с runtime. Контекст — всё, что модель «держит в голове» в этой сессии: сообщения, прочитанные файлы, выводы команд. Контекст ограничен по размеру. Поэтому крупные задачи делят между <a href="#агент">агентами</a>: у каждого свой чистый контекст под свою часть работы.</p>
+<h3 id="промпт"><a class="anchor" href="#промпт" aria-hidden="true">#</a>Промпт</h3>
+<p>Текст, который получает модель: твоя задача, инструкция агента, правила проекта. Почти всё в AIKit — промпты, разложенные по файлам так, чтобы runtime подставлял их сам.</p>
+<h2 id="что-aikit-ставит-в-проект"><a class="anchor" href="#что-aikit-ставит-в-проект" aria-hidden="true">#</a>Что AIKit ставит в проект</h2>
+<h3 id="правила-проекта"><a class="anchor" href="#правила-проекта" aria-hidden="true">#</a>Правила проекта</h3>
+<p>Файл с инструкциями, который runtime читает в начале каждой сессии: стек, структура папок, правила кода, запреты, формат коммитов. В Claude Code это <code>CLAUDE.md</code>, в Codex и OpenCode — <code>AGENTS.md</code>. AIKit собирает его из базовых правил и правил подключённых профилей.</p>
+<h3 id="агент"><a class="anchor" href="#агент" aria-hidden="true">#</a>Агент</h3>
+<p>Модель с отдельной ролью и своей инструкцией: «ты — архитектор Vue/Nuxt, прочитай проект и выведи план в таком формате». Его ещё называют <em>сабагентом</em>. Главный ассистент запускает агента как помощника. Агент работает в своём контексте и возвращает результат.</p>
+<p>Файл агента — Markdown с заголовком (frontmatter): <code>name</code>, <code>description</code>, <code>tools</code> (что агенту разрешено), <code>output_block</code> (какой блок он выводит) и текст инструкции. Где лежат агенты: <code>.claude/agents/</code> в Claude Code, <code>.codex/agents/</code> в Codex, <code>.opencode/agents/</code> в OpenCode.</p>
+<p>Пример: <code>vue-architect</code>, <code>fastapi-tester</code>, <code>security-auditor</code>.</p>
+<h3 id="скилл"><a class="anchor" href="#скилл" aria-hidden="true">#</a>Скилл</h3>
+<p>Готовый сценарий, папка <code>&lt;name&gt;/SKILL.md</code>. Внутри — инструкция «как сделать вот это»: какие агенты нужны, в каком порядке, что проверить. Скилл вызывают командой (<code>/implement-feature</code> в Claude Code, <code>$implement-feature</code> в Codex). Runtime может вызвать его и сам, если задача подходит под <code>description</code> скилла — это <strong>автовызов</strong>.</p>
+<p>Скиллы с побочными эффектами (<code>/capture-memory</code>, <code>/workflow</code>) работают только по явному вызову: в Claude Code это поле <code>disable-model-invocation: true</code>.</p>
+<h3 id="slash-команда"><a class="anchor" href="#slash-команда" aria-hidden="true">#</a>Slash-команда</h3>
+<p>Команда вида <code>/name</code>. В AIKit это способ вызвать скилл. Раньше в Claude Code были отдельные команды в <code>.claude/commands/</code>, теперь их заменили скиллы — при обновлении кита старые команды убираются.</p>
+<h3 id="mcp-сервер"><a class="anchor" href="#mcp-сервер" aria-hidden="true">#</a>MCP-сервер</h3>
+<p>Инструмент для модели по протоколу MCP (Model Context Protocol). Через него модель управляет браузером (Playwright), читает документацию библиотек (Context7), видит макеты (Figma), ошибки продакшена (Sentry). AIKit описывает серверы один раз и пишет их в родной формат runtime: <code>.mcp.json</code>, <code>.codex/config.toml</code>, <code>opencode.json</code>. Секреты передаются только через переменные окружения.</p>
+<h3 id="хук"><a class="anchor" href="#хук" aria-hidden="true">#</a>Хук</h3>
+<p>Скрипт, который runtime запускает сам на событие: перед записью файла, после правки, в конце ответа. Хук срабатывает всегда, а правило в тексте модель может забыть. Хуки AIKit — следующий этап <a href="roadmap.html">roadmap</a>: запрет записи секретов, проверка коммитов, автозапуск линтера.</p>
+<h3 id="настройки-и-разрешения"><a class="anchor" href="#настройки-и-разрешения" aria-hidden="true">#</a>Настройки и разрешения</h3>
+<p><code>.claude/settings.json</code> в Claude Code: какие команды ассистент запускает без вопроса (<code>Bash(npx vitest *)</code>), какие файлы ему нельзя читать (<code>.env</code>), без соавторства в коммитах. Хранится в git, общий для команды.</p>
+<h3 id="productmd"><a class="anchor" href="#productmd" aria-hidden="true">#</a>PRODUCT.md</h3>
+<p>Описание продукта в корне проекта: что за продукт, для кого, ключевые сущности и сценарии. Агенты читают его, чтобы решения учитывали продукт, а не только код. AIKit создаёт шаблон, заполняет его команда.</p>
+<h3 id="память-проекта"><a class="anchor" href="#память-проекта" aria-hidden="true">#</a>Память проекта</h3>
+<p>Папка <code>.aikit/memory/</code>: решения, паттерны и коррекции агентов, накопленные командой. Её пишет <code>/capture-memory</code> после задачи, <code>/memory-status</code> показывает, что накоплено. <code>.claude/memory/</code> — копия для совместимости с Claude Code.</p>
+<h2 id="как-устроен-кит"><a class="anchor" href="#как-устроен-кит" aria-hidden="true">#</a>Как устроен кит</h2>
+<h3 id="base"><a class="anchor" href="#base" aria-hidden="true">#</a>Base</h3>
+<p>Ядро кита — папка <code>base/</code>: общие правила, агенты и скиллы, которые ставятся в любой проект: <code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code>, <code>/analyze-mvp</code>, <code>git-commit</code>, память. Ядро ничего не знает о конкретных стеках — всё стековое оно берёт из <a href="#контракт-профиля">контракта профиля</a>.</p>
+<h3 id="профиль"><a class="anchor" href="#профиль" aria-hidden="true">#</a>Профиль</h3>
+<p>Всё, что нужно для одного стека: папка <code>profiles/&lt;name&gt;/</code>. В ней правила стека (<code>CLAUDE.md</code>), четыре агента по ролям, специалисты, скиллы стека (<code>/new-page</code>, <code>/new-router</code>), MCP-серверы, разрешения на команды и <a href="#контракт-профиля">контракт</a>. Сейчас есть <code>vue-nuxt</code>, <code>python-fastapi</code>, <code>python-django</code>. Новый стек добавляется <a href="adding-a-stack.html">по шаблону</a>.</p>
+<h3 id="контракт-профиля"><a class="anchor" href="#контракт-профиля" aria-hidden="true">#</a>Контракт профиля</h3>
+<p>Файл <code>profiles/&lt;name&gt;/profile.manifest.json</code> — договорённость между профилем и ядром. Профиль обещает: «у меня есть архитектор, кодер, тестировщик и ревьюер с такими именами, тесты запускаются такой командой, мои файлы лежат там-то». Ядро обещает работать с любым профилем одинаково. Поэтому <code>/implement-feature</code> один на все стеки. Поля контракта:</p>
+<div class="table-wrap"><table><thead><tr><th>Поле</th><th>Что значит</th></tr></thead><tbody><tr><td><code>role</code></td><td>За какую часть системы отвечает профиль: <code>web</code>, <code>backend</code> или своя (<code>mobile</code>, <code>mod</code>)</td></tr><tr><td><code>stack</code></td><td>Стек словами: «Vue 3, Nuxt 3, Pinia»</td></tr><tr><td><code>agents</code></td><td>Агенты по <a href="#роли-агентов">ролям</a></td></tr><tr><td><code>specialists</code></td><td><a href="#специалист">Специалисты</a> и когда их звать</td></tr><tr><td><code>pipelines</code></td><td><a href="#пайплайн">Пайплайны</a> — цепочки, кроме кода</td></tr><tr><td><code>commands</code></td><td><a href="#команды-профиля">Команды проекта</a>: <code>lint</code>, <code>format</code>, <code>test</code>, <code>build</code>, <code>run</code></td></tr><tr><td><code>root_markers</code></td><td>Файлы, по которым установщик находит папку профиля: <code>nuxt.config.ts</code>, <code>manage.py</code></td></tr><tr><td><code>path_signals</code></td><td>Пути, по которым задача относится к профилю: <code>pages/</code>, <code>routers/</code></td></tr></tbody></table></div>
+<p>Полный разбор — в разделе <a href="adding-a-stack.html#что-такое-контракт-профиля">Как добавить стек</a>.</p>
+<h3 id="роли-агентов"><a class="anchor" href="#роли-агентов" aria-hidden="true">#</a>Роли агентов</h3>
+<p>Каждый профиль обязан иметь ровно четыре роли — это цепочка кода:</p>
+<div class="table-wrap"><table><thead><tr><th>Роль</th><th>Что делает</th><th>Выводит</th></tr></thead><tbody><tr><td><code>architect</code></td><td>Читает проект, проектирует минимальный набор изменений</td><td><code>ARCHITECT_PLAN</code></td></tr><tr><td><code>coder</code></td><td>Реализует план</td><td><code>CODER_RESULT</code></td></tr><tr><td><code>tester</code></td><td>Пишет тесты на сделанное</td><td><code>TESTER_RESULT</code></td></tr><tr><td><code>reviewer</code></td><td>Проверяет код по правилам стека</td><td><code>REVIEW_RESULT</code></td></tr></tbody></table></div>
+<h3 id="выходной-блок"><a class="anchor" href="#выходной-блок" aria-hidden="true">#</a>Выходной блок</h3>
+<p>Текст в оговорённом формате, которым агент передаёт работу следующему: <code>=== ARCHITECT_PLAN === … === END PLAN ===</code>. Кодер получает план архитектора, тестировщик и ревьюер — результат кодера. Формат блоков не меняют: по нему агенты понимают друг друга.</p>
+<h3 id="специалист"><a class="anchor" href="#специалист" aria-hidden="true">#</a>Специалист</h3>
+<p>Дополнительный агент профиля, который подключается к цепочке кода, когда задача подходит под его условие <code>when</code>. Он не заменяет четыре роли, а дополняет их советом. Пример: <code>vue-design-bridge</code> — если задача идёт от макета Figma, он сверяет план с UI kit до того, как кодер начнёт писать.</p>
+<h3 id="пайплайн"><a class="anchor" href="#пайплайн" aria-hidden="true">#</a>Пайплайн</h3>
+<p>Цепочка своих агентов профиля для работы, которая не является кодом: модели и текстуры, документация, локализация. Пайплайн идёт сам, если задача целиком подходит под его <code>when</code> и код не нужен. Если фиче нужен и код, пайплайн идёт после архитектора, и его результат получает кодер. Чем он отличается от специалиста — в разделе <a href="how-it-works.html#специалисты-и-пайплайны">Как это работает</a>.</p>
+<h3 id="команды-профиля"><a class="anchor" href="#команды-профиля" aria-hidden="true">#</a>Команды профиля</h3>
+<p>Команды <code>lint</code>, <code>format</code>, <code>test</code>, <code>build</code>, <code>run</code> из контракта. <code>/implement-feature</code> проверяет ими результат, а в будущем их будут запускать хуки. <code>{files}</code> в команде заменяется списком изменённых файлов. В проекте команды можно поменять в <code>.aikit/profiles.json</code> — обновление кита правку сохранит.</p>
+<h3 id="пак"><a class="anchor" href="#пак" aria-hidden="true">#</a>Пак</h3>
+<p>Набор агентов и скиллов под задачу, а не под стек: <code>quality</code> (покрытие тестами, техдолг), <code>devops</code> (Docker, CI), <code>ai</code> (промпты, LLM-интеграции). Пак ставится вместе с профилем: <code>attach.sh vue-nuxt --pack quality</code>. Пак без списка <code>compatible_profiles</code> подходит к любому профилю.</p>
+<h3 id="пресет"><a class="anchor" href="#пресет" aria-hidden="true">#</a>Пресет</h3>
+<p>Готовая комбинация профилей и паков с именем: <code>frontend-team</code> = <code>vue-nuxt</code> + <code>quality</code> + <code>devops</code>. Ставится одной командой: <code>attach.sh --preset frontend-team</code>. Все пресеты — в <a href="catalog.html#presets">каталоге</a>.</p>
+<h3 id="мульти-профиль"><a class="anchor" href="#мульти-профиль" aria-hidden="true">#</a>Мульти-профиль</h3>
+<p>Несколько профилей в одном проекте: <code>vue-nuxt+python-fastapi</code>. Так работает fullstack-проект — фронтенд и бэкенд. Имена агентов и скиллов уникальны во всём ките, поэтому любые профили ставятся вместе без конфликтов.</p>
+<h3 id="root-профиля"><a class="anchor" href="#root-профиля" aria-hidden="true">#</a>Root профиля</h3>
+<p>Папка профиля в проекте. В монорепо фронтенд может лежать в <code>web/</code>, а бэкенд — в <code>api/</code>. Установщик ищет папку по <code>root_markers</code> (<code>web/nuxt.config.ts</code> → <code>web</code>) и записывает её в <code>root</code> в <code>.aikit/profiles.json</code>. Команды профиля запускаются в этой папке.</p>
+<h3 id="aikitprofilesjson"><a class="anchor" href="#aikitprofilesjson" aria-hidden="true">#</a>.aikit/profiles.json</h3>
+<p>Файл в проекте, где собраны контракты всех подключённых профилей плюс найденный <code>root</code>. Его читают <code>/implement-feature</code>, <code>/workflow</code> и агенты в любом runtime. <code>commands</code> и <code>root</code> в нём можно править под проект. Рядом лежит <code>.aikit/profiles.kit-defaults.json</code>: в нём прежние значения кита, по ним обновление понимает, что именно поменяла команда.</p>
+<h3 id="адаптер"><a class="anchor" href="#адаптер" aria-hidden="true">#</a>Адаптер</h3>
+<p>Часть кита, которая раскладывает одни и те же агенты, скиллы и правила в формат конкретного runtime. Для Claude Code это <code>attach.sh</code>, для Codex и OpenCode — <code>install-adapter-package.py</code>. Описания адаптеров лежат в <code>adapters/&lt;runtime&gt;/</code>.</p>
+<h3 id="установщик"><a class="anchor" href="#установщик" aria-hidden="true">#</a>Установщик</h3>
+<p>Скрипт, который подключает кит к проекту: <code>scripts/attach.sh</code> (Claude Code) или <code>scripts/install-adapter-package.py</code> (Codex, OpenCode). Обновляют установку <code>update.sh</code> и <code>update-adapter-package.py</code>.</p>
+<h3 id="aikit-config"><a class="anchor" href="#aikit-config" aria-hidden="true">#</a>.aikit-config</h3>
+<p>Папка, куда кит подключается к проекту как git submodule — ссылка на репозиторий AIKit внутри твоего репозитория. Все скрипты запускаются оттуда: <code>bash .aikit-config/scripts/attach.sh</code>.</p>
+<h3 id="оркестратор"><a class="anchor" href="#оркестратор" aria-hidden="true">#</a>Оркестратор</h3>
+<p>Скилл или агент, который сам не пишет код, а ведёт цепочку других агентов: <code>/implement-feature</code>, <code>/workflow</code> и его агент <code>workflow-runner</code>, <code>tech-planner</code>.</p>
+    </article>
+    <nav class="pager"><a class="pager-prev" href="index.html"><span>Назад</span>Что такое AIKit</a><a class="pager-next" href="getting-started.html"><span>Дальше</span>Установка</a></nav>
+    <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/glossary.md">docs/guide/glossary.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
+  </main>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#общие-понятия">Общие понятия</a></li><li class="toc-l3"><a href="#модель">Модель</a></li><li class="toc-l3"><a href="#runtime">Runtime</a></li><li class="toc-l3"><a href="#сессия-и-контекст">Сессия и контекст</a></li><li class="toc-l3"><a href="#промпт">Промпт</a></li><li class="toc-l2"><a href="#что-aikit-ставит-в-проект">Что AIKit ставит в проект</a></li><li class="toc-l3"><a href="#правила-проекта">Правила проекта</a></li><li class="toc-l3"><a href="#агент">Агент</a></li><li class="toc-l3"><a href="#скилл">Скилл</a></li><li class="toc-l3"><a href="#slash-команда">Slash-команда</a></li><li class="toc-l3"><a href="#mcp-сервер">MCP-сервер</a></li><li class="toc-l3"><a href="#хук">Хук</a></li><li class="toc-l3"><a href="#настройки-и-разрешения">Настройки и разрешения</a></li><li class="toc-l3"><a href="#productmd">PRODUCT.md</a></li><li class="toc-l3"><a href="#память-проекта">Память проекта</a></li><li class="toc-l2"><a href="#как-устроен-кит">Как устроен кит</a></li><li class="toc-l3"><a href="#base">Base</a></li><li class="toc-l3"><a href="#профиль">Профиль</a></li><li class="toc-l3"><a href="#контракт-профиля">Контракт профиля</a></li><li class="toc-l3"><a href="#роли-агентов">Роли агентов</a></li><li class="toc-l3"><a href="#выходной-блок">Выходной блок</a></li><li class="toc-l3"><a href="#специалист">Специалист</a></li><li class="toc-l3"><a href="#пайплайн">Пайплайн</a></li><li class="toc-l3"><a href="#команды-профиля">Команды профиля</a></li><li class="toc-l3"><a href="#пак">Пак</a></li><li class="toc-l3"><a href="#пресет">Пресет</a></li><li class="toc-l3"><a href="#мульти-профиль">Мульти-профиль</a></li><li class="toc-l3"><a href="#root-профиля">Root профиля</a></li><li class="toc-l3"><a href="#aikitprofilesjson">.aikit/profiles.json</a></li><li class="toc-l3"><a href="#адаптер">Адаптер</a></li><li class="toc-l3"><a href="#установщик">Установщик</a></li><li class="toc-l3"><a href="#aikit-config">.aikit-config</a></li><li class="toc-l3"><a href="#оркестратор">Оркестратор</a></li></ul></aside>
+</div>
+<div class="toast" role="status" data-toast>Скопировано</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>

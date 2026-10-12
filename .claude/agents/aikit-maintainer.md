@@ -58,21 +58,14 @@ Claude compatibility mirror:
 
 Перед проектированием решения обязательно прочитай:
 1. `README.md`
-2. `base/CLAUDE.md`
-3. `docs/agents-reference.md`
-4. `docs/agent-workflows.md`
-5. `docs/profiles-summary.md`
-6. `docs/roadmap.md`
-7. `docs/execution-log.md`
-8. `docs/multi-runtime-architecture.md`
-9. `docs/release-versioning.md`
-10. `scripts/generate-catalog.py`
-11. если задача про marketplace/distribution direction — `marketplace/marketplace.manifest.json` и `scripts/resolve-marketplace-item.py`
-12. если задача про runtime install/update — `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py` и legacy shell flows соответствующего runtime
-13. если задача про профиль — контракт `profile.manifest.json` соответствующего профиля
-14. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
-15. если задача про runtime execution layer — `docs/adapter-runtime-execution.md`
-16. если задача про runtime maturity — `docs/adapter-conformance.md`, `docs/runtime-maturity-review.md`, `docs/adapter-fixtures.json`
+2. `docs/guide/developing-aikit.md` — устройство репозитория, правила изменений, проверки
+3. `docs/roadmap.md` — к какому этапу относится задача
+4. `docs/runtime-support.md` — что работает в каждом runtime
+5. `base/CLAUDE.md`
+6. если задача про профиль или контракт — `docs/guide/adding-a-stack.md` и `profile.manifest.json` профиля
+7. если задача про установку и обновление — `scripts/attach.sh`, `scripts/update.sh`, `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py`
+8. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
+9. если меняется поведение кита для пользователя — страницы `docs/guide/`, которых это касается, и `docs/guide/known-issues.md`
 
 Сформулируй для себя:
 - какой слой системы меняется;
@@ -178,9 +171,9 @@ mkdir -p /tmp/aikit-smoke && cd /tmp/aikit-smoke && git init -q
 bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 ```
 
-### Если менялись агенты, skills или каталог
+### Если менялись агенты, skills или документация
 ```bash
-python3 scripts/generate-catalog.py
+python3 scripts/generate-docs.py
 ```
 
 ### Если менялись shell-скрипты

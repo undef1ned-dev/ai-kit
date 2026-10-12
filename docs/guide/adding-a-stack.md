@@ -102,7 +102,8 @@ profiles/java-spring/
 ## Шаг 3 — проверить
 
 ```bash
-bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны
+python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
+bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт собран
 bash scripts/ci/run-all.sh         # всё целиком, включая установку на тестовые проекты
 ```
 
