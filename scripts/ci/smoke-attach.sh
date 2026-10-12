@@ -60,6 +60,44 @@ check_profiles_in_claude_md() {
   done
 }
 
+# Скиллы: <name>/SKILL.md с name = папка и description, шаблоны раскрыты, все из .config-version на месте
+check_skills() {
+  "$PYTHON_BIN" - "$PROJECT_DIR/.claude" <<'PY'
+import json, pathlib, re, sys
+claude = pathlib.Path(sys.argv[1])
+config = dict(line.split("=", 1) for line in (claude / ".config-version").read_text(encoding="utf-8").splitlines() if "=" in line)
+expected = config.get("skills", "").split()
+assert expected, "в .config-version нет skills="
+for name in expected:
+    path = claude / "skills" / name / "SKILL.md"
+    assert path.exists(), f"нет скилла {name}"
+    match = re.match(r"---\n(.*?)\n---\n", path.read_text(encoding="utf-8"), re.S)
+    assert match, f"нет frontmatter: {name}"
+    fields = dict(re.findall(r"(?m)^([\w-]+):\s*(.*)$", match.group(1)))
+    assert fields.get("name", "").strip('"') == name, f"name не совпадает с папкой: {name}"
+    assert fields.get("description", "").strip(), f"нет description: {name}"
+    assert "template" not in fields, f"шаблон не раскрыт: {name}"
+PY
+}
+
+# MCP: .mcp.json валиден, есть context7 из base, версии закреплены, свой сервер пользователя сохранён (если был)
+check_mcp() {
+  "$PYTHON_BIN" - "$PROJECT_DIR" "${1:-}" <<'PY'
+import json, pathlib, sys
+project, user_server = pathlib.Path(sys.argv[1]), sys.argv[2]
+text = (project / ".mcp.json").read_text(encoding="utf-8")
+servers = json.loads(text)["mcpServers"]
+assert "context7" in servers, "нет context7"
+assert "@latest" not in text, "версия не закреплена"
+if user_server:
+    assert user_server in servers, "сервер пользователя удалён"
+settings = json.loads((project / ".claude" / "settings.json").read_text(encoding="utf-8"))
+assert "mcpServers" not in settings, "MCP в settings.json"
+gitignore = project / ".gitignore"
+assert not gitignore.exists() or ".claude/settings.json" not in gitignore.read_text(encoding="utf-8"), "settings.json в .gitignore"
+PY
+}
+
 count_files() { find "$1" -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "▶ Пресет $PRESET → $PROJECT_DIR"
@@ -76,12 +114,24 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
-check "скиллы и команды установлены" test "$(( $(count_files .claude/skills 'SKILL.md') + $(count_files .claude/commands '*.md') ))" -gt 0
+check "скиллы установлены: name = папка, есть description, шаблоны раскрыты" check_skills
+check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
 check "скилл git-commit установлен" test -f .claude/skills/git-commit/SKILL.md
 check "скилл git-branch установлен" test -f .claude/skills/git-branch/SKILL.md
 check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -rlF "{{" .claude CLAUDE.md'
+check ".mcp.json: серверы с закреплёнными версиями, settings.json без MCP" check_mcp
 check "память проекта создана" test -d .aikit/memory
 check "версия конфигурации записана" test -s .claude/.config-version
+
+# Прежние версии кита ставили команды в .claude/commands/, а смена набора скиллов оставляла старые папки
+mkdir -p .claude/commands .claude/skills/legacy-kit-skill
+echo "# legacy" > .claude/commands/security-check.md
+echo "# своя команда" > .claude/commands/my-own.md
+echo "# legacy" > .claude/skills/legacy-kit-skill/SKILL.md
+# Свой MCP-сервер пользователя и правило .gitignore от прежних версий кита
+"$PYTHON_BIN" -c 'import json; p = ".mcp.json"; d = json.load(open(p, encoding="utf-8")); d["mcpServers"]["my-server"] = {"command": "my-mcp"}; json.dump(d, open(p, "w", encoding="utf-8"))'
+printf "node_modules/\n\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" > .gitignore
+sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
 
 echo "▶ update.sh --auto"
 if bash "$KIT_ROOT/scripts/update.sh" --auto > update.log 2>&1; then
@@ -92,6 +142,11 @@ else
 fi
 check ".claude/settings.json корректен после обновления" check_settings
 check "агенты на месте после обновления" test "$(count_files .claude/agents '*.md')" -gt 0
+check "скиллы корректны после обновления" check_skills
+check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
+check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md
+check ".mcp.json после обновления: серверы кита и пользователя, .gitignore очищен" check_mcp my-server
+check ".gitignore: свои правила сохранены" grep -qx "node_modules/" .gitignore
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Пресет $PRESET: проверок не пройдено — $FAILURES"

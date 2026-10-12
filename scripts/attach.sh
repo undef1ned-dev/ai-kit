@@ -108,6 +108,11 @@ profile_prefix() {
   echo "$1" | sed 's/python-//; s/-[a-z]*$//'
 }
 
+# shellcheck source=lib/skills.sh
+source "$SCRIPT_DIR/lib/skills.sh"
+# shellcheck source=lib/mcp.sh
+source "$SCRIPT_DIR/lib/mcp.sh"
+
 # Найти конфликтующие имена файлов (встречаются в 2+ профилях) для заданной поддиректории
 # Использование: find_conflicts <subdir>  — возвращает имена файлов по одному в строке
 find_conflicts() {
@@ -122,24 +127,6 @@ find_conflicts() {
     fi
   done
   printf "%b" "$all_files" | sort | uniq -d
-}
-
-# Раскрыть шаблонные скиллы (те у которых есть template: в frontmatter)
-# Использование: expand_skill_templates <dst>
-expand_skill_templates() {
-  local dst="$1"
-  local tmpl_dir="$CONFIG_ROOT/base/skills/templates"
-  [[ -d "$tmpl_dir" ]] || return 0
-  command -v python3 &>/dev/null || { log_warn "python3 не найден — шаблонные скиллы не расширены"; return 0; }
-
-  local expanded=0
-  for f in "$dst"/*.md; do
-    [[ -f "$f" ]] || continue
-    grep -q '^template:' "$f" 2>/dev/null || continue
-    python3 "$SCRIPT_DIR/expand-template.py" "$f" "$tmpl_dir" \
-      && expanded=$((expanded + 1))
-  done
-  [[ "$expanded" -gt 0 ]] && log_ok "Расширено $expanded шаблонных скилла(ов)"
 }
 
 # Скопировать файлы профилей в dst с разрешением конфликтов
@@ -232,7 +219,6 @@ echo ""
 # =============================================================================
 # Создать .claude/
 # =============================================================================
-mkdir -p "$PROJECT_ROOT/.claude/commands"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
 
 # =============================================================================
@@ -284,7 +270,6 @@ if [[ -n "$SETTINGS_FILES" ]] && command -v jq &>/dev/null; then
   MERGE_CMD='reduce .[] as $l ({}; . * $l
     | .permissions.allow = ([(.permissions.allow // []), ($l.permissions.allow // [])] | add | unique)
     | .permissions.deny  = ([(.permissions.deny  // []), ($l.permissions.deny  // [])] | add | unique)
-    | .mcpServers = ((.mcpServers // {}) + ($l.mcpServers // {}))
   )'
   # shellcheck disable=SC2086
   jq -s "$MERGE_CMD" $SETTINGS_FILES > "$TARGET_SETTINGS" 2>/dev/null \
@@ -335,40 +320,21 @@ else
 fi
 
 # =============================================================================
+# MCP-серверы → .mcp.json
+# =============================================================================
+log_section "MCP-серверы"
+install_kit_mcp "$PROFILES_ARG" "$PACKS_LIST"
+
+# =============================================================================
 # Скиллы: base + профили + паки
 # =============================================================================
-log_section "Скиллы (commands)"
+log_section "Скиллы"
 
-SKILLS_DST="$PROJECT_ROOT/.claude/commands"
-BASE_SKILLS="$CONFIG_ROOT/base/skills"
-[[ -d "$BASE_SKILLS" ]] && cp "$BASE_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-
-if $MULTI_PROFILE; then
-  copy_profile_files "skills" "$SKILLS_DST"
-else
-  P_SKILLS="$CONFIG_ROOT/profiles/$PROFILE_LIST/skills"
-  [[ -d "$P_SKILLS" ]] && cp "$P_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-fi
-
-for pack in $PACKS_LIST; do
-  PACK_SKILLS="$CONFIG_ROOT/packs/$pack/skills"
-  [[ -d "$PACK_SKILLS" ]] && cp "$PACK_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-done
-
-expand_skill_templates "$SKILLS_DST"
-SKILL_COUNT="$(ls "$SKILLS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
-log_ok "Скиллы в .claude/commands/ ($SKILL_COUNT шт)"
-
-# Skills в формате SKILL.md: base/skills/<name>/SKILL.md → .claude/skills/<name>/
-AUTO_SKILLS_DST="$PROJECT_ROOT/.claude/skills"
-AUTO_SKILL_COUNT=0
-for d in "$BASE_SKILLS"/*/; do
-  [[ -f "${d}SKILL.md" ]] || continue
-  mkdir -p "$AUTO_SKILLS_DST"
-  cp -R "${d%/}" "$AUTO_SKILLS_DST/"
-  AUTO_SKILL_COUNT=$((AUTO_SKILL_COUNT + 1))
-done
-log_ok "Skills в .claude/skills/ ($AUTO_SKILL_COUNT шт)"
+PREVIOUS_SKILLS="$( [[ -f "$VERSION_FILE" ]] && grep '^skills=' "$VERSION_FILE" | cut -d= -f2 || true)"
+remove_previous_kit_skills "$PROJECT_ROOT/.claude" "$PREVIOUS_SKILLS"
+install_kit_skills "$PROJECT_ROOT/.claude/skills" "$PACKS_LIST"
+SKILL_COUNT="$(echo "$INSTALLED_SKILLS" | wc -w | tr -d ' ')"
+log_ok "Скиллы в .claude/skills/ ($SKILL_COUNT шт)"
 
 # =============================================================================
 # Субагенты: base + профили + паки
@@ -443,11 +409,8 @@ log_ok ".claude/memory/ синхронизирована как Claude mirror"
 # .gitignore
 # =============================================================================
 GITIGNORE="$PROJECT_ROOT/.gitignore"
+remove_legacy_settings_gitignore
 if [[ -f "$GITIGNORE" ]]; then
-  if ! grep -q "\.claude/settings\.json" "$GITIGNORE" 2>/dev/null; then
-    printf "\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" >> "$GITIGNORE"
-    log_ok ".gitignore обновлён (добавлен .claude/settings.json)"
-  fi
   if grep -q "\.claude/memory" "$GITIGNORE" 2>/dev/null; then
     log_warn "ВНИМАНИЕ: .claude/memory/ найдена в .gitignore — память проекта должна храниться в git"
   fi
@@ -460,9 +423,10 @@ fi
 # Версия конфигурации
 # =============================================================================
 CURRENT_TAG="$(get_repo_version)"
-printf "profiles=%s\npacks=%s\nversion=%s\nattached_at=%s\n" \
+printf "profiles=%s\npacks=%s\nskills=%s\nversion=%s\nattached_at=%s\n" \
   "$PROFILES_ARG" \
   "$PACKS_LIST" \
+  "$INSTALLED_SKILLS" \
   "$CURRENT_TAG" \
   "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$VERSION_FILE"
 log_ok ".claude/.config-version записан ($CURRENT_TAG)"
@@ -476,9 +440,9 @@ log_ok "Профиль(и) '$PROFILES_ARG' подключён(ы)!"
 echo ""
 echo "Созданные файлы:"
 echo "  CLAUDE.md                  — правила для Claude"
-echo "  .claude/settings.json      — MCP серверы и permissions"
-printf "  .claude/commands/          — скиллы (%s шт)\n" "$SKILL_COUNT"
-printf "  .claude/skills/            — skills с автовызовом (%s шт)\n" "$AUTO_SKILL_COUNT"
+echo "  .claude/settings.json      — permissions и настройки (хранится в git)"
+echo "  .mcp.json                  — MCP-серверы (хранится в git)"
+printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"
 echo "  .aikit/memory/          — canonical memory проекта"
@@ -487,7 +451,7 @@ echo "  .claude/.config-version    — версия конфигурации"
 echo ""
 echo "Следующие шаги:"
 echo "  1. Заполни PRODUCT.md — агенты читают его для контекста"
-echo "  2. Установи переменные окружения для MCP-серверов профиля (FIGMA_TOKEN, DATABASE_URL и др.)"
+echo "  2. MCP: Figma и Sentry попросят войти (OAuth) при первом вызове"
 echo "  3. После первой содержательной задачи запусти /capture-memory"
 if $MULTI_PROFILE; then
   echo ""

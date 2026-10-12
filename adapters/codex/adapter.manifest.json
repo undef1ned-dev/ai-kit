@@ -5,18 +5,20 @@
   "label": "Codex CLI / Desktop",
   "description": "Production-supported runtime adapter for AIKit in Codex CLI / Desktop. Reuses core agents, manifests and routing through workspace install/update flow and runtime-specific entrypoints.",
   "entrypoint_style": "prompt-and-skill-invocation",
-  "config_roots": [".codex/", ".agents/", ".aikit/"],
+  "config_roots": [
+    ".codex/",
+    ".agents/",
+    ".aikit/"
+  ],
   "install_script": "scripts/install-adapter-package.py",
   "install_type": "workspace-sync",
   "update_script": "scripts/update-adapter-package.py",
   "generated_artifacts": [
+    "AGENTS.md",
     ".codex/",
     ".codex/.config-version",
     ".codex/agents/",
-    ".codex/commands/",
-    ".codex/skills/",
-    ".codex/memory/",
-    ".agents/",
+    ".agents/skills/",
     ".aikit/agents/",
     ".aikit/memory/",
     ".aikit/runtime-graph.json",
@@ -30,7 +32,7 @@
     ".codex/CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/runtime-graph.json",
     ".codex/entrypoints.json",
-    ".agents/README.md"
+    ".codex/config.toml"
   ],
   "memory_path": ".aikit/memory",
   "graph_execution": {
@@ -41,6 +43,12 @@
     "purpose": "Codex runtime can inspect packaged workflow DAG metadata and future graph-aware orchestration hints directly from the installed workspace."
   },
   "runtime_entrypoints": [
+    {
+      "name": "project-rules",
+      "path": "AGENTS.md",
+      "kind": "rules",
+      "purpose": "Project rules for Codex: the AIKit block (base + profile rules) is managed by the installer, user content outside it is kept."
+    },
     {
       "name": "codex-runtime-guide",
       "path": ".codex/AIKIT.md",
@@ -54,28 +62,16 @@
       "purpose": "Continue developing AIKit inside Codex using the maintainer handoff prompt."
     },
     {
-      "name": "codex-command-surface",
-      "path": ".codex/commands/",
-      "kind": "command-surface",
-      "purpose": "Codex-native command surface combining packaged AIKit skills with command-first runtime workspace lifecycle, bootstrap and bounded audit commands."
-    },
-    {
       "name": "codex-native-agents",
       "path": ".codex/agents/",
       "kind": "agent-entry",
-      "purpose": "Codex-native mirror of packaged AIKit agents for workspace inspection and runtime handoff."
+      "purpose": "AIKit agents as Codex custom agents (.codex/agents/*.toml); loaded for trusted projects."
     },
     {
       "name": "codex-native-skills",
-      "path": ".codex/skills/",
+      "path": ".agents/skills/",
       "kind": "skill-entry",
-      "purpose": "Codex-native mirror of packaged AIKit skills alongside slash command files."
-    },
-    {
-      "name": "codex-native-memory",
-      "path": ".codex/memory/",
-      "kind": "memory-mirror",
-      "purpose": "Codex-native mirror of canonical AIKit memory so installed workspaces do not look Claude-only."
+      "purpose": "AIKit skills in the Agent Skills format (<name>/SKILL.md) that Codex discovers in the repository."
     },
     {
       "name": "packaged-agents",
@@ -109,7 +105,13 @@
     }
   ],
   "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",
-  "source_layers": ["base", "profiles", "packs", "scripts", "docs"],
+  "source_layers": [
+    "base",
+    "profiles",
+    "packs",
+    "scripts",
+    "docs"
+  ],
   "notes": [
     "First non-Claude adapter target",
     "Core workflows should be reused, not rewritten",

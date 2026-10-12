@@ -3,17 +3,18 @@
   "runtime": "claude",
   "status": "active",
   "label": "Claude Code",
-  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/commands, .claude/settings.json and .claude/memory.",
+  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/skills, .claude/settings.json and .claude/memory.",
   "entrypoint_style": "slash-commands",
   "config_roots": ["CLAUDE.md", ".claude/"],
   "generated_artifacts": [
     "CLAUDE.md",
     ".claude/agents/",
-    ".claude/commands/",
+    ".claude/skills/",
     ".claude/settings.json",
     ".claude/.config-version",
     ".claude/memory/",
-    ".aikit/runtime-graph.json"
+    ".aikit/runtime-graph.json",
+    ".mcp.json"
   ],
   "memory_path": ".claude/memory",
   "graph_execution": {
@@ -30,10 +31,10 @@
       "purpose": "Primary instruction surface for Claude Code in attached projects."
     },
     {
-      "name": "claude-commands",
-      "path": ".claude/commands/",
-      "kind": "command-surface",
-      "purpose": "Slash-command entry layer for packaged skills in Claude runtime."
+      "name": "claude-skills",
+      "path": ".claude/skills/",
+      "kind": "skill-entry",
+      "purpose": "Packaged skills as <name>/SKILL.md: invoked as /name or automatically by description."
     },
     {
       "name": "claude-agents",

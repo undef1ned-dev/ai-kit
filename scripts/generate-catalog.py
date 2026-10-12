@@ -9,11 +9,22 @@ Usage:
 
 import argparse
 import html
+import importlib.util
 import json
 import os
 import re
 import sys
 from pathlib import Path
+
+def load_template_expander():
+    path = Path(__file__).resolve().with_name('expand-template.py')
+    spec = importlib.util.spec_from_file_location('aikit_expand_template', path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.expand_skill_text
+
+
+expand_skill_text = load_template_expander()
 
 PRIMARY_START_ORDER = ['aikit-bootstrap-project', 'implement-feature']
 OVERLAY_START_SKILLS = ['design-implement', 'design-review', 'setup-admin']
@@ -103,15 +114,18 @@ def parse_frontmatter(text: str) -> dict:
 
 
 def read_md_files(directory: Path, kind: str) -> list[dict]:
-    """Read all .md files in directory and return list of parsed entries."""
+    """Read agents (<name>.md) or skills (<name>/SKILL.md) in directory and return parsed entries."""
     entries = []
     if not directory.exists():
         return entries
-    for md in sorted(directory.glob('*.md')):
+    pattern = '*/SKILL.md' if kind == 'skill' else '*.md'
+    for md in sorted(directory.glob(pattern)):
         text = md.read_text(encoding='utf-8')
+        if kind == 'skill':
+            text = expand_skill_text(text)
         fm = parse_frontmatter(text)
         if not fm.get('name'):
-            fm['name'] = md.stem
+            fm['name'] = md.parent.name if kind == 'skill' else md.stem
         if kind == 'agent' and fm.get('name') in PUBLIC_AGENT_EXCLUSIONS:
             continue
         fm['_kind'] = kind

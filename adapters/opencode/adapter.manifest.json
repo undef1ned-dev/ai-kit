@@ -5,11 +5,16 @@
   "label": "OpenCode TUI",
   "description": "Production-supported runtime adapter for OpenCode TUI. Reuses AIKit core through workspace install/update flow and OpenCode-specific launcher files.",
   "entrypoint_style": "prompt-and-command-presets",
-  "config_roots": [".opencode/", ".aikit/"],
+  "config_roots": [
+    ".opencode/",
+    ".agents/",
+    ".aikit/"
+  ],
   "install_script": "scripts/install-adapter-package.py",
   "install_type": "workspace-sync",
   "update_script": "scripts/update-adapter-package.py",
   "generated_artifacts": [
+    "AGENTS.md",
     ".opencode/",
     ".aikit/agents/",
     ".aikit/memory/",
@@ -24,7 +29,9 @@
     ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
     ".opencode/runtime-graph.json",
     ".opencode/entrypoints.json",
-    ".opencode/agents/README.md"
+    ".agents/skills/",
+    ".opencode/agents/",
+    "opencode.json"
   ],
   "memory_path": ".aikit/memory",
   "graph_execution": {
@@ -36,6 +43,12 @@
   },
   "runtime_entrypoints": [
     {
+      "name": "project-rules",
+      "path": "AGENTS.md",
+      "kind": "rules",
+      "purpose": "Project rules for OpenCode: the AIKit block (base + profile rules) is managed by the installer, user content outside it is kept."
+    },
+    {
       "name": "opencode-runtime-guide",
       "path": ".opencode/AIKIT.md",
       "kind": "guide",
@@ -46,6 +59,18 @@
       "path": ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
       "kind": "continuation",
       "purpose": "Continue developing AIKit inside OpenCode using the maintainer handoff prompt."
+    },
+    {
+      "name": "opencode-native-agents",
+      "path": ".opencode/agents/",
+      "kind": "agent-entry",
+      "purpose": "AIKit agents as OpenCode subagents (mode: subagent)."
+    },
+    {
+      "name": "opencode-native-skills",
+      "path": ".agents/skills/",
+      "kind": "skill-entry",
+      "purpose": "AIKit skills in the Agent Skills format that OpenCode discovers in the repository."
     },
     {
       "name": "packaged-agents",
@@ -79,7 +104,13 @@
     }
   ],
   "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",
-  "source_layers": ["base", "profiles", "packs", "scripts", "docs"],
+  "source_layers": [
+    "base",
+    "profiles",
+    "packs",
+    "scripts",
+    "docs"
+  ],
   "notes": [
     "OpenCode runtime now treated as production-supported inside AIKit",
     "Uses workspace install flow through scripts/install-adapter-package.py",

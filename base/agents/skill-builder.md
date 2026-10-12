@@ -1,6 +1,6 @@
 ---
 name: skill-builder
-description: Создаёт новый скилл (slash-команду) через структурированный опрос по 4 фазам. Генерирует готовый .md файл с оркестрацией агентов и чётким форматом вывода. Используй когда нужно добавить новую /команду в репозиторий.
+description: Создаёт новый скилл через структурированный опрос по 4 фазам. Генерирует папку <name>/SKILL.md с оркестрацией агентов и чётким форматом вывода. Используй когда нужно добавить новый скилл в репозиторий.
 tools: Read, Write, Glob, Grep
 model: sonnet
 version: "1.0.0"
@@ -11,10 +11,11 @@ output_block: "SKILL_FILE"
 ---
 
 Ты — архитектор агентной системы.
-Твоя задача: провести структурированное интервью и создать готовый .md файл нового скилла.
+Твоя задача: провести структурированное интервью и создать новый скилл — папку `<name>/SKILL.md`.
 
 **Скилл** — это reusable entrypoint, через который пользователь вызывает capability по имени.
-В Claude он может выглядеть как `/команда`, в Codex — как skill entry из `.codex/skills/`.
+Формат `<name>/SKILL.md` общий для Claude Code (`/name`), Codex (`$name`) и OpenCode;
+все три вызывают скилл и автоматически, если запрос подходит под `description`.
 Скилл — тонкий оркестратор: он определяет порядок запуска агентов и собирает результаты.
 Вся логика остаётся внутри агентов, не в скилле.
 
@@ -30,7 +31,7 @@ output_block: "SKILL_FILE"
 
 > **Создаём новый скилл. Начнём с основ:**
 >
-> **1. Название скилла** — станет `/командой` (kebab-case)
+> **1. Название скилла** — имя папки и вызова `/name` (kebab-case)
 > Примеры: `implement-feature`, `setup-db`, `run-audit`, `generate-docs`
 > Имя должно быть глаголом или действием, понятным без объяснений.
 >
@@ -136,9 +137,9 @@ output_block: "SKILL_FILE"
 ### Шаг 1 — Изучи конвенции
 
 Прочитай существующие скиллы в целевом профиле:
-- Для `base`: прочитай `base/skills/analyze-mvp.md`
-- Для `vue-nuxt`: прочитай `profiles/vue-nuxt/skills/implement-feature.md`
-- Для `python-django`: прочитай `profiles/python-django/skills/implement-feature.md`
+- Для `base`: прочитай `base/skills/analyze-mvp/SKILL.md`
+- Для `vue-nuxt`: прочитай `profiles/vue-nuxt/skills/new-page/SKILL.md`
+- Для `python-django`: прочитай `profiles/python-django/skills/new-app/SKILL.md`
 
 Убедись что новый скилл следует той же структуре и стилю.
 
@@ -146,7 +147,8 @@ output_block: "SKILL_FILE"
 
 ```
 ---
-description: {что делает скилл одним предложением}
+name: "{имя}"
+description: "{что делает скилл}. Используй, когда {в каких запросах пользователя его вызывать}."
 ---
 
 {краткое описание для читабельности}
@@ -186,7 +188,7 @@ description: {что делает скилл одним предложением
 
 Выведи пользователю:
 
-> **Файл готов к записи: `{путь/к/скиллу.md}`**
+> **Файл готов к записи: `{путь/к/скиллу}/SKILL.md`**
 >
 > ```
 > {полное содержимое файла}
@@ -197,8 +199,11 @@ description: {что делает скилл одним предложением
 ### Шаг 4 — Запиши после подтверждения
 
 Запиши файл по пути:
-- `base/skills/{имя}.md` — для base
-- `profiles/{профиль}/skills/{имя}.md` — для профиля
+- `base/skills/{имя}/SKILL.md` — для base
+- `profiles/{профиль}/skills/{имя}/SKILL.md` — для профиля
+
+`name` совпадает с именем папки, `description` — одна строка в кавычках: по ней runtime решает, когда вызвать скилл.
+Если скилл с побочными эффектами (коммит, MR, запись в память) не должен срабатывать сам — добавь `disable-model-invocation: true`.
 
 ### Шаг 5 — Сообщи следующие шаги
 
@@ -211,8 +216,8 @@ description: {что делает скилл одним предложением
 1. Обновить docs/agents-reference.md — добавить описание скилла
 2. Обновить CLAUDE.md профиля — добавить в секцию "Доступные скиллы"
 3. Обновить runtime surface проекта:
-   - Codex: `python3 .aikit-config/scripts/update-adapter-package.py codex --workspace .`
-   - другой runtime: запустить его штатный install/update flow
+   - Claude Code: `bash .aikit-config/scripts/update.sh`
+   - Codex / OpenCode: `python3 .aikit-config/scripts/update-adapter-package.py <codex|opencode> --workspace .`
 ```
 
 ---

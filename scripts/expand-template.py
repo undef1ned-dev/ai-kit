@@ -133,36 +133,24 @@ def expand(template_text: str, inline_vars: dict[str, str], blocks: dict[str, st
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
-def main() -> None:
-    if len(sys.argv) < 3:
-        print(f'Usage: {sys.argv[0]} <skill.md> <templates-dir>', file=sys.stderr)
-        sys.exit(1)
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent / 'base' / 'skills' / 'templates'
 
-    skill_path = Path(sys.argv[1])
-    templates_dir = Path(sys.argv[2])
 
-    if not skill_path.exists():
-        print(f'Error: file not found: {skill_path}', file=sys.stderr)
-        sys.exit(1)
-
-    text = skill_path.read_text(encoding='utf-8')
+def expand_skill_text(text: str, templates_dir: Path = TEMPLATES_DIR) -> str:
+    """Return the expanded skill text, or the text unchanged when it is not template-based."""
     fm_yaml, body = split_frontmatter(text)
-
     if not fm_yaml:
-        # No frontmatter — nothing to do
-        return
+        return text
 
     fm = parse_frontmatter(fm_yaml)
     template_name = fm.get('template', '').strip()
-
     if not template_name:
-        # Not a template-based skill
-        return
+        return text
 
     tmpl_path = templates_dir / f'{template_name}.md.tmpl'
     if not tmpl_path.exists():
         print(f'Warning: template not found: {tmpl_path}', file=sys.stderr)
-        return
+        return text
 
     template_text = tmpl_path.read_text(encoding='utf-8')
 
@@ -180,8 +168,25 @@ def main() -> None:
     # Parse multi-line block sections from body
     blocks = parse_body_blocks(body)
 
-    # Expand template
-    expanded = expand(template_text, inline_vars, blocks)
+    return expand(template_text, inline_vars, blocks)
+
+
+def main() -> None:
+    if len(sys.argv) < 3:
+        print(f'Usage: {sys.argv[0]} <skill.md> <templates-dir>', file=sys.stderr)
+        sys.exit(1)
+
+    skill_path = Path(sys.argv[1])
+    templates_dir = Path(sys.argv[2])
+
+    if not skill_path.exists():
+        print(f'Error: file not found: {skill_path}', file=sys.stderr)
+        sys.exit(1)
+
+    text = skill_path.read_text(encoding='utf-8')
+    expanded = expand_skill_text(text, templates_dir)
+    if expanded == text:
+        return
 
     # Write back in-place
     skill_path.write_text(expanded, encoding='utf-8')

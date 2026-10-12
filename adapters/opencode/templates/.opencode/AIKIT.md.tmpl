@@ -1,22 +1,18 @@
 # AIKit In {{ADAPTER_LABEL}}
 
-Этот runtime workspace подготовлен для `{{ADAPTER_LABEL}}`.
+Этот проект подключён к AIKit (профили: `{{PROFILES}}`).
 
-## Что уже установлено
+## Где что лежит
 
-- `AIKIT.md` в корне workspace
-- `.aikit/agents/` и `.aikit/skills/`
-- `{{MEMORY_PATH}}/` с seeded memory AIKit
+- `AGENTS.md` — правила проекта; блок AIKit обновляется установщиком, свой текст пиши вне блока
+- `.agents/skills/` — скиллы AIKit, OpenCode подхватывает их автоматически
+- `.opencode/agents/` — агенты AIKit (субагенты)
+- `opencode.json` — MCP-серверы AIKit в разделе `mcp`; свои серверы добавляй туда же, установщик их не трогает
+- `{{MEMORY_PATH}}/` — память проекта, хранится в git
+- `.aikit/` — служебные файлы установки AIKit
 
-## OpenCode-specific entrypoints
+## Обновление
 
-OpenCode поддерживает project-level runtime config в `.opencode/` и markdown agents в `.opencode/agents/`.
-
-Для продолжения развития самого AIKit используй:
-- `.opencode/CONTINUE_AIKIT_MAINTAINER.md`
-
-## Ограничения текущей интеграции
-
-- OpenCode adapter пока experimental.
-- Runtime-specific детали должны жить в `adapters/opencode/`.
-- Core не должен подстраиваться под OpenCode-specific layout без необходимости.
+```bash
+python3 .aikit-config/scripts/update-adapter-package.py opencode --preset <preset> --workspace .
+```
