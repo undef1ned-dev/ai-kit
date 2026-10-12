@@ -1,37 +1,23 @@
-# Continue AIKit Maintenance In {{ADAPTER_LABEL}}
+# Разработка AIKit в {{ADAPTER_LABEL}}
 
-Используй пакет AIKit как runtime bundle для `{{ADAPTER_LABEL}}`.
+Этот файл ставится только в режиме `--mode maintainer`: в этом репозитории развивают сам AIKit.
 
-Этот adapter пока planned, поэтому основной смысл bundle:
-- зафиксировать adapter contract;
-- дать единый continuation prompt для `aikit-maintainer`;
-- не смешивать runtime-specific packaging с core-слоем.
+## Перед стартом прочитай
 
-## Сначала прочитай
-
-1. `AIKIT.md`
-2. `.aikit/agents/aikit-maintainer.md`
-3. `.aikit/runtime-operating-protocol.md`
-4. `.aikit/runtime-continuation-contract.md`
-5. `.aikit/runtime-tools.json`
-6. `{{MEMORY_PATH}}/INDEX.md`
-7. `{{MEMORY_PATH}}/features/aikit-repo/INDEX.md`
+1. `AIKIT.md` — правила кита и профилей `{{PROFILES}}`
+2. агента `aikit-maintainer` (`.opencode/agents/aikit-maintainer.md`)
+3. `docs/guide/developing-aikit.md` — как устроен репозиторий и как проверять изменения
+4. `docs/roadmap.md` и `docs/runtime-support.md` — план и что умеет каждый runtime
+5. `{{MEMORY_PATH}}/INDEX.md` — командная память
 
 ## Как работать
 
-- пользователь пишет задачу в OpenCode TUI, а internal Python tools выбираешь и запускаешь ты сам;
-- для routing/retrieval/workflow orchestration используй `.aikit/runtime-operating-protocol.md`;
-- для resumed flow, bundle handoff и lineage используй `.aikit/runtime-continuation-contract.md`;
-- для выбора internal validators and tools используй `.aikit/runtime-tools.json`;
-- не смешивай runtime-specific packaging с core-слоем.
+- Задачу пользователь пишет обычным языком, веди её через `aikit-maintainer`.
+- Общее для всех runtime (агенты, скиллы, профили, хуки) живёт в `base/`, `profiles/`, `packs/`. Особенности runtime — только в `adapters/<runtime>/` и установщике.
+- Если runtime чего-то не умеет — запиши это в `docs/runtime-support.md`.
 
-## Рекомендуемый стартовый prompt
+## Проверки после изменений
 
-```text
-Используй aikit-maintainer чтобы продолжить развитие AIKit под runtime {{ADAPTER_RUNTIME}}.
-
-Работай через core + adapters модель.
-Перед изменениями прочитай AIKIT.md, .aikit/runtime-operating-protocol.md, .aikit/runtime-continuation-contract.md и memory.
-Также прочитай .aikit/runtime-tools.json перед выбором internal validators/tools.
-После изменений прогони validation matrix и обнови memory.
+```bash
+bash scripts/ci/run-all.sh
 ```

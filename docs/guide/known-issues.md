@@ -117,10 +117,6 @@ export PYTHONIOENCODING=utf-8
 
 ## Репозиторий кита
 
-### Устаревшие протоколы для Codex и OpenCode
-
-`docs/public/cli-agent-operating-protocol.md` и `docs/public/cli-runtime-continuation-contract.md` установщик адаптера кладёт в `.aikit/` проекта. Тексты остались от прежней архитектуры и ждут пересмотра — пункт 7.1 [roadmap](../roadmap.md).
-
 ### Папка marketplace/ не используется
 
 `marketplace/` и `scripts/resolve-marketplace-item.py` — наследие прежней схемы дистрибуции. Их заменит plugin marketplace (этап 8 [roadmap](../roadmap.md)).
