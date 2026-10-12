@@ -104,11 +104,10 @@ export PYTHONIOENCODING=utf-8
 **Что происходит.** Часть агентов писалась под прежний стек команды:
 
 - `cross-project-analyst` описан как анализ «backend ↔ iOS»;
-- `memory-writer` открывает merge request через GitLab MCP;
 - `devops-engineer` (пак `devops`) ориентирован на GitLab CI;
 - `release-manager` упоминает App Store.
 
-**Решение.** Пункты 6.2 и 12.x [roadmap](../roadmap.md). Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.
+**Решение.** Пункты 12.x [roadmap](../roadmap.md). Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.
 
 ### Пак ai подходит только к Python-профилям
 

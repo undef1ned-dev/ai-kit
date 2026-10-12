@@ -335,39 +335,27 @@ if [[ ! -f "$PRODUCT_TARGET" ]] && [[ -f "$PRODUCT_TEMPLATE" ]]; then
 fi
 
 # =============================================================================
-# .aikit/memory + .claude/memory — canonical memory + Claude mirror
+# .aikit/memory — командная память проекта (решения, паттерны, коррекции агентов)
 # =============================================================================
 CANONICAL_MEMORY_DIR="$PROJECT_ROOT/.aikit/memory"
-CLAUDE_MEMORY_DIR="$PROJECT_ROOT/.claude/memory"
+LEGACY_MEMORY_DIR="$PROJECT_ROOT/.claude/memory"
 MEMORY_TEMPLATE="$CONFIG_ROOT/base/memory/INDEX.md"
 
-init_memory_dir() {
-  local target="$1"
-  mkdir -p "$target/decisions" "$target/patterns" "$target/corrections" "$target/tasks/archive" "$target/features"
-  touch "$target/decisions/.gitkeep" "$target/patterns/.gitkeep" "$target/corrections/.gitkeep" "$target/features/.gitkeep" "$target/tasks/.gitkeep" "$target/tasks/archive/.gitkeep"
-  [[ -f "$MEMORY_TEMPLATE" && ! -f "$target/INDEX.md" ]] && cp "$MEMORY_TEMPLATE" "$target/INDEX.md"
-}
-
-sync_memory_dir() {
-  local source="$1"
-  local target="$2"
-  mkdir -p "$target"
-  rm -rf "$target/decisions" "$target/patterns" "$target/corrections" "$target/tasks" "$target/features" "$target/INDEX.md"
-  cp -R "$source"/. "$target"/
-}
-
-if [[ ! -d "$CANONICAL_MEMORY_DIR" ]]; then
-  init_memory_dir "$CANONICAL_MEMORY_DIR"
-  log_ok ".aikit/memory/ инициализирована (canonical memory)"
+if [[ -d "$CANONICAL_MEMORY_DIR" ]]; then
+  log_ok ".aikit/memory/ уже есть — оставляю как есть"
+elif [[ -d "$LEGACY_MEMORY_DIR" ]]; then
+  mkdir -p "$CANONICAL_MEMORY_DIR"
+  cp -R "$LEGACY_MEMORY_DIR"/. "$CANONICAL_MEMORY_DIR"/
+  log_ok ".aikit/memory/ перенесена из .claude/memory/ прежних версий"
 else
-  log_warn ".aikit/memory/ уже существует — использую как source of truth"
+  mkdir -p "$CANONICAL_MEMORY_DIR/decisions" "$CANONICAL_MEMORY_DIR/patterns" "$CANONICAL_MEMORY_DIR/corrections" "$CANONICAL_MEMORY_DIR/features"
+  touch "$CANONICAL_MEMORY_DIR/decisions/.gitkeep" "$CANONICAL_MEMORY_DIR/patterns/.gitkeep" "$CANONICAL_MEMORY_DIR/corrections/.gitkeep" "$CANONICAL_MEMORY_DIR/features/.gitkeep"
+  [[ -f "$MEMORY_TEMPLATE" ]] && cp "$MEMORY_TEMPLATE" "$CANONICAL_MEMORY_DIR/INDEX.md"
+  log_ok ".aikit/memory/ создана"
 fi
-
-if [[ ! -d "$CLAUDE_MEMORY_DIR" ]]; then
-  init_memory_dir "$CLAUDE_MEMORY_DIR"
+if [[ -d "$LEGACY_MEMORY_DIR" ]]; then
+  log_warn ".claude/memory/ больше не используется — агенты читают .aikit/memory/. Сверь, что всё перенесено, и удали папку"
 fi
-sync_memory_dir "$CANONICAL_MEMORY_DIR" "$CLAUDE_MEMORY_DIR"
-log_ok ".claude/memory/ синхронизирована как Claude mirror"
 
 # =============================================================================
 # .gitignore
@@ -375,11 +363,8 @@ log_ok ".claude/memory/ синхронизирована как Claude mirror"
 GITIGNORE="$PROJECT_ROOT/.gitignore"
 remove_legacy_settings_gitignore
 if [[ -f "$GITIGNORE" ]]; then
-  if grep -q "\.claude/memory" "$GITIGNORE" 2>/dev/null; then
-    log_warn "ВНИМАНИЕ: .claude/memory/ найдена в .gitignore — память проекта должна храниться в git"
-  fi
   if grep -q "\.aikit/memory" "$GITIGNORE" 2>/dev/null; then
-    log_warn "ВНИМАНИЕ: .aikit/memory/ найдена в .gitignore — canonical memory должна храниться в git"
+    log_warn "ВНИМАНИЕ: .aikit/memory/ найдена в .gitignore — командная память должна храниться в git"
   fi
 fi
 
@@ -411,8 +396,7 @@ echo "  .aikit/profiles.json       — контракты профилей: аг
 printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"
-echo "  .aikit/memory/          — canonical memory проекта"
-echo "  .claude/memory/            — Claude mirror для совместимости"
+echo "  .aikit/memory/             — командная память: решения, паттерны, коррекции агентов (хранится в git)"
 echo "  .claude/.config-version    — версия конфигурации"
 echo ""
 echo "Следующие шаги:"

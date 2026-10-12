@@ -47,7 +47,7 @@
 | `scripts/new-profile.py` | Создаёт профиль из шаблона ([Как добавить стек](adding-a-stack.md)) |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/resolve-preset.py`, `preset_utils.py` | Разбор пресетов |
-| `scripts/memory_paths.py`, `sync-memory-mirror.py` | Структура памяти и копия `.claude/memory/` |
+| `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
 
 ## Как добавить…

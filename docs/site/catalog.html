@@ -81,15 +81,15 @@
   <div class="chips"><span class="chip chip-out">→ CROSS_CHECK_REPORT</span><span class="chip">sonnet</span></div>
   <div class="entry-example"><span>Изменился endpoint /api/v1/profile — что нужно обновить в iOS?</span><button class="copy-btn" type="button" data-copy="Изменился endpoint /api/v1/profile — что нужно обновить в iOS?">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/cross-project-analyst.md">base/agents/cross-project-analyst.md</a>
-</article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует canonical память проекта. архивирует старые задачи, сжимает index до 60 строк, мержит дублирующиеся паттерны и затем синхронизирует claude mirror. запускай через /optimize-memory когда /memory-status показывает предупреждение.">
+</article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует командную память .aikit/memory/ — сжимает index до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. запускай через /optimize-memory, когда /memory-status показывает предупреждение.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-optimizer</span></header>
-  <p>Консолидирует canonical память проекта. Архивирует старые задачи, сжимает INDEX до 60 строк, мержит дублирующиеся паттерны и затем синхронизирует Claude mirror. Запускай через /optimize-memory когда /memory-status показывает предупреждение.</p>
+  <p>Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Запускай через /optimize-memory, когда /memory-status показывает предупреждение.</p>
   <div class="chips"><span class="chip">sonnet</span></div>
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-optimizer.md">base/agents/memory-optimizer.md</a>
-</article><article class="entry-card entry-agent" id="agent-memory-writer" data-filter="memory-writer фиксирует контекст после завершённой задачи. пишет в canonical .aikit/memory/ и поддерживает .claude/memory/ как mirror для совместимости. используй через /capture-memory после завершения работы.">
+</article><article class="entry-card entry-agent" id="agent-memory-writer" data-filter="memory-writer фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. коммит и pr — по желанию пользователя. используй через /capture-memory после завершения работы.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-writer</span></header>
-  <p>Фиксирует контекст после завершённой задачи. Пишет в canonical .aikit/memory/ и поддерживает .claude/memory/ как mirror для совместимости. Используй через /capture-memory после завершения работы.</p>
+  <p>Фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. Коммит и PR — по желанию пользователя. Используй через /capture-memory после завершения работы.</p>
   <div class="chips"><span class="chip">sonnet</span></div>
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-writer.md">base/agents/memory-writer.md</a>
@@ -148,9 +148,9 @@
 
   <div class="entry-example"><span>/analyze-mvp добавить систему реферальных ссылок</span><button class="copy-btn" type="button" data-copy="/analyze-mvp добавить систему реферальных ссылок">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/analyze-mvp/SKILL.md">base/skills/analyze-mvp/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-capture-memory" data-filter="capture-memory зафиксировать контекст после завершённой задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). запускай только по явной просьбе пользователя.">
+</article><article class="entry-card entry-skill" id="skill-capture-memory" data-filter="capture-memory зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). запускай только по явной просьбе пользователя.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/capture-memory</span></header>
-  <p>Зафиксировать контекст после завершённой задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). Запускай только по явной просьбе пользователя.</p>
+  <p>Зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). Запускай только по явной просьбе пользователя.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/capture-memory после рефакторинга network слоя</span><button class="copy-btn" type="button" data-copy="/capture-memory после рефакторинга network слоя">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/capture-memory/SKILL.md">base/skills/capture-memory/SKILL.md</a>
@@ -214,17 +214,17 @@
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/improve-aikit добавить нового агента для работы с локализацией</span><button class="copy-btn" type="button" data-copy="/improve-aikit добавить нового агента для работы с локализацией">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/improve-aikit/SKILL.md">base/skills/improve-aikit/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-memory-status" data-filter="memory-status показать состояние памяти проекта (.aikit/memory/ и claude mirror): что накоплено, последние задачи, открытые memory-mr и нужна ли оптимизация. используй, когда пользователь спрашивает, что записано в памяти проекта.">
+</article><article class="entry-card entry-skill" id="skill-memory-status" data-filter="memory-status показать состояние командной памяти проекта (.aikit/memory/): что накоплено, размер index, открытые memory-pr и нужна ли оптимизация. используй, когда пользователь спрашивает, что записано в памяти проекта.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/memory-status</span></header>
-  <p>Показать состояние памяти проекта (.aikit/memory/ и Claude mirror): что накоплено, последние задачи, открытые memory-MR и нужна ли оптимизация. Используй, когда пользователь спрашивает, что записано в памяти проекта.</p>
+  <p>Показать состояние командной памяти проекта (.aikit/memory/): что накоплено, размер INDEX, открытые memory-PR и нужна ли оптимизация. Используй, когда пользователь спрашивает, что записано в памяти проекта.</p>
 
   <div class="entry-example"><span>/memory-status</span><button class="copy-btn" type="button" data-copy="/memory-status">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/memory-status/SKILL.md">base/skills/memory-status/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-optimize-memory" data-filter="optimize-memory консолидировать память проекта: архивировать старые задачи, сжать index до 60 строк, объединить дублирующиеся паттерны. обычно нужен после предупреждения от memory-status. запускай только по явной просьбе пользователя.">
+</article><article class="entry-card entry-skill" id="skill-optimize-memory" data-filter="optimize-memory консолидировать командную память .aikit/memory/: сжать index до 60 строк, объединить дубли, убрать устаревшее, перенести решения из логов задач прежних версий. обычно нужен после предупреждения от memory-status. запускай только по явной просьбе пользователя.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/optimize-memory</span></header>
-  <p>Консолидировать память проекта: архивировать старые задачи, сжать INDEX до 60 строк, объединить дублирующиеся паттерны. Обычно нужен после предупреждения от memory-status. Запускай только по явной просьбе пользователя.</p>
+  <p>Консолидировать командную память .aikit/memory/: сжать INDEX до 60 строк, объединить дубли, убрать устаревшее, перенести решения из логов задач прежних версий. Обычно нужен после предупреждения от memory-status. Запускай только по явной просьбе пользователя.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
-  <div class="entry-example"><span>/optimize-memory архивируй старые задачи за прошлый квартал</span><button class="copy-btn" type="button" data-copy="/optimize-memory архивируй старые задачи за прошлый квартал">Копировать</button></div>
+  <div class="entry-example"><span>/optimize-memory объедини дублирующиеся паттерны</span><button class="copy-btn" type="button" data-copy="/optimize-memory объедини дублирующиеся паттерны">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/optimize-memory/SKILL.md">base/skills/optimize-memory/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-security-check" data-filter="security-check аудит безопасности кода: owasp top 10, секреты в коде и конфигах, авторизация, инъекции. используй перед релизом, после крупных изменений или когда пользователь просит проверить безопасность.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/security-check</span></header>

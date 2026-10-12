@@ -18,9 +18,9 @@ context_blocks: ["CODER_RESULT", "TESTER_RESULT"]
 
 ## Память проекта — прочитай перед работой
 
-Если `.claude/memory/INDEX.md` существует:
-1. Прочитай `.claude/memory/INDEX.md`
-2. Прочитай `.claude/memory/corrections/vue-reviewer.md` если существует
+Если `.aikit/memory/INDEX.md` существует:
+1. Прочитай `.aikit/memory/INDEX.md`
+2. Прочитай `.aikit/memory/corrections/vue-reviewer.md` если существует
 
 Учитывай накопленные коррекции при ревью.
 

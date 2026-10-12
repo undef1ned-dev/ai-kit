@@ -73,8 +73,8 @@ python3 --version</code></pre></div>
 <p><strong>Как обойти.</strong> Если такой скилл запустился без твоей просьбы, прерви его. Запрет можно задать через <code>permission</code> в <code>opencode.json</code>.</p>
 <h3 id="устаревшие-тексты-в-агентах-ядра"><a class="anchor" href="#устаревшие-тексты-в-агентах-ядра" aria-hidden="true">#</a>Устаревшие тексты в агентах ядра</h3>
 <p><strong>Что происходит.</strong> Часть агентов писалась под прежний стек команды:</p>
-<ul><li><code>cross-project-analyst</code> описан как анализ «backend ↔ iOS»;</li><li><code>memory-writer</code> открывает merge request через GitLab MCP;</li><li><code>devops-engineer</code> (пак <code>devops</code>) ориентирован на GitLab CI;</li><li><code>release-manager</code> упоминает App Store.</li></ul>
-<p><strong>Решение.</strong> Пункты 6.2 и 12.x <a href="roadmap.html">roadmap</a>. Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.</p>
+<ul><li><code>cross-project-analyst</code> описан как анализ «backend ↔ iOS»;</li><li><code>devops-engineer</code> (пак <code>devops</code>) ориентирован на GitLab CI;</li><li><code>release-manager</code> упоминает App Store.</li></ul>
+<p><strong>Решение.</strong> Пункты 12.x <a href="roadmap.html">roadmap</a>. Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.</p>
 <h3 id="пак-ai-подходит-только-к-python-профилям"><a class="anchor" href="#пак-ai-подходит-только-к-python-профилям" aria-hidden="true">#</a>Пак ai подходит только к Python-профилям</h3>
 <p><strong>Что происходит.</strong> В <code>packs/ai/pack.json</code> есть <code>compatible_profiles: python-fastapi, python-django</code>. С одним <code>vue-nuxt</code> пак не поставится. В мульти-профиле поставится, если среди профилей есть совместимый.</p>
 <p><strong>Как обойти.</strong> Если пак нужен другому профилю, добавь профиль в <code>compatible_profiles</code>.</p>

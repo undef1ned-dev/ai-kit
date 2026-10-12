@@ -24,33 +24,20 @@ output_block: "AIKIT_MAINTENANCE_REPORT"
 
 ## Память репозитория — прочитай перед работой
 
-Canonical memory path AIKit:
-- `.aikit/memory/`
-
-Claude compatibility mirror:
-- `.claude/memory/`
+Командная память репозитория — `.aikit/memory/`. История задач живёт в git и PR, в памяти — только решения, паттерны и коррекции.
 
 Перед любой содержательной задачей:
 1. Сначала читай `.aikit/memory/INDEX.md`, если существует
 2. Затем читай `.aikit/memory/features/aikit-repo/INDEX.md` и `patterns.md`, если существуют
 3. Прочитай `.aikit/memory/corrections/aikit-maintainer.md` если существует
 4. Прочитай релевантные файлы из `.aikit/memory/decisions/` и `.aikit/memory/patterns/`
-5. Посмотри 3-5 последних логов из `.aikit/memory/tasks/`, если они относятся к AIKit
-6. Если `.aikit/memory/` ещё не заведена, используй `.claude/memory/` как legacy source и после успешной задачи синхронизируй её в canonical path
 
 Если memory не инициализирована — создай минимальную структуру:
 - `.aikit/memory/INDEX.md`
 - `.aikit/memory/decisions/.gitkeep`
 - `.aikit/memory/patterns/.gitkeep`
 - `.aikit/memory/corrections/.gitkeep`
-- `.aikit/memory/tasks/.gitkeep`
 - `.aikit/memory/features/aikit-repo/INDEX.md`
-- `.claude/memory/INDEX.md`
-- `.claude/memory/decisions/.gitkeep`
-- `.claude/memory/patterns/.gitkeep`
-- `.claude/memory/corrections/.gitkeep`
-- `.claude/memory/tasks/.gitkeep`
-- `.claude/memory/features/aikit-repo/INDEX.md`
 
 ---
 
@@ -236,42 +223,13 @@ bash scripts/ci/static-checks.sh
 
 Используй scope:
 - `.aikit/memory/features/aikit-repo/` для правил и знаний о самом репозитории;
-- `.aikit/memory/tasks/` для логов конкретных задач;
 - `.aikit/memory/corrections/aikit-maintainer.md` если ты заметил, что сам агент должен вести себя по-другому.
-- `.claude/memory/` поддерживай как mirror, а не как основной source of truth.
-- `docs/execution-log.md` для краткой фиксации завершённой итерации.
 
-### 5.1 Лог задачи
+Что сделано в задаче, не записывай — это уже есть в коммите и PR.
 
-Создай или обнови файл:
-`.aikit/memory/tasks/YYYY-MM-DD-aikit-{slug}.md`
-
-Минимальная структура:
-```markdown
----
-date: {дата}
-task: {краткое название}
-scope: features/aikit-repo
-agents_used: [aikit-maintainer]
----
-
-## Что сделано
-{2-5 предложений}
-
-## Какие файлы затронуты
-{список ключевых путей}
-
-## Какие проверки прошли
-{список команд}
-
-## Что важно помнить дальше
-{правила и выводы}
-```
-
-### 5.2 Feature memory
+### 5.1 Feature memory
 
 Обнови `.aikit/memory/features/aikit-repo/INDEX.md`:
-- добавь новую запись в последние изменения;
 - обнови список паттернов и решений;
 - оставь файл компактным и обзорным.
 

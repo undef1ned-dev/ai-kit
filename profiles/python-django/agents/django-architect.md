@@ -17,11 +17,11 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 
 ## Память проекта — прочитай перед работой
 
-Если `.claude/memory/INDEX.md` существует:
-1. Прочитай `.claude/memory/INDEX.md`
-2. По задаче определи модуль → прочитай `.claude/memory/features/{module}/INDEX.md`
-3. Прочитай `.claude/memory/corrections/django-architect.md` если существует
-4. Прочитай релевантные файлы из `.claude/memory/decisions/` и `.claude/memory/patterns/`
+Если `.aikit/memory/INDEX.md` существует:
+1. Прочитай `.aikit/memory/INDEX.md`
+2. По задаче определи модуль → прочитай `.aikit/memory/features/{module}/INDEX.md`
+3. Прочитай `.aikit/memory/corrections/django-architect.md` если существует
+4. Прочитай релевантные файлы из `.aikit/memory/decisions/` и `.aikit/memory/patterns/`
 
 Учитывай накопленный контекст при проектировании.
 
