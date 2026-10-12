@@ -18,6 +18,7 @@ import tempfile
 from pathlib import Path
 
 import mcp_config
+import profile_contract
 from memory_paths import ensure_memory_structure
 from preset_utils import resolve_preset
 
@@ -584,6 +585,7 @@ def install_package(
             prepare_codex_workspace_surface(workspace)
         if runtime in mcp_config.RUNTIMES:
             mcp_config.install(runtime, workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], packs)
+        profile_contract.install(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
         write_install_summary(adapter, workspace, bundle_root, install_mode)
 
     return adapter

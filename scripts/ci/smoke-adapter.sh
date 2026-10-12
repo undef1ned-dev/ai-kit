@@ -116,6 +116,37 @@ assert "@latest" not in path.read_text(encoding="utf-8"), "версия не з�
 PY
 }
 
+# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям; правка команды проекта сохранена (если была)
+check_profile_contracts() {
+  "$PYTHON_BIN" - "$PROJECT_DIR" "$KIT_ROOT/presets/$PRESET.json" "${1:-}" <<'PY'
+import json, pathlib, sys
+project, preset, edited = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2]), sys.argv[3]
+expected = json.loads(preset.read_text(encoding="utf-8"))["profiles"]
+contracts = json.loads((project / ".aikit" / "profiles.json").read_text(encoding="utf-8"))["profiles"]
+assert list(contracts) == expected, f"профили {list(contracts)} вместо {expected}"
+for name, contract in contracts.items():
+    assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
+    assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+if edited:
+    first = contracts[expected[0]]["commands"]
+    assert first.get("test") == "custom-test", "правка команды test затёрта"
+    assert "run" not in first, "удалённая командой run вернулась"
+PY
+}
+
+# Команда проекта правит контракт: своя команда test, без run
+edit_profile_contract() {
+  "$PYTHON_BIN" - "$PROJECT_DIR/.aikit/profiles.json" <<'PY'
+import json, pathlib, sys
+path = pathlib.Path(sys.argv[1])
+data = json.loads(path.read_text(encoding="utf-8"))
+commands = next(iter(data["profiles"].values()))["commands"]
+commands["test"] = "custom-test"
+commands.pop("run", None)
+path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+PY
+}
+
 # Агенты OpenCode — markdown с description и mode: subagent
 check_opencode_agents() {
   local f found=0
@@ -156,12 +187,14 @@ run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG";
 
 check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
+check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
 check "нет нераскрытых шаблонов {{...}}" bash -c "! grep -rlF '{{' '$PROJECT_DIR/.aikit/agents' '$PROJECT_DIR/.agents/skills' '$PROJECT_DIR/AGENTS.md'"
 check_runtime_files ""
 
 # Файлы, которые ставили прежние версии кита, должны убираться при обновлении
 mkdir -p "$PROJECT_DIR/.codex/commands" "$PROJECT_DIR/.codex/skills/legacy"
 echo "# /legacy" > "$PROJECT_DIR/.codex/commands/legacy.md"
+edit_profile_contract
 
 echo "▶ update-adapter-package.py"
 UPDATE_LOG="$WORK_DIR/$ADAPTER-$PRESET-update.log"
@@ -173,6 +206,7 @@ else
 fi
 check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
 check "устаревшие .codex/commands и .codex/skills убраны" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
+check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited
 check_runtime_files " (после обновления)"
 
 if [[ "$FAILURES" -gt 0 ]]; then

@@ -17,6 +17,8 @@
     "AGENTS.md",
     ".opencode/",
     ".aikit/agents/",
+    ".aikit/profiles.json",
+    ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
     ".aikit/runtime-graph.json",
     ".aikit/runtime-entrypoints.json",

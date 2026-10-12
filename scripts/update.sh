@@ -51,6 +51,8 @@ profile_prefix() {
 source "$SCRIPT_DIR/lib/skills.sh"
 # shellcheck source=lib/mcp.sh
 source "$SCRIPT_DIR/lib/mcp.sh"
+# shellcheck source=lib/profiles.sh
+source "$SCRIPT_DIR/lib/profiles.sh"
 
 find_conflicts() {
   local subdir="$1"
@@ -299,6 +301,12 @@ TARGET_SETTINGS="$PROJECT_ROOT/.claude/settings.json"
 if [[ -f "$TARGET_SETTINGS" ]]; then
   log_info "settings.json не обновляется автоматически: новые permissions из кита — через повторный attach.sh"
 fi
+
+# =============================================================================
+# Контракты профилей → .aikit/profiles.json; правки команд проекта сохраняются
+# =============================================================================
+log_section "Контракты профилей"
+install_profile_contracts "$INSTALLED_PROFILES"
 
 # =============================================================================
 # Обновить версию

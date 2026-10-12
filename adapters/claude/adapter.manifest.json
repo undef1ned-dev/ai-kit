@@ -14,6 +14,8 @@
     ".claude/.config-version",
     ".claude/memory/",
     ".aikit/runtime-graph.json",
+    ".aikit/profiles.json",
+    ".aikit/profiles.kit-defaults.json",
     ".mcp.json"
   ],
   "memory_path": ".claude/memory",
