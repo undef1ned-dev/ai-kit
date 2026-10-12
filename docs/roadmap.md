@@ -24,14 +24,18 @@
 | ✅ | `attach.sh`: без `jq` `settings.json` склеивается через Python (раньше терялись базовые настройки) | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | `update.sh`: кит обновляется только как submodule и только без локальных правок | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
 | ✅ | `base/settings.json`: убран GitLab MCP исходного проекта, добавлено `attribution` (без соавторства) | [#1](https://github.com/undef1ned-dev/ai-kit/pull/1) |
+| ✅ | Этап 1: CI на PR (статические проверки + smoke-тест пресетов на Linux и Windows), релиз по тегу, Dependabot | [#3](https://github.com/undef1ned-dev/ai-kit/pull/3) |
 
-Хвост: сверить ключ `attribution` с документацией Claude Code.
+Хвосты:
+
+- сверить ключ `attribution` с документацией Claude Code;
+- защита ветки `main` (обязательный зелёный CI перед слиянием) недоступна для приватного репозитория на бесплатном плане GitHub — включить после перехода на Pro или открытия репозитория.
 
 ---
 
 ## Часть I. Общее ядро
 
-### Этап 1. Страховочная сетка
+### Этап 1. Страховочная сетка ✅
 
 Ставится первым, чтобы глобальные переделки дальше не ломали установку незаметно.
 
