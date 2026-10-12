@@ -1,31 +1,23 @@
-# Continue AIKit Maintenance In Codex
+# Разработка AIKit в {{ADAPTER_LABEL}}
 
-Используй этот файл как runtime-specific entrypoint для `aikit-maintainer` в `{{ADAPTER_LABEL}}`.
+Этот файл ставится только в режиме `--mode maintainer`: в этом репозитории развивают сам AIKit.
 
-## Перед стартом
+## Перед стартом прочитай
 
-1. Прочитай `AIKIT.md`
-2. Прочитай `.codex/agents/aikit-maintainer.md`
-3. Прочитай `.aikit/runtime-operating-protocol.md`
-4. Прочитай `.aikit/runtime-continuation-contract.md`
-5. Прочитай `.codex/memory/INDEX.md`
-6. Прочитай `.codex/memory/features/aikit-repo/INDEX.md`
+1. `AIKIT.md` — правила кита и профилей `{{PROFILES}}`
+2. агента `aikit-maintainer` (`.codex/agents/aikit-maintainer.toml`)
+3. `docs/guide/developing-aikit.md` — как устроен репозиторий и как проверять изменения
+4. `docs/roadmap.md` и `docs/runtime-support.md` — план и что умеет каждый runtime
+5. `{{MEMORY_PATH}}/INDEX.md` — командная память
 
-## Задача
+## Как работать
 
-Продолжай развитие репозитория AIKit внутри Codex-runtime без потери разделения `core + adapters`.
-
-Пользователь пишет задачу в Codex CLI/Desktop обычным языком.
-Internal Python tools, memory updates и RAG refresh выбираешь и запускаешь ты сам по `.aikit/runtime-operating-protocol.md`.
-Resumed flow, bundle handoff и lineage веди по `.aikit/runtime-continuation-contract.md`.
-Codex-native agents, skills, commands and memory live under `.codex/`; canonical runtime manifests remain under `.aikit/`.
+- Задачу пользователь пишет обычным языком, веди её через `aikit-maintainer`.
+- Общее для всех runtime (агенты, скиллы, профили, хуки) живёт в `base/`, `profiles/`, `packs/`. Особенности runtime — только в `adapters/<runtime>/` и установщике.
+- Если runtime чего-то не умеет — запиши это в `docs/runtime-support.md`.
 
 ## Проверки после изменений
 
-- `bash scripts/attach.sh --preset frontend-team` в пустом проекте — установка проходит без ошибок
-- `python3 scripts/generate-docs.py`
-
-Если меняются adapter manifests или installer flow:
-- `PYTHONPYCACHEPREFIX=/tmp/codex-pycache python3 -m py_compile scripts/*.py`
-- `python3 scripts/build-adapter-package.py codex --profile vue-nuxt --target /tmp/aikit-adapters`
-- `python3 scripts/install-adapter-package.py codex --profile vue-nuxt --workspace /tmp/aikit-codex-install`
+```bash
+bash scripts/ci/run-all.sh
+```

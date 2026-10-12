@@ -24,10 +24,6 @@
     ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
     ".aikit/runtime-entrypoints.json",
-    ".aikit/runtime-operating-protocol.md",
-    ".aikit/runtime-continuation-contract.md",
-    ".aikit/runtime-tools.json",
-    ".aikit/mcp-tool-plane.json",
     "CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/AIKIT.md",
     ".codex/CONTINUE_AIKIT_MAINTAINER.md",
@@ -71,30 +67,6 @@
       "path": ".aikit/agents/",
       "kind": "agent-entry",
       "purpose": "Canonical maintainer agent packaged for Codex runtime."
-    },
-    {
-      "name": "runtime-operating-protocol",
-      "path": ".aikit/runtime-operating-protocol.md",
-      "kind": "protocol",
-      "purpose": "Rules for Codex agents to choose internal AIKit tools, memory updates and RAG refreshes without exposing scripts as the primary user interface."
-    },
-    {
-      "name": "runtime-continuation-contract",
-      "path": ".aikit/runtime-continuation-contract.md",
-      "kind": "continuation-contract",
-      "purpose": "Rules for resumed flows, bundle handoff, session lineage and next-step orchestration in Codex workspaces."
-    },
-    {
-      "name": "runtime-tools-registry",
-      "path": ".aikit/runtime-tools.json",
-      "kind": "tool-registry",
-      "purpose": "Machine-readable registry of internal AIKit tools Codex agents can use for orchestration, memory, RAG and validation."
-    },
-    {
-      "name": "mcp-tool-plane",
-      "path": ".aikit/mcp-tool-plane.json",
-      "kind": "provider-tool-plane",
-      "purpose": "Runtime-native MCP provider matrix for Codex agents, keeping Figma/GitHub tools separate from local shell commands."
     }
   ],
   "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",

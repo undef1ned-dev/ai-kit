@@ -27,9 +27,6 @@ from preset_utils import resolve_preset
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "VERSION"
-RUNTIME_OPERATING_PROTOCOL = ROOT / "docs" / "public" / "cli-agent-operating-protocol.md"
-RUNTIME_CONTINUATION_CONTRACT = ROOT / "docs" / "public" / "cli-runtime-continuation-contract.md"
-RUNTIME_TOOLS_MANIFEST = ROOT / "knowledge" / "runtime-tools.manifest.json"
 COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventory-fixtures.json"
 PACKAGE_MODE_CONSUMER = "consumer"
 PACKAGE_MODE_MAINTAINER = "maintainer"
@@ -190,12 +187,6 @@ def write_combined_instruction(adapter: dict, profiles: list[str], destination: 
     chunks.append(f"Runtime: `{adapter['runtime']}`\n")
     chunks.append(f"Status: `{adapter['status']}`\n")
     chunks.append(f"Profiles: `{'+'.join(profiles)}`\n")
-    chunks.append(
-        "\n## Runtime operating protocol\n\n"
-        "Пользователь общается с runtime CLI обычным языком. "
-        "Агент сам выбирает profile, workflow, skills, memory и внутренние Python tools.\n\n"
-        "Если в bundle есть `.aikit/runtime-operating-protocol.md`, прочитай его перед запуском orchestration tasks.\n"
-    )
     chunks.append("\n---\n\n")
     chunks.append((ROOT / "base" / "CLAUDE.md").read_text(encoding="utf-8"))
     for profile_name in profiles:
@@ -251,140 +242,6 @@ def merge_settings_documents(paths: list[Path]) -> dict:
             "deny": deny,
         }
     return merged
-
-
-def write_runtime_operating_protocol(adapter: dict, profiles: list[str], bundle_root: Path) -> None:
-    runtime_root = bundle_root / ".aikit"
-    runtime_root.mkdir(parents=True, exist_ok=True)
-    protocol_path = runtime_root / "runtime-operating-protocol.md"
-    if not RUNTIME_OPERATING_PROTOCOL.exists():
-        return
-
-    header = [
-        f"# Runtime Operating Protocol — {adapter['label']}",
-        "",
-        f"- Runtime: `{adapter['runtime']}`",
-        f"- Status: `{adapter['status']}`",
-        f"- Profiles: `{'+'.join(profiles)}`",
-        "",
-        "---",
-        "",
-    ]
-    protocol_path.write_text(
-        "\n".join(header) + RUNTIME_OPERATING_PROTOCOL.read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
-
-
-def write_runtime_continuation_contract(adapter: dict, profiles: list[str], bundle_root: Path) -> None:
-    runtime_root = bundle_root / ".aikit"
-    runtime_root.mkdir(parents=True, exist_ok=True)
-    contract_path = runtime_root / "runtime-continuation-contract.md"
-    if not RUNTIME_CONTINUATION_CONTRACT.exists():
-        return
-
-    header = [
-        f"# Runtime Continuation Contract — {adapter['label']}",
-        "",
-        f"- Runtime: `{adapter['runtime']}`",
-        f"- Status: `{adapter['status']}`",
-        f"- Profiles: `{'+'.join(profiles)}`",
-        "",
-        "---",
-        "",
-    ]
-    contract_path.write_text(
-        "\n".join(header) + RUNTIME_CONTINUATION_CONTRACT.read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
-
-
-def write_runtime_tools_registry(adapter: dict, profiles: list[str], bundle_root: Path) -> None:
-    runtime_root = bundle_root / ".aikit"
-    runtime_root.mkdir(parents=True, exist_ok=True)
-    if not RUNTIME_TOOLS_MANIFEST.exists():
-        return
-
-    data = read_json(RUNTIME_TOOLS_MANIFEST)
-    data["adapter"] = adapter["runtime"]
-    data["adapter_status"] = adapter["status"]
-    data["profiles"] = profiles
-    (runtime_root / "runtime-tools.json").write_text(
-        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
-
-
-def build_mcp_tool_plane(adapter: dict, profiles: list[str]) -> dict[str, object]:
-    data = read_json(RUNTIME_TOOLS_MANIFEST)
-    adapter_runtime = str(adapter.get("runtime", "")).strip()
-    mcp_tools = [
-        tool
-        for tool in data.get("tools", [])
-        if isinstance(tool, dict)
-        and str(tool.get("tool_type", "")).strip() == "mcp-tool"
-        and adapter_runtime in [str(item).strip() for item in tool.get("adapter_support", [])]
-    ]
-    providers: dict[str, dict[str, object]] = {}
-    for tool in mcp_tools:
-        provider = str(tool.get("provider", "")).strip() or "unknown"
-        entry = providers.setdefault(
-            provider,
-            {
-                "provider": provider,
-                "runtime_bindings": [],
-                "tools": [],
-                "blocked_when": [],
-                "required_inputs": [],
-            },
-        )
-        entry["tools"].append(
-            {
-                "name": tool.get("name"),
-                "family": tool.get("family"),
-                "kind": tool.get("kind"),
-                "category": tool.get("category"),
-                "runtime_binding": tool.get("runtime_binding"),
-                "availability": tool.get("availability"),
-                "requires_approval": tool.get("requires_approval"),
-                "write_scope": tool.get("write_scope"),
-                "command": [],
-            }
-        )
-        runtime_binding = str(tool.get("runtime_binding", "")).strip()
-        if runtime_binding and runtime_binding not in entry["runtime_bindings"]:
-            entry["runtime_bindings"].append(runtime_binding)
-        for blocked in tool.get("blocked_when", []):
-            if blocked not in entry["blocked_when"]:
-                entry["blocked_when"].append(blocked)
-        for input_name in tool.get("inputs", []):
-            if input_name not in entry["required_inputs"]:
-                entry["required_inputs"].append(input_name)
-
-    return {
-        "adapter": adapter_runtime,
-        "adapter_status": adapter.get("status", ""),
-        "profiles": profiles,
-        "source_ref": str(RUNTIME_TOOLS_MANIFEST.relative_to(ROOT)),
-        "policy": "runtime-native-mcp",
-        "requirements": [
-            "MCP tools must be invoked through the runtime provider layer.",
-            "MCP tools must not be executed as local shell commands.",
-            "Canonical AIKit knowledge should be checked before provider lookups when both are relevant.",
-        ],
-        "providers": sorted(providers.values(), key=lambda item: str(item.get("provider", ""))),
-    }
-
-
-def write_mcp_tool_plane(adapter: dict, profiles: list[str], bundle_root: Path) -> None:
-    runtime_root = bundle_root / ".aikit"
-    runtime_root.mkdir(parents=True, exist_ok=True)
-    if not RUNTIME_TOOLS_MANIFEST.exists():
-        return
-    (runtime_root / "mcp-tool-plane.json").write_text(
-        json.dumps(build_mcp_tool_plane(adapter, profiles), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-    )
 
 
 def write_runtime_specific_files(
@@ -686,10 +543,6 @@ def build_package(
         mirror_tree(canonical_memory_dir, runtime_memory_dir)
 
     write_combined_instruction(adapter, profiles, bundle_root / "AIKIT.md")
-    write_runtime_operating_protocol(adapter, profiles, bundle_root)
-    write_runtime_continuation_contract(adapter, profiles, bundle_root)
-    write_runtime_tools_registry(adapter, profiles, bundle_root)
-    write_mcp_tool_plane(adapter, profiles, bundle_root)
     write_runtime_specific_files(adapter_name, adapter, profiles, bundle_root, package_mode)
     native_paths = write_claude_native_surface(adapter, profiles, packs, bundle_root, agents_dir, skills_dir)
     write_codex_native_surface(
@@ -749,9 +602,6 @@ def build_package(
         "- `.aikit/package.manifest.json` — generated package metadata",
         "- `.aikit/runtime-entrypoints.json` — runtime-native launcher contract for this adapter",
         "- `.aikit/profiles.json` — profile contracts: agents by role, specialists, commands",
-        "- `.aikit/runtime-operating-protocol.md` — rules for CLI agents that call AIKit tools internally",
-        "- `.aikit/runtime-continuation-contract.md` — continuation rules for resumed flows, lineage and next-step orchestration",
-        "- `.aikit/runtime-tools.json` — machine-readable registry of internal AIKit tools",
         "",
         "## Important",
         "- This bundle is an experimental adapter package, not a guarantee of full production integration.",

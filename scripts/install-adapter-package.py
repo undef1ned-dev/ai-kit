@@ -46,6 +46,10 @@ LEGACY_GENERATED_PATHS = (
     Path(".aikit") / "runtime-graph.json",
     Path(".codex") / "runtime-graph.json",
     Path(".opencode") / "runtime-graph.json",
+    Path(".aikit") / "runtime-operating-protocol.md",
+    Path(".aikit") / "runtime-continuation-contract.md",
+    Path(".aikit") / "runtime-tools.json",
+    Path(".aikit") / "mcp-tool-plane.json",
 )
 
 
@@ -477,23 +481,6 @@ def apply_consumer_workspace_policy(adapter: dict, workspace: Path) -> None:
 
 
 def rewrite_local_script_commands(workspace: Path, adapter: dict) -> None:
-    runtime_tools_path = workspace / ".aikit" / "runtime-tools.json"
-    if runtime_tools_path.exists():
-        data = read_json(runtime_tools_path)
-        for tool in data.get("tools", []):
-            if not isinstance(tool, dict):
-                continue
-            command = tool.get("command")
-            if (
-                isinstance(command, list)
-                and len(command) >= 2
-                and command[0] in {"python", "python3"}
-                and isinstance(command[1], str)
-                and command[1].startswith("scripts/")
-            ):
-                command[1] = f".aikit-config/{command[1]}"
-        write_json(runtime_tools_path, data)
-
     runtime = str(adapter.get("runtime", "")).strip()
     if runtime not in {"codex", "opencode"}:
         return
@@ -527,9 +514,6 @@ def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path, ins
         "- Используй runtime-specific launcher внутри config root этого adapter.",
         "- Смотри `.aikit/runtime-entrypoints.json` как source of truth для runtime entrypoints этого workspace.",
         "- Смотри `.aikit/profiles.json`: агенты профилей по ролям, специалисты и команды проверки.",
-        "- Смотри `.aikit/runtime-operating-protocol.md`, чтобы CLI-агент сам выбирал internal tools, memory и RAG обновления.",
-        "- Смотри `.aikit/runtime-continuation-contract.md`, чтобы resumed flow, bundle handoff и lineage работали одинаково в этом runtime.",
-        "- Смотри `.aikit/runtime-tools.json` как machine-readable registry внутренних AIKit tools.",
     ]
     if adapter.get("runtime") == "codex":
         summary.extend(

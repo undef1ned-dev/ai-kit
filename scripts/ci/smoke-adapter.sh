@@ -229,6 +229,7 @@ check_runtime_files ""
 # Файлы, которые ставили прежние версии кита, должны убираться при обновлении
 mkdir -p "$PROJECT_DIR/.codex/commands" "$PROJECT_DIR/.codex/skills/legacy"
 echo "# /legacy" > "$PROJECT_DIR/.codex/commands/legacy.md"
+echo "# legacy" > "$PROJECT_DIR/.aikit/runtime-operating-protocol.md"
 edit_profile_contract
 
 echo "▶ update-adapter-package.py"
@@ -241,6 +242,7 @@ else
 fi
 check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
 check "устаревшие .codex/commands и .codex/skills убраны" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
+check "устаревший протокол .aikit/runtime-operating-protocol.md убран" test ! -e "$PROJECT_DIR/.aikit/runtime-operating-protocol.md"
 check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited
 check_runtime_files " (после обновления)"
 
