@@ -20,7 +20,6 @@
     ".aikit/profiles.json",
     ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
-    ".aikit/runtime-graph.json",
     ".aikit/runtime-entrypoints.json",
     ".aikit/runtime-operating-protocol.md",
     ".aikit/runtime-continuation-contract.md",
@@ -29,20 +28,12 @@
     "CONTINUE_AIKIT_MAINTAINER.md",
     ".opencode/AIKIT.md",
     ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
-    ".opencode/runtime-graph.json",
     ".opencode/entrypoints.json",
     ".agents/skills/",
     ".opencode/agents/",
     "opencode.json"
   ],
   "memory_path": ".aikit/memory",
-  "graph_execution": {
-    "status": "exploratory",
-    "shared_artifact": ".aikit/runtime-graph.json",
-    "runtime_artifact": ".opencode/runtime-graph.json",
-    "supports_parallel_handoff": false,
-    "purpose": "OpenCode runtime can inspect packaged workflow DAG metadata and graph-aware handoff hints from the installed workspace."
-  },
   "runtime_entrypoints": [
     {
       "name": "project-rules",

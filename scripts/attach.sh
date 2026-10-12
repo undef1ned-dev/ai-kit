@@ -465,7 +465,7 @@ echo "  3. После первой содержательной задачи з�
 if $MULTI_PROFILE; then
   echo ""
   echo "Подсказка мульти-профиль:"
-  echo "  Скиллы/агенты с конфликтами получили префикс платформы."
-  echo "  Например: vue-implement-feature, fastapi-implement-feature"
+  echo "  /implement-feature и /workflow выбирают профиль по задаче; агенты профилей — в .aikit/profiles.json"
+  echo "  Скиллы с одинаковым именем в разных профилях получили префикс платформы."
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

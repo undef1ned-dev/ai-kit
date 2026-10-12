@@ -10,6 +10,7 @@
 #   3. Корректность всех *.json
 #   4. Генератор каталога видит все скиллы-папки профилей и паков
 #   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов
+#   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 
 set -eo pipefail
 
@@ -113,6 +114,23 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
         errors.append(f"{manifest}: пустые path_signals")
 for error in errors:
     print(f"  ✗ {error}")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Базовые оркестраторы: агенты профилей только из контракта, без имён в тексте"
+"$PYTHON_BIN" -c '
+import json, pathlib, re, sys
+names = set()
+for manifest in pathlib.Path("profiles").glob("*/profile.manifest.json"):
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    names |= set(data["agents"].values()) | {spec["agent"] for spec in data.get("specialists", {}).values()}
+files = [*pathlib.Path("base/skills").glob("*/SKILL.md"), pathlib.Path("base/agents/workflow-runner.md"), pathlib.Path("base/agents/tech-planner.md")]
+errors = []
+for path in files:
+    text = path.read_text(encoding="utf-8")
+    errors += [f"{path}: {name}" for name in sorted(names) if re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", text)]
+for error in errors:
+    print(f"  ✗ имя агента профиля вместо роли из контракта: {error}")
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 

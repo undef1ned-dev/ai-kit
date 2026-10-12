@@ -9,22 +9,11 @@ Usage:
 
 import argparse
 import html
-import importlib.util
 import json
 import os
 import re
 import sys
 from pathlib import Path
-
-def load_template_expander():
-    path = Path(__file__).resolve().with_name('expand-template.py')
-    spec = importlib.util.spec_from_file_location('aikit_expand_template', path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.expand_skill_text
-
-
-expand_skill_text = load_template_expander()
 
 PRIMARY_ENTRY_SKILLS = {'aikit-bootstrap-project', 'implement-feature', 'security-check'}
 OVERLAY_ENTRY_SKILLS = {'design-implement', 'design-review', 'setup-admin'}
@@ -114,8 +103,6 @@ def read_md_files(directory: Path, kind: str) -> list[dict]:
     pattern = '*/SKILL.md' if kind == 'skill' else '*.md'
     for md in sorted(directory.glob(pattern)):
         text = md.read_text(encoding='utf-8')
-        if kind == 'skill':
-            text = expand_skill_text(text)
         fm = parse_frontmatter(text)
         if not fm.get('name'):
             fm['name'] = md.parent.name if kind == 'skill' else md.stem
@@ -251,19 +238,19 @@ def collect_runtime_adapters(root: Path) -> list[dict]:
 
 
 def collect_workflow_surfaces(root: Path) -> list[dict]:
+    """Delivery chain of each profile, taken from the agents of its contract."""
     workflows = []
-    for manifest in sorted((root / 'profiles').glob('*/workflow.manifest.json')):
+    for manifest in sorted((root / 'profiles').glob('*/profile.manifest.json')):
         data = read_json_file(manifest)
         if data:
             profile_name = data.get('profile', manifest.parent.name)
             if not is_public_profile(root, profile_name):
                 continue
-            recipes = data.get('recipes', [])
+            agents = data.get('agents', {})
             workflows.append({
                 'profile': profile_name,
-                'default_recipe': data.get('default_recipe', 'unknown'),
-                'recipe_count': len(recipes) if isinstance(recipes, list) else 0,
-                'has_frontend_task_workflows': bool(data.get('frontend_task_workflows')),
+                'chain': ' → '.join(agents.get(role, '?') for role in ('architect', 'coder', 'tester', 'reviewer')),
+                'specialist_count': len(data.get('specialists', {})),
             })
     return workflows
 
@@ -566,9 +553,8 @@ def render_product_overview(context: dict, total_agents: int, total_skills: int,
         f'''
 <div class="overview-mini-card">
   <span class="summary-label">{h(workflow.get("profile", ""))}</span>
-  <span class="summary-value">{h(workflow.get("default_recipe", ""))}</span>
-  <span class="badge">{h(str(workflow.get("recipe_count", 0)) + " recipes")}</span>
-  {f'<span class="badge">frontend task workflow</span>' if workflow.get("has_frontend_task_workflows") else ''}
+  <span class="summary-value">{h(workflow.get("chain", ""))}</span>
+  <span class="badge">{h(str(workflow.get("specialist_count", 0)) + " specialists")}</span>
 </div>'''
         for workflow in context.get('workflow_surfaces', [])
     )

@@ -74,9 +74,9 @@ for path in skills:
 PY
 }
 
-# $ARGUMENTS подставляет только Claude Code, а template: означает нераскрытый шаблон
+# $ARGUMENTS подставляет только Claude Code
 check_no_raw_placeholders() {
-  ! grep -rlE '[$]ARGUMENTS|^template:' "$PROJECT_DIR/.agents/skills"
+  ! grep -rl '[$]ARGUMENTS' "$PROJECT_DIR/.agents/skills"
 }
 
 # Агенты Codex — валидный TOML с обязательными полями; config.toml, если есть, тоже валиден
@@ -188,6 +188,7 @@ run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG";
 check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
+check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f '$PROJECT_DIR/.agents/skills/implement-feature/SKILL.md' && ! ls -d '$PROJECT_DIR'/.agents/skills/*-implement-feature 2>/dev/null"
 check "нет нераскрытых шаблонов {{...}}" bash -c "! grep -rlF '{{' '$PROJECT_DIR/.aikit/agents' '$PROJECT_DIR/.agents/skills' '$PROJECT_DIR/AGENTS.md'"
 check_runtime_files ""
 

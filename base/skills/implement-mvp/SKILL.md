@@ -17,15 +17,14 @@ $ARGUMENTS
 Агент должен:
 1. Прочитать MVP-документ из `docs/mvp/`
 2. Прочитать `PRODUCT.md` и `CLAUDE.md` для контекста стека
-3. Определить какие платформы задействованы (Backend / iOS / Android)
+3. Определить какие профили проекта задействованы (`.aikit/profiles.json`: `role` — `backend`, `web`, …)
 4. Спроектировать API-контракт если задействован Backend
 5. Описать технический scope для каждой платформы
 6. Определить порядок реализации и зависимости
 7. Вывести блок `TECH_PLAN`
 
-После получения `TECH_PLAN` запускай нужных архитекторов:
-- `django-architect` — для Backend (читает секцию BACKEND SCOPE и API CONTRACT)
-- `ios-architect` — для iOS (читает секцию iOS SCOPE и API CONTRACT)
-- `android-architect` — для Android (читает секцию ANDROID SCOPE и API CONTRACT)
+После получения `TECH_PLAN` запускай архитекторов задействованных профилей — `agents.architect` из `.aikit/profiles.json`:
+- архитектор профиля с `role: backend` читает BACKEND SCOPE и API CONTRACT;
+- архитектор профиля с `role: web` читает WEB SCOPE и API CONTRACT.
 
-Рекомендуемый порядок: сначала `django-architect` чтобы зафиксировать API, затем платформенные.
+Рекомендуемый порядок: сначала backend-архитектор, чтобы зафиксировать API, затем web.

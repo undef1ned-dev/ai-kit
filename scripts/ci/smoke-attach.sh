@@ -60,7 +60,7 @@ check_profiles_in_claude_md() {
   done
 }
 
-# Скиллы: <name>/SKILL.md с name = папка и description, шаблоны раскрыты, все из .config-version на месте
+# Скиллы: <name>/SKILL.md с name = папка и description, все из .config-version на месте
 check_skills() {
   "$PYTHON_BIN" - "$PROJECT_DIR/.claude" <<'PY'
 import json, pathlib, re, sys
@@ -76,7 +76,6 @@ for name in expected:
     fields = dict(re.findall(r"(?m)^([\w-]+):\s*(.*)$", match.group(1)))
     assert fields.get("name", "").strip('"') == name, f"name не совпадает с папкой: {name}"
     assert fields.get("description", "").strip(), f"нет description: {name}"
-    assert "template" not in fields, f"шаблон не раскрыт: {name}"
 PY
 }
 
@@ -145,7 +144,8 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
-check "скиллы установлены: name = папка, есть description, шаблоны раскрыты" check_skills
+check "скиллы установлены: name = папка, есть description" check_skills
+check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f .claude/skills/implement-feature/SKILL.md && ! ls -d .claude/skills/*-implement-feature 2>/dev/null"
 check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
 check "скилл git-commit установлен" test -f .claude/skills/git-commit/SKILL.md
 check "скилл git-branch установлен" test -f .claude/skills/git-branch/SKILL.md

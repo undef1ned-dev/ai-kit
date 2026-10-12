@@ -282,4 +282,3 @@ def test_list_users(auth_client):
 
 - `/new-app` — создать новое Django-приложение со всей структурой
 - `/setup-admin` — настроить расширенный ModelAdmin для существующей модели
-- `/implement-feature` — реализовать фичу через цепочку агентов

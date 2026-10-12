@@ -5,8 +5,6 @@
 # и функции profile_prefix, log_warn из вызывающего скрипта.
 # После install_kit_skills в INSTALLED_SKILLS — имена установленных скиллов через пробел.
 
-TEMPLATES_DIR="$CONFIG_ROOT/base/skills/templates"
-
 # Имена скиллов, которые есть в 2+ подключённых профилях
 skill_conflicts() {
   local p f
@@ -17,21 +15,13 @@ skill_conflicts() {
   done | sort | uniq -d
 }
 
-# Скопировать папку скилла под именем name, раскрыть шаблон, выставить name во frontmatter
+# Скопировать папку скилла под именем name и выставить name во frontmatter
 install_skill() {
   local src="$1" dst_root="$2" name="$3"
   local dst="$dst_root/$name"
   rm -rf "$dst"
   cp -R "${src%/}" "$dst"
   local file="$dst/SKILL.md"
-
-  if grep -q '^template:' "$file"; then
-    if command -v python3 &>/dev/null; then
-      python3 "$SCRIPT_DIR/expand-template.py" "$file" "$TEMPLATES_DIR" >/dev/null
-    else
-      log_warn "python3 не найден — шаблонный скилл $name не раскрыт"
-    fi
-  fi
 
   # Runtime ищет скилл по name, а он должен совпадать с папкой (у скиллов с префиксом профиля они различаются)
   awk -v name="$name" '!done && /^name:/ { print "name: \"" name "\""; done = 1; next } { print }' \

@@ -184,6 +184,5 @@ describe("auth store", () => {
 - `/new-server-route` — создать Nitro server route для BFF/proxy-логики
 - `/new-store` — создать Pinia store для состояния фичи
 - `/add-tests` — написать Vitest/VTU тесты для существующего кода
-- `/implement-feature` — полная цепочка: architect → coder → tester → reviewer
 - `/design-review` — проверить реализацию на соответствие UI kit, токенам и Figma
 - `/design-implement` — превратить Figma/макет в implementation brief и затем пройти design-aware delivery flow
