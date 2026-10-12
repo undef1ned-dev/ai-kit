@@ -39,6 +39,7 @@ MAINTAINER_PROMPT_NAME = "CONTINUE_AIKIT_MAINTAINER.md"
 # Agent Skills standard location read by Codex and OpenCode (Claude Code uses .claude/skills)
 NATIVE_SKILLS_DIR = Path(".agents") / "skills"
 NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
+NATIVE_ARGUMENTS_PLACEHOLDER = "(задача из запроса пользователя)"
 OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
 
 
@@ -186,6 +187,27 @@ def find_conflicts(profile_names: list[str], subdir: str) -> set[str]:
         for md in directory.glob("*.md"):
             counts[md.name] = counts.get(md.name, 0) + 1
     return {name for name, count in counts.items() if count > 1}
+
+
+def skill_folders(skills_root: Path) -> list[Path]:
+    return sorted(path.parent for path in skills_root.glob("*/SKILL.md"))
+
+
+def find_skill_conflicts(profile_names: list[str]) -> set[str]:
+    counts: dict[str, int] = {}
+    for profile_name in profile_names:
+        for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
+            counts[folder.name] = counts.get(folder.name, 0) + 1
+    return {name for name, count in counts.items() if count > 1}
+
+
+def install_skill_folder(source: Path, destination: Path) -> None:
+    """Copy a <name>/SKILL.md skill, expand its template and set name to the folder name (prefixed on conflicts)."""
+    shutil.copytree(source, destination)
+    skill_file = destination / "SKILL.md"
+    text = expand_skill_text(skill_file)
+    text = re.sub(r"(?m)^name:.*$", f'name: "{destination.name}"', text, count=1)
+    skill_file.write_text(text, encoding="utf-8")
 
 
 def copy_markdown(src: Path, dst: Path) -> None:
@@ -610,27 +632,24 @@ def write_native_skills(adapter: dict, bundle_root: Path, skills_dir: Path) -> l
     native_root = bundle_root / NATIVE_SKILLS_DIR
     native_root.mkdir(parents=True, exist_ok=True)
     written: list[str] = []
-    for source in sorted(skills_dir.iterdir()):
-        if source.is_dir():
-            skill_file = source / "SKILL.md"
-            if not skill_file.exists():
-                continue
-            name = source.name
-            destination = native_root / name
-            shutil.copytree(source, destination)
-            text = skill_file.read_text(encoding="utf-8")
-        elif source.suffix == ".md":
-            name = source.stem
-            destination = native_root / name
-            destination.mkdir(parents=True, exist_ok=True)
-            text = source.read_text(encoding="utf-8")
-        else:
-            continue
-
-        raw, body = split_frontmatter(text)
-        description = parse_frontmatter(raw).get("description", "").strip()
+    for source in skill_folders(skills_dir):
+        name = source.name
+        destination = native_root / name
+        shutil.copytree(source, destination)
+        raw, body = split_frontmatter((source / "SKILL.md").read_text(encoding="utf-8"))
+        # $ARGUMENTS is substituted only by Claude Code; elsewhere the task comes from the user's message
+        body = body.replace("$ARGUMENTS", NATIVE_ARGUMENTS_PLACEHOLDER)
+        metadata = parse_frontmatter(raw)
+        description = metadata.get("description", "").strip()
+        if adapter.get("runtime") == "codex" and metadata.get("disable-model-invocation") == "true":
+            # Codex counterpart of Claude Code's disable-model-invocation: the skill runs only on explicit $name
+            policy_file = destination / "agents" / "openai.yaml"
+            policy_file.parent.mkdir(parents=True, exist_ok=True)
+            policy_file.write_text("policy:\n  allow_implicit_invocation: false\n", encoding="utf-8")
         if not description:
             raise SystemExit(f"Skill '{name}' has no description — required by Codex and OpenCode")
+        if description[0] in ">|":
+            raise SystemExit(f"Skill '{name}': description must be a single-line string, not a YAML block scalar")
         # Codex and OpenCode need name and description; name must match the folder (it differs for prefixed skills)
         (destination / "SKILL.md").write_text(
             frontmatter_document({"name": name, "description": description}, body), encoding="utf-8"
@@ -666,9 +685,9 @@ def write_claude_native_surface(
     bundle_root: Path,
     agents_dir: Path,
     skills_dir: Path,
-) -> None:
+) -> list[str]:
     if adapter.get("runtime") != "claude":
-        return
+        return []
 
     write_claude_instruction_surface(profiles, bundle_root / "CLAUDE.md")
 
@@ -677,10 +696,9 @@ def write_claude_native_surface(
 
     mirror_tree(agents_dir, claude_root / "agents")
 
-    commands_dir = claude_root / "commands"
-    commands_dir.mkdir(parents=True, exist_ok=True)
-    for skill in sorted(skills_dir.glob("*.md")):
-        copy_markdown(skill, commands_dir / skill.name)
+    claude_skills = claude_root / "skills"
+    mirror_tree(skills_dir, claude_skills)
+    native_paths = [(claude_skills / folder.name).relative_to(bundle_root).as_posix() for folder in skill_folders(skills_dir)]
 
     settings_paths: list[Path] = []
     base_settings = ROOT / "base" / "settings.json"
@@ -708,6 +726,7 @@ def write_claude_native_surface(
         f"version={read_repo_version()}",
     ]
     (claude_root / ".config-version").write_text("\n".join(version_lines) + "\n", encoding="utf-8")
+    return native_paths
 
 
 def build_package(
@@ -770,14 +789,12 @@ def build_package(
     # Base agents and skills
     for md in sorted((ROOT / "base" / "agents").glob("*.md")):
         copy_markdown(md, agents_dir / md.name)
-    for md in sorted((ROOT / "base" / "skills").glob("*.md")):
-        (skills_dir / md.name).write_text(expand_skill_text(md), encoding="utf-8")
-    for skill_folder in sorted((ROOT / "base" / "skills").glob("*/SKILL.md")):
-        shutil.copytree(skill_folder.parent, skills_dir / skill_folder.parent.name)
+    for folder in skill_folders(ROOT / "base" / "skills"):
+        install_skill_folder(folder, skills_dir / folder.name)
 
     # Profile agents and skills with conflict-safe names
     agent_conflicts = find_conflicts(profiles, "agents")
-    skill_conflicts = find_conflicts(profiles, "skills")
+    skill_conflicts = find_skill_conflicts(profiles)
     for profile_name in profiles:
         prefix = profile_prefix(profile_name)
 
@@ -786,19 +803,17 @@ def build_package(
             dst_name = f"{prefix}-{md.name}" if md.name in agent_conflicts else md.name
             copy_markdown(md, agents_dir / dst_name)
 
-        profile_skills = ROOT / "profiles" / profile_name / "skills"
-        for md in sorted(profile_skills.glob("*.md")):
-            dst_name = f"{prefix}-{md.name}" if md.name in skill_conflicts else md.name
-            (skills_dir / dst_name).write_text(expand_skill_text(md), encoding="utf-8")
+        for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
+            dst_name = f"{prefix}-{folder.name}" if folder.name in skill_conflicts else folder.name
+            install_skill_folder(folder, skills_dir / dst_name)
 
     # Pack agents and skills
     for pack_name in packs:
         pack_agents = ROOT / "packs" / pack_name / "agents"
         for md in sorted(pack_agents.glob("*.md")):
             copy_markdown(md, agents_dir / md.name)
-        pack_skills = ROOT / "packs" / pack_name / "skills"
-        for md in sorted(pack_skills.glob("*.md")):
-            (skills_dir / md.name).write_text(expand_skill_text(md), encoding="utf-8")
+        for folder in skill_folders(ROOT / "packs" / pack_name / "skills"):
+            install_skill_folder(folder, skills_dir / folder.name)
 
     # Memory seed
     populate_memory(canonical_memory_dir)
@@ -812,7 +827,7 @@ def build_package(
     write_runtime_tools_registry(adapter, profiles, bundle_root)
     write_mcp_tool_plane(adapter, profiles, bundle_root)
     write_runtime_specific_files(adapter_name, adapter, profiles, bundle_root, package_mode)
-    write_claude_native_surface(adapter, profiles, packs, bundle_root, agents_dir, skills_dir)
+    native_paths = write_claude_native_surface(adapter, profiles, packs, bundle_root, agents_dir, skills_dir)
     write_codex_native_surface(
         adapter,
         profiles,
@@ -823,7 +838,7 @@ def build_package(
         runtime_memory_dir,
         package_mode,
     )
-    native_paths = write_native_skills(adapter, bundle_root, skills_dir)
+    native_paths += write_native_skills(adapter, bundle_root, skills_dir)
     native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
     write_runtime_entrypoints(adapter, profiles, bundle_root, package_mode)
     write_runtime_graph(adapter, profiles, bundle_root)
@@ -841,7 +856,7 @@ def build_package(
         "package_mode": package_mode,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "agent_count": len(list(agents_dir.glob("*.md"))),
-        "skill_count": len(list(skills_dir.glob("*.md"))),
+        "skill_count": len(skill_folders(skills_dir)),
         "memory_path": adapter["memory_path"],
         "continuation_prompt": adapter.get("continuation_prompt", "") if package_mode == PACKAGE_MODE_MAINTAINER else "",
         "bundle_root": str(bundle_root.relative_to(ROOT if bundle_root.is_relative_to(ROOT) else bundle_root.parent)),

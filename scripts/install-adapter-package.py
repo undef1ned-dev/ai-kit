@@ -408,6 +408,17 @@ def remove_previous_native_paths(workspace: Path) -> None:
             remove_path(target)
 
 
+def remove_legacy_claude_commands(workspace: Path, bundle_root: Path) -> None:
+    """Earlier versions installed skills as .claude/commands/<name>.md; only kit-named files are removed."""
+    commands_dir = workspace / ".claude" / "commands"
+    if not commands_dir.is_dir():
+        return
+    for skill_file in (bundle_root / ".aikit" / "skills").glob("*/SKILL.md"):
+        remove_path(commands_dir / f"{skill_file.parent.name}.md")
+    if not any(commands_dir.iterdir()):
+        commands_dir.rmdir()
+
+
 def render_agents_md_block(profiles: list[str]) -> str:
     chunks = [
         AGENTS_MD_BEGIN,
@@ -415,6 +426,8 @@ def render_agents_md_block(profiles: list[str]) -> str:
         "",
         "Скиллы AIKit — в `.agents/skills/`, агенты — в `.codex/agents/` (Codex) и `.opencode/agents/` (OpenCode),",
         "память проекта — в `.aikit/memory/`.",
+        "Правила ниже написаны в синтаксисе Claude Code: `/name` — это скилл `name` из `.agents/skills/`",
+        "(в Codex вызывается как `$name`, в OpenCode — по имени; оба подхватывают скиллы и автоматически по описанию).",
         "",
         (ROOT / "base" / "CLAUDE.md").read_text(encoding="utf-8").strip(),
     ]
@@ -573,6 +586,7 @@ def install_package(
             package_mode=install_mode,
         )
         remove_previous_native_paths(workspace)
+        remove_legacy_claude_commands(workspace, bundle_root)
         sync_bundle(bundle_root, workspace, skip_rel_paths=memory_paths if install_mode == INSTALL_MODE_CONSUMER else None)
         if install_mode == INSTALL_MODE_CONSUMER:
             apply_consumer_workspace_policy(adapter, workspace)

@@ -25,6 +25,8 @@ GLM отдельно не поддерживается: это модель, а 
 | Правила проекта | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` (если его нет — `CLAUDE.md`) |
 | Скиллы `<name>/SKILL.md` | `.claude/skills/` | `.agents/skills/` | `.opencode/skills/`, а также `.claude/skills/` и `.agents/skills/` |
 | Вызов скилла | `/name` или автоматически по `description` | `$name`, `/skills` или автоматически по `description` | автоматически по `description` |
+| Запрет автовызова скилла | `disable-model-invocation: true` во frontmatter | `policy.allow_implicit_invocation: false` в `<skill>/agents/openai.yaml` | нет в самом скилле (только `permission` в `opencode.json`) |
+| Аргументы скилла | `$ARGUMENTS` подставляется | не подставляется — задача берётся из сообщения | не подставляется |
 | Slash-команды (старый формат) | `.claude/commands/*.md` | нет в проекте — заменены скиллами | `.opencode/commands/` |
 | Сабагенты | `.claude/agents/*.md` | `.codex/agents/*.toml` (`name`, `description`, `developer_instructions`) | `.opencode/agents/*.md` (`description`, `mode: subagent`) |
 | MCP-серверы | `.mcp.json` | `[mcp_servers.*]` в `.codex/config.toml` (только для доверенных проектов) | `"mcp"` в `opencode.json` |
@@ -43,7 +45,9 @@ GLM отдельно не поддерживается: это модель, а 
 |---|---|---|---|
 | Установка всех пресетов | ✅ | ✅ | ✅ |
 | Правила проекта | ✅ `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md`, текст пользователя вне блока сохраняется | ✅ тот же `AGENTS.md` |
-| Скиллы | ⚠️ только `git-commit`, `git-branch`; остальное — команды (2.1) | ✅ `.agents/skills/<name>/SKILL.md` | ✅ `.agents/skills/<name>/SKILL.md` |
+| Скиллы | ✅ `.claude/skills/<name>/SKILL.md` — все скиллы base, профилей и паков | ✅ `.agents/skills/<name>/SKILL.md` | ✅ `.agents/skills/<name>/SKILL.md` |
+| Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `workflow`, `improve-aikit`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
+| Старые команды прежних версий кита | ✅ убираются из `.claude/commands/` при обновлении, свои команды пользователя остаются | ✅ `.codex/commands/` убирается | — |
 | Сабагенты | ✅ `.claude/agents/` | ✅ `.codex/agents/*.toml` (проект должен быть доверенным) | ✅ `.opencode/agents/*.md`, `mode: subagent` |
 | MCP-серверы | ⚠️ в `.claude/settings.json`, который попадает в `.gitignore` (2.3) | ❌ (2.3) | ❌ (2.3) |
 | Хуки | ❌ (этап 4) | ❌ (этап 4) | ❌ (этап 4) |
@@ -51,7 +55,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Память `.aikit/memory/` | ✅ | ✅ | ✅ |
 | Обновление | ✅ `update.sh` | ✅ `update-adapter-package.py` | ✅ `update-adapter-package.py` |
 | Смена пресета и обновление | ✅ | ✅ файлы прошлой установки убираются | ✅ файлы прошлой установки убираются |
-| Smoke-тест в CI | ✅ | ✅ правила, скиллы, TOML агентов, обновление | ✅ правила, скиллы, агенты, обновление |
+| Smoke-тест в CI | ✅ правила, скиллы, настройки, обновление | ✅ правила, скиллы, TOML агентов, обновление | ✅ правила, скиллы, агенты, обновление |
 | Изоляция проекта | ✅ | ✅ ничего не пишется в `~/.codex` | ✅ |
 
 ---
@@ -64,7 +68,9 @@ GLM отдельно не поддерживается: это модель, а 
 |---|---|---|---|
 | Slash-команды | Codex | Проектных slash-команд нет (глобальные `~/.codex/prompts` устарели и общие для всех проектов — кит их не пишет) | Скиллы: `$name` или автовызов |
 | Агенты из проекта | Codex | `.codex/agents/` применяется только в доверенных проектах | В инструкции `.codex/AIKIT.md` — шаг «отметить проект доверенным» |
-| Правила в `AGENTS.md` | Codex, OpenCode | Текст правил написан для Claude Code (упоминает `/команды`, `.claude/`) | Переписать нейтрально в этапе 2.1 вместе с переводом на скиллы |
+| Правила и скиллы | Codex, OpenCode | Тексты написаны в синтаксисе Claude Code (`/name`, местами `.claude/`) | В начале блока AIKit в `AGENTS.md` объяснено, что `/name` — это скилл (`$name` в Codex); пути `.claude/agents/` и `.claude/skills/` в скиллах заменяются на пути runtime |
+| `$ARGUMENTS` в скиллах | Codex, OpenCode | Не подставляется | При установке заменяется на «(задача из запроса пользователя)» |
+| Запрет автовызова скилла | OpenCode | Нет поля в `SKILL.md` | Пока нет; скиллы с побочными эффектами сами просят подтверждения |
 | MCP из проекта | Codex | `.codex/config.toml` применяется только в доверенных проектах | В инструкции по установке — шаг «отметить проект доверенным» |
 | Хуки | Codex | Хуки не запускаются, пока пользователь не одобрит их через `/hooks` | В инструкции по установке — шаг «одобрить хуки» |
 | Хуки | OpenCode | Нет конфигурации хуков, только плагины на JS/TS | Тонкий JS-плагин, который вызывает общий скрипт хука |

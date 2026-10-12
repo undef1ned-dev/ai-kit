@@ -108,6 +108,9 @@ profile_prefix() {
   echo "$1" | sed 's/python-//; s/-[a-z]*$//'
 }
 
+# shellcheck source=lib/skills.sh
+source "$SCRIPT_DIR/lib/skills.sh"
+
 # Найти конфликтующие имена файлов (встречаются в 2+ профилях) для заданной поддиректории
 # Использование: find_conflicts <subdir>  — возвращает имена файлов по одному в строке
 find_conflicts() {
@@ -122,24 +125,6 @@ find_conflicts() {
     fi
   done
   printf "%b" "$all_files" | sort | uniq -d
-}
-
-# Раскрыть шаблонные скиллы (те у которых есть template: в frontmatter)
-# Использование: expand_skill_templates <dst>
-expand_skill_templates() {
-  local dst="$1"
-  local tmpl_dir="$CONFIG_ROOT/base/skills/templates"
-  [[ -d "$tmpl_dir" ]] || return 0
-  command -v python3 &>/dev/null || { log_warn "python3 не найден — шаблонные скиллы не расширены"; return 0; }
-
-  local expanded=0
-  for f in "$dst"/*.md; do
-    [[ -f "$f" ]] || continue
-    grep -q '^template:' "$f" 2>/dev/null || continue
-    python3 "$SCRIPT_DIR/expand-template.py" "$f" "$tmpl_dir" \
-      && expanded=$((expanded + 1))
-  done
-  [[ "$expanded" -gt 0 ]] && log_ok "Расширено $expanded шаблонных скилла(ов)"
 }
 
 # Скопировать файлы профилей в dst с разрешением конфликтов
@@ -232,7 +217,6 @@ echo ""
 # =============================================================================
 # Создать .claude/
 # =============================================================================
-mkdir -p "$PROJECT_ROOT/.claude/commands"
 mkdir -p "$PROJECT_ROOT/.claude/agents"
 
 # =============================================================================
@@ -337,38 +321,13 @@ fi
 # =============================================================================
 # Скиллы: base + профили + паки
 # =============================================================================
-log_section "Скиллы (commands)"
+log_section "Скиллы"
 
-SKILLS_DST="$PROJECT_ROOT/.claude/commands"
-BASE_SKILLS="$CONFIG_ROOT/base/skills"
-[[ -d "$BASE_SKILLS" ]] && cp "$BASE_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-
-if $MULTI_PROFILE; then
-  copy_profile_files "skills" "$SKILLS_DST"
-else
-  P_SKILLS="$CONFIG_ROOT/profiles/$PROFILE_LIST/skills"
-  [[ -d "$P_SKILLS" ]] && cp "$P_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-fi
-
-for pack in $PACKS_LIST; do
-  PACK_SKILLS="$CONFIG_ROOT/packs/$pack/skills"
-  [[ -d "$PACK_SKILLS" ]] && cp "$PACK_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-done
-
-expand_skill_templates "$SKILLS_DST"
-SKILL_COUNT="$(ls "$SKILLS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
-log_ok "Скиллы в .claude/commands/ ($SKILL_COUNT шт)"
-
-# Skills в формате SKILL.md: base/skills/<name>/SKILL.md → .claude/skills/<name>/
-AUTO_SKILLS_DST="$PROJECT_ROOT/.claude/skills"
-AUTO_SKILL_COUNT=0
-for d in "$BASE_SKILLS"/*/; do
-  [[ -f "${d}SKILL.md" ]] || continue
-  mkdir -p "$AUTO_SKILLS_DST"
-  cp -R "${d%/}" "$AUTO_SKILLS_DST/"
-  AUTO_SKILL_COUNT=$((AUTO_SKILL_COUNT + 1))
-done
-log_ok "Skills в .claude/skills/ ($AUTO_SKILL_COUNT шт)"
+PREVIOUS_SKILLS="$( [[ -f "$VERSION_FILE" ]] && grep '^skills=' "$VERSION_FILE" | cut -d= -f2 || true)"
+remove_previous_kit_skills "$PROJECT_ROOT/.claude" "$PREVIOUS_SKILLS"
+install_kit_skills "$PROJECT_ROOT/.claude/skills" "$PACKS_LIST"
+SKILL_COUNT="$(echo "$INSTALLED_SKILLS" | wc -w | tr -d ' ')"
+log_ok "Скиллы в .claude/skills/ ($SKILL_COUNT шт)"
 
 # =============================================================================
 # Субагенты: base + профили + паки
@@ -460,9 +419,10 @@ fi
 # Версия конфигурации
 # =============================================================================
 CURRENT_TAG="$(get_repo_version)"
-printf "profiles=%s\npacks=%s\nversion=%s\nattached_at=%s\n" \
+printf "profiles=%s\npacks=%s\nskills=%s\nversion=%s\nattached_at=%s\n" \
   "$PROFILES_ARG" \
   "$PACKS_LIST" \
+  "$INSTALLED_SKILLS" \
   "$CURRENT_TAG" \
   "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$VERSION_FILE"
 log_ok ".claude/.config-version записан ($CURRENT_TAG)"
@@ -477,8 +437,7 @@ echo ""
 echo "Созданные файлы:"
 echo "  CLAUDE.md                  — правила для Claude"
 echo "  .claude/settings.json      — MCP серверы и permissions"
-printf "  .claude/commands/          — скиллы (%s шт)\n" "$SKILL_COUNT"
-printf "  .claude/skills/            — skills с автовызовом (%s шт)\n" "$AUTO_SKILL_COUNT"
+printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"
 echo "  .aikit/memory/          — canonical memory проекта"

@@ -47,6 +47,9 @@ profile_prefix() {
   echo "$1" | sed 's/python-//; s/-[a-z]*$//'
 }
 
+# shellcheck source=lib/skills.sh
+source "$SCRIPT_DIR/lib/skills.sh"
+
 find_conflicts() {
   local subdir="$1"
   local all_files=""
@@ -87,22 +90,6 @@ copy_profile_files() {
   done
 }
 
-expand_skill_templates() {
-  local dst="$1"
-  local tmpl_dir="$CONFIG_ROOT/base/skills/templates"
-  [[ -d "$tmpl_dir" ]] || return 0
-  command -v python3 &>/dev/null || { log_warn "python3 не найден — шаблонные скиллы не расширены"; return 0; }
-
-  local expanded=0
-  for f in "$dst"/*.md; do
-    [[ -f "$f" ]] || continue
-    grep -q '^template:' "$f" 2>/dev/null || continue
-    python3 "$SCRIPT_DIR/expand-template.py" "$f" "$tmpl_dir" \
-      && expanded=$((expanded + 1))
-  done
-  [[ "$expanded" -gt 0 ]] && log_ok "Расширено $expanded шаблонных скилла(ов)"
-}
-
 # =============================================================================
 # Чтение .config-version
 # =============================================================================
@@ -116,6 +103,7 @@ fi
 
 INSTALLED_PROFILES="$(grep '^profiles=' "$VERSION_FILE" | cut -d= -f2)"
 INSTALLED_PACKS="$(grep '^packs=' "$VERSION_FILE" | cut -d= -f2)"
+INSTALLED_SKILLS_BEFORE="$(grep '^skills=' "$VERSION_FILE" | cut -d= -f2 || true)"
 INSTALLED_VERSION="$(grep '^version=' "$VERSION_FILE" | cut -d= -f2)"
 INSTALLED_AT="$(grep '^attached_at=' "$VERSION_FILE" | cut -d= -f2)"
 
@@ -195,21 +183,12 @@ log_section "Обновление агентов и скиллов"
 PROFILE_LIST="$(echo "$INSTALLED_PROFILES" | tr '+' ' ')"
 
 AGENTS_DST="$PROJECT_ROOT/.claude/agents"
-SKILLS_DST="$PROJECT_ROOT/.claude/commands"
+INSTALLED_SKILLS=""
 
-if [[ -d "$AGENTS_DST" ]] || [[ -d "$SKILLS_DST" ]]; then
+if [[ -d "$AGENTS_DST" ]]; then
   # Base
   BASE_AGENTS="$CONFIG_ROOT/base/agents"
-  BASE_SKILLS="$CONFIG_ROOT/base/skills"
   [[ -d "$BASE_AGENTS" ]] && cp "$BASE_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
-  [[ -d "$BASE_SKILLS" ]] && cp "$BASE_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
-
-  # Skills в формате SKILL.md: base/skills/<name>/SKILL.md → .claude/skills/<name>/
-  for d in "$BASE_SKILLS"/*/; do
-    [[ -f "${d}SKILL.md" ]] || continue
-    mkdir -p "$PROJECT_ROOT/.claude/skills"
-    cp -R "${d%/}" "$PROJECT_ROOT/.claude/skills/"
-  done
 
   # Профили
   PROFILE_COUNT="$(echo "$PROFILE_LIST" | wc -w | tr -d ' ')"
@@ -218,32 +197,29 @@ if [[ -d "$AGENTS_DST" ]] || [[ -d "$SKILLS_DST" ]]; then
 
   if $MULTI_PROFILE; then
     copy_profile_files "agents" "$AGENTS_DST"
-    copy_profile_files "skills" "$SKILLS_DST"
   else
     for p in $PROFILE_LIST; do
       P_AGENTS="$CONFIG_ROOT/profiles/$p/agents"
-      P_SKILLS="$CONFIG_ROOT/profiles/$p/skills"
       [[ -d "$P_AGENTS" ]] && cp "$P_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
-      [[ -d "$P_SKILLS" ]] && cp "$P_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
     done
   fi
 
   # Паки
   for pack in $INSTALLED_PACKS; do
     PACK_AGENTS="$CONFIG_ROOT/packs/$pack/agents"
-    PACK_SKILLS="$CONFIG_ROOT/packs/$pack/skills"
     [[ -d "$PACK_AGENTS" ]] && cp "$PACK_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
-    [[ -d "$PACK_SKILLS" ]] && cp "$PACK_SKILLS"/*.md "$SKILLS_DST/" 2>/dev/null || true
   done
 
-  expand_skill_templates "$SKILLS_DST"
+  # Скиллы: убрать прошлую установку (и старые .claude/commands/) и поставить заново
+  remove_previous_kit_skills "$PROJECT_ROOT/.claude" "$INSTALLED_SKILLS_BEFORE"
+  install_kit_skills "$PROJECT_ROOT/.claude/skills" "$INSTALLED_PACKS"
 
   AGENT_COUNT="$(ls "$AGENTS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
-  SKILL_COUNT="$(ls "$SKILLS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
+  SKILL_COUNT="$(echo "$INSTALLED_SKILLS" | wc -w | tr -d ' ')"
   log_ok "Агенты обновлены ($AGENT_COUNT шт)"
   log_ok "Скиллы обновлены ($SKILL_COUNT шт)"
 else
-  log_warn ".claude/agents/ или .claude/commands/ не найдены — запусти attach.sh"
+  log_warn ".claude/agents/ не найдена — запусти attach.sh"
 fi
 
 # =============================================================================
@@ -325,9 +301,10 @@ fi
 # =============================================================================
 # Обновить версию
 # =============================================================================
-printf "profiles=%s\npacks=%s\nversion=%s\nattached_at=%s\n" \
+printf "profiles=%s\npacks=%s\nskills=%s\nversion=%s\nattached_at=%s\n" \
   "$INSTALLED_PROFILES" \
   "$INSTALLED_PACKS" \
+  "${INSTALLED_SKILLS:-$INSTALLED_SKILLS_BEFORE}" \
   "$NEW_VERSION" \
   "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$VERSION_FILE"
 

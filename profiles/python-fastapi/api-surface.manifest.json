@@ -25,7 +25,7 @@
     {
       "name": "migration-test-surface",
       "kind": "migration",
-      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/skills/add-migration.md"],
+      "path_globs": ["profiles/python-fastapi/capabilities.json", "profiles/python-fastapi/skills/add-migration/SKILL.md"],
       "concerns": ["operations", "testing"]
     }
   ],

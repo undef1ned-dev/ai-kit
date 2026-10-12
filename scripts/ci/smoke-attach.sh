@@ -60,6 +60,26 @@ check_profiles_in_claude_md() {
   done
 }
 
+# Скиллы: <name>/SKILL.md с name = папка и description, шаблоны раскрыты, все из .config-version на месте
+check_skills() {
+  "$PYTHON_BIN" - "$PROJECT_DIR/.claude" <<'PY'
+import json, pathlib, re, sys
+claude = pathlib.Path(sys.argv[1])
+config = dict(line.split("=", 1) for line in (claude / ".config-version").read_text(encoding="utf-8").splitlines() if "=" in line)
+expected = config.get("skills", "").split()
+assert expected, "в .config-version нет skills="
+for name in expected:
+    path = claude / "skills" / name / "SKILL.md"
+    assert path.exists(), f"нет скилла {name}"
+    match = re.match(r"---\n(.*?)\n---\n", path.read_text(encoding="utf-8"), re.S)
+    assert match, f"нет frontmatter: {name}"
+    fields = dict(re.findall(r"(?m)^([\w-]+):\s*(.*)$", match.group(1)))
+    assert fields.get("name", "").strip('"') == name, f"name не совпадает с папкой: {name}"
+    assert fields.get("description", "").strip(), f"нет description: {name}"
+    assert "template" not in fields, f"шаблон не раскрыт: {name}"
+PY
+}
+
 count_files() { find "$1" -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
 
 echo "▶ Пресет $PRESET → $PROJECT_DIR"
@@ -76,12 +96,20 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
-check "скиллы и команды установлены" test "$(( $(count_files .claude/skills 'SKILL.md') + $(count_files .claude/commands '*.md') ))" -gt 0
+check "скиллы установлены: name = папка, есть description, шаблоны раскрыты" check_skills
+check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
 check "скилл git-commit установлен" test -f .claude/skills/git-commit/SKILL.md
 check "скилл git-branch установлен" test -f .claude/skills/git-branch/SKILL.md
 check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -rlF "{{" .claude CLAUDE.md'
 check "память проекта создана" test -d .aikit/memory
 check "версия конфигурации записана" test -s .claude/.config-version
+
+# Прежние версии кита ставили команды в .claude/commands/, а смена набора скиллов оставляла старые папки
+mkdir -p .claude/commands .claude/skills/legacy-kit-skill
+echo "# legacy" > .claude/commands/security-check.md
+echo "# своя команда" > .claude/commands/my-own.md
+echo "# legacy" > .claude/skills/legacy-kit-skill/SKILL.md
+sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
 
 echo "▶ update.sh --auto"
 if bash "$KIT_ROOT/scripts/update.sh" --auto > update.log 2>&1; then
@@ -92,6 +120,9 @@ else
 fi
 check ".claude/settings.json корректен после обновления" check_settings
 check "агенты на месте после обновления" test "$(count_files .claude/agents '*.md')" -gt 0
+check "скиллы корректны после обновления" check_skills
+check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
+check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Пресет $PRESET: проверок не пройдено — $FAILURES"

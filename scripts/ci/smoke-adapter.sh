@@ -69,6 +69,11 @@ for path in skills:
 PY
 }
 
+# $ARGUMENTS подставляет только Claude Code, а template: означает нераскрытый шаблон
+check_no_raw_placeholders() {
+  ! grep -rlE '[$]ARGUMENTS|^template:' "$PROJECT_DIR/.agents/skills"
+}
+
 # Агенты Codex — валидный TOML с обязательными полями; config.toml, если есть, тоже валиден
 check_codex_agents() {
   "$PYTHON_BIN" - "$PROJECT_DIR/.codex" <<'PY'
@@ -103,8 +108,10 @@ check_runtime_files() {
   check "AGENTS.md: блок AIKit один, правила пользователя сохранены$stage" check_agents_md
   check "скиллы в .agents/skills: name = папка, есть description$stage" check_native_skills
   check "скилл git-commit установлен$stage" test -f "$PROJECT_DIR/.agents/skills/git-commit/SKILL.md"
+  check "в скиллах нет \$ARGUMENTS и нераскрытых шаблонов$stage" check_no_raw_placeholders
   case "$ADAPTER" in
     codex)
+      check "скилл workflow не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/workflow/agents/openai.yaml"
       check "агенты Codex — валидный TOML$stage" check_codex_agents
       check "нет markdown-дублей агентов в .codex/agents$stage" test "$(count_files "$PROJECT_DIR/.codex/agents" '*.md')" -eq 0
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"

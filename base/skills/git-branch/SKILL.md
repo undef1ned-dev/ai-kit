@@ -1,13 +1,6 @@
 ---
 name: git-branch
-description: >-
-  Convention for naming git branches in this repository: Conventional Branch
-  1.1.0. MUST be followed whenever a branch is created or renamed — always,
-  automatically, without the user having to ask. Trigger whenever you are
-  about to run `git checkout -b`, `git switch -c`, `git branch <name>`,
-  `git branch -m`, create a worktree with a new branch, or when the user says
-  "создай ветку", "новая ветка", "branch", "переименуй ветку". Defines branch
-  types, naming rules and which base branch to start from.
+description: "Convention for naming git branches in this repository: Conventional Branch 1.1.0. MUST be followed whenever a branch is created or renamed — always, automatically, without the user having to ask. Trigger whenever you are about to run `git checkout -b`, `git switch -c`, `git branch <name>`, `git branch -m`, create a worktree with a new branch, or when the user says «создай ветку», «новая ветка», «branch», «переименуй ветку». Defines branch types, naming rules and which base branch to start from."
 ---
 
 # Именование веток — Conventional Branch
