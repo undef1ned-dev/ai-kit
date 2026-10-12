@@ -23,7 +23,7 @@ Codex-native agents, skills, commands and memory live under `.codex/`; canonical
 ## Проверки после изменений
 
 - `bash scripts/attach.sh --preset frontend-team` в пустом проекте — установка проходит без ошибок
-- `python3 scripts/generate-catalog.py`
+- `python3 scripts/generate-docs.py`
 
 Если меняются adapter manifests или installer flow:
 - `PYTHONPYCACHEPREFIX=/tmp/codex-pycache python3 -m py_compile scripts/*.py`

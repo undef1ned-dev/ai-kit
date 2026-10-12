@@ -4,7 +4,7 @@ Create a new AIKit profile from templates/profile/: contract, rules, four role a
 
 The kit core (installers, /implement-feature, workflow-runner) reads everything it needs from
 profile.manifest.json, so a new stack needs no changes outside profiles/<name>/.
-See docs/adding-a-stack.md.
+See docs/guide/adding-a-stack.md.
 
 Usage:
     python3 scripts/new-profile.py java-spring --role backend --stack "Java 21, Spring Boot 3" \\
@@ -114,7 +114,8 @@ def main() -> int:
     )
 
     print(f"Профиль {name} создан в profiles/{name}/")
-    print("  Дальше: заполни TODO в CLAUDE.md и агентах, проверь bash scripts/ci/static-checks.sh,")
+    print("  Дальше: заполни TODO в CLAUDE.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
+    print("  проверь bash scripts/ci/static-checks.sh,")
     print(f"  подключи к проекту: bash scripts/attach.sh {name}  (или вместе с другими: <web-профиль>+{name})")
     return 0
 

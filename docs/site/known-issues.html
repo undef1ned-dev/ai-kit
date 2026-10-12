@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Известные ошибки — AIKit</title>
+<link rel="stylesheet" href="assets/site.css">
+<script>try{var t=localStorage.getItem("aikit-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}</script>
+</head>
+<body data-page="known-issues">
+<header class="topbar">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Меню" data-nav-toggle>☰</button>
+  <a class="brand" href="index.html"><span class="brand-mark">AI</span>Kit<span class="version">v0.1.0</span></a>
+  <div class="search">
+    <input class="search-input" type="search" placeholder="Поиск по документации" aria-label="Поиск" autocomplete="off" data-search>
+    <kbd class="search-key">/</kbd>
+    <div class="search-results" hidden data-search-results></div>
+  </div>
+  <button class="icon-btn" type="button" aria-label="Сменить тему" data-theme-toggle>◐</button>
+</header>
+<div class="layout">
+  <nav class="sidebar" aria-label="Разделы"><div class="nav-group"><div class="nav-title">Начало</div><ul><li><a href="index.html">Что такое AIKit</a></li><li><a href="glossary.html">Термины</a></li><li><a href="getting-started.html">Установка</a></li></ul></div><div class="nav-group"><div class="nav-title">Как устроено</div><ul><li><a href="how-it-works.html">Как это работает</a></li><li><a href="daily-work.html">Работа с агентами</a></li><li><a href="commands.html">Команды</a></li></ul></div><div class="nav-group"><div class="nav-title">Справочник</div><ul><li><a href="catalog.html">Каталог профилей</a></li><li><a href="runtime-support.html">Поддержка runtime</a></li><li><a href="known-issues.html" class="active" aria-current="page">Известные ошибки</a></li><li><a href="roadmap.html">Roadmap</a></li></ul></div><div class="nav-group"><div class="nav-title">Развитие кита</div><ul><li><a href="adding-a-stack.html">Как добавить стек</a></li><li><a href="developing-aikit.html">Разработка AIKit</a></li></ul></div></nav>
+  <main class="content">
+    <article class="doc">
+<h1 class="page-title">Известные ошибки и ограничения</h1>
+<p>Что работает не так, как ожидается, и как это обойти. Список обновляется вместе с <a href="roadmap.html">roadmap</a>: когда проблему чинят, запись отсюда убирают.</p>
+<p>Чем отличаются Claude Code, Codex и OpenCode, описано на странице <a href="runtime-support.html#3-известные-ограничения">Поддержка runtime</a>. Здесь — проблемы самого кита.</p>
+<h2 id="установка"><a class="anchor" href="#установка" aria-hidden="true">#</a>Установка</h2>
+<h3 id="windows-нет-команды-python3"><a class="anchor" href="#windows-нет-команды-python3" aria-hidden="true">#</a>Windows: нет команды python3</h3>
+<p><strong>Что происходит.</strong> <code>attach.sh</code> предупреждает «python3 не найден» и продолжает. В результате нет <code>.aikit/profiles.json</code> и MCP-серверов, а <code>/implement-feature</code> потом пишет, что AIKit не установлен. На Windows Python часто доступен только как <code>python</code> или <code>py</code>.</p>
+<p><strong>Как обойти.</strong> Сделай <code>python3</code> доступным в Git Bash. Самый простой способ — копия интерпретатора под этим именем (так делает CI):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>cp &quot;$(command -v python)&quot; &quot;$(dirname &quot;$(command -v python)&quot;)/python3.exe&quot;
+python3 --version</code></pre></div>
+<p>После этого запусти <code>attach.sh</code> ещё раз.</p>
+<h3 id="windows-ошибки-кодировки-в-консоли"><a class="anchor" href="#windows-ошибки-кодировки-в-консоли" aria-hidden="true">#</a>Windows: ошибки кодировки в консоли</h3>
+<p><strong>Что происходит.</strong> Скрипты кита печатают кириллицу и символы вроде <code>✓</code>. В консоли с кодировкой cp1251 Python может упасть с <code>UnicodeEncodeError</code>.</p>
+<p><strong>Как обойти.</strong> Перед запуском включи UTF-8 для Python:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>export PYTHONIOENCODING=utf-8</code></pre></div>
+<p>Скрипты проверок кита (<code>scripts/ci/*.sh</code>) делают это сами.</p>
+<h3 id="смена-профиля-оставляет-старых-агентов"><a class="anchor" href="#смена-профиля-оставляет-старых-агентов" aria-hidden="true">#</a>Смена профиля оставляет старых агентов</h3>
+<p><strong>Что происходит.</strong> Если запустить <code>attach.sh</code> с другим профилем или пресетом, скиллы прошлой установки убираются, а агенты прежнего профиля остаются в <code>.claude/agents/</code>. В Codex и OpenCode такой проблемы нет: установщик адаптера убирает все файлы прошлой установки.</p>
+<p><strong>Как обойти.</strong> Удали агентов старого профиля вручную: их имена начинаются с префикса профиля (<code>django-*</code>, <code>fastapi-*</code>, <code>vue-*</code>).</p>
+<h3 id="updatesh-перезаписывает-claudemd-целиком"><a class="anchor" href="#updatesh-перезаписывает-claudemd-целиком" aria-hidden="true">#</a>update.sh перезаписывает CLAUDE.md целиком</h3>
+<p><strong>Что происходит.</strong> У <code>CLAUDE.md</code> нет отдельного блока для правил проекта. Если ответить «да» на вопрос об обновлении, свои правки пропадут из файла. В режиме <code>--auto</code> вопроса нет совсем.</p>
+<p><strong>Как обойти.</strong> Перед обновлением сохраняется копия <code>CLAUDE.md.backup-&lt;дата&gt;</code> — перенеси из неё свои правила. Или отвечай «нет» и сравни вручную: <code>update.sh</code> покажет, где лежит новая версия. В Codex и OpenCode проблемы нет: AIKit пишет только свой блок в <code>AGENTS.md</code>.</p>
+<h3 id="codex-не-видит-агентов-и-mcp"><a class="anchor" href="#codex-не-видит-агентов-и-mcp" aria-hidden="true">#</a>Codex не видит агентов и MCP</h3>
+<p><strong>Что происходит.</strong> Codex применяет <code>.codex/agents/</code> и <code>.codex/config.toml</code> только в доверенных проектах.</p>
+<p><strong>Как обойти.</strong> Отметь проект доверенным при первом запуске Codex. Подробнее — в <code>.codex/AIKIT.md</code> проекта после установки.</p>
+<h2 id="работа-агентов"><a class="anchor" href="#работа-агентов" aria-hidden="true">#</a>Работа агентов</h2>
+<h3 id="правила-соблюдаются-только-по-тексту"><a class="anchor" href="#правила-соблюдаются-только-по-тексту" aria-hidden="true">#</a>Правила соблюдаются только по тексту</h3>
+<p><strong>Что происходит.</strong> Запрет записи секретов, формат коммитов и имён веток, запуск линтера — пока это инструкции в правилах и скиллах. Модель обычно им следует, но может пропустить. Запрет чтения <code>.env</code> и запрет соавторства закреплены в настройках только для Claude Code (<code>.claude/settings.json</code>), в Codex и OpenCode их нет.</p>
+<p><strong>Решение.</strong> Хуки — этап 4 <a href="roadmap.html">roadmap</a>: проверки будут запускаться автоматически во всех трёх runtime.</p>
+<h3 id="implement-feature-не-проверен-на-живом-проекте"><a class="anchor" href="#implement-feature-не-проверен-на-живом-проекте" aria-hidden="true">#</a>/implement-feature не проверен на живом проекте</h3>
+<p><strong>Что происходит.</strong> CI проверяет установку: файлы на месте, контракты собраны, агенты и скиллы в правильном формате. Но полный прогон <code>/implement-feature</code> и пайплайна профиля в Claude Code и Codex на реальном проекте пока не делали. Шаги могут работать неидеально: например, агент неточно выберет профиль в монорепо.</p>
+<p><strong>Как помочь.</strong> Если цепочка повела себя странно, сохрани задачу и вывод и заведи issue. Такие прогоны — часть проверки этапов 3 и 6 roadmap.</p>
+<h3 id="opencode-может-сам-запустить-скиллы-с-побочными-эффектами"><a class="anchor" href="#opencode-может-сам-запустить-скиллы-с-побочными-эффектами" aria-hidden="true">#</a>OpenCode может сам запустить скиллы с побочными эффектами</h3>
+<p><strong>Что происходит.</strong> В <code>SKILL.md</code> для OpenCode нет поля, которое запрещает автовызов. <code>/capture-memory</code>, <code>/optimize-memory</code>, <code>/workflow</code> и <code>/improve-aikit</code> могут сработать без явной просьбы.</p>
+<p><strong>Как обойти.</strong> Если такой скилл запустился без твоей просьбы, прерви его. Запрет можно задать через <code>permission</code> в <code>opencode.json</code>.</p>
+<h3 id="устаревшие-тексты-в-агентах-ядра"><a class="anchor" href="#устаревшие-тексты-в-агентах-ядра" aria-hidden="true">#</a>Устаревшие тексты в агентах ядра</h3>
+<p><strong>Что происходит.</strong> Часть агентов писалась под прежний стек команды:</p>
+<ul><li><code>cross-project-analyst</code> описан как анализ «backend ↔ iOS»;</li><li><code>memory-writer</code> открывает merge request через GitLab MCP;</li><li><code>devops-engineer</code> (пак <code>devops</code>) ориентирован на GitLab CI;</li><li><code>release-manager</code> упоминает App Store.</li></ul>
+<p><strong>Решение.</strong> Пункты 7.2 и 12.x <a href="roadmap.html">roadmap</a>. Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.</p>
+<h3 id="пак-ai-подходит-только-к-python-профилям"><a class="anchor" href="#пак-ai-подходит-только-к-python-профилям" aria-hidden="true">#</a>Пак ai подходит только к Python-профилям</h3>
+<p><strong>Что происходит.</strong> В <code>packs/ai/pack.json</code> есть <code>compatible_profiles: python-fastapi, python-django</code>. С одним <code>vue-nuxt</code> пак не поставится. В мульти-профиле поставится, если среди профилей есть совместимый.</p>
+<p><strong>Как обойти.</strong> Если пак нужен другому профилю, добавь профиль в <code>compatible_profiles</code>.</p>
+<h2 id="репозиторий-кита"><a class="anchor" href="#репозиторий-кита" aria-hidden="true">#</a>Репозиторий кита</h2>
+<h3 id="устаревшие-протоколы-для-codex-и-opencode"><a class="anchor" href="#устаревшие-протоколы-для-codex-и-opencode" aria-hidden="true">#</a>Устаревшие протоколы для Codex и OpenCode</h3>
+<p><code>docs/public/cli-agent-operating-protocol.md</code> и <code>docs/public/cli-runtime-continuation-contract.md</code> установщик адаптера кладёт в <code>.aikit/</code> проекта. Тексты остались от прежней архитектуры и ждут пересмотра — пункт 8.1 <a href="roadmap.html">roadmap</a>.</p>
+<h3 id="папка-marketplace-не-используется"><a class="anchor" href="#папка-marketplace-не-используется" aria-hidden="true">#</a>Папка marketplace/ не используется</h3>
+<p><code>marketplace/</code> и <code>scripts/resolve-marketplace-item.py</code> — наследие прежней схемы дистрибуции. Их заменит plugin marketplace (этап 5 <a href="roadmap.html">roadmap</a>).</p>
+<h3 id="не-сверено"><a class="anchor" href="#не-сверено" aria-hidden="true">#</a>Не сверено</h3>
+<ul><li>Ключ <code>attribution</code> в <code>base/settings.json</code> не сверен с документацией Claude Code.</li><li>Защита ветки <code>main</code> (обязательный зелёный CI перед слиянием) недоступна для приватного репозитория на бесплатном плане GitHub.</li></ul>
+    </article>
+    <nav class="pager"><a class="pager-prev" href="runtime-support.html"><span>Назад</span>Поддержка runtime</a><a class="pager-next" href="roadmap.html"><span>Дальше</span>Roadmap</a></nav>
+    <footer class="page-footer">Исходник страницы: <a href="../guide/known-issues.md">docs/guide/known-issues.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
+  </main>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#установка">Установка</a></li><li class="toc-l3"><a href="#windows-нет-команды-python3">Windows: нет команды python3</a></li><li class="toc-l3"><a href="#windows-ошибки-кодировки-в-консоли">Windows: ошибки кодировки в консоли</a></li><li class="toc-l3"><a href="#смена-профиля-оставляет-старых-агентов">Смена профиля оставляет старых агентов</a></li><li class="toc-l3"><a href="#updatesh-перезаписывает-claudemd-целиком">update.sh перезаписывает CLAUDE.md целиком</a></li><li class="toc-l3"><a href="#codex-не-видит-агентов-и-mcp">Codex не видит агентов и MCP</a></li><li class="toc-l2"><a href="#работа-агентов">Работа агентов</a></li><li class="toc-l3"><a href="#правила-соблюдаются-только-по-тексту">Правила соблюдаются только по тексту</a></li><li class="toc-l3"><a href="#implement-feature-не-проверен-на-живом-проекте">/implement-feature не проверен на живом проекте</a></li><li class="toc-l3"><a href="#opencode-может-сам-запустить-скиллы-с-побочными-эффектами">OpenCode может сам запустить скиллы с побочными эффектами</a></li><li class="toc-l3"><a href="#устаревшие-тексты-в-агентах-ядра">Устаревшие тексты в агентах ядра</a></li><li class="toc-l3"><a href="#пак-ai-подходит-только-к-python-профилям">Пак ai подходит только к Python-профилям</a></li><li class="toc-l2"><a href="#репозиторий-кита">Репозиторий кита</a></li><li class="toc-l3"><a href="#устаревшие-протоколы-для-codex-и-opencode">Устаревшие протоколы для Codex и OpenCode</a></li><li class="toc-l3"><a href="#папка-marketplace-не-используется">Папка marketplace/ не используется</a></li><li class="toc-l3"><a href="#не-сверено">Не сверено</a></li></ul></aside>
+</div>
+<div class="toast" role="status" data-toast>Скопировано</div>
+<script src="assets/search-index.js"></script>
+<script src="assets/site.js"></script>
+</body>
+</html>
