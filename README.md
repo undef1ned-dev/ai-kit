@@ -43,14 +43,14 @@ bash .aikit-config/scripts/attach.sh vue-nuxt --pack quality
 bash .aikit-config/scripts/update.sh
 ```
 
-## Другие runtime: Codex, GLM, OpenCode
+## Другие runtime: Codex, OpenCode
 
 ```bash
 python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace <путь-к-проекту>
 python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-team --workspace <путь-к-проекту>
 ```
 
-Вместо `codex` — `glm` или `opencode`.
+Вместо `codex` — `opencode`.
 
 ## Разрабатывать этот репозиторий
 
@@ -65,4 +65,5 @@ bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 - [docs-site/index.mdx](docs-site/index.mdx) — исходники сайта документации.
 - [docs/public/](docs/public/) — markdown-документация.
 - [docs/roadmap.md](docs/roadmap.md) — план развития кита.
+- [docs/runtime-support.md](docs/runtime-support.md) — что работает в Claude Code, Codex и OpenCode.
 - [docs/research/](docs/research/) — исследования и планы модернизации.
