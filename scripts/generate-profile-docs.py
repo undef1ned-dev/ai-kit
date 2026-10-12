@@ -641,7 +641,7 @@ def generate_docs_home(profiles: list[dict], adapters: list[dict], presets: list
         <div class="card">
           <div class="eyebrow">Step 1</div>
           <h3>Attach or install</h3>
-          <p>Pick a preset and connect AIKit to a project, or install a Codex/GLM/OpenCode workspace.</p>
+          <p>Pick a preset and connect AIKit to a project, or install a Codex/OpenCode workspace.</p>
           <div class="meta">Open: <a href="../public/get-started.md">Get Started</a> → <a href="../public/install-matrix.md">Install Matrix</a></div>
         </div>
         <div class="card">
@@ -700,8 +700,7 @@ def generate_docs_home(profiles: list[dict], adapters: list[dict], presets: list
         <a class="action" href="./catalog.html"><strong>HTML Catalog</strong><span>Агенты, skills, profile summary и workflow playbook в одной странице.</span></a>
         <a class="action" href="../public/release-center.md"><strong>Release Center</strong><span>Текущая версия, unreleased state и release workflow AIKit.</span></a>
         <a class="action" href="../public/install-matrix.md"><strong>Install Matrix</strong><span>Runtime install surface, preset bundles и основные install команды.</span></a>
-        <a class="action" href="../public/runtime-maturity-review.md"><strong>Runtime Maturity Review</strong><span>Текущий verdict по Codex, GLM и OpenCode с критериями promotion.</span></a>
-        <a class="action" href="../public/glm-runtime-guide.md"><strong>GLM Runtime Guide</strong><span>Practical local GLM start, continue, validate and troubleshoot flow.</span></a>
+        <a class="action" href="../public/runtime-maturity-review.md"><strong>Runtime Maturity Review</strong><span>Текущий verdict по Codex и OpenCode с критериями promotion.</span></a>
         <a class="action" href="../public/opencode-runtime-guide.md"><strong>OpenCode Runtime Guide</strong><span>Practical local OpenCode start, continue, validate and troubleshoot flow.</span></a>
         <a class="action" href="../public/compatibility-matrix.md"><strong>Compatibility Matrix</strong><span>Runtime adapters, presets и текущее покрытие платформы.</span></a>
         <a class="action" href="../public/marketplace.md"><strong>Marketplace</strong><span>Curated registry surface для packs, presets и runtime adapters.</span></a>
@@ -722,8 +721,8 @@ def generate_docs_home(profiles: list[dict], adapters: list[dict], presets: list
         <div class="card">
           <div class="eyebrow">Journey</div>
           <h3>Adopt multiple runtimes</h3>
-          <p>Для Codex / GLM / OpenCode adoption без переписывания core workflows и profile logic.</p>
-          <div class="meta">Open: <a href="../public/product-story.md">Product Story</a> → <a href="../public/runtime-maturity-review.md">Runtime Review</a> → <a href="../public/glm-runtime-guide.md">GLM Guide</a> / <a href="../public/opencode-runtime-guide.md">OpenCode Guide</a></div>
+          <p>Для Codex / OpenCode adoption без переписывания core workflows и profile logic.</p>
+          <div class="meta">Open: <a href="../public/product-story.md">Product Story</a> → <a href="../public/runtime-maturity-review.md">Runtime Review</a> → <a href="../public/opencode-runtime-guide.md">OpenCode Guide</a></div>
         </div>
         <div class="card">
           <div class="eyebrow">Journey</div>
@@ -742,7 +741,7 @@ def generate_docs_home(profiles: list[dict], adapters: list[dict], presets: list
 
     <section class="section">
       <h2>Runtime adapters</h2>
-      <p class="section-copy">Current execution surface for Claude, Codex, GLM and OpenCode.</p>
+      <p class="section-copy">Current execution surface for Claude, Codex and OpenCode.</p>
       <div class="cards">{adapter_cards}</div>
     </section>
 

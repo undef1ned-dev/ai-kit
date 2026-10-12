@@ -3,13 +3,12 @@
 Build an experimental runtime package for a selected adapter.
 
 The script packages AIKit core into a runtime-neutral bundle that adapter
-targets such as Codex, OpenCode and GLM can consume. Claude still uses
+targets such as Codex and OpenCode can consume. Claude still uses
 scripts/attach.sh as the primary production flow.
 
 Usage:
     python scripts/build-adapter-package.py codex --profile vue-nuxt
     python scripts/build-adapter-package.py opencode --profile python-fastapi --pack devops
-    python scripts/build-adapter-package.py glm --profile python-django --target /tmp/aikit-builds
 """
 
 from __future__ import annotations

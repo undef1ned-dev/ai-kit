@@ -208,15 +208,15 @@ python3 scripts/generate-product-docs.py
 ### Если менялись install flow, adapter templates или runtime launcher files
 ```bash
 python3 scripts/install-adapter-package.py codex --profile vue-nuxt --workspace /tmp/aikit-codex-install
-python3 scripts/install-adapter-package.py glm --profile python-django --workspace /tmp/aikit-glm-install
+python3 scripts/install-adapter-package.py opencode --profile python-django --workspace /tmp/aikit-opencode-install
 ```
 
 ### Если менялись active/exploratory adapter contracts или update flow
 ```bash
 python3 scripts/install-adapter-package.py codex --profile vue-nuxt --workspace /tmp/aikit-codex-install
 python3 scripts/update-adapter-package.py codex --profile vue-nuxt --workspace /tmp/aikit-codex-install
-python3 scripts/install-adapter-package.py glm --profile python-django --workspace /tmp/aikit-glm-install
-python3 scripts/update-adapter-package.py glm --profile python-django --workspace /tmp/aikit-glm-install
+python3 scripts/install-adapter-package.py opencode --profile python-django --workspace /tmp/aikit-opencode-install
+python3 scripts/update-adapter-package.py opencode --profile python-django --workspace /tmp/aikit-opencode-install
 ```
 
 И вручную проверь:
@@ -237,7 +237,6 @@ python3 scripts/build-adapter-package.py codex --profile vue-nuxt --target /tmp/
 Для planned adapters допустим smoke-build через тот же builder, если manifest уже добавлен:
 ```bash
 python3 scripts/build-adapter-package.py opencode --profile python-fastapi --target /tmp/aikit-adapters
-python3 scripts/build-adapter-package.py glm --profile python-django --target /tmp/aikit-adapters
 ```
 
 ### Если менялся routing

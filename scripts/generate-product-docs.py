@@ -399,7 +399,7 @@ def generate_install_matrix() -> str:
             "",
             "## Support Quality Gate",
             "",
-            "`ADAPTER_SUPPORT_SCORECARD` is the local support quality gate for Claude Code, Codex, GLM and OpenCode. It ranks install/update, runtime workspace recovery, command recovery and public docs parity evidence without adding new runtime capability claims.",
+            "`ADAPTER_SUPPORT_SCORECARD` is the local support quality gate for Claude Code, Codex and OpenCode. It ranks install/update, runtime workspace recovery, command recovery and public docs parity evidence without adding new runtime capability claims.",
             "",
             "When support evidence points to adapter drift, use the existing repair commands and rerun Doctor before starting task work.",
             "",
@@ -422,7 +422,6 @@ def generate_install_matrix() -> str:
             "|---------|----------------|---------------------|",
             "| `claude` | `bash .aikit-config/scripts/update.sh` | `/aikit-doctor --scope install` |",
             "| `codex` | `/aikit-runtime-workspace codex --preset frontend-team --workspace /tmp/aikit-codex --operation update` | `/aikit-doctor --check validate-adapter-fixtures` |",
-            "| `glm` | `/aikit-runtime-workspace glm --preset frontend-team --workspace /tmp/aikit-glm --operation update` | `/aikit-doctor --check validate-adapter-fixtures` |",
             "| `opencode` | `/aikit-runtime-workspace opencode --preset frontend-team --workspace /tmp/aikit-opencode --operation update` | `/aikit-doctor --check validate-adapter-fixtures` |",
             "",
             "## Reading the Matrix",
@@ -513,8 +512,8 @@ def generate_get_started() -> str:
         "",
         "## Preset Quick Starts",
         "",
-        "| Preset | Best first step | Claude production | Codex workspace | GLM workspace |",
-        "|--------|-----------------|-------------------|-----------------|---------------|",
+        "| Preset | Best first step | Claude production | Codex workspace | OpenCode workspace |",
+        "|--------|-----------------|-------------------|-----------------|--------------------|",
     ]
 
     for preset in presets:
@@ -522,9 +521,9 @@ def generate_get_started() -> str:
         description = preset["description"]
         claude_cmd = f"`bash .aikit-config/scripts/attach.sh --preset {preset_name}`"
         codex_cmd = f"`/aikit-runtime-workspace codex --preset {preset_name} --workspace /tmp/aikit-codex`"
-        glm_cmd = f"`/aikit-runtime-workspace glm --preset {preset_name} --workspace /tmp/aikit-glm`"
+        opencode_cmd = f"`/aikit-runtime-workspace opencode --preset {preset_name} --workspace /tmp/aikit-opencode`"
         lines.append(
-            f"| `{preset_name}` | {description} | {claude_cmd} | {codex_cmd} | {glm_cmd} |"
+            f"| `{preset_name}` | {description} | {claude_cmd} | {codex_cmd} | {opencode_cmd} |"
         )
 
     lines.extend(
@@ -640,7 +639,7 @@ def generate_product_story() -> str:
         "",
         "- AIKit — это operating layer для инженерных AI workflow, а не просто набор markdown-промптов.",
         "- Система связывает profiles, skills, runtime adapters, presets и memory model в единый reproducible setup.",
-        "- Один и тот же core может жить в `Claude`, `Codex`, `GLM`, `OpenCode` и будущих runtime без форков контента.",
+        "- Один и тот же core может жить в `Claude`, `Codex`, `OpenCode` и будущих runtime без форков контента.",
         "",
         "## Use Cases",
         "",

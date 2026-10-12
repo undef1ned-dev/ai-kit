@@ -88,7 +88,7 @@ Claude compatibility mirror:
 
 ### Тип C — Runtime growth
 Примеры:
-- объяснить зачем Codex / GLM / OpenCode adapters нужны команде;
+- объяснить зачем Codex / OpenCode adapters нужны команде;
 - усилить multi-runtime story;
 - связать runtime UX с реальными use-cases.
 

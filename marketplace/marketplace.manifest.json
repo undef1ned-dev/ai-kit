@@ -19,13 +19,13 @@
       "name": "adapters",
       "kind": "runtime-adapter",
       "source": "adapters/*/adapter.manifest.json",
-      "description": "Runtime delivery layer for Claude, Codex, GLM and OpenCode."
+      "description": "Runtime delivery layer for Claude, Codex and OpenCode."
     }
   ],
   "featured": {
     "packs": ["quality", "devops"],
     "presets": ["frontend-team", "fullstack-web"],
-    "adapters": ["claude", "codex", "glm"]
+    "adapters": ["claude", "codex", "opencode"]
   },
   "distribution_channels": [
     {

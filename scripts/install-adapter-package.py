@@ -4,7 +4,6 @@ Build and install an AIKit adapter bundle into a target workspace.
 
 Usage:
     python scripts/install-adapter-package.py codex --profile vue-nuxt --workspace /tmp/my-codex-workspace
-    python scripts/install-adapter-package.py glm --profile python-django --workspace /tmp/my-glm-workspace
 """
 
 from __future__ import annotations

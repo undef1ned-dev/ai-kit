@@ -23,7 +23,6 @@ body:
       options:
         - Claude Code
         - Codex
-        - GLM
         - OpenCode
     validations:
       required: true

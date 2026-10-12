@@ -53,7 +53,6 @@ DOC_ALIAS_CANONICAL: dict[str, str] = {
     "runtime_capability_matrix_v2_md": "docs/public/runtime-capability-matrix-v2.md",
     "cli_agent_operating_protocol_md": "docs/public/cli-agent-operating-protocol.md",
     "cli_runtime_continuation_contract_md": "docs/public/cli-runtime-continuation-contract.md",
-    "glm_runtime_guide_md": "docs/public/glm-runtime-guide.md",
     "opencode_runtime_guide_md": "docs/public/opencode-runtime-guide.md",
 }
 
