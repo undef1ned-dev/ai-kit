@@ -8,7 +8,7 @@
 |---|---|---|
 | Git | Кит подключается как git submodule | — |
 | Bash | Установщик `attach.sh` — bash-скрипт | На Windows — Git Bash (ставится вместе с Git for Windows) |
-| Python 3.9+ | Установщики собирают контракты и MCP-конфиги | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
+| Python 3.9+ | Установщики собирают контракты и MCP-конфиги, на нём работают хуки | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
 | Runtime | Claude Code, Codex или OpenCode | Подойдёт любой из трёх, можно несколько сразу |
 | `jq` | Склейка `settings.json` | Необязательно: без него сработает запасной путь на Python |
 
@@ -57,7 +57,8 @@
 | `CLAUDE.md` | [Правила проекта](glossary.md#правила-проекта): базовые плюс правила профилей | да |
 | `.claude/agents/` | Агенты ядра, профилей и паков | да |
 | `.claude/skills/` | Скиллы: `/name` или автовызов по описанию | да |
-| `.claude/settings.json` | Разрешения на команды профиля, запрет чтения `.env`, без соавторства в коммитах | да |
+| `.claude/settings.json` | Разрешения на команды профиля, запрет чтения `.env`, без соавторства в коммитах, подключение хуков | да |
+| `.aikit/hooks/aikit_hook.py` | [Хуки](how-it-works.md#хуки-правила-которые-соблюдаются-всегда): правила коммитов, веток и секретов, линтер после правки, тесты в конце ответа | да |
 | `.mcp.json` | MCP-серверы | да |
 | `.aikit/profiles.json` | Контракты профилей: агенты по ролям, папка `root`, команды проверки | да |
 | `.aikit/profiles.kit-defaults.json` | Прежние значения кита — по ним обновление сохраняет твои правки | да |
@@ -97,10 +98,10 @@ python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend
 
 Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt+python-fastapi` и `--pack quality`.
 
-Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, те же `.aikit/profiles.json` и `.aikit/memory/`.
+Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, хуки в `.codex/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/hooks/` и `.aikit/memory/`.
 
 > [!IMPORTANT]
-> Codex применяет агентов и MCP из `.codex/` только в **доверенном** проекте. Отметь проект доверенным при первом запуске Codex — иначе агенты AIKit не загрузятся. Figma и Sentry в Codex авторизуются командой `codex mcp login <name>`.
+> Codex применяет агентов, MCP и хуки из `.codex/` только в **доверенном** проекте. Отметь проект доверенным при первом запуске Codex — иначе агенты AIKit не загрузятся. Хуки Codex запускает только после одобрения: открой `/hooks` и отметь хуки AIKit доверенными; после обновления кита, если хуки изменились, — ещё раз. Figma и Sentry в Codex авторизуются командой `codex mcp login <name>`.
 
 Скиллы в Codex вызываются через `$name` (например, `$implement-feature`), список — `/skills`. Остальные отличия runtime собраны на странице [Поддержка runtime](../runtime-support.md).
 
@@ -125,7 +126,7 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 - агенты и скиллы кита перезаписываются — свои правки в них не делай, они потеряются;
 - **`CLAUDE.md`** — `update.sh` покажет разницу и спросит, обновлять ли. При согласии старый файл сохранится в `CLAUDE.md.backup-<дата>`. В `--auto` файл обновляется без вопроса;
 - **`.aikit/profiles.json`** — команды и `root`, которые поменяла команда, сохраняются; не тронутые — обновляются до новых значений кита;
-- MCP-серверы, которые ты добавил сам, сохраняются.
+- MCP-серверы и хуки, которые ты добавил сам, сохраняются; хуки AIKit обновляются.
 
 Чтобы сменить пресет или набор профилей, запусти установщик заново с новым набором. В Codex и OpenCode файлы прошлой установки убираются. `attach.sh` убирает только скиллы, а агенты прежнего профиля остаются в `.claude/agents/` — удали их вручную (см. [Известные ошибки](known-issues.md#смена-профиля-оставляет-старых-агентов)).
 

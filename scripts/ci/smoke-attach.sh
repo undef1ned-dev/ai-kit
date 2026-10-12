@@ -117,6 +117,26 @@ if edited:
 PY
 }
 
+# Хуки: скрипт в .aikit/hooks, по одной группе AIKit на событие, хук пользователя сохранён (если был);
+# установленный скрипт блокирует коммит не по Conventional Commits
+check_hooks() {
+  "$PYTHON_BIN" - "$PROJECT_DIR" "${1:-}" <<'PY'
+import json, pathlib, subprocess, sys
+project, user_hook = pathlib.Path(sys.argv[1]), sys.argv[2]
+script = project / ".aikit" / "hooks" / "aikit_hook.py"
+assert script.is_file(), "нет .aikit/hooks/aikit_hook.py"
+hooks = json.loads((project / ".claude" / "settings.json").read_text(encoding="utf-8"))["hooks"]
+for event in ("SessionStart", "PreToolUse", "PostToolUse", "Stop"):
+    kit = [group for group in hooks.get(event, []) if "aikit_hook.py" in json.dumps(group)]
+    assert len(kit) == 1, f"{event}: хуков AIKit {len(kit)} вместо 1"
+if user_hook:
+    assert any(handler.get("command") == user_hook for group in hooks.get("PreToolUse", []) for handler in group["hooks"]), "хук пользователя удалён"
+event = {"hook_event_name": "PreToolUse", "cwd": str(project), "tool_name": "Bash", "tool_input": {"command": 'git commit -m "wip"'}}
+result = subprocess.run([sys.executable, str(script)], input=json.dumps(event).encode("utf-8"), capture_output=True)
+assert result.returncode == 2, f"коммит не по формату не заблокирован: {result.returncode}"
+PY
+}
+
 # Команда проекта правит контракт: своя команда test, без run
 edit_profile_contract() {
   "$PYTHON_BIN" - "$PROJECT_DIR/.aikit/profiles.json" <<'PY'
@@ -157,6 +177,7 @@ check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -
 check ".mcp.json: серверы с закреплёнными версиями, settings.json без MCP" check_mcp
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
 check "память проекта создана" test -d .aikit/memory
+check "хуки AIKit в .claude/settings.json, скрипт блокирует коммит не по формату" check_hooks
 check "версия конфигурации записана" test -s .claude/.config-version
 
 # Прежние версии кита ставили команды в .claude/commands/, а смена набора скиллов оставляла старые папки
@@ -169,6 +190,7 @@ echo "# legacy" > .claude/skills/legacy-kit-skill/SKILL.md
 printf "node_modules/\n\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" > .gitignore
 sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
 edit_profile_contract
+"$PYTHON_BIN" -c 'import json; p = ".claude/settings.json"; d = json.load(open(p, encoding="utf-8")); d["hooks"]["PreToolUse"].append({"matcher": "Bash", "hooks": [{"type": "command", "command": "my-hook"}]}); json.dump(d, open(p, "w", encoding="utf-8"))'
 
 echo "▶ update.sh --auto"
 if bash "$KIT_ROOT/scripts/update.sh" --auto > update.log 2>&1; then
@@ -185,6 +207,7 @@ check "своя команда пользователя сохранена" test
 check ".mcp.json после обновления: серверы кита и пользователя, .gitignore очищен" check_mcp my-server
 check ".gitignore: свои правила сохранены" grep -qx "node_modules/" .gitignore
 check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited
+check "хуки после обновления: не задвоены, хук пользователя сохранён" check_hooks my-hook
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Пресет $PRESET: проверок не пройдено — $FAILURES"

@@ -8,7 +8,8 @@ See docs/guide/adding-a-stack.md.
 
 Usage:
     python3 scripts/new-profile.py java-spring --role backend --stack "Java 21, Spring Boot 3" \\
-        --test "./mvnw test" --lint "./mvnw checkstyle:check" --root-marker pom.xml --path-signal src/main/java/
+        --test "./mvnw test" --lint "./mvnw checkstyle:check" --root-marker pom.xml --path-signal src/main/java/ \
+        --code-extension .java
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ def parse_args() -> argparse.Namespace:
         parser.add_argument(f"--{command}", required=command == "test", help=f"{command} command ({{files}} = changed files)")
     parser.add_argument("--root-marker", action="append", required=True, help="file that marks the profile folder, e.g. pom.xml")
     parser.add_argument("--path-signal", action="append", required=True, help="path inside the profile folder, e.g. src/main/java/")
+    parser.add_argument("--code-extension", action="append", default=[], help="code file extension for hooks, e.g. .java; default: every file")
     return parser.parse_args()
 
 
@@ -70,6 +72,9 @@ def main() -> int:
     taken = sorted(set(agents.values()) & existing_agent_names())
     if taken:
         fail(f"агенты {taken} уже есть в ките — задай другой --prefix")
+    bad_extensions = [item for item in args.code_extension if not item.startswith(".")]
+    if bad_extensions:
+        fail(f"расширения {bad_extensions} должны начинаться с точки: .java")
 
     commands = {command: getattr(args, command) for command in COMMANDS if getattr(args, command)}
     label = args.label or " ".join(part.capitalize() for part in name.split("-"))
@@ -106,6 +111,7 @@ def main() -> int:
         "specialists": {},
         "pipelines": {},
         "commands": commands,
+        **({"code_extensions": args.code_extension} if args.code_extension else {}),
         "root_markers": args.root_marker,
         "path_signals": args.path_signal,
     }

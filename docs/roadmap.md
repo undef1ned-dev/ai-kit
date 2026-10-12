@@ -93,7 +93,7 @@
 | 3.5 ✅ | Шаблон нового профиля и инструкция «как добавить стек» — чтобы профиль под Java или любой другой стек собирался без правок ядра. Сделано: шаблон `templates/profile/` (контракт, `CLAUDE.md`, четыре агента по ролям с блоками передачи, `settings.json`), генератор `scripts/new-profile.py` (проверяет имя и уникальность агентов, разрешает в `settings.json` команды профиля), инструкция [docs/guide/adding-a-stack.md](guide/adding-a-stack.md); паки `quality` и `devops` подходят к любому профилю; smoke `smoke-new-profile.sh` создаёт `java-spring` в копии кита, прогоняет статические проверки и ставит `vue-nuxt+java-spring` в монорепо через `attach.sh` и Codex |
 | 3.6 ✅ | Пайплайны профиля — работа, кроме кода (модели и текстуры для мода, документация, локализация). Сделано: необязательное поле `pipelines` в контракте — `{"<имя>": {"when", "steps"}}`; `/implement-feature` и `workflow-runner` запускают пайплайн, если задача подходит под `when`, а если фиче нужен и код — после архитектора с передачей результата кодеру; статическая проверка следит, что агенты шагов существуют; каталог показывает пайплайны; раздел в [docs/guide/adding-a-stack.md](guide/adding-a-stack.md) |
 
-### Этап 4. Хуки — правила, которые соблюдаются всегда
+### Этап 4. Хуки — правила, которые соблюдаются всегда ✅
 
 Все хуки — общие; стековая часть (какой линтер запускать) берётся из контракта профиля.
 
@@ -105,12 +105,14 @@
 
 | # | Хук | Что делает |
 |---|---|---|
-| 4.1 | PreToolUse | Блокирует запись секретов, `.env`, `git add .env` |
-| 4.2 | PreToolUse (`git commit`) | Сообщение по Conventional Commits, без `Co-Authored-By` |
-| 4.3 | PreToolUse (`git checkout -b` / `switch -c`) | Имя ветки по Conventional Branch |
-| 4.4 | PostToolUse (Edit/Write) | Запускает `format` / `lint` из контракта профиля для изменённого файла |
-| 4.5 | Stop | Если менялся код — запустить `test` из контракта или напомнить; после крупной задачи предложить `/capture-memory` |
-| 4.6 | SessionStart | Подгружает `.aikit/memory/INDEX.md` и `PRODUCT.md` |
+| 4.1 ✅ | PreToolUse | Блокирует запись секретов, `.env`, `git add .env` |
+| 4.2 ✅ | PreToolUse (`git commit`) | Сообщение по Conventional Commits, без `Co-Authored-By` |
+| 4.3 ✅ | PreToolUse (`git checkout -b` / `switch -c`) | Имя ветки по Conventional Branch |
+| 4.4 ✅ | PostToolUse (Edit/Write) | Запускает `format` / `lint` из контракта профиля для изменённого файла |
+| 4.5 ✅ | Stop | Если менялся код — запустить `test` из контракта или напомнить; после крупной задачи предложить `/capture-memory` |
+| 4.6 ✅ | SessionStart | Подгружает `.aikit/memory/INDEX.md` и `PRODUCT.md` |
+
+Сделано: логика всех хуков — `base/hooks/aikit_hook.py` (без зависимостей), установщики копируют его в `.aikit/hooks/` и подключают через `scripts/hooks_config.py`: `hooks` в `.claude/settings.json`, `.codex/hooks.json`, плагин `.opencode/plugins/aikit-hooks.js`; хуки пользователя при обновлении сохраняются. Какие файлы считаются кодом профиля, задаёт новое необязательное поле контракта `code_extensions`. Если инструмента профиля нет, хук пропускает линтер и напоминает о тестах вместо блокировки. В OpenCode память подключается через `instructions` в `opencode.json`. Сценарии хуков — `scripts/ci/test-hooks.py` в статических проверках, smoke-тесты проверяют подключение во всех runtime. Ручная проверка в живых Codex и OpenCode — вместе с прогоном `/implement-feature` (этапы 3 и 6).
 
 ### Этап 5. Plugin + marketplace
 

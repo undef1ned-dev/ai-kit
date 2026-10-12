@@ -569,6 +569,7 @@ def render_contract(manifest: dict) -> str:
     <div><span class="label">Стек</span><span>{h(manifest.get("stack", "—"))}</span></div>
     <div><span class="label">Маркеры папки (root_markers)</span><span>{chips(manifest.get("root_markers", []), "chip mono")}</span></div>
     <div><span class="label">Пути профиля (path_signals)</span><span>{chips(manifest.get("path_signals", []), "chip mono")}</span></div>
+    <div><span class="label">Файлы кода для хуков (code_extensions)</span><span>{chips(manifest.get("code_extensions", []), "chip mono") or "все файлы"}</span></div>
   </div>
   <h3>Команды проекта</h3>
   <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody>{commands}</tbody></table></div>

@@ -13,6 +13,7 @@
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
+#   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
 
 set -eo pipefail
 
@@ -121,6 +122,9 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
         errors.append(f"{manifest}: пустые path_signals")
     if not data["root_markers"]:
         errors.append(f"{manifest}: пустые root_markers")
+    extensions = data.get("code_extensions", [])
+    if not isinstance(extensions, list) or any(not str(item).startswith(".") for item in extensions):
+        errors.append(f"{manifest}: code_extensions — список расширений с точкой: [\".py\"]")
 for error in errors:
     print(f"  ✗ {error}")
 sys.exit(1 if errors else 0)
@@ -165,6 +169,15 @@ sys.exit(1 if errors else 0)
 
 echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
+
+echo "▶ Хуки: сценарии base/hooks/aikit_hook.py"
+"$PYTHON_BIN" scripts/ci/test-hooks.py || FAILURES=$((FAILURES + 1))
+if command -v node &>/dev/null; then
+  # The plugin is an ES module: node checks it as .mjs
+  PLUGIN_COPY="$(mktemp -d)/aikit-hooks.mjs"
+  cp base/hooks/opencode-plugin.js "$PLUGIN_COPY"
+  node --check "$PLUGIN_COPY" && echo "  ✓ плагин OpenCode: синтаксис JS" || { echo "  ✗ плагин OpenCode: синтаксис JS"; FAILURES=$((FAILURES + 1)); }
+fi
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Статические проверки: ошибок — $FAILURES"

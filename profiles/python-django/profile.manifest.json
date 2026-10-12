@@ -21,6 +21,7 @@
     "test": "uv run pytest",
     "run": "uv run python manage.py runserver"
   },
+  "code_extensions": [".py"],
   "root_markers": ["manage.py"],
   "path_signals": ["apps/", "config/", "manage.py"]
 }

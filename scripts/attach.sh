@@ -109,6 +109,8 @@ source "$SCRIPT_DIR/lib/skills.sh"
 source "$SCRIPT_DIR/lib/mcp.sh"
 # shellcheck source=lib/profiles.sh
 source "$SCRIPT_DIR/lib/profiles.sh"
+# shellcheck source=lib/hooks.sh
+source "$SCRIPT_DIR/lib/hooks.sh"
 
 # =============================================================================
 # Валидация
@@ -283,6 +285,12 @@ log_section "Контракты профилей"
 install_profile_contracts "$PROFILES_ARG"
 
 # =============================================================================
+# Хуки → .aikit/hooks/ + hooks в .claude/settings.json
+# =============================================================================
+log_section "Хуки"
+install_kit_hooks
+
+# =============================================================================
 # Скиллы: base + профили + паки
 # =============================================================================
 log_section "Скиллы"
@@ -398,6 +406,7 @@ echo "Созданные файлы:"
 echo "  CLAUDE.md                  — правила для Claude"
 echo "  .claude/settings.json      — permissions и настройки (хранится в git)"
 echo "  .mcp.json                  — MCP-серверы (хранится в git)"
+echo "  .aikit/hooks/aikit_hook.py — хуки: правила коммитов, веток и секретов, линтер, тесты, память"
 echo "  .aikit/profiles.json       — контракты профилей: агенты по ролям, папка и команды (root и команды можно править)"
 printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"

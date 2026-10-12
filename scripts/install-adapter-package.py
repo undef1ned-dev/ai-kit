@@ -17,6 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import hooks_config
 import mcp_config
 import profile_contract
 from memory_paths import ensure_memory_structure
@@ -535,6 +536,7 @@ def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path, ins
             [
                 "- Правила проекта — в `AGENTS.md`, скиллы — в `.agents/skills/` (вызов `$name` или автоматически), агенты — в `.codex/agents/*.toml`.",
                 "- Чтобы Codex загрузил агентов из `.codex/`, проект должен быть отмечен как доверенный.",
+                "- Хуки AIKit (`.codex/hooks.json`) заработают после одобрения в `/hooks`.",
             ]
         )
     continuation = adapter.get("continuation_prompt", "")
@@ -592,6 +594,8 @@ def install_package(
         if runtime in mcp_config.RUNTIMES:
             mcp_config.install(runtime, workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], packs)
         profile_contract.install(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
+        if runtime in hooks_config.RUNTIMES:
+            hooks_config.install(runtime, workspace)
         write_install_summary(adapter, workspace, bundle_root, install_mode)
 
     return adapter

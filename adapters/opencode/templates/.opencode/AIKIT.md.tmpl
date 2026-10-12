@@ -8,6 +8,7 @@
 - `.agents/skills/` — скиллы AIKit, OpenCode подхватывает их автоматически
 - `.opencode/agents/` — агенты AIKit (субагенты)
 - `opencode.json` — MCP-серверы AIKit в разделе `mcp`; свои серверы добавляй туда же, установщик их не трогает
+- `.opencode/plugins/aikit-hooks.js` — хуки AIKit: правила коммитов, веток и секретов, линтер после правки, тесты, когда агент закончил. Логика — в `.aikit/hooks/aikit_hook.py`, нужен Python. Память и `PRODUCT.md` подключены через `instructions` в `opencode.json`
 - `.aikit/profiles.json` — контракты профилей: агенты по ролям, специалисты, папка профиля `root` (команды запускаются в ней), команды `lint`/`format`/`test`/`build`/`run`; `root` и команды можно менять под проект, обновление их не затрёт
 - `{{MEMORY_PATH}}/` — память проекта, хранится в git
 - `.aikit/` — служебные файлы установки AIKit

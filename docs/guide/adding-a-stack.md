@@ -25,6 +25,7 @@
     "test": "./mvnw test",
     "build": "./mvnw package"
   },
+  "code_extensions": [".java"],
   "root_markers": ["pom.xml"],
   "path_signals": ["src/main/java/", "src/test/java/"]
 }
@@ -38,7 +39,8 @@
 | `agents` | Агенты по ролям: ровно `architect`, `coder`, `tester`, `reviewer` | все оркестраторы |
 | `specialists` | Необязательные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}` | `/implement-feature`, `workflow-runner` |
 | `pipelines` | Необязательные цепочки, кроме кода: `{"<имя>": {"when": "<когда>", "steps": ["<агент>", …]}}` | `/implement-feature`, `workflow-runner` |
-| `commands` | `lint`, `format`, `test` (обязательна), `build`, `run`. `{files}` — изменённые файлы | `/implement-feature`, агенты, хуки этапа 4 |
+| `commands` | `lint`, `format`, `test` (обязательна), `build`, `run`. `{files}` — изменённые файлы | `/implement-feature`, агенты, хуки |
+| `code_extensions` | Необязательно: расширения файлов кода (`[".java"]`). Хуки запускают `format` и `lint` только для них, а `test` — если менялись они. Без поля кодом считается любой файл в папке профиля | хуки |
 | `root_markers` | Файлы, по которым установщик находит папку профиля в монорепо (`pom.xml`, `go.mod`, `package.json`…) | установщики |
 | `path_signals` | Пути внутри папки профиля, по которым задача относится к этому профилю | `/implement-feature`, `workflow-runner` |
 
@@ -49,7 +51,8 @@
 ```bash
 python3 scripts/new-profile.py java-spring --role backend --stack "Java 21, Spring Boot 3, JUnit 5" \
   --test "./mvnw test" --lint "./mvnw checkstyle:check" --build "./mvnw package" \
-  --root-marker pom.xml --path-signal src/main/java/ --path-signal src/test/java/
+  --root-marker pom.xml --path-signal src/main/java/ --path-signal src/test/java/ \
+  --code-extension .java
 ```
 
 Скрипт берёт шаблон из `templates/profile/` и создаёт:
