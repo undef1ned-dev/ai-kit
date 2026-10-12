@@ -104,6 +104,7 @@ def main() -> int:
         "stack": args.stack,
         "agents": agents,
         "specialists": {},
+        "pipelines": {},
         "commands": commands,
         "root_markers": args.root_marker,
         "path_signals": args.path_signal,

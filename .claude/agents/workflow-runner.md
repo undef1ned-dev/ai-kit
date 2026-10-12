@@ -17,6 +17,7 @@ output_block: "WORKFLOW_SUMMARY"
 - `role` — роль профиля в системе (`web`, `backend`, …)
 - `agents` — агенты по ролям `architect` / `coder` / `tester` / `reviewer`
 - `specialists` — дополнительные агенты и условие `when`, при котором их звать
+- `pipelines` — другие цепочки профиля, кроме кода: условие `when` и агенты `steps` по порядку
 - `root` — папка профиля в проекте (`.` или, например, `frontend` в монорепо)
 - `commands` — `lint`, `format`, `test`, `build`, `run` (`{files}` — изменённые файлы); команды могли быть изменены под проект
 - `path_signals` — пути внутри `root`, по которым задача относится к профилю
@@ -62,12 +63,14 @@ output_block: "WORKFLOW_SUMMARY"
 - профиль → агенты по ролям (`architect → coder → tester → reviewer`)
 - профиль → `root` и path signals (сигнал `pages/` при `root: frontend` — это `frontend/pages/`)
 - профиль → специалисты и условие `when`
+- профиль → пайплайны: условие `when` и шаги
 - профиль → команды проверки (`lint`, `test`)
 
 Рецепты задаются ролями из контракта:
 - `feature-delivery` — `architect → coder → tester + reviewer` (tester и reviewer зависят от coder, reviewer видит и TESTER_RESULT)
 - `test-pass` — только `tester`
 - `review-pass` — только `reviewer`
+- `<имя пайплайна>` — шаги `steps` пайплайна профиля по порядку, вывод каждого шага передаётся следующему
 
 ---
 
@@ -196,6 +199,7 @@ output_block: "WORKFLOW_SUMMARY"
 Узкую экспертизу по типу файлов агент включает сам по разделу «Динамическая экспертиза» в `CLAUDE.md` профиля.
 
 Рецепт по intent:
+- задача подходит под `when` пайплайна профиля и не меняет код — этот пайплайн; если нужны и код, и пайплайн — `feature-delivery`, а пайплайн после architect, его результат передаётся coder;
 - `review-only`, `design-alignment` — `review-pass`, не притворяйся полной цепочкой;
 - `test-only` — `test-pass`;
 - остальные intent реализации — `feature-delivery`.
@@ -210,7 +214,7 @@ output_block: "WORKFLOW_SUMMARY"
 Сигналы: <какие пути/термины нашли>
 Profile match: <profile> / <path or keyword signal> / <confidence>
 Агенты: <architect → coder → tester → reviewer из контракта профиля>
-Рецепт: <feature-delivery | test-pass | review-pass>
+Рецепт: <feature-delivery | test-pass | review-pass | пайплайн профиля>
 Проверка: <команды lint и test из контракта>
 
 Если в проекте несколько профилей — выбери цепочку по упомянутым файлам и терминам, а не наугад.

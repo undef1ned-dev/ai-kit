@@ -9,7 +9,7 @@
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
 #   4. Генератор каталога видит все скиллы-папки профилей и паков
-#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов
+#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны)
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 
@@ -108,6 +108,11 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
     for name, spec in data.get("specialists", {}).items():
         if not agent_exists(spec.get("agent", "")) or not spec.get("when", "").strip():
             errors.append(f"{manifest}: специалист {name} без агента или без when")
+    for name, pipeline in data.get("pipelines", {}).items():
+        steps = pipeline.get("steps", [])
+        if not pipeline.get("when", "").strip() or not steps:
+            errors.append(f"{manifest}: пайплайн {name} без when или без steps")
+        errors += [f"{manifest}: пайплайн {name}: нет агента {step}" for step in steps if not agent_exists(step)]
     unknown = set(data["commands"]) - COMMANDS
     if unknown or "test" not in data["commands"]:
         errors.append(f"{manifest}: команды {sorted(unknown)} неизвестны или нет test")

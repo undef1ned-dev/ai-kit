@@ -461,6 +461,9 @@ def render_section(section_id: str, section: dict) -> str:
         specialists = profile_manifest.get('specialists', {})
         if not isinstance(specialists, dict):
             specialists = {}
+        pipelines = profile_manifest.get('pipelines', {})
+        if not isinstance(pipelines, dict):
+            pipelines = {}
         commands = profile_manifest.get('commands', {})
         if not isinstance(commands, dict):
             commands = {}
@@ -475,6 +478,16 @@ def render_section(section_id: str, section: dict) -> str:
 </div>'''
             for name, spec in specialists.items()
             if isinstance(spec, dict)
+        )
+        pipeline_cards = ''.join(
+            f'''
+<div class="mode-card">
+  <div class="mode-title">{h(name)}</div>
+  <div class="mode-meta">{h(' → '.join(pipeline.get("steps", [])))}</div>
+  <div class="mode-desc">{h(pipeline.get("when", ""))}</div>
+</div>'''
+            for name, pipeline in pipelines.items()
+            if isinstance(pipeline, dict)
         )
         command_rows = ''.join(
             f'<div><span class="summary-label">{h(name)}</span><span class="summary-value"><code>{h(command)}</code></span></div>'
@@ -492,6 +505,7 @@ def render_section(section_id: str, section: dict) -> str:
       {command_rows}
     </div>
     {f'<div class="subsection"><h3>Специалисты</h3><div class="modes-grid">{specialist_cards}</div></div>' if specialist_cards else ''}
+    {f'<div class="subsection"><h3>Пайплайны</h3><div class="modes-grid">{pipeline_cards}</div></div>' if pipeline_cards else ''}
   </div>
 </div>'''
 

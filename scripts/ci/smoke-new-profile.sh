@@ -6,7 +6,7 @@
 #
 # Что делает:
 #   1. Копирует кит во временную папку и создаёт в копии профиль java-spring через scripts/new-profile.py
-#   2. Прогоняет статические проверки копии — новый профиль проходит их без правок ядра
+#   2. Добавляет профилю пайплайн со своим агентом и прогоняет статические проверки копии — без правок ядра
 #   3. Ставит vue-nuxt+java-spring в монорепо (web/ и api/) через attach.sh и адаптер Codex и проверяет результат
 
 set -eo pipefail
@@ -37,7 +37,26 @@ spring = contracts["java-spring"]
 assert spring["agents"] == {role: f"spring-{role}" for role in ("architect", "coder", "tester", "reviewer")}, spring["agents"]
 assert spring["root"] == "api" and contracts["vue-nuxt"]["root"] == "web", (spring["root"], contracts["vue-nuxt"]["root"])
 assert spring["commands"]["test"] == "./mvnw test", spring["commands"]
+assert spring["pipelines"]["api-docs"]["steps"] == ["spring-api-documenter", "spring-reviewer"], spring["pipelines"]
 PY
+}
+
+# Пайплайн профиля: свой агент и запись в pipelines контракта (agent — имя агента, если его нет, проверка должна упасть)
+add_pipeline() {
+  "$PYTHON_BIN" - "$KIT_COPY/profiles/java-spring" "$1" <<'PY'
+import json, pathlib, sys
+profile, agent = pathlib.Path(sys.argv[1]), sys.argv[2]
+documenter = profile / "agents" / "spring-api-documenter.md"
+documenter.write_text(
+    '---\nname: spring-api-documenter\ndescription: Описывает API в OpenAPI.\noutput_block: "API_DOCS"\n---\n\nОпиши API.\n',
+    encoding="utf-8",
+)
+manifest = profile / "profile.manifest.json"
+data = json.loads(manifest.read_text(encoding="utf-8"))
+data["pipelines"] = {"api-docs": {"when": "нужна только документация API без изменения кода", "steps": [agent, "spring-reviewer"]}}
+manifest.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+PY
+  (cd "$KIT_COPY" && git add -A)
 }
 
 echo "▶ Копия кита → $KIT_COPY"
@@ -53,7 +72,10 @@ echo "▶ new-profile.py java-spring"
   --root-marker pom.xml --path-signal src/main/java/ --path-signal src/test/java/
 check "повторное создание того же профиля отклонено" bash -c "! '$PYTHON_BIN' '$KIT_COPY/scripts/new-profile.py' java-spring --role backend --stack x --test x --root-marker x --path-signal x"
 (cd "$KIT_COPY" && git add -A)
-check "копия кита с новым профилем проходит статические проверки" bash -c "cd '$KIT_COPY' && bash scripts/ci/static-checks.sh"
+add_pipeline spring-missing-agent
+check "пайплайн с несуществующим агентом отклонён статической проверкой" bash -c "! (cd '$KIT_COPY' && bash scripts/ci/static-checks.sh)"
+add_pipeline spring-api-documenter
+check "копия кита с новым профилем и пайплайном проходит статические проверки" bash -c "cd '$KIT_COPY' && bash scripts/ci/static-checks.sh"
 
 make_monorepo() {
   mkdir -p "$1/web" "$1/api"
