@@ -16,6 +16,7 @@
     }
   },
   "commands": {
+    "install": "uv sync",
     "lint": "uv run ruff check {files}",
     "format": "uv run ruff format {files}",
     "test": "uv run pytest",

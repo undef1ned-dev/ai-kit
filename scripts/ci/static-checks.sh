@@ -90,7 +90,7 @@ echo "▶ Контракт профиля: обязательные поля, а
 "$PYTHON_BIN" -c '
 import json, pathlib, sys
 ROLES = {"architect", "coder", "tester", "reviewer"}
-COMMANDS = {"lint", "format", "test", "build", "run"}
+COMMANDS = {"install", "lint", "format", "test", "build", "run"}
 REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "root_markers", "path_signals"}
 errors = []
 for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json")):

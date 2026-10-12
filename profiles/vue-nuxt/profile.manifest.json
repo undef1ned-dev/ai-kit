@@ -16,6 +16,7 @@
     }
   },
   "commands": {
+    "install": "npm install",
     "lint": "npx eslint {files}",
     "format": "npx prettier --write {files}",
     "test": "npx vitest run",

@@ -26,7 +26,7 @@
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
   <div><b>32</b><span>агенты</span></div>
-  <div><b>35</b><span>скиллы</span></div>
+  <div><b>37</b><span>скиллы</span></div>
   <div><b>3</b><span>профили</span></div>
   <div><b>3</b><span>паки</span></div>
 </div>
@@ -56,7 +56,7 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">28</span></button><button class="tab" type="button" data-tab="python-django" style="--accent-local:#2f7d55">Python Django<span class="count">7</span></button><button class="tab" type="button" data-tab="python-fastapi" style="--accent-local:#009688">Python FastAPI<span class="count">7</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-ai" style="--accent-local:#d97706">Pack: AI<span class="count">4</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button><button class="tab" type="button" data-tab="pack-quality" style="--accent-local:#d97706">Pack: Quality<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">30</span></button><button class="tab" type="button" data-tab="python-django" style="--accent-local:#2f7d55">Python Django<span class="count">7</span></button><button class="tab" type="button" data-tab="python-fastapi" style="--accent-local:#009688">Python FastAPI<span class="count">7</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-ai" style="--accent-local:#d97706">Pack: AI<span class="count">4</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button><button class="tab" type="button" data-tab="pack-quality" style="--accent-local:#d97706">Pack: Quality<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -142,7 +142,7 @@
   <div class="entry-example"><span>Реализуй фичу: добавить экспорт пользователей в CSV</span><button class="copy-btn" type="button" data-copy="Реализуй фичу: добавить экспорт пользователей в CSV">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/workflow-runner.md">base/agents/workflow-runner.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">15</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">17</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
@@ -154,6 +154,12 @@
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/capture-memory после рефакторинга network слоя</span><button class="copy-btn" type="button" data-copy="/capture-memory после рефакторинга network слоя">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/capture-memory/SKILL.md">base/skills/capture-memory/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-check-feature" data-filter="check-feature проверить фичу в работе: запустить приложение командой run из .aikit/profiles.json и пройти сценарий — в браузере для профиля с ui, запросами для api. используй после реализации фичи или фикса, когда нужно убедиться, что изменение работает в запущенном приложении, а не только в тестах.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/check-feature</span></header>
+  <p>Проверить фичу в работе: запустить приложение командой run из .aikit/profiles.json и пройти сценарий — в браузере для профиля с UI, запросами для API. Используй после реализации фичи или фикса, когда нужно убедиться, что изменение работает в запущенном приложении, а не только в тестах.</p>
+
+  <div class="entry-example"><span>/check-feature фильтр по статусу на странице уведомлений</span><button class="copy-btn" type="button" data-copy="/check-feature фильтр по статусу на странице уведомлений">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/check-feature/SKILL.md">base/skills/check-feature/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-create-agent" data-filter="create-agent создать нового агента aikit через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента. используй, когда пользователь просит добавить или спроектировать агента.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/create-agent</span></header>
   <p>Создать нового агента AIKit через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента. Используй, когда пользователь просит добавить или спроектировать агента.</p>
@@ -172,6 +178,12 @@
 
   <div class="entry-example"><span>/cross-check изменился endpoint POST /api/v1/auth/login</span><button class="copy-btn" type="button" data-copy="/cross-check изменился endpoint POST /api/v1/auth/login">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/cross-check/SKILL.md">base/skills/cross-check/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-fix-bug" data-filter="fix-bug исправить баг через агентов профиля: воспроизвести → тест, который ловит баг → минимальный фикс → проверка командами профиля. агентов и команды берёт из .aikit/profiles.json. используй, когда пользователь сообщает об ошибке, падении или неверном поведении и просит его исправить.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/fix-bug</span></header>
+  <p>Исправить баг через агентов профиля: воспроизвести → тест, который ловит баг → минимальный фикс → проверка командами профиля. Агентов и команды берёт из .aikit/profiles.json. Используй, когда пользователь сообщает об ошибке, падении или неверном поведении и просит его исправить.</p>
+
+  <div class="entry-example"><span>/fix-bug при удалении последнего товара со скидкой сумма корзины не обновляется</span><button class="copy-btn" type="button" data-copy="/fix-bug при удалении последнего товара со скидкой сумма корзины не обновляется">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/fix-bug/SKILL.md">base/skills/fix-bug/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-git-branch" data-filter="git-branch convention for naming git branches in this repository: conventional branch 1.1.0. must be followed whenever a branch is created or renamed — always, automatically, without the user having to ask. trigger whenever you are about to run `git checkout -b`, `git switch -c`, `git branch &lt;name&gt;`, `git branch -m`, create a worktree with a new branch, or when the user says «создай ветку», «новая ветка», «branch», «переименуй ветку». defines branch types, naming rules and which base branch to start from.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/git-branch</span></header>
   <p>Convention for naming git branches in this repository: Conventional Branch 1.1.0. MUST be followed whenever a branch is created or renamed — always, automatically, without the user having to ask. Trigger whenever you are about to run `git checkout -b`, `git switch -c`, `git branch &lt;name&gt;`, `git branch -m`, create a worktree with a new branch, or when the user says «создай ветку», «новая ветка», «branch», «переименуй ветку». Defines branch types, naming rules and which base branch to start from.</p>
@@ -184,11 +196,11 @@
 
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/git-commit/SKILL.md">base/skills/git-commit/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер. агентов, специалистов и команды берёт из .aikit/profiles.json. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.">
+</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-feature</span></header>
-  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер. Агентов, специалистов и команды берёт из .aikit/profiles.json. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.</p>
+  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.</p>
 
-  <div class="entry-example"><span>/implement-feature страница уведомлений с фильтрами и mark-as-read</span><button class="copy-btn" type="button" data-copy="/implement-feature страница уведомлений с фильтрами и mark-as-read">Копировать</button></div>
+  <div class="entry-example"><span>/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read</span><button class="copy-btn" type="button" data-copy="/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/implement-feature/SKILL.md">base/skills/implement-feature/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-implement-mvp" data-filter="implement-mvp перевести mvp-документ из docs/mvp/ в технический план: api-контракт, scope по платформам, порядок реализации (агент tech-planner). используй после analyze-mvp, когда идея одобрена и нужно спланировать разработку.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-mvp</span></header>
@@ -247,7 +259,7 @@
     <div><span class="label">Файлы кода для хуков (code_extensions)</span><span><span class="chip mono">.py</span></span></div>
   </div>
   <h3>Команды проекта</h3>
-  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>lint</code></td><td><code>uv run ruff check {files}</code></td></tr><tr><td><code>format</code></td><td><code>uv run ruff format {files}</code></td></tr><tr><td><code>test</code></td><td><code>uv run pytest</code></td></tr><tr><td><code>run</code></td><td><code>uv run python manage.py runserver</code></td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>uv sync</code></td></tr><tr><td><code>lint</code></td><td><code>uv run ruff check {files}</code></td></tr><tr><td><code>format</code></td><td><code>uv run ruff format {files}</code></td></tr><tr><td><code>test</code></td><td><code>uv run pytest</code></td></tr><tr><td><code>run</code></td><td><code>uv run python manage.py runserver</code></td></tr></tbody></table></div>
   <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>django-admin-expert</strong><span>задача про Django Admin: ModelAdmin, инлайны, фильтры, actions, права операторов</span></div></div>
 
 </div>
@@ -309,7 +321,7 @@
     <div><span class="label">Файлы кода для хуков (code_extensions)</span><span><span class="chip mono">.py</span></span></div>
   </div>
   <h3>Команды проекта</h3>
-  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>lint</code></td><td><code>uv run ruff check {files}</code></td></tr><tr><td><code>format</code></td><td><code>uv run ruff format {files}</code></td></tr><tr><td><code>test</code></td><td><code>uv run pytest</code></td></tr><tr><td><code>run</code></td><td><code>uv run uvicorn main:app --reload</code></td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>uv sync</code></td></tr><tr><td><code>lint</code></td><td><code>uv run ruff check {files}</code></td></tr><tr><td><code>format</code></td><td><code>uv run ruff format {files}</code></td></tr><tr><td><code>test</code></td><td><code>uv run pytest</code></td></tr><tr><td><code>run</code></td><td><code>uv run uvicorn main:app --reload</code></td></tr></tbody></table></div>
   <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>fastapi-langgraph-expert</strong><span>в ARCHITECT_PLAN указано AGENT_NEEDED: да — фича строится на LangGraph</span></div></div>
 
 </div>
@@ -371,7 +383,7 @@
     <div><span class="label">Файлы кода для хуков (code_extensions)</span><span><span class="chip mono">.vue</span><span class="chip mono">.ts</span><span class="chip mono">.tsx</span><span class="chip mono">.js</span><span class="chip mono">.jsx</span><span class="chip mono">.mjs</span><span class="chip mono">.cjs</span></span></div>
   </div>
   <h3>Команды проекта</h3>
-  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>lint</code></td><td><code>npx eslint {files}</code></td></tr><tr><td><code>format</code></td><td><code>npx prettier --write {files}</code></td></tr><tr><td><code>test</code></td><td><code>npx vitest run</code></td></tr><tr><td><code>build</code></td><td><code>npx nuxt build</code></td></tr><tr><td><code>run</code></td><td><code>npx nuxt dev</code></td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>npm install</code></td></tr><tr><td><code>lint</code></td><td><code>npx eslint {files}</code></td></tr><tr><td><code>format</code></td><td><code>npx prettier --write {files}</code></td></tr><tr><td><code>test</code></td><td><code>npx vitest run</code></td></tr><tr><td><code>build</code></td><td><code>npx nuxt build</code></td></tr><tr><td><code>run</code></td><td><code>npx nuxt dev</code></td></tr></tbody></table></div>
   <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>vue-design-bridge</strong><span>задача идёт от макета Figma или нужна сверка с UI kit и дизайн-токенами</span></div></div>
 
 </div>

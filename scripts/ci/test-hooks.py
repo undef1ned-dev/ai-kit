@@ -48,6 +48,7 @@ PRE_BASH = [
     ("git add . с .env", "git add .", BLOCKED),
     ("git add обычного файла", "git add a.py", 0),
     ("git add .env.example", "git add .env.example", 0),
+    ("git -C подпапка add -A не видит .env корня", "git -C sub add -A", 0),
     ("echo в .env", "echo X=1 >> .env", BLOCKED),
     ("echo в .env.local", "echo X=1 > config/.env.local", BLOCKED),
     ("секрет в echo", "echo AKIAABCDEFGHIJKLMNOP > key.txt", BLOCKED),
@@ -73,6 +74,8 @@ class Project:
         subprocess.run(["git", "init", "-q"], cwd=root, check=True)
         (root / ".env").write_text("SECRET=1\n", encoding="utf-8")
         (root / ".aikit" / "memory").mkdir(parents=True)
+        (root / "sub").mkdir()
+        (root / "sub" / "a.py").write_text("x = 1\n", encoding="utf-8")
 
     def run(self, event: dict, session: str = "s1") -> tuple[int, dict, str]:
         event = {"cwd": str(self.root), "session_id": session, **event}
@@ -149,6 +152,18 @@ def main() -> int:
             project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(path)}}, session="big")
         _, output, _ = project.run({"hook_event_name": "Stop"}, session="big")
         expect("после крупной задачи предложен /capture-memory", "/capture-memory" in output.get("systemMessage", ""), str(output))
+
+        print_cwd_and_fail = f'{PYTHON} -c "import os; print(os.getcwd()); raise SystemExit(1)"'
+        project.set_profile({"lint": f"{print_cwd_and_fail} {{files}}", "test": print_cwd_and_fail})
+        worktree_file = project.root / ".aikit" / "worktrees" / "feat-cart" / "web" / "components" / "Cart.vue"
+        worktree_file.parent.mkdir(parents=True)
+        worktree_file.write_text("<template/>\n", encoding="utf-8")
+        _, output, _ = project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(worktree_file)}}, session="wt")
+        context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
+        expect("файл в worktree — линтер в папке профиля внутри worktree", str(Path("feat-cart") / "web") in context, context)
+        _, output, _ = project.run({"hook_event_name": "Stop"}, session="wt")
+        reason = output.get("reason", "")
+        expect("тесты после правки в worktree запускаются в нём", ".aikit/worktrees/feat-cart/web" in reason, reason)
 
         print("▶ SessionStart: память и PRODUCT.md")
         _, output, _ = project.run({"hook_event_name": "SessionStart", "source": "startup"})

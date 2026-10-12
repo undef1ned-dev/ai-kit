@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = ROOT / "templates" / "profile"
 ROLES = ("architect", "coder", "tester", "reviewer")
-COMMANDS = ("lint", "format", "test", "build", "run")
+COMMANDS = ("install", "lint", "format", "test", "build", "run")
 ROLE_TEXT = {"backend": "backend-разработки", "web": "frontend-разработки"}
 ROLE_SCOPE = {"backend": "BACKEND SCOPE", "web": "WEB SCOPE"}
 NAME_PATTERN = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")
