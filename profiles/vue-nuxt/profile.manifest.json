@@ -1,53 +1,26 @@
 {
   "profile": "vue-nuxt",
   "label": "Vue Nuxt",
-  "domain": "frontend-web",
-  "taxonomy": {
-    "operating_class": "product-project",
-    "direction": "frontend",
-    "ecosystem": "javascript-typescript",
-    "framework": "vue-nuxt",
-    "domain_family": "frontend",
-    "stack_profile": "vue-nuxt",
-    "core_role_set": ["architect", "coder", "tester", "reviewer"],
-    "specialized_role_set": ["design-bridge"],
-    "global_role_set": ["cross-project-analyst", "release-manager", "security-auditor", "memory-writer"],
-    "role_aliases": {
-      "architect": "vue-architect",
-      "coder": "vue-coder",
-      "tester": "vue-tester",
-      "reviewer": "vue-reviewer",
-      "design-bridge": "vue-design-bridge"
-    },
-    "pack_compatibility": {
-      "recommended": ["quality", "devops"],
-      "compatible": ["quality", "devops"],
-      "blocked": []
-    },
-    "special_surfaces": ["figma", "uikit", "ssr-app-shell"],
-    "workflow_contract": {
-      "domain_contract": "frontend-core-delivery",
-      "stack_specialization": "nuxt-ssr-uikit"
-    }
+  "role": "web",
+  "stack": "Vue 3, Nuxt 3, Pinia, VueUse",
+  "agents": {
+    "architect": "vue-architect",
+    "coder": "vue-coder",
+    "tester": "vue-tester",
+    "reviewer": "vue-reviewer"
   },
-  "specialist_overlay_contracts": {
+  "specialists": {
     "design-bridge": {
-      "class": "prepend-overlay",
-      "entry_agent": "vue-design-bridge",
-      "base_recipe": "feature-delivery",
-      "overlay_recipe": "design-to-code",
-      "rejoin_step": "architect",
-      "output_block": "DESIGN_IMPLEMENTATION_BRIEF",
-      "replaces_canonical_spine": false
+      "agent": "vue-design-bridge",
+      "when": "задача идёт от макета Figma или нужна сверка с UI kit и дизайн-токенами"
     }
   },
-  "keywords": ["vue", "nuxt", "frontend", "page", "component", "composable", "pinia", "nitro", "store", "middleware", "plugin", "layout", "app shell", "nuxt config", "vitest", "playwright", "eslint"],
-  "path_signals": ["pages/", "components/", "composables/", "stores/", "server/api/", "middleware/", "plugins/", "layouts/", "app.vue", "nuxt.config.", "vitest.config.", "playwright.config.", "eslint.config."],
-  "default_chain": ["vue-architect", "vue-coder", "vue-tester", "vue-reviewer"],
-  "recommended_skills": ["implement-feature", "add-tests", "new-page", "new-component", "design-review", "design-implement"],
-  "review_agent": "vue-reviewer",
-  "tester_agent": "vue-tester",
-  "capability_manifest": "capabilities.json",
-  "workflow_manifest": "workflow.manifest.json",
-  "recommended_packs": ["quality", "devops"]
+  "commands": {
+    "lint": "npx eslint {files}",
+    "format": "npx prettier --write {files}",
+    "test": "npx vitest run",
+    "build": "npx nuxt build",
+    "run": "npx nuxt dev"
+  },
+  "path_signals": ["pages/", "components/", "composables/", "stores/", "server/api/", "middleware/", "plugins/", "layouts/", "app.vue", "nuxt.config.", "vitest.config.", "playwright.config.", "eslint.config."]
 }

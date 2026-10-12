@@ -68,12 +68,11 @@ Claude compatibility mirror:
 9. `docs/release-versioning.md`
 10. `scripts/generate-catalog.py`
 11. если задача про marketplace/distribution direction — `marketplace/marketplace.manifest.json` и `scripts/resolve-marketplace-item.py`
-12. если задача про routing — `scripts/profile_routing.py` и `scripts/explain-routing.py`
-13. если задача про runtime install/update — `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py` и legacy shell flows соответствующего runtime
-14. если задача про профиль — `profile.manifest.json` и `capabilities.json` соответствующего профиля
-15. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
-16. если задача про runtime execution layer — `docs/adapter-runtime-execution.md`
-17. если задача про runtime maturity — `docs/adapter-conformance.md`, `docs/runtime-maturity-review.md`, `docs/adapter-fixtures.json`
+12. если задача про runtime install/update — `scripts/install-adapter-package.py`, `scripts/update-adapter-package.py` и legacy shell flows соответствующего runtime
+13. если задача про профиль — контракт `profile.manifest.json` соответствующего профиля
+14. если задача про runtime packaging — `adapters/*/adapter.manifest.json`
+15. если задача про runtime execution layer — `docs/adapter-runtime-execution.md`
+16. если задача про runtime maturity — `docs/adapter-conformance.md`, `docs/runtime-maturity-review.md`, `docs/adapter-fixtures.json`
 
 Сформулируй для себя:
 - какой слой системы меняется;
@@ -228,11 +227,9 @@ python3 scripts/build-adapter-package.py codex --profile vue-nuxt --target /tmp/
 python3 scripts/build-adapter-package.py opencode --profile python-fastapi --target /tmp/aikit-adapters
 ```
 
-### Если менялся routing
-Прогони минимум 1-2 ручных smoke-check сценария:
+### Если менялся контракт профиля (`profile.manifest.json`)
 ```bash
-python3 scripts/explain-routing.py "Измени stores/auth.ts"
-python3 scripts/explain-routing.py "Доработай apps/orders/admin.py"
+bash scripts/ci/static-checks.sh
 ```
 
 Если проверка не нужна — явно скажи почему.

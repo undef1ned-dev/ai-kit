@@ -1,53 +1,25 @@
 {
   "profile": "python-django",
   "label": "Python Django",
-  "domain": "backend-django",
-  "taxonomy": {
-    "operating_class": "product-project",
-    "direction": "backend",
-    "ecosystem": "python",
-    "framework": "django",
-    "domain_family": "backend",
-    "stack_profile": "python-django",
-    "core_role_set": ["architect", "coder", "tester", "reviewer"],
-    "specialized_role_set": ["admin-expert"],
-    "global_role_set": ["cross-project-analyst", "release-manager", "security-auditor", "memory-writer"],
-    "role_aliases": {
-      "architect": "django-architect",
-      "coder": "django-coder",
-      "tester": "django-tester",
-      "reviewer": "django-reviewer",
-      "admin-expert": "django-admin-expert"
-    },
-    "pack_compatibility": {
-      "recommended": ["quality", "devops", "ai"],
-      "compatible": ["quality", "devops", "ai"],
-      "blocked": []
-    },
-    "special_surfaces": ["api-surface", "admin", "drf"],
-    "workflow_contract": {
-      "domain_contract": "backend-core-delivery",
-      "stack_specialization": "django-drf-admin"
-    }
+  "role": "backend",
+  "stack": "Django 5.x, DRF, Django Admin",
+  "agents": {
+    "architect": "django-architect",
+    "coder": "django-coder",
+    "tester": "django-tester",
+    "reviewer": "django-reviewer"
   },
-  "specialist_overlay_contracts": {
+  "specialists": {
     "admin-expert": {
-      "class": "implementation-advisor",
-      "entry_agent": "django-admin-expert",
-      "base_recipe": "feature-delivery",
-      "activation_gate": "admin-impact or setup-admin intent",
-      "rejoin_step": "coder",
-      "output_block": "ADMIN_IMPLEMENTATION_BRIEF",
-      "replaces_canonical_spine": false
+      "agent": "django-admin-expert",
+      "when": "задача про Django Admin: ModelAdmin, инлайны, фильтры, actions, права операторов"
     }
   },
-  "keywords": ["django", "drf", "admin", "serializer", "viewset", "modeladmin", "celery"],
-  "path_signals": ["apps/", "config/", "manage.py"],
-  "default_chain": ["django-architect", "django-coder", "django-tester", "django-reviewer"],
-  "recommended_skills": ["implement-feature", "new-app", "setup-admin"],
-  "review_agent": "django-reviewer",
-  "tester_agent": "django-tester",
-  "capability_manifest": "capabilities.json",
-  "workflow_manifest": "workflow.manifest.json",
-  "recommended_packs": ["quality", "devops", "ai"]
+  "commands": {
+    "lint": "uv run ruff check {files}",
+    "format": "uv run ruff format {files}",
+    "test": "uv run pytest",
+    "run": "uv run python manage.py runserver"
+  },
+  "path_signals": ["apps/", "config/", "manage.py"]
 }

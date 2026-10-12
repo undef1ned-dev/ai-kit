@@ -7,25 +7,25 @@
     {
       "name": "drf-api-contracts",
       "kind": "schema",
-      "path_globs": ["profiles/python-django/agents/django-architect.md", "profiles/python-django/capabilities.json"],
+      "path_globs": ["profiles/python-django/agents/django-architect.md", "profiles/python-django/profile.manifest.json"],
       "concerns": ["contract", "validation"]
     },
     {
       "name": "view-url-surface",
       "kind": "url-map",
-      "path_globs": ["profiles/python-django/agents/django-architect.md", "profiles/python-django/capabilities.json"],
+      "path_globs": ["profiles/python-django/agents/django-architect.md", "profiles/python-django/profile.manifest.json"],
       "concerns": ["contract", "registration"]
     },
     {
       "name": "service-query-boundary",
       "kind": "service",
-      "path_globs": ["profiles/python-django/capabilities.json", "profiles/python-django/agents/django-architect.md"],
+      "path_globs": ["profiles/python-django/profile.manifest.json", "profiles/python-django/agents/django-architect.md"],
       "concerns": ["persistence", "auth"]
     },
     {
       "name": "admin-operations-surface",
       "kind": "admin",
-      "path_globs": ["profiles/python-django/agents/django-admin-expert.md", "profiles/python-django/capabilities.json"],
+      "path_globs": ["profiles/python-django/agents/django-admin-expert.md", "profiles/python-django/profile.manifest.json"],
       "concerns": ["operations", "testing"]
     }
   ],

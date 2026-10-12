@@ -9,6 +9,7 @@
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
 #   4. Генератор каталога видит все скиллы-папки профилей и паков
+#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов
 
 set -eo pipefail
 
@@ -79,6 +80,40 @@ for item in missing:
 for name in empty:
     print(f"  ✗ нет description: {name}")
 sys.exit(1 if missing or empty else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Контракт профиля: обязательные поля, агенты по ролям существуют, известные команды"
+"$PYTHON_BIN" -c '
+import json, pathlib, sys
+ROLES = {"architect", "coder", "tester", "reviewer"}
+COMMANDS = {"lint", "format", "test", "build", "run"}
+REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "path_signals"}
+errors = []
+for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json")):
+    profile = manifest.parent
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    def agent_exists(name):
+        return (profile / "agents" / f"{name}.md").is_file()
+    missing = REQUIRED - data.keys()
+    if missing:
+        errors.append(f"{manifest}: нет полей {sorted(missing)}")
+        continue
+    if data["profile"] != profile.name:
+        errors.append(f"{manifest}: profile не совпадает с папкой")
+    if set(data["agents"]) != ROLES:
+        errors.append(f"{manifest}: agents должны быть ровно по ролям {sorted(ROLES)}")
+    errors += [f"{manifest}: нет агента {name}" for name in data["agents"].values() if not agent_exists(name)]
+    for name, spec in data.get("specialists", {}).items():
+        if not agent_exists(spec.get("agent", "")) or not spec.get("when", "").strip():
+            errors.append(f"{manifest}: специалист {name} без агента или без when")
+    unknown = set(data["commands"]) - COMMANDS
+    if unknown or "test" not in data["commands"]:
+        errors.append(f"{manifest}: команды {sorted(unknown)} неизвестны или нет test")
+    if not data["path_signals"]:
+        errors.append(f"{manifest}: пустые path_signals")
+for error in errors:
+    print(f"  ✗ {error}")
+sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
 if [[ "$FAILURES" -gt 0 ]]; then

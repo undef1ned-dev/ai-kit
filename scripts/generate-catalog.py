@@ -26,8 +26,6 @@ def load_template_expander():
 
 expand_skill_text = load_template_expander()
 
-PRIMARY_START_ORDER = ['aikit-bootstrap-project', 'implement-feature']
-OVERLAY_START_SKILLS = ['design-implement', 'design-review', 'setup-admin']
 PRIMARY_ENTRY_SKILLS = {'aikit-bootstrap-project', 'implement-feature', 'security-check'}
 OVERLAY_ENTRY_SKILLS = {'design-implement', 'design-review', 'setup-admin'}
 NO_DELIVERY_START_SKILLS = {'aikit-bootstrap-project'}
@@ -138,6 +136,10 @@ def read_json_file(path: Path) -> dict:
         return {}
 
 
+DEFAULT_PROFILE_COLOR = '#607D8B'
+PROFILE_ROLES = ('architect', 'coder', 'tester', 'reviewer')
+
+
 def is_public_profile(root: Path, profile_name: str) -> bool:
     if profile_name in PUBLIC_PROFILE_EXCLUSIONS:
         return False
@@ -175,27 +177,26 @@ def collect_data(root: Path) -> dict:
     }
 
     # Profiles
-    profile_meta = {
-        'vue-nuxt':       {'label': 'Vue Nuxt',       'color': '#00C58E', 'stack': 'Vue 3, Nuxt 3, Pinia, VueUse'},
-        'python-django':  {'label': 'Python Django',  'color': '#092E20', 'stack': 'Django 5.x, DRF, Admin'},
-        'python-fastapi': {'label': 'Python FastAPI', 'color': '#009688', 'stack': 'FastAPI 0.115+, SQLAlchemy 2.0, LangGraph'},
+    profile_colors = {
+        'vue-nuxt': '#00C58E',
+        'python-django': '#092E20',
+        'python-fastapi': '#009688',
     }
     profiles_dir = root / 'profiles'
     if profiles_dir.exists():
-        for profile_name, meta in profile_meta.items():
+        for p in sorted(path for path in profiles_dir.iterdir() if path.is_dir()):
+            profile_name = p.name
             if not is_public_profile(root, profile_name):
                 continue
-            p = profiles_dir / profile_name
             agents = read_md_files(p / 'agents', 'agent')
             skills = read_md_files(p / 'skills', 'skill')
             profile_manifest = read_json_file(p / 'profile.manifest.json')
-            capabilities = read_json_file(p / 'capabilities.json')
             if agents or skills:
                 sections[profile_name] = {
-                    **meta,
-                    'description': meta['stack'],
+                    'label': profile_manifest.get('label', profile_name),
+                    'color': profile_colors.get(profile_name, DEFAULT_PROFILE_COLOR),
+                    'description': profile_manifest.get('stack', ''),
                     'profile_manifest': profile_manifest,
-                    'capabilities': capabilities.get('modes', []),
                     'agents': agents,
                     'skills': skills,
                 }
@@ -233,26 +234,6 @@ def entry_class_for_skill(name: str) -> str:
     if name in OVERLAY_ENTRY_SKILLS:
         return 'specialist overlay start'
     return 'reference or advanced'
-
-
-def primary_start_for_skill_names(skill_names: list[str]) -> str:
-    skill_set = set(skill_names)
-    for name in PRIMARY_START_ORDER:
-        if name in skill_set:
-            return display_command(name)
-    return '—'
-
-
-def overlay_starts_for_skill_names(skill_names: list[str]) -> list[str]:
-    skill_set = set(skill_names)
-    return [display_command(name) for name in OVERLAY_START_SKILLS if name in skill_set]
-
-
-def start_contract_for_skill_names(skill_names: list[str]) -> str:
-    primary = primary_start_for_skill_names(skill_names)
-    if primary == '/aikit-bootstrap-project':
-        return 'Bootstrap is a no-delivery-chain start; choose a bounded overlay or repo delivery chain only after discovery.'
-    return 'Choose one primary start or one bounded overlay start; overlays do not replace the default chain.'
 
 
 def collect_runtime_adapters(root: Path) -> list[dict]:
@@ -481,120 +462,49 @@ def render_section(section_id: str, section: dict) -> str:
     agents = section.get('agents', [])
     skills = section.get('skills', [])
     profile_manifest = section.get('profile_manifest', {})
-    capabilities = section.get('capabilities', [])
 
     agent_cards = ''.join(render_agent_card(a) for a in agents)
     skill_cards = ''.join(render_skill_card(s) for s in skills)
     chain = render_chain_diagram(agents, color)
     profile_summary = ''
     if profile_manifest:
-        available_skills = {skill.get('name', '') for skill in skills}
-
-        def first_existing(*names: str) -> str:
-            for name in names:
-                if name in available_skills:
-                    return f"/{name}"
-            return "inspect-chain"
-
-        entry_paths = {
-            "new-artifact": first_existing(
-                "new-page",
-                "new-component",
-                "new-composable",
-                "new-store",
-                "new-server-route",
-                "new-feature",
-                "new-screen",
-                "new-router",
-                "new-app",
-                "implement-feature",
-            ),
-            "small-patch": first_existing("implement-feature"),
-            "feature-work": first_existing("implement-feature", "implement-mvp"),
-            "test-only": first_existing("add-tests"),
-            "review-only": first_existing("design-review"),
-        }
-        domain = profile_manifest.get('domain', '')
-        taxonomy = profile_manifest.get('taxonomy', {})
-        if not isinstance(taxonomy, dict):
-            taxonomy = {}
-        operating_class = taxonomy.get('operating_class', 'product-project')
-        domain_family = taxonomy.get('domain_family', domain)
-        stack_profile = taxonomy.get('stack_profile', profile_manifest.get('profile', section_id))
-        core_roles = taxonomy.get('core_role_set', [])
-        specialized_roles = taxonomy.get('specialized_role_set', [])
-        role_aliases = taxonomy.get('role_aliases', {})
-        if not isinstance(role_aliases, dict):
-            role_aliases = {}
-        specialized_roles = [role for role in specialized_roles if str(role) not in {'skill-builder'}]
-        role_aliases = {
-            role: agent_id
-            for role, agent_id in role_aliases.items()
-            if str(role) not in {'skill-builder'} and str(agent_id) not in {'skill-builder'}
-        }
-        default_chain = profile_manifest.get('default_chain', [])
-        recommended_packs = profile_manifest.get('recommended_packs', [])
-        recommended_skills = profile_manifest.get('recommended_skills', [])
+        role_agents = profile_manifest.get('agents', {})
+        if not isinstance(role_agents, dict):
+            role_agents = {}
+        specialists = profile_manifest.get('specialists', {})
+        if not isinstance(specialists, dict):
+            specialists = {}
+        commands = profile_manifest.get('commands', {})
+        if not isinstance(commands, dict):
+            commands = {}
         path_signals = profile_manifest.get('path_signals', [])
-        keywords = profile_manifest.get('keywords', [])
-        mode_cards = ''.join(
+        chain_text = ' → '.join(role_agents[role] for role in PROFILE_ROLES if role in role_agents)
+        specialist_cards = ''.join(
             f'''
 <div class="mode-card">
-  <div class="mode-title">{h(mode.get("name", ""))}</div>
-  <div class="mode-meta">{tag_badges(mode.get("file_globs", []))}</div>
-  <div class="mode-meta">{tag_badges(mode.get("suggested_skills", []))}</div>
-  <div class="mode-desc">{h(", ".join(mode.get("focus", [])))}</div>
+  <div class="mode-title">{h(name)}</div>
+  <div class="mode-meta">{tag_badges([spec.get("agent", "")])}</div>
+  <div class="mode-desc">{h(spec.get("when", ""))}</div>
 </div>'''
-            for mode in capabilities
+            for name, spec in specialists.items()
+            if isinstance(spec, dict)
         )
-        entry_path_cards = ''.join(
-            f'''
-<div class="mode-card">
-  <div class="mode-title">{h(intent)}</div>
-  <div class="mode-meta">{tag_badges([entry])}</div>
-  <div class="mode-desc">{h(" → ".join(default_chain) if entry != "inspect-chain" else "Inspect the matched chain and choose the reviewer/tester path manually.")}</div>
-</div>'''
-            for intent, entry in entry_paths.items()
+        command_rows = ''.join(
+            f'<div><span class="summary-label">{h(name)}</span><span class="summary-value"><code>{h(command)}</code></span></div>'
+            for name, command in commands.items()
         )
-        skill_names = [skill.get('name', '') for skill in skills]
-        primary_start = primary_start_for_skill_names(skill_names)
-        overlay_starts = ', '.join(overlay_starts_for_skill_names(skill_names)) or '—'
-        start_contract = start_contract_for_skill_names(skill_names)
         profile_summary = f'''
 <div class="subsection">
-  <h3>Профиль</h3>
+  <h3>Контракт профиля</h3>
   <div class="profile-summary-card">
     <div class="profile-summary-grid">
-      <div><span class="summary-label">Operating class</span><span class="summary-value">{h(operating_class)}</span></div>
-      <div><span class="summary-label">Domain family</span><span class="summary-value">{h(domain_family)}</span></div>
-      <div><span class="summary-label">Legacy domain</span><span class="summary-value">{h(domain)}</span></div>
-      <div><span class="summary-label">Stack profile</span><span class="summary-value">{h(stack_profile)}</span></div>
-      <div><span class="summary-label">Default chain</span><span class="summary-value">{h(" → ".join(default_chain))}</span></div>
-      <div><span class="summary-label">Primary start</span><span class="summary-value">{h(primary_start)}</span></div>
-      <div><span class="summary-label">Overlay starts</span><span class="summary-value">{h(overlay_starts)}</span></div>
-      <div><span class="summary-label">Core roles</span><span class="summary-value">{h(core_roles or "—")}</span></div>
-      <div><span class="summary-label">Specialized roles</span><span class="summary-value">{h(specialized_roles or "—")}</span></div>
-      <div><span class="summary-label">Recommended packs</span><span class="summary-value">{h(recommended_packs or "—")}</span></div>
-      <div><span class="summary-label">Recommended skills</span><span class="summary-value">{h(recommended_skills or "—")}</span></div>
-      <div><span class="summary-label">Start contract</span><span class="summary-value">{h(start_contract)}</span></div>
+      <div><span class="summary-label">Роль</span><span class="summary-value">{h(profile_manifest.get("role", "—"))}</span></div>
+      <div><span class="summary-label">Стек</span><span class="summary-value">{h(profile_manifest.get("stack", "—"))}</span></div>
+      <div><span class="summary-label">Агенты по ролям</span><span class="summary-value">{h(chain_text or "—")}</span></div>
       <div><span class="summary-label">Path signals</span><span class="summary-value">{h(path_signals or "—")}</span></div>
-      <div><span class="summary-label">Keywords</span><span class="summary-value">{h(keywords or "—")}</span></div>
-      <div><span class="summary-label">Capability modes</span><span class="summary-value">{h([m.get("name", "") for m in capabilities])}</span></div>
-      <div><span class="summary-label">Role aliases</span><span class="summary-value">{h([f"{role}→{agent_id}" for role, agent_id in sorted(role_aliases.items())] or "—")}</span></div>
+      {command_rows}
     </div>
-    <div class="subsection">
-      <h3>Recommended Entry Paths</h3>
-      <div class="modes-grid">{entry_path_cards}</div>
-    </div>
-    <div class="subsection">
-      <h3>Workflow Playbook</h3>
-      <div class="summary-value">
-        Default chain runs as: <strong>{h(" → ".join(default_chain))}</strong>.<br>
-        Primary start is <strong>{h(primary_start)}</strong>. Overlay starts are <strong>{h(overlay_starts)}</strong>.<br>
-        Choose one primary start or one bounded overlay start; overlays do not replace canonical delivery.
-      </div>
-    </div>
-    {f'<div class="modes-grid">{mode_cards}</div>' if mode_cards else ''}
+    {f'<div class="subsection"><h3>Специалисты</h3><div class="modes-grid">{specialist_cards}</div></div>' if specialist_cards else ''}
   </div>
 </div>'''
 
