@@ -36,6 +36,10 @@ COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventor
 PACKAGE_MODE_CONSUMER = "consumer"
 PACKAGE_MODE_MAINTAINER = "maintainer"
 MAINTAINER_PROMPT_NAME = "CONTINUE_AIKIT_MAINTAINER.md"
+# Agent Skills standard location read by Codex and OpenCode (Claude Code uses .claude/skills)
+NATIVE_SKILLS_DIR = Path(".agents") / "skills"
+NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
+OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
 
 
 def parse_args() -> argparse.Namespace:
@@ -204,16 +208,6 @@ def command_surface_scopes() -> dict[str, str]:
         if path_text and scope:
             scopes[path_text] = scope
     return scopes
-
-
-def include_source_command_in_package(command_path: Path, package_mode: str) -> bool:
-    if package_mode == PACKAGE_MODE_MAINTAINER:
-        return True
-    try:
-        rel_path = command_path.relative_to(ROOT).as_posix()
-    except ValueError:
-        return False
-    return command_surface_scopes().get(rel_path) == "user-facing"
 
 
 def include_template_in_package(destination_rel: str, package_mode: str) -> bool:
@@ -591,21 +585,8 @@ def write_codex_native_surface(
     codex_root = bundle_root / ".codex"
     codex_root.mkdir(parents=True, exist_ok=True)
 
+    # Agents are converted to .codex/agents/*.toml at install time; skills go to .agents/skills (write_native_skills)
     mirror_tree(agents_dir, codex_root / "agents")
-    mirror_tree(skills_dir, codex_root / "skills")
-    mirror_tree(memory_dir, codex_root / "memory")
-
-    commands_dir = codex_root / "commands"
-    commands_dir.mkdir(parents=True, exist_ok=True)
-    for skill in sorted(skills_dir.glob("*.md")):
-        copy_markdown(skill, commands_dir / skill.name)
-
-    source_commands = ROOT / ".codex" / "commands"
-    if source_commands.exists():
-        for command in sorted(source_commands.glob("*.md")):
-            if not include_source_command_in_package(command, package_mode):
-                continue
-            copy_markdown(command, commands_dir / command.name)
 
     version_lines = [
         f"profiles={'+'.join(profiles)}",
@@ -614,6 +595,68 @@ def write_codex_native_surface(
         f"package_mode={package_mode}",
     ]
     (codex_root / ".config-version").write_text("\n".join(version_lines) + "\n", encoding="utf-8")
+
+
+def frontmatter_document(fields: dict[str, str], body: str) -> str:
+    lines = ["---", *(f"{key}: {json.dumps(value, ensure_ascii=False)}" for key, value in fields.items()), "---", ""]
+    return "\n".join(lines) + body.lstrip("\n")
+
+
+def write_native_skills(adapter: dict, bundle_root: Path, skills_dir: Path) -> list[str]:
+    """Write skills as <name>/SKILL.md for runtimes that read the Agent Skills standard. Returns written paths."""
+    if adapter.get("runtime") not in NATIVE_SKILL_RUNTIMES:
+        return []
+
+    native_root = bundle_root / NATIVE_SKILLS_DIR
+    native_root.mkdir(parents=True, exist_ok=True)
+    written: list[str] = []
+    for source in sorted(skills_dir.iterdir()):
+        if source.is_dir():
+            skill_file = source / "SKILL.md"
+            if not skill_file.exists():
+                continue
+            name = source.name
+            destination = native_root / name
+            shutil.copytree(source, destination)
+            text = skill_file.read_text(encoding="utf-8")
+        elif source.suffix == ".md":
+            name = source.stem
+            destination = native_root / name
+            destination.mkdir(parents=True, exist_ok=True)
+            text = source.read_text(encoding="utf-8")
+        else:
+            continue
+
+        raw, body = split_frontmatter(text)
+        description = parse_frontmatter(raw).get("description", "").strip()
+        if not description:
+            raise SystemExit(f"Skill '{name}' has no description — required by Codex and OpenCode")
+        # Codex and OpenCode need name and description; name must match the folder (it differs for prefixed skills)
+        (destination / "SKILL.md").write_text(
+            frontmatter_document({"name": name, "description": description}, body), encoding="utf-8"
+        )
+        written.append((NATIVE_SKILLS_DIR / name).as_posix())
+    return written
+
+
+def write_opencode_native_agents(adapter: dict, bundle_root: Path, agents_dir: Path) -> list[str]:
+    """Write agents as OpenCode subagents. Returns written paths."""
+    if adapter.get("runtime") != "opencode":
+        return []
+
+    opencode_agents = bundle_root / OPENCODE_AGENTS_DIR
+    opencode_agents.mkdir(parents=True, exist_ok=True)
+    written: list[str] = []
+    for source in sorted(agents_dir.glob("*.md")):
+        raw, body = split_frontmatter(source.read_text(encoding="utf-8"))
+        metadata = parse_frontmatter(raw)
+        description = metadata.get("description", "").strip() or f"AIKit agent {source.stem}"
+        # Claude-specific fields (tools as a string, model aliases) are not valid OpenCode config, so only portable ones are kept
+        (opencode_agents / source.name).write_text(
+            frontmatter_document({"description": description, "mode": "subagent"}, body), encoding="utf-8"
+        )
+        written.append((OPENCODE_AGENTS_DIR / source.name).as_posix())
+    return written
 
 
 def write_claude_native_surface(
@@ -729,6 +772,8 @@ def build_package(
         copy_markdown(md, agents_dir / md.name)
     for md in sorted((ROOT / "base" / "skills").glob("*.md")):
         (skills_dir / md.name).write_text(expand_skill_text(md), encoding="utf-8")
+    for skill_folder in sorted((ROOT / "base" / "skills").glob("*/SKILL.md")):
+        shutil.copytree(skill_folder.parent, skills_dir / skill_folder.parent.name)
 
     # Profile agents and skills with conflict-safe names
     agent_conflicts = find_conflicts(profiles, "agents")
@@ -778,6 +823,8 @@ def build_package(
         runtime_memory_dir,
         package_mode,
     )
+    native_paths = write_native_skills(adapter, bundle_root, skills_dir)
+    native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
     write_runtime_entrypoints(adapter, profiles, bundle_root, package_mode)
     write_runtime_graph(adapter, profiles, bundle_root)
 
@@ -801,8 +848,8 @@ def build_package(
         "runtime_entrypoint_count": len(runtime_entrypoints_for_mode(adapter, package_mode)),
         "graph_execution_status": adapter.get("graph_execution", {}).get("status", ""),
         "codex_native_agent_count": len(list((bundle_root / ".codex" / "agents").glob("*.md"))),
-        "codex_native_command_count": len(list((bundle_root / ".codex" / "commands").glob("*.md"))),
-        "codex_native_skill_count": len(list((bundle_root / ".codex" / "skills").glob("*.md"))),
+        # Paths outside .aikit/ owned by this package; the installer removes them before the next install
+        "native_paths": native_paths,
     }
     (runtime_root / "package.manifest.json").write_text(
         json.dumps(package_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

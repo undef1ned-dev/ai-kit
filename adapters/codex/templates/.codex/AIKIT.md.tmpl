@@ -1,26 +1,17 @@
 # AIKit In {{ADAPTER_LABEL}}
 
-Этот runtime workspace подготовлен для `{{ADAPTER_LABEL}}`.
+Этот проект подключён к AIKit (профили: `{{PROFILES}}`).
 
-## Что уже установлено
+## Где что лежит
 
-- `AIKIT.md` в корне workspace — сводная инструкция по core и выбранным profiles
-- `.aikit/agents/` — packaged agents
-- `.aikit/skills/` — packaged skills
-- `{{MEMORY_PATH}}/` — memory для continuation
-- `.codex/agents/` — Codex-native mirror packaged agents
-- `.codex/skills/` — Codex-native mirror packaged skills
-- `.codex/memory/` — Codex-native memory mirror
-- `.codex/commands/` — packaged skills plus command-first AIKit entrypoints
+- `AGENTS.md` — правила проекта; блок AIKit обновляется установщиком, свой текст пиши вне блока
+- `.agents/skills/` — скиллы AIKit: вызов `$name`, `/skills` или автоматически по описанию задачи
+- `.codex/agents/*.toml` — агенты AIKit (загружаются, если проект отмечен как доверенный)
+- `{{MEMORY_PATH}}/` — память проекта, хранится в git
+- `.aikit/` — служебные файлы установки AIKit
 
-## С чего начать
+## Обновление
 
-1. Прочитай `AIKIT.md`
-2. Прочитай `.codex/agents/aikit-maintainer.md`
-3. Если продолжаешь развитие самого AIKit — открой `.codex/CONTINUE_AIKIT_MAINTAINER.md`
-
-## Практический режим
-
-- Это experimental adapter install, а не production runtime contract.
-- Runtime-specific настройки для Codex держи в `adapters/codex/`.
-- Core-изменения не должны захардкодить Codex-специфику.
+```bash
+python3 .aikit-config/scripts/update-adapter-package.py codex --preset <preset> --workspace .
+```
