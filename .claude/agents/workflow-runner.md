@@ -17,8 +17,9 @@ output_block: "WORKFLOW_SUMMARY"
 - `role` — роль профиля в системе (`web`, `backend`, …)
 - `agents` — агенты по ролям `architect` / `coder` / `tester` / `reviewer`
 - `specialists` — дополнительные агенты и условие `when`, при котором их звать
+- `root` — папка профиля в проекте (`.` или, например, `frontend` в монорепо)
 - `commands` — `lint`, `format`, `test`, `build`, `run` (`{files}` — изменённые файлы); команды могли быть изменены под проект
-- `path_signals` — пути, по которым задача относится к профилю
+- `path_signals` — пути внутри `root`, по которым задача относится к профилю
 
 Имена агентов профиля берёшь только из контракта, не подставляешь по памяти.
 
@@ -59,7 +60,7 @@ output_block: "WORKFLOW_SUMMARY"
 
 Из контрактов собери карту и используй её в выборе цепочки:
 - профиль → агенты по ролям (`architect → coder → tester → reviewer`)
-- профиль → path signals
+- профиль → `root` и path signals (сигнал `pages/` при `root: frontend` — это `frontend/pages/`)
 - профиль → специалисты и условие `when`
 - профиль → команды проверки (`lint`, `test`)
 
@@ -199,7 +200,7 @@ output_block: "WORKFLOW_SUMMARY"
 - `test-only` — `test-pass`;
 - остальные intent реализации — `feature-delivery`.
 
-После coder в `feature-delivery` прогони `lint` и `test` из `commands` профиля и покажи результат tester и reviewer.
+После coder в `feature-delivery` прогони `lint` и `test` из `commands` профиля в его папке `root` и покажи результат tester и reviewer.
 
 Покажи цепочку разработчику:
 

@@ -116,7 +116,7 @@ assert "@latest" not in path.read_text(encoding="utf-8"), "версия не з�
 PY
 }
 
-# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям; правка команды проекта сохранена (если была)
+# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям, Nuxt найден в web/; правка команды проекта сохранена (если была)
 check_profile_contracts() {
   "$PYTHON_BIN" - "$PROJECT_DIR" "$KIT_ROOT/presets/$PRESET.json" "${1:-}" <<'PY'
 import json, pathlib, sys
@@ -127,6 +127,8 @@ assert list(contracts) == expected, f"профили {list(contracts)} вмес�
 for name, contract in contracts.items():
     assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
     assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+    expected_root = "web" if name == "vue-nuxt" else "."
+    assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
 if edited:
     first = contracts[expected[0]]["commands"]
     assert first.get("test") == "custom-test", "правка команды test затёрта"
@@ -180,6 +182,8 @@ check_runtime_files() {
 }
 
 echo "▶ Адаптер $ADAPTER, пресет $PRESET → $PROJECT_DIR"
+# Монорепо: Nuxt-приложение в web/ — установщик должен найти папку профиля
+mkdir -p "$PROJECT_DIR/web" && touch "$PROJECT_DIR/web/nuxt.config.ts"
 
 echo "▶ install-adapter-package.py"
 INSTALL_LOG="$WORK_DIR/$ADAPTER-$PRESET-install.log"

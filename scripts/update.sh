@@ -43,56 +43,12 @@ get_repo_version() {
   fi
 }
 
-profile_prefix() {
-  echo "$1" | sed 's/python-//; s/-[a-z]*$//'
-}
-
 # shellcheck source=lib/skills.sh
 source "$SCRIPT_DIR/lib/skills.sh"
 # shellcheck source=lib/mcp.sh
 source "$SCRIPT_DIR/lib/mcp.sh"
 # shellcheck source=lib/profiles.sh
 source "$SCRIPT_DIR/lib/profiles.sh"
-
-find_conflicts() {
-  local subdir="$1"
-  local all_files=""
-  for p in $PROFILE_LIST; do
-    local dir="$CONFIG_ROOT/profiles/$p/$subdir"
-    if [[ -d "$dir" ]]; then
-      for f in "$dir"/*.md; do
-        [[ -f "$f" ]] && all_files="${all_files}$(basename "$f")\n"
-      done
-    fi
-  done
-  printf "%b" "$all_files" | sort | uniq -d
-}
-
-copy_profile_files() {
-  local subdir="$1"
-  local dst="$2"
-  local conflicts
-  conflicts="$(find_conflicts "$subdir")"
-
-  for p in $PROFILE_LIST; do
-    local src="$CONFIG_ROOT/profiles/$p/$subdir"
-    [[ -d "$src" ]] || continue
-    local prefix
-    prefix="$(profile_prefix "$p")"
-
-    for f in "$src"/*.md; do
-      [[ -f "$f" ]] || continue
-      local fname
-      fname="$(basename "$f")"
-
-      if echo "$conflicts" | grep -qx "$fname" 2>/dev/null; then
-        cp "$f" "$dst/${prefix}-${fname}"
-      else
-        cp "$f" "$dst/$fname"
-      fi
-    done
-  done
-}
 
 # =============================================================================
 # Чтение .config-version
@@ -195,18 +151,11 @@ if [[ -d "$AGENTS_DST" ]]; then
   [[ -d "$BASE_AGENTS" ]] && cp "$BASE_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
 
   # Профили
-  PROFILE_COUNT="$(echo "$PROFILE_LIST" | wc -w | tr -d ' ')"
-  MULTI_PROFILE=false
-  [[ "$PROFILE_COUNT" -gt 1 ]] && MULTI_PROFILE=true
-
-  if $MULTI_PROFILE; then
-    copy_profile_files "agents" "$AGENTS_DST"
-  else
-    for p in $PROFILE_LIST; do
-      P_AGENTS="$CONFIG_ROOT/profiles/$p/agents"
-      [[ -d "$P_AGENTS" ]] && cp "$P_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
-    done
-  fi
+  # Имена агентов уникальны во всём ките (статическая проверка), поэтому профили копируются как есть
+  for p in $PROFILE_LIST; do
+    P_AGENTS="$CONFIG_ROOT/profiles/$p/agents"
+    [[ -d "$P_AGENTS" ]] && cp "$P_AGENTS"/*.md "$AGENTS_DST/" 2>/dev/null || true
+  done
 
   # Паки
   for pack in $INSTALLED_PACKS; do

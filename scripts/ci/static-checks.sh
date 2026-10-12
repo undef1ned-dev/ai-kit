@@ -11,6 +11,7 @@
 #   4. Генератор каталога видит все скиллы-папки профилей и паков
 #   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
+#   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 
 set -eo pipefail
 
@@ -88,7 +89,7 @@ echo "▶ Контракт профиля: обязательные поля, а
 import json, pathlib, sys
 ROLES = {"architect", "coder", "tester", "reviewer"}
 COMMANDS = {"lint", "format", "test", "build", "run"}
-REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "path_signals"}
+REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "root_markers", "path_signals"}
 errors = []
 for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json")):
     profile = manifest.parent
@@ -112,6 +113,8 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
         errors.append(f"{manifest}: команды {sorted(unknown)} неизвестны или нет test")
     if not data["path_signals"]:
         errors.append(f"{manifest}: пустые path_signals")
+    if not data["root_markers"]:
+        errors.append(f"{manifest}: пустые root_markers")
 for error in errors:
     print(f"  ✗ {error}")
 sys.exit(1 if errors else 0)
@@ -131,6 +134,26 @@ for path in files:
     errors += [f"{path}: {name}" for name in sorted(names) if re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", text)]
 for error in errors:
     print(f"  ✗ имя агента профиля вместо роли из контракта: {error}")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Имена агентов и скиллов уникальны во всём ките, name агента совпадает с файлом"
+"$PYTHON_BIN" -c '
+import collections, pathlib, re, sys
+layers = [pathlib.Path("base"), *pathlib.Path("profiles").iterdir(), *pathlib.Path("packs").iterdir()]
+agents, skills, errors = collections.defaultdict(list), collections.defaultdict(list), []
+for layer in layers:
+    for path in layer.glob("agents/*.md"):
+        agents[path.stem].append(str(layer))
+        match = re.search(r"(?m)^name:\s*\"?([\w-]+)", path.read_text(encoding="utf-8"))
+        if not match or match.group(1) != path.stem:
+            errors.append(f"{path}: name не совпадает с именем файла")
+    for path in layer.glob("skills/*/SKILL.md"):
+        skills[path.parent.name].append(str(layer))
+errors += [f"агент {name} есть в {owners}" for name, owners in agents.items() if len(owners) > 1]
+errors += [f"скилл {name} есть в {owners}" for name, owners in skills.items() if len(owners) > 1]
+for error in errors:
+    print(f"  ✗ {error}")
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 

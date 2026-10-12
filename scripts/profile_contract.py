@@ -5,10 +5,14 @@ Collect the contracts of the installed profiles into one project file: .aikit/pr
 Source of truth: profiles/<profile>/profile.manifest.json. Agents, skills and hooks of every
 runtime read the project file, so they do not need to know the kit layout.
 
-The team may edit "commands" in .aikit/profiles.json (another package manager, extra flags,
-a removed command). Kit defaults from the previous run are kept in .aikit/profiles.kit-defaults.json:
-a command still equal to the old default follows the kit, a changed or removed one stays as the team left it.
-Every other field is owned by the kit and refreshed on each run.
+Each profile gets "root": the project folder it lives in, found by the profile's root_markers
+("frontend" for a Nuxt app in frontend/, "." for a single-stack repository). Commands run there
+and path_signals are relative to it.
+
+The team may edit "commands" and "root" in .aikit/profiles.json (another package manager, extra flags,
+a removed command, a different folder). Kit values from the previous run are kept in
+.aikit/profiles.kit-defaults.json: a value still equal to the old kit value follows the kit,
+a changed or removed one stays as the team left it. Every other field is owned by the kit and refreshed on each run.
 
 Usage:
     python3 scripts/profile_contract.py --profiles a+b [--workspace .]
@@ -25,10 +29,13 @@ ROOT = Path(__file__).resolve().parent.parent
 PROFILES_FILE = Path(".aikit") / "profiles.json"
 DEFAULTS_FILE = Path(".aikit") / "profiles.kit-defaults.json"
 ABOUT = (
-    "Контракты профилей AIKit: агенты по ролям, специалисты, команды. "
-    "Команды в commands можно менять под проект — обновление кита их не затрёт; остальные поля обновляются из кита. "
-    "{files} в команде — изменённые файлы."
+    "Контракты профилей AIKit: агенты по ролям, специалисты, команды, папка профиля. "
+    "root — папка профиля в проекте: команды запускаются в ней, path_signals считаются от неё. "
+    "commands и root можно менять под проект — обновление кита их не затрёт; остальные поля обновляются из кита. "
+    "{files} в команде — изменённые файлы относительно root."
 )
+SKIPPED_DIRS = {"node_modules", "venv", "__pycache__", "dist", "build", "coverage"}
+ROOT_SEARCH_DEPTH = 2
 
 
 def read_json(path: Path) -> dict | None:
@@ -76,8 +83,47 @@ def merge_commands(kit: dict[str, str], previous_kit: dict[str, str] | None, cur
     return merged
 
 
+def candidate_roots(workspace: Path) -> list[str]:
+    """Project folders a profile may live in: the workspace itself, then subfolders up to ROOT_SEARCH_DEPTH."""
+    roots = ["."]
+    level = [workspace]
+    for _ in range(ROOT_SEARCH_DEPTH):
+        level = sorted(
+            child
+            for folder in level
+            for child in folder.iterdir()
+            if child.is_dir() and not child.name.startswith(".") and child.name not in SKIPPED_DIRS
+        )
+        roots += [child.relative_to(workspace).as_posix() for child in level]
+    return roots
+
+
+def detect_root(workspace: Path, markers: list[str]) -> str:
+    """The first folder that holds one of the profile's root markers; "." when none does."""
+    for root in candidate_roots(workspace):
+        if any((workspace / root / marker).is_file() for marker in markers):
+            return root
+    return "."
+
+
+def merge_root(kit: str, previous_kit: str | None, current: str | None) -> str:
+    """Detected root unless the team set its own. previous_kit is None when the kit has no record of it."""
+    if not current or (previous_kit is not None and current == previous_kit):
+        return kit
+    return current
+
+
+def previous_kit_values(record: object) -> tuple[dict[str, str] | None, str | None]:
+    """Commands and root from a kit-defaults record; early records held only the commands."""
+    if not isinstance(record, dict):
+        return None, None
+    if "commands" in record:
+        return record.get("commands"), record.get("root")
+    return record, None
+
+
 def install(workspace: Path, profiles: list[str]) -> list[str]:
-    """Write .aikit/profiles.json for the given profiles. Returns the profile names written."""
+    """Write .aikit/profiles.json for the given profiles. Returns "profile (root)" for each profile written."""
     profiles_path = workspace / PROFILES_FILE
     defaults_path = workspace / DEFAULTS_FILE
     existing = read_json(profiles_path)
@@ -88,22 +134,26 @@ def install(workspace: Path, profiles: list[str]) -> list[str]:
     current_profiles = existing.get("profiles", {}) if isinstance(existing.get("profiles"), dict) else {}
 
     contracts: dict[str, dict] = {}
-    kit_defaults: dict[str, dict[str, str]] = {}
+    kit_defaults: dict[str, dict] = {}
     for profile in profiles:
         contract = load_contract(profile)
         kit_commands = contract.get("commands", {})
+        kit_root = detect_root(workspace, contract.get("root_markers", []))
+        previous_commands, previous_root = previous_kit_values(previous_defaults.get(profile))
         current = current_profiles.get(profile, {})
+        current = current if isinstance(current, dict) else {}
+        contract["root"] = merge_root(kit_root, previous_root, current.get("root") if isinstance(current.get("root"), str) else None)
         contract["commands"] = merge_commands(
             kit_commands,
-            previous_defaults.get(profile),
-            current.get("commands") if isinstance(current, dict) and isinstance(current.get("commands"), dict) else None,
+            previous_commands,
+            current.get("commands") if isinstance(current.get("commands"), dict) else None,
         )
         contracts[profile] = contract
-        kit_defaults[profile] = kit_commands
+        kit_defaults[profile] = {"commands": kit_commands, "root": kit_root}
 
     write_json(profiles_path, {"about": ABOUT, "profiles": contracts})
     write_json(defaults_path, kit_defaults)
-    return list(contracts)
+    return [f"{name} ({contract['root']})" for name, contract in contracts.items()]
 
 
 def parse_args() -> argparse.Namespace:
@@ -116,7 +166,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     profiles = [item for item in args.profiles.split("+") if item]
-    print(" ".join(install(Path(args.workspace).resolve(), profiles)))
+    print(", ".join(install(Path(args.workspace).resolve(), profiles)))
     return 0
 
 

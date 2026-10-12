@@ -22,5 +22,6 @@
     "build": "npx nuxt build",
     "run": "npx nuxt dev"
   },
+  "root_markers": ["nuxt.config.ts", "nuxt.config.js", "nuxt.config.mjs"],
   "path_signals": ["pages/", "components/", "composables/", "stores/", "server/api/", "middleware/", "plugins/", "layouts/", "app.vue", "nuxt.config.", "vitest.config.", "playwright.config.", "eslint.config."]
 }

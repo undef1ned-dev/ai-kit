@@ -21,5 +21,6 @@
     "test": "uv run pytest",
     "run": "uv run uvicorn main:app --reload"
   },
+  "root_markers": ["main.py", "app/main.py"],
   "path_signals": ["routers/", "schemas/", "models/", "migrations/", "tests/", "main.py"]
 }

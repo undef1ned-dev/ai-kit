@@ -114,35 +114,12 @@ def render_runtime_template(template_text: str, variables: dict[str, str]) -> st
     return result
 
 
-def profile_prefix(profile_name: str) -> str:
-    return re.sub(r"-[a-z0-9]+$", "", profile_name.replace("python-", ""))
-
-
-def find_conflicts(profile_names: list[str], subdir: str) -> set[str]:
-    counts: dict[str, int] = {}
-    for profile_name in profile_names:
-        directory = ROOT / "profiles" / profile_name / subdir
-        if not directory.exists():
-            continue
-        for md in directory.glob("*.md"):
-            counts[md.name] = counts.get(md.name, 0) + 1
-    return {name for name, count in counts.items() if count > 1}
-
-
 def skill_folders(skills_root: Path) -> list[Path]:
     return sorted(path.parent for path in skills_root.glob("*/SKILL.md"))
 
 
-def find_skill_conflicts(profile_names: list[str]) -> set[str]:
-    counts: dict[str, int] = {}
-    for profile_name in profile_names:
-        for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
-            counts[folder.name] = counts.get(folder.name, 0) + 1
-    return {name for name, count in counts.items() if count > 1}
-
-
 def install_skill_folder(source: Path, destination: Path) -> None:
-    """Copy a <name>/SKILL.md skill and set name to the folder name (prefixed on conflicts)."""
+    """Copy a <name>/SKILL.md skill and set name to the folder name."""
     shutil.copytree(source, destination)
     skill_file = destination / "SKILL.md"
     text = skill_file.read_text(encoding="utf-8")
@@ -686,20 +663,13 @@ def build_package(
     for folder in skill_folders(ROOT / "base" / "skills"):
         install_skill_folder(folder, skills_dir / folder.name)
 
-    # Profile agents and skills with conflict-safe names
-    agent_conflicts = find_conflicts(profiles, "agents")
-    skill_conflicts = find_skill_conflicts(profiles)
+    # Profile agents and skills; names are unique across the kit (static check)
     for profile_name in profiles:
-        prefix = profile_prefix(profile_name)
-
         profile_agents = ROOT / "profiles" / profile_name / "agents"
         for md in sorted(profile_agents.glob("*.md")):
-            dst_name = f"{prefix}-{md.name}" if md.name in agent_conflicts else md.name
-            copy_markdown(md, agents_dir / dst_name)
-
+            copy_markdown(md, agents_dir / md.name)
         for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
-            dst_name = f"{prefix}-{folder.name}" if folder.name in skill_conflicts else folder.name
-            install_skill_folder(folder, skills_dir / dst_name)
+            install_skill_folder(folder, skills_dir / folder.name)
 
     # Pack agents and skills
     for pack_name in packs:

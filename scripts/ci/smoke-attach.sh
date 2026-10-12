@@ -97,7 +97,7 @@ assert not gitignore.exists() or ".claude/settings.json" not in gitignore.read_t
 PY
 }
 
-# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям; правка команды проекта сохранена (если была)
+# .aikit/profiles.json: контракты всех профилей пресета с агентами по ролям, Nuxt найден в web/; правка команды проекта сохранена (если была)
 check_profile_contracts() {
   "$PYTHON_BIN" - "$PROJECT_DIR" "$KIT_ROOT/presets/$PRESET.json" "${1:-}" <<'PY'
 import json, pathlib, sys
@@ -108,6 +108,8 @@ assert list(contracts) == expected, f"профили {list(contracts)} вмес�
 for name, contract in contracts.items():
     assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
     assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+    expected_root = "web" if name == "vue-nuxt" else "."
+    assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
 if edited:
     first = contracts[expected[0]]["commands"]
     assert first.get("test") == "custom-test", "правка команды test затёрта"
@@ -133,6 +135,8 @@ count_files() { find "$1" -type f -name "$2" 2>/dev/null | wc -l | tr -d ' '; }
 echo "▶ Пресет $PRESET → $PROJECT_DIR"
 cd "$PROJECT_DIR"
 git init -q
+# Монорепо: Nuxt-приложение в web/ — установщик должен найти папку профиля
+mkdir -p web && touch web/nuxt.config.ts
 
 echo "▶ attach.sh"
 bash "$KIT_ROOT/scripts/attach.sh" --preset "$PRESET" > attach.log 2>&1 || { cat attach.log; echo "✗ attach.sh завершился с ошибкой"; exit 1; }
