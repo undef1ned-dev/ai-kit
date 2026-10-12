@@ -49,7 +49,6 @@ Validator:
 
 ## Runtime Guides
 
-- [GLM Runtime Guide](../public/glm-runtime-guide.md)
 - [OpenCode Runtime Guide](../public/opencode-runtime-guide.md)
 - [Runtime Maturity Review](../public/runtime-maturity-review.md)
 - [Install Matrix](../public/install-matrix.md)

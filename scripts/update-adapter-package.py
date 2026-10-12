@@ -4,7 +4,7 @@ Update an installed AIKit adapter workspace by resyncing the selected bundle.
 
 Usage:
     python scripts/update-adapter-package.py codex --profile vue-nuxt --workspace /tmp/my-codex-workspace
-    python scripts/update-adapter-package.py glm --preset backend-django --workspace /tmp/my-glm-workspace
+    python scripts/update-adapter-package.py opencode --preset backend-django --workspace /tmp/my-opencode-workspace
 """
 
 from __future__ import annotations

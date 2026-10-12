@@ -1,5 +1,5 @@
 name: Runtime issue
-description: Report a Codex, GLM or OpenCode runtime workspace failure.
+description: Report a Codex or OpenCode runtime workspace failure.
 title: "[runtime]: "
 labels:
   - runtime
@@ -14,7 +14,6 @@ body:
       label: Runtime
       options:
         - Codex
-        - GLM
         - OpenCode
     validations:
       required: true
