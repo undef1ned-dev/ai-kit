@@ -418,7 +418,8 @@ def render_codex_command_surface(workspace: Path) -> list[str]:
             continue
 
         metadata = parse_frontmatter(content)
-        command_name = str(metadata.get("name") or command_path.stem).strip() or command_path.stem
+        # The file stem is the installed name: multi-profile conflicts are prefixed (vue-implement-feature), frontmatter name is not
+        command_name = command_path.stem
         description = str(metadata.get("description") or "").strip()
         body = strip_leading_frontmatter(content).strip()
 
@@ -450,7 +451,8 @@ def render_codex_custom_agents(workspace: Path) -> list[dict[str, str]]:
             role_name = agent_file.stem
         description = str(metadata.get("description") or f"AIKit role {role_name}").strip()
         developer_instructions = strip_leading_frontmatter(content).strip()
-        developer_instructions = developer_instructions.replace('"""', '\\"\\"\\"')
+        # Backslashes first, otherwise TOML multiline basic strings reject sequences like "\d" in agent prompts
+        developer_instructions = developer_instructions.replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
         toml_lines = [
             f"name = {json.dumps(role_name, ensure_ascii=False)}",
             f"description = {json.dumps(description, ensure_ascii=False)}",

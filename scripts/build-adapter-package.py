@@ -695,12 +695,11 @@ def build_package(
         if not (ROOT / "packs" / pack_name).exists():
             raise SystemExit(f"Unknown pack '{pack_name}'")
         compatible_profiles = read_pack_compatible_profiles(pack_name)
-        if compatible_profiles:
-            incompatible = [profile_name for profile_name in profiles if profile_name not in compatible_profiles]
-            if incompatible:
-                raise SystemExit(
-                    f"Pack '{pack_name}' is not compatible with profile(s): {', '.join(incompatible)}"
-                )
+        # In a multi-profile setup a pack only needs one compatible profile (e.g. the ai pack for the backend in fullstack-web)
+        if compatible_profiles and not any(profile_name in compatible_profiles for profile_name in profiles):
+            raise SystemExit(
+                f"Pack '{pack_name}' is not compatible with any of profile(s): {', '.join(profiles)}"
+            )
 
     bundle_root = target_root / adapter_name
     if bundle_root.exists():
