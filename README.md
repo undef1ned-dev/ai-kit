@@ -63,7 +63,7 @@ bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
 
 ## Документация
 
-Открой [docs/site/index.html](docs/site/index.html) в браузере. Там простыми словами объяснено, что такое AIKit, есть словарь терминов, установка, каталог профилей, известные ошибки и roadmap, а также поиск по всему этому.
+Сайт: **https://undef1ned-dev.github.io/ai-kit/** (или локально — [docs/site/index.html](docs/site/index.html)). Там простыми словами объяснено, что такое AIKit, есть словарь терминов, установка, каталог профилей, известные ошибки и roadmap, а также поиск по всему этому.
 
 Тот же текст в Markdown лежит в [docs/guide/](docs/guide/index.md). Его правят люди и AI-агенты, а сайт собирается из него командой `python3 scripts/generate-docs.py`.
 

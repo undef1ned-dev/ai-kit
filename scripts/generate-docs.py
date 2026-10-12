@@ -26,13 +26,14 @@ from __future__ import annotations
 import argparse
 import html
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE_DIR = ROOT / "docs" / "site"
+# Files outside the site link to GitHub: the same link works locally and on GitHub Pages
+REPO_URL = "https://github.com/undef1ned-dev/ai-kit"
 SEARCH_INDEX = "assets/search-index.js"
 CATALOG_SLUG = "catalog"
 COMMANDS_PAGE = "docs/guide/commands.md"
@@ -71,6 +72,10 @@ TABLE_SEP_RE = re.compile(r"^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?$")
 LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)\s]+)\)")
 CODE_SPAN_RE = re.compile(r"(`+)(.+?)\1")
 MARKER_RE = re.compile(r"^<!--\s*([\w-]+)\s*-->$")
+
+
+def repo_link(path: str, is_dir: bool = False) -> str:
+    return f"{REPO_URL}/{'tree' if is_dir else 'blob'}/main/{path}"
 
 
 def h(text) -> str:
@@ -137,7 +142,7 @@ class Page:
                 self.fragment_links.append((slug, fragment, f"битый якорь в {self.source}: {url}"))
             result = f"{slug}.html"
         elif target.exists():
-            result = os.path.relpath(target, SITE_DIR).replace(os.sep, "/")
+            result = repo_link(rel, target.is_dir())
         else:
             self.broken_links.append(f"битая ссылка в {self.source}: {url}")
             return url
@@ -529,7 +534,7 @@ def render_entry_card(entry: dict, section_id: str) -> str:
   <p>{h(entry.get("description", ""))}</p>
   {f'<div class="chips">{"".join(badges)}</div>' if badges else ""}
   {example_html}
-  <a class="entry-source" href="{h(os.path.relpath(ROOT / entry["_file"], SITE_DIR).replace(os.sep, "/"))}">{h(entry["_file"])}</a>
+  <a class="entry-source" href="{h(repo_link(entry["_file"]))}">{h(entry["_file"])}</a>
 </article>'''
 
 
@@ -750,7 +755,7 @@ def build() -> tuple[dict[str, str], list[str]]:
             text = (ROOT / source).read_text(encoding="utf-8").replace("\r\n", "\n")
             body = render_blocks(text.split("\n"), page)
             footer = (
-                f'Исходник страницы: <a href="{h(os.path.relpath(ROOT / source, SITE_DIR).replace(os.sep, "/"))}">{h(source)}</a>'
+                f'Исходник страницы: <a href="{h(repo_link(source))}">{h(source)}</a>'
                 " — правь его, затем <code>python3 scripts/generate-docs.py</code>"
             )
         else:

@@ -65,7 +65,7 @@ AI-ассистент из коробки — сильный разработч�
 
 Документация живёт в двух видах с одним текстом:
 
-- **HTML-сайт** `docs/site/` — для чтения и поиска: открой `docs/site/index.html` в браузере;
+- **HTML-сайт** `docs/site/` — для чтения и поиска: [https://undef1ned-dev.github.io/ai-kit/](https://undef1ned-dev.github.io/ai-kit/) или локально `docs/site/index.html`;
 - **Markdown** `docs/guide/*.md` — исходник: его правят люди и AI-агенты, сайт собирается из него командой `python3 scripts/generate-docs.py`.
 
 | Файл | Что внутри | Кому |
