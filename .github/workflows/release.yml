@@ -35,6 +35,9 @@ jobs:
         run: |
           for preset in presets/*.json; do
             bash scripts/ci/smoke-attach.sh "$(basename "$preset" .json)" "$RUNNER_TEMP"
+            for adapter in codex opencode; do
+              bash scripts/ci/smoke-adapter.sh "$adapter" "$(basename "$preset" .json)" "$RUNNER_TEMP"
+            done
           done
 
       - name: Create GitHub Release

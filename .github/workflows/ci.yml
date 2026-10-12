@@ -14,36 +14,16 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Two jobs on purpose: Actions minutes are billed per job (rounded up), Windows minutes count double.
+# Each step loops over all presets and keeps going after a failure, so one run shows every broken preset.
 jobs:
-  static:
-    name: Static checks
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Setup Python
-        uses: actions/setup-python@v7
-        with:
-          python-version: "3.12"
-
-      - name: Run static checks
-        run: bash scripts/ci/static-checks.sh
-
-  smoke:
-    name: Smoke ${{ matrix.preset }} (${{ matrix.os }}${{ matrix.merge == 'python' && ', no jq' || '' }})
+  checks:
+    name: Checks (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        preset: [backend-api, backend-django, frontend-team, fullstack-web]
-        merge: [jq]
-        include:
-          # settings.json merge fallback when jq is not installed
-          - os: ubuntu-latest
-            preset: fullstack-web
-            merge: python
     defaults:
       run:
         shell: bash
@@ -62,9 +42,33 @@ jobs:
           command -v python3 >/dev/null || cp "$(command -v python)" "$(dirname "$(command -v python)")/python3.exe"
           python3 --version
 
-      - name: Remove jq
-        if: matrix.merge == 'python'
-        run: sudo rm -f "$(command -v jq)" && ! command -v jq
+      - name: Static checks
+        if: runner.os == 'Linux'
+        run: bash scripts/ci/static-checks.sh
 
-      - name: Run smoke test
-        run: bash scripts/ci/smoke-attach.sh "${{ matrix.preset }}" "$RUNNER_TEMP"
+      - name: Smoke attach.sh (Claude Code)
+        run: |
+          status=0
+          for preset in presets/*.json; do
+            bash scripts/ci/smoke-attach.sh "$(basename "$preset" .json)" "$RUNNER_TEMP/attach" || status=1
+          done
+          exit $status
+
+      - name: Smoke adapters (Codex, OpenCode)
+        if: success() || failure()
+        run: |
+          status=0
+          for adapter in codex opencode; do
+            for preset in presets/*.json; do
+              bash scripts/ci/smoke-adapter.sh "$adapter" "$(basename "$preset" .json)" "$RUNNER_TEMP/adapters" || status=1
+            done
+          done
+          exit $status
+
+      # settings.json merge fallback when jq is not installed
+      - name: Smoke attach.sh without jq
+        if: runner.os == 'Linux' && (success() || failure())
+        run: |
+          sudo rm -f "$(command -v jq)"
+          ! command -v jq
+          bash scripts/ci/smoke-attach.sh fullstack-web "$RUNNER_TEMP/no-jq"

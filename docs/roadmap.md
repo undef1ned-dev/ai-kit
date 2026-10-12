@@ -54,7 +54,7 @@
 
 ## Часть I. Общее ядро
 
-### Этап 1. Страховочная сетка
+### Этап 1. Страховочная сетка ✅
 
 Ставится первым, чтобы глобальные переделки дальше не ломали установку незаметно.
 
@@ -62,8 +62,8 @@
 |---|---|
 | 1.1 ✅ | Smoke-тест в GitHub Actions: `attach.sh` для каждого пресета на пустом проекте + `bash -n`, `py_compile`, разбор всех JSON. Заменяет удалённые валидаторы |
 | 1.2 ✅ | Привести в порядок CI документации (`build-docs-artifact.yml`): не падать и не коммитить устаревший контент. Сами генераторы чинятся в этапе 8 |
-| 1.3 | `install-adapter-package.py`: пресет `fullstack-web` падает для Codex и OpenCode с «Pack 'ai' is not compatible with profile(s): vue-nuxt» — тот же баг, что был в `attach.sh` (`scripts/build-adapter-package.py:703`) |
-| 1.4 | Smoke-тест установки адаптеров в CI: `install-adapter-package.py` для `codex` и `opencode` × все пресеты, с проверкой файлов, которые реально читает каждый runtime |
+| 1.3 ✅ | `install-adapter-package.py`: пресет `fullstack-web` падает для Codex и OpenCode с «Pack 'ai' is not compatible with profile(s): vue-nuxt» — тот же баг, что был в `attach.sh` (`scripts/build-adapter-package.py:703`). Заодно исправлены: дубль `/implement-feature` в мульти-профиле для Codex и невалидный TOML агентов Codex (не экранировался `\`) |
+| 1.4 ✅ | Smoke-тест установки адаптеров в CI: `install-adapter-package.py` для `codex` и `opencode` × все пресеты, с проверкой файлов, которые реально читает каждый runtime |
 
 ### Этап 2. Формат поставки: Skills и MCP
 
@@ -71,7 +71,7 @@
 
 | # | Задача |
 |---|---|
-| 2.0 | **Адаптеры кладут файлы туда, где их читает runtime.** Аудит (см. [docs/runtime-support.md](runtime-support.md)) показал: Codex и OpenCode не получают правила проекта (нет `AGENTS.md`), скиллы Codex лежат в `.codex/skills/` (Codex читает `.agents/skills/`), у OpenCode нет ни агентов, ни скиллов в его папках; адаптер GLM удаляется. Привести установку в соответствие |
+| 2.0 | **Адаптеры кладут файлы туда, где их читает runtime.** Аудит (см. [docs/runtime-support.md](runtime-support.md)) показал: Codex и OpenCode не получают правила проекта (нет `AGENTS.md`), скиллы Codex лежат в `.codex/skills/` (Codex читает `.agents/skills/`), у OpenCode нет ни агентов, ни скиллов в его папках; адаптер GLM удаляется. Ещё: установка Codex пишет промпты в глобальную `~/.codex/prompts` (они общие для всех проектов пользователя и перезаписывают друг друга), а у скиллов с префиксом (`vue-implement-feature/`) поле `name` в `SKILL.md` не совпадает с именем папки. Привести установку в соответствие |
 | 2.1 | **Skills вместо commands.** Все `base/skills/*.md`, `profiles/*/skills/*.md`, `packs/*/skills/*.md` → `<name>/SKILL.md`, `description` под автовызов, шаблоны (`base/skills/templates/`) — рядом со скиллом. Образец — `git-commit/`, `git-branch/` |
 | 2.2 | Установщики (`attach.sh` / `update.sh` и адаптеры): копировать скиллы-папки из base, профилей и паков в `.claude/skills/` и `.agents/skills/` (Codex, OpenCode), разрешать конфликты имён, перестать писать в `.claude/commands/` и `.codex/commands/` |
 | 2.3 | **MCP-серверы — один источник, родной формат для каждого runtime:** `.mcp.json` (Claude Code), `[mcp_servers.*]` в `.codex/config.toml` (Codex), `"mcp"` в `opencode.json` (OpenCode). Версии закреплены, Figma — официальный MCP, секреты — только через переменные окружения. `.claude/settings.json` перестаёт попадать в `.gitignore` |
@@ -189,7 +189,7 @@
 
 ## Порядок
 
-**1 (1.3–1.4) → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12**
+**1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12**
 
 - **1** — страховка: дальше идут глобальные переделки.
 - **2–3** — фундамент: формат скиллов и контракт профиля. Всё остальное на них опирается.
