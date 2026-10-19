@@ -12,3 +12,6 @@ __pycache__/
 
 # Claude Code (локальные настройки MCP — у каждого свои пути)
 .claude/settings.json
+
+# Результаты прогонов эвалов (scripts/run-evals.py)
+evals/results/

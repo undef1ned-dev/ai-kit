@@ -85,6 +85,8 @@
 python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
 bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт и плагины собраны
 bash scripts/ci/run-all.sh         # всё целиком, включая установку на тестовые проекты</code></pre></div>
+<p>Качество агентов и скиллов профиля проверяют <a href="developing-aikit.html#эвалы">эвалы</a>: заведи группу <code>evals/java-spring/</code> — маленький проект в <code>evals/fixtures/</code>, кейс генерации скиллом профиля и кейс ревью файла с заложенными ошибками (образцы — соседние группы). Дальше после каждой правки профиля гоняй только его группу — прогон тратит лимиты подписки, поэтому запуск вручную:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/run-evals.py java-spring --quick</code></pre></div>
 <p>Профиль — это и плагин маркетплейса: после слияния в <code>main</code> его ставят как <code>/plugin install java-spring@aikit</code> и подключают <code>/aikit:setup vue-nuxt+java-spring</code>.</p>
 <p>Через установщик — отдельно или вместе с другими профилями:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>bash .aikit-config/scripts/attach.sh java-spring

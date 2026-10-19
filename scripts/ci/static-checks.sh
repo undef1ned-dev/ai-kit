@@ -15,6 +15,7 @@
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
 #  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы
+#  11. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
 
 set -eo pipefail
 
@@ -182,6 +183,9 @@ if command -v node &>/dev/null; then
   cp base/hooks/opencode-plugin.js "$PLUGIN_COPY"
   node --check "$PLUGIN_COPY" && echo "  ✓ плагин OpenCode: синтаксис JS" || { echo "  ✗ плагин OpenCode: синтаксис JS"; FAILURES=$((FAILURES + 1)); }
 fi
+
+echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
+"$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Статические проверки: ошибок — $FAILURES"

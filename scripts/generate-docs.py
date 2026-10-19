@@ -734,9 +734,14 @@ SHELL = """<!DOCTYPE html>
 
 
 def undocumented_skills() -> list[str]:
-    """Every skill of the kit is listed on the commands page."""
+    """Every skill of the kit is listed on the commands page; .claude/ and .agents/ hold tools for developing the kit itself."""
     text = (ROOT / COMMANDS_PAGE).read_text(encoding="utf-8")
-    names = {path.parent.name for pattern in ("*/skills/*/SKILL.md", "*/*/skills/*/SKILL.md") for path in ROOT.glob(pattern)}
+    names = {
+        path.parent.name
+        for pattern in ("*/skills/*/SKILL.md", "*/*/skills/*/SKILL.md")
+        for path in ROOT.glob(pattern)
+        if not path.relative_to(ROOT).parts[0].startswith(".")
+    }
     return [f"скилл {name} не описан в {COMMANDS_PAGE}" for name in sorted(names) if not re.search(rf"[`/]{re.escape(name)}(?![\w-])", text)]
 
 
