@@ -106,12 +106,15 @@ profiles/java-spring/
 ## Шаг 3 — проверить
 
 ```bash
+python3 scripts/build-plugins.py   # new-profile.py уже собрал плагин; повтори после правок агентов, скиллов и mcp.json
 python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
-bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт собран
+bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт и плагины собраны
 bash scripts/ci/run-all.sh         # всё целиком, включая установку на тестовые проекты
 ```
 
-Подключить к своему проекту — отдельно или вместе с другими профилями:
+Профиль — это и плагин маркетплейса: после слияния в `main` его ставят как `/plugin install java-spring@aikit` и подключают `/aikit:setup vue-nuxt+java-spring`.
+
+Через установщик — отдельно или вместе с другими профилями:
 
 ```bash
 bash .aikit-config/scripts/attach.sh java-spring

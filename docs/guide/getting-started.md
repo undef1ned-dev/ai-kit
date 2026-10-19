@@ -6,13 +6,93 @@
 
 | Что | Зачем | Примечание |
 |---|---|---|
-| Git | Кит подключается как git submodule | — |
-| Bash | Установщик `attach.sh` — bash-скрипт | На Windows — Git Bash (ставится вместе с Git for Windows) |
-| Python 3.9+ | Установщики собирают контракты и MCP-конфиги, на нём работают хуки | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
 | Runtime | Claude Code, Codex или OpenCode | Подойдёт любой из трёх, можно несколько сразу |
-| `jq` | Склейка `settings.json` | Необязательно: без него сработает запасной путь на Python |
+| Python 3.9+ | На нём работают хуки и подключение проекта | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
+| Git | Маркетплейс плагинов — этот репозиторий на GitHub | Для установщика кит подключается как git submodule |
+| Bash | Только для установщика `attach.sh` | На Windows — Git Bash (ставится вместе с Git for Windows) |
+| `jq` | Склейка `settings.json` в `attach.sh` | Необязательно: без него сработает запасной путь на Python |
 
-## Установка в Claude Code
+Кит ставится двумя способами:
+
+- **плагинами** — Claude Code и Codex: агенты, скиллы, хуки и MCP приходят из маркетплейса и обновляются вместе с ним, в проект пишется только то, что принадлежит проекту;
+- **установщиком** — OpenCode и запасной путь для Claude Code и Codex: кит подключается submodule'ом и копирует всё в проект.
+
+Выбери один способ на проект: плагины и копии установщика вместе дублируют агентов и скиллы.
+
+## Выбор набора
+
+Проще всего взять пресет — готовую комбинацию профилей и паков:
+
+| Пресет | Профили | Паки | Для кого |
+|---|---|---|---|
+| `frontend-team` | `vue-nuxt` | quality, devops | Фронтенд на Vue/Nuxt |
+| `backend-api` | `python-fastapi` | quality, devops, ai | API на FastAPI |
+| `backend-django` | `python-django` | quality, devops, ai | Бэкенд на Django |
+| `fullstack-web` | `vue-nuxt` + `python-fastapi` | quality, devops, ai | Nuxt-фронтенд и FastAPI-бэкенд в одном репозитории |
+
+Или собери набор сам — профили через `+`, паки отдельно.
+
+## Установка плагинами в Claude Code
+
+Каждый профиль и пак — отдельный плагин маркетплейса `aikit`, ядро — плагин `aikit`.
+
+<!-- steps -->
+1. **Добавь маркетплейс и поставь плагины** — в Claude Code:
+
+   ```text
+   /plugin marketplace add undef1ned-dev/ai-kit
+   /plugin install aikit@aikit
+   /plugin install vue-nuxt@aikit
+   /plugin install quality@aikit
+   ```
+
+   Ставь плагины профилей и паков своего набора: `python-fastapi@aikit`, `devops@aikit` и так далее.
+
+2. **Подключи проект** — в корне проекта:
+
+   ```text
+   /aikit:setup frontend-team
+   ```
+
+   Аргумент — пресет или профили через `+`. Без аргумента скилл определит стек по проекту и предложит выбор.
+
+3. **Заполни `PRODUCT.md`** в корне проекта: что за продукт, для кого, ключевые сущности. Агенты читают его перед решениями.
+
+4. **Закоммить результат.** В `.claude/settings.json` записаны маркетплейс и включённые плагины: участник команды получит их, когда откроет проект и доверит папку.
+
+Скиллы плагинов вызываются как `/name` или с именем плагина: `/aikit:implement-feature`, `/vue-nuxt:new-page`. Агенты плагинов называются с тем же префиксом: `aikit:memory-writer`, `vue-nuxt:vue-coder`.
+
+## Установка плагинами в Codex
+
+```bash
+codex plugin marketplace add undef1ned-dev/ai-kit
+codex plugin add aikit@aikit
+codex plugin add vue-nuxt@aikit
+```
+
+Затем в корне проекта вызови скилл `$setup` с пресетом или профилями. Плагины Codex не умеют поставлять агентов, поэтому скилл записывает их в `.codex/agents/`. Правила проекта он кладёт блоком в `AGENTS.md`.
+
+> [!IMPORTANT]
+> Codex применяет агентов из `.codex/` только в **доверенном** проекте, а хуки запускает после одобрения в `/hooks`. Плагины Codex в AIKit проверены по формату, но ещё не прогонялись вживую — см. [Поддержка runtime](../runtime-support.md).
+
+## Что появится в проекте при установке плагинами
+
+| Файл или папка | Что это | В git |
+|---|---|---|
+| `CLAUDE.md` или `AGENTS.md` | Блок AIKit с [правилами проекта](glossary.md#правила-проекта): базовые плюс правила профилей. Текст вне блока не трогается | да |
+| `.claude/settings.json` | Только Claude Code: разрешения на команды профиля, запрет чтения `.env`, без соавторства в коммитах, маркетплейс `aikit` и включённые плагины | да |
+| `.codex/agents/` | Только Codex: агенты ядра, профилей и паков | да |
+| `.aikit/profiles.json` | Контракты профилей: агенты по ролям, папка `root`, команды проверки | да |
+| `.aikit/profiles.kit-defaults.json` | Прежние значения кита — по ним повторный запуск сохраняет твои правки | да |
+| `.aikit/plugin-init.json` | Выбранные профили и паки — для повторного запуска | да |
+| `.aikit/memory/` | [Память проекта](glossary.md#память-проекта) | да |
+| `PRODUCT.md` | Описание продукта — заполняет команда | да |
+
+Хуки плагина работают только в проектах с папкой `.aikit/`: в других твоих проектах плагин ничего не проверяет.
+
+Обновление: `/plugin marketplace update aikit` в Claude Code, `codex plugin marketplace upgrade` в Codex. Чтобы сменить набор профилей, запусти `/aikit:setup` заново — лишние агенты Codex уберутся, правки команды в `.aikit/profiles.json` сохранятся.
+
+## Установка установщиком в Claude Code
 
 <!-- steps -->
 1. **Подключи кит к репозиторию проекта.** Из корня проекта:
@@ -22,35 +102,16 @@
    git submodule update --init
    ```
 
-2. **Выбери, что ставить.** Проще всего взять пресет — готовую комбинацию профилей и паков:
-
-   | Пресет | Профили | Паки | Для кого |
-   |---|---|---|---|
-   | `frontend-team` | `vue-nuxt` | quality, devops | Фронтенд на Vue/Nuxt |
-   | `backend-api` | `python-fastapi` | quality, devops, ai | API на FastAPI |
-   | `backend-django` | `python-django` | quality, devops, ai | Бэкенд на Django |
-   | `fullstack-web` | `vue-nuxt` + `python-fastapi` | quality, devops, ai | Nuxt-фронтенд и FastAPI-бэкенд в одном репозитории |
-
-   Или собери набор сам — профили через `+`, паки флагом `--pack`.
-
-3. **Запусти установщик:**
+2. **Запусти установщик** с пресетом или своим набором:
 
    ```bash
    bash .aikit-config/scripts/attach.sh --preset frontend-team
-   ```
-
-   Набор вручную:
-
-   ```bash
-   bash .aikit-config/scripts/attach.sh vue-nuxt --pack quality
    bash .aikit-config/scripts/attach.sh vue-nuxt+python-fastapi --pack quality --pack devops
    ```
 
-4. **Заполни `PRODUCT.md`** в корне проекта: что за продукт, для кого, ключевые сущности. Агенты читают его перед решениями. Пустой шаблон тоже работает, но хуже.
+3. **Заполни `PRODUCT.md`** и **закоммить результат** — установка состоит из обычных файлов в репозитории.
 
-5. **Закоммить результат.** Установка — обычные файлы в репозитории. Их коммитят, чтобы у всей команды был один и тот же набор.
-
-## Что появится в проекте
+## Что появится в проекте при установке установщиком
 
 | Файл или папка | Что это | В git |
 |---|---|---|
@@ -87,7 +148,7 @@
 
 Как формулировать задачи, чтобы результат был лучше, — на странице [Работа с агентами](daily-work.md).
 
-## Установка в Codex и OpenCode
+## Установка установщиком в Codex и OpenCode
 
 Кит подключается так же, submodule в `.aikit-config`, а ставит его установщик адаптера:
 
@@ -104,7 +165,7 @@ python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend
 
 Скиллы в Codex вызываются через `$name` (например, `$implement-feature`), список — `/skills`. Остальные отличия runtime собраны на странице [Поддержка runtime](../runtime-support.md).
 
-## Обновление
+## Обновление установки
 
 Claude Code:
 
@@ -131,7 +192,9 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 
 ## Проект, где кит уже подключён
 
-Если ты клонируешь репозиторий, где AIKit уже стоит, подтяни submodule — остальное уже в git:
+Если кит стоит плагинами, открой проект в Claude Code и доверь папку — маркетплейс и плагины подтянутся из `.claude/settings.json`. В Codex добавь маркетплейс и плагины командами выше.
+
+Если кит стоит установщиком, подтяни submodule — остальное уже в git:
 
 ```bash
 git clone <url-проекта>

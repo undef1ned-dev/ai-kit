@@ -55,8 +55,8 @@ AI-ассистент из коробки — сильный разработч�
 
 | Runtime | Статус | Как ставится |
 |---|---|---|
-| **Claude Code** | основной | `attach.sh` |
-| **Codex** (CLI, Desktop, IDE) | основной, наравне с Claude Code | `install-adapter-package.py codex` |
+| **Claude Code** | основной | плагины маркетплейса `aikit` или `attach.sh` |
+| **Codex** (CLI, Desktop, IDE) | основной, наравне с Claude Code | плагины маркетплейса `aikit` или `install-adapter-package.py codex` |
 | **OpenCode** | поддерживается всё, что позволяет runtime | `install-adapter-package.py opencode` |
 
 Агенты, скиллы и правила описаны один раз, а установщик раскладывает их в родной формат каждого runtime. Что где работает и чем отличается — на странице [Поддержка runtime](../runtime-support.md).

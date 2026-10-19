@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -119,7 +120,10 @@ def main() -> int:
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
 
-    print(f"Профиль {name} создан в profiles/{name}/")
+    # The profile is also a plugin of the marketplace: its manifests are generated from the sources
+    subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "build-plugins.py")], check=True, stdout=subprocess.DEVNULL)
+
+    print(f"Профиль {name} создан в profiles/{name}/, плагин {name} добавлен в .claude-plugin/marketplace.json")
     print("  Дальше: заполни TODO в CLAUDE.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
     print("  проверь bash scripts/ci/static-checks.sh,")
     print(f"  подключи к проекту: bash scripts/attach.sh {name}  (или вместе с другими: <web-профиль>+{name})")

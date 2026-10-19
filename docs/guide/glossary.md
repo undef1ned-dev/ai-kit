@@ -162,6 +162,10 @@
 
 Скрипт, который подключает кит к проекту: `scripts/attach.sh` (Claude Code) или `scripts/install-adapter-package.py` (Codex, OpenCode). Обновляют установку `update.sh` и `update-adapter-package.py`.
 
+### Плагин
+
+Пакет агентов, скиллов, хуков и MCP-серверов, который runtime ставит из маркетплейса и обновляет сам. Маркетплейс AIKit называется `aikit` и лежит в этом репозитории: ядро — плагин `aikit`, каждый профиль и пак — свой плагин. Проект после установки подключает скилл `/aikit:setup`. Работает в Claude Code и Codex; плагины Codex не умеют поставлять агентов, их `/aikit:setup` пишет в `.codex/agents/`.
+
 ### .aikit-config
 
 Папка, куда кит подключается к проекту как git submodule — ссылка на репозиторий AIKit внутри твоего репозитория. Все скрипты запускаются оттуда: `bash .aikit-config/scripts/attach.sh`.

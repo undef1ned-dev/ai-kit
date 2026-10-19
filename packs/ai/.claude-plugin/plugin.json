@@ -1,0 +1,13 @@
+{
+  "name": "ai",
+  "description": "Pack: AI для AIKit — AI-разработка: проектирование LLM-интеграций, оптимизация промптов, агентные пайплайны",
+  "author": {
+    "name": "undef1ned-dev"
+  },
+  "homepage": "https://github.com/undef1ned-dev/ai-kit",
+  "repository": "https://github.com/undef1ned-dev/ai-kit",
+  "keywords": [
+    "aikit",
+    "ai"
+  ]
+}

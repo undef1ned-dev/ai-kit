@@ -1,0 +1,88 @@
+{
+  "name": "aikit",
+  "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
+  "author": {
+    "name": "undef1ned-dev"
+  },
+  "homepage": "https://github.com/undef1ned-dev/ai-kit",
+  "repository": "https://github.com/undef1ned-dev/ai-kit",
+  "keywords": [
+    "aikit"
+  ],
+  "skills": [
+    "./base/skills/",
+    "./base/plugin-skills/"
+  ],
+  "agents": [
+    "./base/agents/agent-builder.md",
+    "./base/agents/aikit-maintainer.md",
+    "./base/agents/cross-project-analyst.md",
+    "./base/agents/memory-optimizer.md",
+    "./base/agents/memory-writer.md",
+    "./base/agents/mvp-analyst.md",
+    "./base/agents/platform-evangelist.md",
+    "./base/agents/release-manager.md",
+    "./base/agents/security-auditor.md",
+    "./base/agents/skill-builder.md",
+    "./base/agents/tech-planner.md",
+    "./base/agents/ux-writer.md",
+    "./base/agents/workflow-runner.md"
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@4.1.1"
+      ]
+    }
+  }
+}

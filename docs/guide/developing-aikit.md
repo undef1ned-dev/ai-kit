@@ -4,7 +4,7 @@
 
 ## Принципы
 
-1. **Источник один.** Агенты, скиллы, правила и MCP-серверы описываются один раз — в `base/`, `profiles/`, `packs/`. В формат каждого runtime их раскладывают установщики. Файлы под конкретный runtime руками не пишут.
+1. **Источник один.** Агенты, скиллы, правила и MCP-серверы описываются один раз — в `base/`, `profiles/`, `packs/`. В формат каждого runtime их раскладывают установщики и генератор плагинов. Файлы под конкретный runtime руками не пишут.
 2. **Ядро не знает стеков.** Базовые скиллы и оркестраторы не называют агентов профилей и стековые команды. Всё стековое они берут из `.aikit/profiles.json`, а он собирается из контрактов. Это проверяет статическая проверка.
 3. **Каждая задача — для всех runtime.** Задача закрыта, когда сделана для Claude Code и Codex. Для OpenCode она сделана или явно отмечена как невозможная в [docs/runtime-support.md](../runtime-support.md).
 4. **Имена уникальны во всём ките.** Нет двух агентов или двух скиллов с одним именем — поэтому любые профили и паки ставятся вместе без переименований.
@@ -15,8 +15,10 @@
 | Путь | Что это |
 |---|---|
 | `base/` | Ядро: `CLAUDE.md` (базовые правила), `agents/`, `skills/<name>/SKILL.md`, `hooks/` (скрипт хуков и плагин OpenCode), `settings.json`, `mcp.json`, `PRODUCT.md` (шаблон), `memory/` (шаблон памяти) |
-| `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `CLAUDE.md`, `agents/`, `skills/`, `settings.json`, `mcp.json` |
-| `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json` |
+| `base/plugin-skills/` | Скиллы только для плагина ядра: `setup` подключает проект (`/aikit:setup`) |
+| `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `CLAUDE.md`, `agents/`, `skills/`, `settings.json`, `mcp.json`; `.claude-plugin/` и `.codex-plugin/` — манифесты плагина (генерируются) |
+| `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json`, манифесты плагина |
+| `.claude-plugin/`, `.codex-plugin/` в корне | Маркетплейс `aikit` (`marketplace.json`, его читают и Claude Code, и Codex) и манифесты плагина ядра: корень плагина `aikit` — весь репозиторий. Генерируются `scripts/build-plugins.py` |
 | `presets/*.json` | Пресеты: `name`, `label`, `description`, `profiles`, `packs` |
 | `templates/profile/` | Шаблон нового профиля для `scripts/new-profile.py` |
 | `adapters/<runtime>/` | Описание адаптера (`adapter.manifest.json`) и шаблоны файлов runtime |
@@ -29,8 +31,8 @@
 | `docs/runtime-support.md` | Матрица возможностей по runtime |
 | `docs/research/` | Исследования, на которых основан roadmap |
 | `.github/workflows/` | CI на PR (`ci.yml`), релиз по тегу (`release.yml`), публикация сайта на GitHub Pages (`pages.yml`) |
-| `CLAUDE.md`, `.claude/` в корне | Кит, установленный в собственный репозиторий для разработки (профиль `vue-nuxt`). Это **копии** — правь источники в `base/` и `profiles/`. Если меняешь агента, у которого есть копия в `.claude/agents/`, обнови и копию |
-| `marketplace/` | Наследие прежней схемы дистрибуции, не используется |
+| `CLAUDE.md` в корне | Правила для работы в этом репозитории — **копия** `base/CLAUDE.md` и правил `vue-nuxt`. Правь источники |
+| `marketplace/` | Наследие прежней схемы дистрибуции, не используется. Маркетплейс плагинов — `.claude-plugin/marketplace.json` |
 
 ## Скрипты
 
@@ -43,7 +45,9 @@
 | `scripts/profile_contract.py` | Собирает `.aikit/profiles.json`: контракты, поиск `root`, сохранение правок проекта |
 | `scripts/mcp_config.py` | Пишет MCP-серверы в `.mcp.json`, `.codex/config.toml`, `opencode.json` |
 | `scripts/hooks_config.py` | Копирует `base/hooks/aikit_hook.py` в `.aikit/hooks/` и подключает его: `hooks` в `.claude/settings.json`, `.codex/hooks.json`, плагин OpenCode |
-| `scripts/new-profile.py` | Создаёт профиль из шаблона ([Как добавить стек](adding-a-stack.md)) |
+| `scripts/build-plugins.py` | Собирает маркетплейс и манифесты плагинов Claude Code и Codex из `base/`, `profiles/`, `packs/`; `--check` — проверка в CI |
+| `scripts/plugin-init.py` | Подключает проект к киту, установленному плагинами: блок правил, `.aikit/profiles.json`, память, настройки Claude Code или агенты Codex. Его вызывает скилл `/aikit:setup` |
+| `scripts/new-profile.py` | Создаёт профиль из шаблона и пересобирает плагины ([Как добавить стек](adding-a-stack.md)) |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/resolve-preset.py`, `preset_utils.py` | Разбор пресетов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
@@ -65,7 +69,7 @@
 
 ### Пак
 
-Папка `packs/<name>/` с `pack.json`: `name`, `label`, `description`, `agents`, `skills` и, если пак подходит не ко всем стекам, `compatible_profiles`.
+Папка `packs/<name>/` с `pack.json`: `name`, `label`, `description`, `agents`, `skills` и, если пак подходит не ко всем стекам, `compatible_profiles`. Затем `python3 scripts/build-plugins.py` — пак станет плагином маркетплейса.
 
 ### Пресет
 
@@ -77,7 +81,20 @@
 
 ### MCP-сервер
 
-`mcp.json` слоя в формате `{"servers": {...}}`. Версию пакета закрепляй (`@1.2.3`, не `@latest`). Секреты — только переменные окружения: `${VAR}`.
+`mcp.json` слоя в формате `{"servers": {...}}`. Версию пакета закрепляй (`@1.2.3`, не `@latest`). Секреты — только переменные окружения: `${VAR}`. После правки пересобери плагины: `python3 scripts/build-plugins.py`.
+
+## Плагины и разработка на самом себе
+
+- Маркетплейс и манифесты плагинов генерируются из источников: поменял агентов, скиллы, MCP, хуки или добавил профиль — запусти `python3 scripts/build-plugins.py` и закоммить результат. Статическая проверка сравнивает манифесты с источниками.
+- Агенты, скиллы и хуки кита в этом репозитории не копируются в `.claude/` — их дают плагины прямо из рабочей копии. Для разработки запускай Claude Code с плагином ядра:
+
+  ```bash
+  claude --plugin-dir .
+  ```
+
+  Изменения в `base/` подхватываются после перезапуска сессии. Профиль или пак добавляются ещё одним флагом: `--plugin-dir profiles/vue-nuxt`.
+- Проверить установку так, как её видит пользователь, — локальный маркетплейс: `/plugin marketplace add ./` и `/plugin install aikit@aikit`.
+- `claude plugin validate .` проверяет маркетплейс и манифесты по схеме Claude Code. Предупреждения про `CLAUDE.md` в корне плагина и отсутствие `version` ожидаемы: версия не задана намеренно, чтобы плагины обновлялись с каждым коммитом в `main`.
 
 ## Документация
 
@@ -112,9 +129,10 @@ bash scripts/ci/run-all.sh
 
 | Проверка | Что ловит |
 |---|---|
-| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; сценарии хуков (`scripts/ci/test-hooks.py`) |
+| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`) |
 | `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
 | `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
+| `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей |
 | `scripts/ci/smoke-new-profile.sh` | Профиль из шаблона ставится без правок ядра, вместе с пайплайном, в монорепо |
 
 CI (`.github/workflows/ci.yml`) запускает то же самое на Linux и Windows.

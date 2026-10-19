@@ -19,6 +19,9 @@ Events:
                    working (decision: block). After a large task suggests /capture-memory.
     SessionStart — adds .aikit/memory/INDEX.md and PRODUCT.md to the session context.
 
+With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
+a folder with .aikit/ above the session cwd. Other projects of the user are left alone.
+
 The hook never breaks the session: any internal error lets the action through.
 Standard library only, Python 3.9+.
 """
@@ -36,6 +39,7 @@ import tempfile
 from pathlib import Path
 
 BLOCK_EXIT_CODE = 2
+PLUGIN_FLAG = "--plugin"
 PROFILES_FILE = Path(".aikit") / "profiles.json"
 WORKTREES_DIR = Path(".aikit") / "worktrees"
 MEMORY_INDEX = Path(".aikit") / "memory" / "INDEX.md"
@@ -608,6 +612,8 @@ def main() -> int:
     try:
         raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
         event = json.loads(raw) if raw.strip() else {}
+        if PLUGIN_FLAG in sys.argv[1:] and not (project_dir(event) / ".aikit").is_dir():
+            return 0
         handler = HANDLERS.get(str(event.get("hook_event_name", "")))
         return handler(event) if handler else 0
     except Exception as error:  # noqa: BLE001 — a broken hook must not block the agent
