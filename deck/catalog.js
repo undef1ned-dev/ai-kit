@@ -148,3 +148,21 @@ export function memorySummary(indexText) {
   const lines = String(indexText).replace(/\n$/, '').split('\n').length
   return { lines, needsOptimize: lines > MEMORY_INDEX_WARN }
 }
+
+// The first clause of a skill's description: enough for a card under its button
+export function summary(description) {
+  const text = String(description ?? '').trim()
+  const cut = text.search(/[.:;]\s|[.:;]$/)
+  return cut > 0 ? text.slice(0, cut) : text
+}
+
+// "2.1.299" ≥ "2.1.296": release numbers compared part by part
+export function isAtLeast(version, minimum) {
+  const parts = String(version ?? '').split(/[.-]/).map(Number)
+  const wanted = minimum.split('.').map(Number)
+  for (let i = 0; i < wanted.length; i += 1) {
+    const part = Number.isFinite(parts[i]) ? parts[i] : 0
+    if (part !== wanted[i]) return part > wanted[i]
+  }
+  return true
+}
