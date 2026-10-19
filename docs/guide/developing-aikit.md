@@ -23,11 +23,12 @@
 | `presets/*.json` | Пресеты: `name`, `label`, `description`, `profiles`, `packs` |
 | `templates/profile/` | Шаблон нового профиля для `scripts/new-profile.py` |
 | `adapters/<runtime>/` | Описание адаптера (`adapter.manifest.json`) и шаблоны файлов runtime |
+| `adapters/models.json` | Модели за уровнями агентов (`opus`, `sonnet`, `haiku`) в каждом runtime и источники; обновляется через `/check-models` |
 | `scripts/` | Установщики, генераторы, общие Python-модули |
 | `scripts/lib/` | Общие части `attach.sh` и `update.sh`: скиллы, MCP, контракты |
 | `scripts/ci/` | Проверки: статические и smoke-тесты установки |
 | `evals/` | [Эвалы](#эвалы): эталонные задачи ядра и профилей, фикстуры проектов, общий скрипт подготовки |
-| `.claude/skills/`, `.agents/skills/` | Скиллы для разработки самого кита (`run-evals`) — в проекты команд не ставятся |
+| `.claude/skills/`, `.agents/skills/` | Скиллы для разработки самого кита (`run-evals`, `check-models`) — в проекты команд не ставятся |
 | `docs/guide/` | Документация в Markdown — источник сайта |
 | `docs/site/` | Сайт документации: HTML собирается, `assets/site.css` и `site.js` пишутся руками |
 | `docs/roadmap.md` | План развития — что делаем и в каком порядке |
@@ -53,6 +54,7 @@
 | `scripts/run-evals.py` | Прогоняет эвалы в Claude Code, Codex или в обоих; `--check` — проверка кейсов без вызовов модели |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/preset_utils.py` | Разбор пресетов |
+| `scripts/agent_models.py` | Модели агентов: уровень из frontmatter и `adapters/models.json` → модель runtime, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
 
@@ -60,7 +62,7 @@
 
 ### Агента
 
-Файл `<слой>/agents/<name>.md`, где слой — `base`, `profiles/<p>` или `packs/<p>`. Frontmatter: `name` (совпадает с именем файла), `description` (что делает и когда звать), `tools`, при необходимости `output_block`, `example_prompt`. Можно начать с `/create-agent`. Агент профиля в одной из четырёх ролей прописывается в `agents` контракта, специалист — в `specialists`, шаг пайплайна — в `pipelines`.
+Файл `<слой>/agents/<name>.md`, где слой — `base`, `profiles/<p>` или `packs/<p>`. Frontmatter: `name` (совпадает с именем файла), `description` (что делает и когда звать), `tools`, `model` — уровень (`opus` для решений, где ошибка дороже всего: архитектура, ревью, безопасность; `haiku` для простых частых задач; иначе `sonnet`), при необходимости `output_block`, `example_prompt`. Можно начать с `/create-agent`. Агент профиля в одной из четырёх ролей прописывается в `agents` контракта, специалист — в `specialists`, шаг пайплайна — в `pipelines`.
 
 ### Скилл
 
@@ -87,6 +89,10 @@
 Мод Claude Code в плагине ядра: `deck/register.js` — события и отрисовка, `deck/catalog.js` — чистые функции (каталог из `SKILL.md`, разбор `argument-hint`, субагенты, память). Группы базовых команд — `GROUPS` в `catalog.js`; новый базовый скилл без группы попадает в «Прочее». Команды профилей и паков панель берёт из их `skills/` сама. API модов — [документация Claude Code](https://code.claude.com/docs/en/plugins/mods/overview).
 
 Панель не должна вызывать модель: `claude plugin validate .` печатает все её вызовы API (`calls:`) — `$.model` среди них быть не должно. Тесты — `claude plugin test` в корне репозитория, без сессии и сети; в CI Claude Code нет, поэтому их запускает только `run-all.sh`. Вживую: `claude --plugin-dir .` в проекте с `.aikit/profiles.json`, затем `/deck`.
+
+### Модели агентов
+
+Агент называет уровень, а не модель: `model: opus | sonnet | haiku`. Какая модель стоит за уровнем в каждом runtime, задаёт `adapters/models.json`: в Claude Code — алиасы (всегда последняя версия семейства), в Codex — `model` и `model_reasoning_effort` в TOML агента, в OpenCode — `model` в формате `provider/model`. Установщики применяют его через `scripts/agent_models.py`, вместе с переопределениями проекта из `.aikit/models.json` (их пишет `/set-model`). Модели Codex и OpenCode устаревают — раз в несколько месяцев запускай `/check-models` в репозитории кита: он сверит `adapters/models.json` с официальной документацией и предложит правки. Скилл ищет в интернете и тратит лимиты, поэтому только ручной.
 
 ### MCP-сервер
 
@@ -196,7 +202,7 @@ bash scripts/ci/run-all.sh
 
 | Проверка | Что ловит |
 |---|---|
-| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS |
+| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); модели агентов (`scripts/ci/test-agent-models.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS |
 | `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
 | `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
 | `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей |

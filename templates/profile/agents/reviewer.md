@@ -2,7 +2,7 @@
 name: {{PREFIX}}-reviewer
 description: {{LABEL}} code reviewer. Проверяет код по CODER_RESULT и TESTER_RESULT на соответствие стандартам стека.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 version: "1.0.0"
 profile: "{{PROFILE}}"
 tags: ["{{PREFIX}}", "{{ROLE}}", "review"]

@@ -17,6 +17,7 @@ import sys
 import tempfile
 from pathlib import Path
 
+import agent_models
 import hooks_config
 import mcp_config
 import profile_contract
@@ -575,6 +576,8 @@ def install_package(
             merge_agents_md(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
         if runtime == "codex":
             prepare_codex_workspace_surface(workspace)
+        if runtime in {"codex", "opencode"}:
+            agent_models.apply(runtime, workspace)
         if runtime in mcp_config.RUNTIMES:
             mcp_config.install(runtime, workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], packs)
         profile_contract.install(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])

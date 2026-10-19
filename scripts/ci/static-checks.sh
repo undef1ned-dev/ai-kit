@@ -16,8 +16,9 @@
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
 #  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы
-#  11. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
-#  12. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
+#  11. Модели агентов: у каждого агента уровень из adapters/models.json, модели всех runtime, переопределения проекта (.aikit/models.json)
+#  12. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
+#  13. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
 #      Тесты мода (claude plugin test) запускает run-all.sh, если установлен Claude Code
 
 set -eo pipefail
@@ -192,6 +193,9 @@ if command -v node &>/dev/null; then
   cp base/hooks/opencode-plugin.js "$PLUGIN_COPY"
   node --check "$PLUGIN_COPY" && echo "  ✓ плагин OpenCode: синтаксис JS" || { echo "  ✗ плагин OpenCode: синтаксис JS"; FAILURES=$((FAILURES + 1)); }
 fi
+
+echo "▶ Модели агентов: уровни, adapters/models.json, переопределения проекта"
+"$PYTHON_BIN" scripts/ci/test-agent-models.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
 "$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))

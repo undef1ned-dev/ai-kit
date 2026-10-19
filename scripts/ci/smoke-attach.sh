@@ -170,6 +170,7 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
+check "модели агентов: уровень из frontmatter кита" grep -q "^model: opus$" .claude/agents/vue-architect.md
 check "скиллы установлены: name = папка, есть description" check_skills
 check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f .claude/skills/implement-feature/SKILL.md && ! ls -d .claude/skills/*-implement-feature 2>/dev/null"
 check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
@@ -193,6 +194,8 @@ echo "# legacy" > .claude/skills/legacy-kit-skill/SKILL.md
 printf "node_modules/\n\n# Claude Code (локальные настройки MCP — у каждого свои пути)\n.claude/settings.json\n" > .gitignore
 sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
 edit_profile_contract
+# Команда переопределила модель агента (/set-model)
+echo '{"agents": {"vue-coder": "haiku"}}' > .aikit/models.json
 "$PYTHON_BIN" -c 'import json; p = ".claude/settings.json"; d = json.load(open(p, encoding="utf-8")); d["hooks"]["PreToolUse"].append({"matcher": "Bash", "hooks": [{"type": "command", "command": "my-hook"}]}); json.dump(d, open(p, "w", encoding="utf-8"))'
 
 echo "▶ update.sh --auto"
@@ -204,6 +207,7 @@ else
 fi
 check ".claude/settings.json корректен после обновления" check_settings
 check "агенты на месте после обновления" test "$(count_files .claude/agents '*.md')" -gt 0
+check "модель агента из .aikit/models.json применена после обновления" grep -q "^model: haiku$" .claude/agents/vue-coder.md
 check "скиллы корректны после обновления" check_skills
 check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
 check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md

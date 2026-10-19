@@ -2,7 +2,7 @@
 name: release-manager
 description: Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: haiku
 version: "2.0.0"
 profile: "base"
 tags: ["release", "git", "changelog"]
