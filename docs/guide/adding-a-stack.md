@@ -18,7 +18,12 @@
     "tester": "spring-tester",
     "reviewer": "spring-reviewer"
   },
-  "specialists": {},
+  "specialists": {
+    "quality": {
+      "agent": "spring-quality-analyst",
+      "when": "нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)"
+    }
+  },
   "pipelines": {},
   "commands": {
     "install": "./mvnw dependency:resolve",
@@ -38,7 +43,7 @@
 | `label`, `stack` | Название и стек для людей и для выбора профиля по задаче | `/implement-feature`, `workflow-runner`, каталог |
 | `role` | Часть системы: `backend`, `web` или своя (`mobile`, `mod`…). В мульти-профиле backend идёт первым — он фиксирует API | `/implement-feature`, `tech-planner` |
 | `agents` | Агенты по ролям: ровно `architect`, `coder`, `tester`, `reviewer` | все оркестраторы |
-| `specialists` | Необязательные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}` | `/implement-feature`, `workflow-runner` |
+| `specialists` | Дополнительные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}`. Специалист `quality` есть у каждого профиля — его зовут `/coverage-check` и `/tech-debt` | `/implement-feature`, `workflow-runner` |
 | `pipelines` | Необязательные цепочки, кроме кода: `{"<имя>": {"when": "<когда>", "steps": ["<агент>", …]}}` | `/implement-feature`, `workflow-runner` |
 | `commands` | `install`, `lint`, `format`, `test` (обязательна), `build`, `run`. `{files}` — изменённые файлы. `install` ставит зависимости в `/implement-feature --worktree`, `run` запускает приложение в `/check-feature` | `/implement-feature`, `/fix-bug`, `/check-feature`, агенты, хуки |
 | `code_extensions` | Необязательно: расширения файлов кода (`[".java"]`). Хуки запускают `format` и `lint` только для них, а `test` — если менялись они. Без поля кодом считается любой файл в папке профиля | хуки |
@@ -68,6 +73,7 @@ profiles/java-spring/
     spring-coder.md       — CODER_RESULT
     spring-tester.md      — TESTER_RESULT
     spring-reviewer.md    — REVIEW_RESULT
+    spring-quality-analyst.md — специалист quality: покрытие и техдолг, QUALITY_REPORT
 ```
 
 Префикс агентов (`spring`) по умолчанию — последняя часть имени профиля; поменять можно флагом `--prefix`. Имена агентов и скиллов должны быть уникальны во всём ките — иначе профили нельзя будет подключить вместе.
@@ -76,9 +82,9 @@ profiles/java-spring/
 
 Шаблон рабочий сразу, но агенты знают о стеке только строку `stack`. Ценность профиля — в том, что ты допишешь:
 
-1. **`CLAUDE.md`** — структура проекта, слои, правила кода, именование, тесты, «динамическая экспертиза» (какой режим включает агент по типу файлов). Образцы — `profiles/python-fastapi/CLAUDE.md`, `profiles/vue-nuxt/CLAUDE.md`.
-2. **Агенты** — разделы с `TODO`: что проектирует архитектор, обязательные пункты плана, правила реализации, тестовый стек, чек-лист ревьюера. Формат блоков (`=== ARCHITECT_PLAN ===` … `=== END PLAN ===`) не меняй — по ним агенты передают работу друг другу.
-3. **Специалисты** (по желанию) — свой агент в `agents/` и запись в `specialists` с условием `when`. Пример — `admin-expert` в `profiles/python-django/`.
+1. **`CLAUDE.md`** — структура проекта, слои, правила кода, именование, тесты, «динамическая экспертиза» (какой режим включает агент по типу файлов). Образец — `profiles/vue-nuxt/CLAUDE.md`.
+2. **Агенты** — разделы с `TODO`: что проектирует архитектор, обязательные пункты плана, правила реализации, тестовый стек, чек-лист ревьюера, команда покрытия и типичный техдолг стека у quality-аналитика. Формат блоков (`=== ARCHITECT_PLAN ===` … `=== END PLAN ===`) не меняй — по ним агенты передают работу друг другу.
+3. **Специалисты** (по желанию) — свой агент в `agents/` и запись в `specialists` с условием `when`. Пример — `design-bridge` в `profiles/vue-nuxt/`.
 4. **Пайплайны** (по желанию) — если профиль делает не только код (раздел «Пайплайны» ниже).
 5. **Скиллы** (по желанию) — `skills/<name>/SKILL.md` для частых задач стека (`/new-controller`, `/add-migration`). `description` пиши под автовызов: что делает + «Используй, когда…». Общие `/implement-feature`, `/workflow`, `/security-check` уже работают с новым профилем.
 6. **MCP-серверы** (по желанию) — `mcp.json` в формате `{"servers": {...}}`, как в `profiles/vue-nuxt/mcp.json`. Секреты — только через переменные окружения.
@@ -124,11 +130,11 @@ python3 scripts/run-evals.py java-spring --quick
 
 ```bash
 bash .aikit-config/scripts/attach.sh java-spring
-bash .aikit-config/scripts/attach.sh vue-nuxt+java-spring --pack quality
+bash .aikit-config/scripts/attach.sh vue-nuxt+java-spring --pack devops
 ```
 
 Если профиль будет частой комбинацией — добавь пресет: `presets/<name>.json` с полями `name`, `label`, `description`, `profiles`, `packs`.
 
 ## Паки и профиль
 
-Пак (`packs/<name>/`) — набор агентов и скиллов, не привязанный к одному стеку (`quality`, `devops`). Если в `pack.json` нет `compatible_profiles`, пак подходит к любому профилю, в том числе новому. Пак `ai` ограничен Python-профилями — чтобы подключить его к новому стеку, добавь профиль в его `compatible_profiles`.
+Пак (`packs/<name>/`) — набор агентов и скиллов, не привязанный к одному стеку (`devops`). Если в `pack.json` нет `compatible_profiles`, пак подходит к любому профилю, в том числе новому.

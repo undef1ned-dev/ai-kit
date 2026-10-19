@@ -25,12 +25,9 @@
 
 | Пресет | Профили | Паки | Для кого |
 |---|---|---|---|
-| `frontend-team` | `vue-nuxt` | quality, devops | Фронтенд на Vue/Nuxt |
-| `backend-api` | `python-fastapi` | quality, devops, ai | API на FastAPI |
-| `backend-django` | `python-django` | quality, devops, ai | Бэкенд на Django |
-| `fullstack-web` | `vue-nuxt` + `python-fastapi` | quality, devops, ai | Nuxt-фронтенд и FastAPI-бэкенд в одном репозитории |
+| `frontend-team` | `vue-nuxt` | devops | Фронтенд на Vue/Nuxt |
 
-Или собери набор сам — профили через `+`, паки отдельно.
+Или собери набор сам — профили через `+`, паки отдельно. Анализ покрытия и техдолга (`/coverage-check`, `/tech-debt`) есть в ядре и работает через quality-специалиста каждого профиля — отдельный пак не нужен.
 
 ## Установка плагинами в Claude Code
 
@@ -43,10 +40,10 @@
    /plugin marketplace add undef1ned-dev/ai-kit
    /plugin install aikit@aikit
    /plugin install vue-nuxt@aikit
-   /plugin install quality@aikit
+   /plugin install devops@aikit
    ```
 
-   Ставь плагины профилей и паков своего набора: `python-fastapi@aikit`, `devops@aikit` и так далее.
+   Ставь плагины профилей и паков своего набора.
 
 2. **Подключи проект** — в корне проекта:
 
@@ -106,7 +103,7 @@ codex plugin add vue-nuxt@aikit
 
    ```bash
    bash .aikit-config/scripts/attach.sh --preset frontend-team
-   bash .aikit-config/scripts/attach.sh vue-nuxt+python-fastapi --pack quality --pack devops
+   bash .aikit-config/scripts/attach.sh vue-nuxt --pack devops
    ```
 
 3. **Заполни `PRODUCT.md`** и **закоммить результат** — установка состоит из обычных файлов в репозитории.
@@ -156,7 +153,7 @@ codex plugin add vue-nuxt@aikit
 python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace .
 ```
 
-Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt+python-fastapi` и `--pack quality`.
+Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt` и `--pack devops`.
 
 Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, хуки в `.codex/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/hooks/` и `.aikit/memory/`.
 

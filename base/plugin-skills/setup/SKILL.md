@@ -5,7 +5,7 @@ version: "1.0.0"
 profile: "base"
 tags: ["setup", "plugin", "onboarding"]
 orchestrates: []
-example_prompt: "/aikit:setup vue-nuxt+python-fastapi"
+example_prompt: "/aikit:setup vue-nuxt"
 ---
 
 Подключи текущий проект к AIKit. Плагины уже дают агентов, скиллы, хуки и MCP-серверы; этот скилл записывает то, что принадлежит проекту.
@@ -19,10 +19,10 @@ example_prompt: "/aikit:setup vue-nuxt+python-fastapi"
 
 ## 2. Выбери профили и паки
 
-Если пользователь передал аргумент (`vue-nuxt+python-fastapi`, имя пресета или паки) — используй его.
+Если пользователь передал аргумент (`vue-nuxt`, несколько профилей через `+`, имя пресета или паки) — используй его.
 
 Иначе определи стек по проекту и предложи выбор:
-- профили — папки `<корень>/profiles/*`; признаки стека — `root_markers` в `profile.manifest.json` (`nuxt.config.ts`, `manage.py`, FastAPI в `pyproject.toml`);
+- профили — папки `<корень>/profiles/*`; признаки стека — `root_markers` в `profile.manifest.json` (`nuxt.config.ts` и т. п.);
 - пресеты — `<корень>/presets/*.json` (готовые наборы профилей и паков);
 - паки — `<корень>/packs/*`.
 
@@ -33,7 +33,7 @@ example_prompt: "/aikit:setup vue-nuxt+python-fastapi"
 Runtime — `claude` в Claude Code, `codex` в Codex.
 
 ```bash
-python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --profiles <a+b> [--packs "quality devops"]
+python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --profiles <a+b> [--packs devops]
 # или готовый набор
 python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --preset <имя>
 ```

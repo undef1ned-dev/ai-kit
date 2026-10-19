@@ -26,22 +26,22 @@
 
 Главная идея устройства: общие сценарии (`/implement-feature`, `/workflow`, `/security-check`) не содержат ни одного имени стека или агента профиля. Всё стековое они читают из `.aikit/profiles.json` — файла, куда установщик собрал [контракты](glossary.md#контракт-профиля) подключённых профилей.
 
-Вот фрагмент такого файла для fullstack-проекта, где Nuxt живёт в `web/`, а FastAPI — в `api/`:
+Вот фрагмент такого файла для fullstack-проекта, где Nuxt живёт в `web/`, а бэкенд на Spring (профиль из примера [Как добавить стек](adding-a-stack.md)) — в `api/`:
 
 ```json
 {
   "profiles": {
-    "python-fastapi": {
+    "java-spring": {
       "role": "backend",
-      "stack": "FastAPI 0.115+, SQLAlchemy 2.0, LangGraph",
+      "stack": "Java 21, Spring Boot 3, JUnit 5",
       "agents": {
-        "architect": "fastapi-architect",
-        "coder": "fastapi-coder",
-        "tester": "fastapi-tester",
-        "reviewer": "fastapi-reviewer"
+        "architect": "spring-architect",
+        "coder": "spring-coder",
+        "tester": "spring-tester",
+        "reviewer": "spring-reviewer"
       },
-      "commands": { "lint": "uv run ruff check {files}", "test": "uv run pytest" },
-      "path_signals": ["routers/", "schemas/", "models/"],
+      "commands": { "lint": "./mvnw checkstyle:check", "test": "./mvnw test" },
+      "path_signals": ["src/main/java/", "src/test/java/"],
       "root": "api"
     },
     "vue-nuxt": {
@@ -114,7 +114,7 @@
 | Что это | Один агент | Цепочка из нескольких агентов |
 | Когда работает | Внутри цепочки кода, если задача подходит под `when` | Сам по себе, если задача целиком подходит под `when` и код не нужен; или внутри фичи после архитектора |
 | Что даёт | Совет: уточняет план для кодера | Готовый результат (артефакт): модель, текстура, документ |
-| Пример в ките | `vue-design-bridge`, `django-admin-expert`, `fastapi-langgraph-expert` | Пока нет в профилях кита — пример ниже |
+| Пример в ките | `vue-design-bridge`, `vue-quality-analyst` | Пока нет в профилях кита — пример ниже |
 
 Примеры на гипотетическом профиле для модов Minecraft с пайплайном `asset` (арт-директор → моделлер → текстурщик → ревью ассетов):
 
@@ -149,7 +149,7 @@
 | Написать тесты к готовому коду | `test-pass`: только tester |
 | Проверить код | `review-pass`: только reviewer |
 | Работа под `when` пайплайна профиля | Шаги пайплайна |
-| Анализ идеи, безопасность, DevOps, AI | Агенты ядра и паков: `mvp-analyst`, `security-auditor`, `devops-engineer`, `ai-architect` |
+| Анализ идеи, безопасность, DevOps | Агенты ядра и паков: `mvp-analyst`, `security-auditor`, `devops-engineer` |
 
 Визард показывает план и ждёт подтверждения, потом идёт по шагам. Удобен, когда не знаешь, с чего начать.
 

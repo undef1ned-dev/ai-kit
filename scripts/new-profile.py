@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create a new AIKit profile from templates/profile/: contract, rules, four role agents, settings.
+Create a new AIKit profile from templates/profile/: contract, rules, four role agents, quality specialist, settings.
 
 The kit core (installers, /implement-feature, workflow-runner) reads everything it needs from
 profile.manifest.json, so a new stack needs no changes outside profiles/<name>/.
@@ -24,6 +24,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = ROOT / "templates" / "profile"
 ROLES = ("architect", "coder", "tester", "reviewer")
+# Every profile ships a quality specialist for /coverage-check and /tech-debt
+QUALITY_TEMPLATE = "quality-analyst"
+QUALITY_WHEN = "нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)"
 COMMANDS = ("install", "lint", "format", "test", "build", "run")
 ROLE_TEXT = {"backend": "backend-разработки", "web": "frontend-разработки"}
 ROLE_SCOPE = {"backend": "BACKEND SCOPE", "web": "WEB SCOPE"}
@@ -70,7 +73,8 @@ def main() -> int:
         fail(f"профиль {name} уже есть: {profile_dir}")
     prefix = args.prefix or name.split("-")[-1]
     agents = {role: f"{prefix}-{role}" for role in ROLES}
-    taken = sorted(set(agents.values()) & existing_agent_names())
+    quality_agent = f"{prefix}-{QUALITY_TEMPLATE}"
+    taken = sorted({*agents.values(), quality_agent} & existing_agent_names())
     if taken:
         fail(f"агенты {taken} уже есть в ките — задай другой --prefix")
     bad_extensions = [item for item in args.code_extension if not item.startswith(".")]
@@ -91,8 +95,8 @@ def main() -> int:
 
     profile_dir.mkdir(parents=True)
     (profile_dir / "agents").mkdir()
-    for role, agent in agents.items():
-        text = (TEMPLATE_DIR / "agents" / f"{role}.md").read_text(encoding="utf-8")
+    for template, agent in [*agents.items(), (QUALITY_TEMPLATE, quality_agent)]:
+        text = (TEMPLATE_DIR / "agents" / f"{template}.md").read_text(encoding="utf-8")
         (profile_dir / "agents" / f"{agent}.md").write_text(render(text, variables), encoding="utf-8", newline="\n")
     claude_md = (TEMPLATE_DIR / "CLAUDE.md").read_text(encoding="utf-8")
     (profile_dir / "CLAUDE.md").write_text(render(claude_md, variables), encoding="utf-8", newline="\n")
@@ -109,7 +113,7 @@ def main() -> int:
         "role": args.role,
         "stack": args.stack,
         "agents": agents,
-        "specialists": {},
+        "specialists": {"quality": {"agent": quality_agent, "when": QUALITY_WHEN}},
         "pipelines": {},
         "commands": commands,
         **({"code_extensions": args.code_extension} if args.code_extension else {}),

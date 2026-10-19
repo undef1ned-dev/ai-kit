@@ -16,8 +16,8 @@ The script runs from the core plugin (its root is the AIKit repository) via the 
 State of the previous run is kept in .aikit/plugin-init.json: agents it wrote and are no longer needed are removed.
 
 Usage:
-    python3 scripts/plugin-init.py --runtime claude --profiles vue-nuxt [--packs "quality devops"] [--workspace .]
-    python3 scripts/plugin-init.py --runtime codex --preset fullstack-web
+    python3 scripts/plugin-init.py --runtime claude --profiles vue-nuxt [--packs devops] [--workspace .]
+    python3 scripts/plugin-init.py --runtime codex --preset frontend-team
 """
 
 from __future__ import annotations
@@ -185,7 +185,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--runtime", choices=RUNTIMES, required=True)
     parser.add_argument("--profiles", help="profile1+profile2")
     parser.add_argument("--preset", help="preset name from presets/")
-    parser.add_argument("--packs", default="", help='extra packs: "quality devops"')
+    parser.add_argument("--packs", default="", help='extra packs: "devops"')
     parser.add_argument("--workspace", default=".")
     return parser.parse_args()
 

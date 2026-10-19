@@ -56,7 +56,7 @@ PAGES = [
 
 PROFILE_ROLES = ("architect", "coder", "tester", "reviewer")
 ROLE_LABELS = {"architect": "архитектор", "coder": "кодер", "tester": "тестировщик", "reviewer": "ревьюер"}
-PROFILE_COLORS = {"vue-nuxt": "#00a876", "python-django": "#2f7d55", "python-fastapi": "#009688"}
+PROFILE_COLORS = {"vue-nuxt": "#00a876"}
 DEFAULT_PROFILE_COLOR = "#64748b"
 BASE_COLOR = "#4f46e5"
 PACK_COLOR = "#d97706"

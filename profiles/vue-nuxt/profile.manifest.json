@@ -13,6 +13,10 @@
     "design-bridge": {
       "agent": "vue-design-bridge",
       "when": "задача идёт от макета Figma или нужна сверка с UI kit и дизайн-токенами"
+    },
+    "quality": {
+      "agent": "vue-quality-analyst",
+      "when": "нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)"
     }
   },
   "commands": {
@@ -23,7 +27,33 @@
     "build": "npx nuxt build",
     "run": "npx nuxt dev"
   },
-  "code_extensions": [".vue", ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"],
-  "root_markers": ["nuxt.config.ts", "nuxt.config.js", "nuxt.config.mjs"],
-  "path_signals": ["pages/", "components/", "composables/", "stores/", "server/api/", "middleware/", "plugins/", "layouts/", "app.vue", "nuxt.config.", "vitest.config.", "playwright.config.", "eslint.config."]
+  "code_extensions": [
+    ".vue",
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs"
+  ],
+  "root_markers": [
+    "nuxt.config.ts",
+    "nuxt.config.js",
+    "nuxt.config.mjs"
+  ],
+  "path_signals": [
+    "pages/",
+    "components/",
+    "composables/",
+    "stores/",
+    "server/api/",
+    "middleware/",
+    "plugins/",
+    "layouts/",
+    "app.vue",
+    "nuxt.config.",
+    "vitest.config.",
+    "playwright.config.",
+    "eslint.config."
+  ]
 }

@@ -38,7 +38,6 @@ output_block: "AGENT_FILE"
 > **3. Профиль размещения** — где будет жить агент?
 > - `base` — нужен во всех проектах, независимо от стека
 > - `vue-nuxt` — только Vue/Nuxt-проекты
-> - `python-django` — только Django-проекты
 > - Другой — укажи название (создадим новый профиль)
 >
 > **4. Модель**
@@ -158,7 +157,6 @@ output_block: "AGENT_FILE"
 Прочитай существующих агентов в целевом профиле:
 - Для `base`: прочитай `base/agents/mvp-analyst.md`
 - Для `vue-nuxt`: прочитай `profiles/vue-nuxt/agents/vue-architect.md`
-- Для `python-django`: прочитай `profiles/python-django/agents/django-architect.md`
 
 Убедись что новый агент следует той же структуре и стилю.
 

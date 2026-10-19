@@ -1,9 +1,0 @@
-{
-  "name": "quality",
-  "label": "Pack: Quality",
-  "version": "1.0.0",
-  "description": "Расширенное качество кода: анализ покрытия тестами, технический долг, рефакторинг",
-  "agents": ["quality-analyst"],
-  "skills": ["coverage-check", "tech-debt"],
-  "source": "local"
-}

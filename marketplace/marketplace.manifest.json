@@ -23,8 +23,8 @@
     }
   ],
   "featured": {
-    "packs": ["quality", "devops"],
-    "presets": ["frontend-team", "fullstack-web"],
+    "packs": ["devops"],
+    "presets": ["frontend-team"],
     "adapters": ["claude", "codex", "opencode"]
   },
   "distribution_channels": [

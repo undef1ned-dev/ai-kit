@@ -9,8 +9,8 @@
 #
 # Примеры:
 #   bash .aikit-config/scripts/attach.sh vue-nuxt
-#   bash .aikit-config/scripts/attach.sh python-fastapi+vue-nuxt
-#   bash .aikit-config/scripts/attach.sh python-django --pack devops
+#   bash .aikit-config/scripts/attach.sh vue-nuxt+java-spring
+#   bash .aikit-config/scripts/attach.sh vue-nuxt --pack devops
 #   bash .aikit-config/scripts/attach.sh --preset frontend-team
 
 set -eo pipefail

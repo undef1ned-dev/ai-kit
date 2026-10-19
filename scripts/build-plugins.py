@@ -172,7 +172,7 @@ def marketplace(specs: list[dict]) -> dict:
     return {
         "name": MARKETPLACE_NAME,
         "owner": OWNER,
-        "description": "AIKit — агенты, скиллы, хуки и MCP для команд Vue/Nuxt, FastAPI и Django.",
+        "description": "AIKit — агенты, скиллы, хуки и MCP для команд Vue/Nuxt и других стеков по контракту профиля.",
         "plugins": [
             {
                 "name": spec["name"],

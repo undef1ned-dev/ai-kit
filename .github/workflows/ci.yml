@@ -84,4 +84,4 @@ jobs:
         run: |
           sudo rm -f "$(command -v jq)"
           ! command -v jq
-          bash scripts/ci/smoke-attach.sh fullstack-web "$RUNNER_TEMP/no-jq"
+          bash scripts/ci/smoke-attach.sh frontend-team "$RUNNER_TEMP/no-jq"

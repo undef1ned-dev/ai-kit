@@ -42,7 +42,6 @@ output_block: "SKILL_FILE"
 > **3. Профиль размещения:**
 > - `base` — работает во всех проектах, независимо от стека
 > - `vue-nuxt` — только Vue/Nuxt-проекты
-> - `python-django` — только Django-проекты
 > - Другой профиль — укажи название
 >
 > **4. Аргументы** — принимает ли скилл параметры от пользователя через `$ARGUMENTS`?
@@ -65,11 +64,6 @@ output_block: "SKILL_FILE"
 > - `vue-coder` — реализует код по архитектурному плану
 > - `vue-tester` — пишет Vitest-тесты
 > - `vue-reviewer` — ревьюит код по чеклисту
-> - `django-architect` — проектирует Django-фичу
-> - `django-coder` — реализует Django-код
-> - `django-tester` — пишет pytest-тесты
-> - `django-reviewer` — ревьюит Django-код
-> - `django-admin-expert` — настраивает Django Admin
 > - Новый агент — укажи имя (создадим через `/create-agent`)
 >
 > **6. Порядок выполнения:**
@@ -139,7 +133,6 @@ output_block: "SKILL_FILE"
 Прочитай существующие скиллы в целевом профиле:
 - Для `base`: прочитай `base/skills/analyze-mvp/SKILL.md`
 - Для `vue-nuxt`: прочитай `profiles/vue-nuxt/skills/new-page/SKILL.md`
-- Для `python-django`: прочитай `profiles/python-django/skills/new-app/SKILL.md`
 
 Убедись что новый скилл следует той же структуре и стилю.
 

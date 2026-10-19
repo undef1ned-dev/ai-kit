@@ -133,9 +133,8 @@ output_block: "WORKFLOW_SUMMARY"
 ### Тип E: Специализированная задача
 Определи по ключевым словам:
 - "docker", "CI", "деплой" → `devops-engineer`
-- "промпт", "LLM", "AI" → `ai-architect` или `prompt-engineer`
 - "тексты", "копирайтинг" → `ux-writer`
-- "покрытие", "tech debt" → `quality-analyst`
+- "покрытие", "tech debt" → специалист `quality` профиля (`specialists.quality`)
 - "релиз", "changelog" → `release-manager`
 
 ## Шаг 1.5 — Выбор профиля
@@ -152,8 +151,7 @@ output_block: "WORKFLOW_SUMMARY"
 Примеры сильных сигналов:
 - `pages/account/index.vue` → Vue/Nuxt `page`
 - `stores/auth.ts` → Vue/Nuxt `store`
-- `apps/orders/admin.py` → Django `model-admin`
-- `routers/notifications.py` → FastAPI `router-schema`
+- `server/api/orders/index.get.ts` → Vue/Nuxt `server-route`
 
 ### 2. Сопоставь сигналы с контрактами профилей
 
@@ -185,8 +183,8 @@ output_block: "WORKFLOW_SUMMARY"
 
 Не пиши абстрактно "подходит лучше". Пиши предметно:
 - "упомянут `stores/auth.ts`, это path signal `stores/` профиля `vue-nuxt`"
-- "упомянут `apps/orders/admin.py`: path signal `apps/` профиля `python-django`, а задача про Django Admin — подключаю специалиста `admin-expert`"
-- "match к `python-fastapi` есть, но ambiguity = high, потому что `python-django` остаётся близким runner-up"
+- "упомянут `components/CheckoutForm.vue` и макет из Figma: path signal `components/` профиля `vue-nuxt`, задача от макета — подключаю специалиста `design-bridge`"
+- "match к `vue-nuxt` есть, но ambiguity = high: в задаче нет путей, а «форма заказа и эндпоинт» подходит и backend-профилю"
 
 ---
 

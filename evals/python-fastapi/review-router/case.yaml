@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: review-router
-context:
-  scaffold_script: setup.sh
