@@ -54,7 +54,7 @@
 <p>Каждый прогон — настоящие вызовы модели: на подписке они тратят её лимиты (пятичасовое окно и недельный), при входе по API-ключу — оплачиваются. Поэтому эвалы не запускаются ни в CI, ни хуками. Запускай их сам, когда менял агентов, скиллы или хуки.</p>
 <p>Эвалы разбиты на группы: <code>core</code> — ядро (скиллы <code>base/</code>, хуки), и по группе на профиль. Поменял один профиль — гоняй только его группу, остальные не тратят ни времени, ни денег:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/run-evals.py vue-nuxt --quick             # один профиль, каждый кейс один раз
-python3 scripts/run-evals.py vue-nuxt python-fastapi      # несколько групп, полный прогон
+python3 scripts/run-evals.py vue-nuxt core                # несколько групп, полный прогон
 python3 scripts/run-evals.py --changed --quick            # группы, которые задели изменения ветки и незакоммиченные правки
 python3 scripts/run-evals.py all --quick                  # все группы (то же без аргументов)
 python3 scripts/run-evals.py vue-nuxt --runtime both --quick   # Claude Code и Codex рядом

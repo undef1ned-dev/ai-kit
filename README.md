@@ -15,7 +15,7 @@ AIKit — переиспользуемый набор AI-агентов и ск�
 /aikit:setup frontend-team
 ```
 
-Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`, `python-fastapi`, `python-django`) и пак (`quality`, `devops`, `ai`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
+Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`) и пак (`devops`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
 
 В Codex: `codex plugin marketplace add undef1ned-dev/ai-kit`, `codex plugin add aikit@aikit` и плагины профилей, затем скилл `$setup`. Агентов плагины Codex не поставляют — `$setup` пишет их в `.codex/agents/`.
 
@@ -30,8 +30,8 @@ bash .aikit-config/scripts/attach.sh --preset frontend-team
 Вместо пресета можно указать профили и паки явно:
 
 ```bash
-bash .aikit-config/scripts/attach.sh vue-nuxt --pack quality
-bash .aikit-config/scripts/attach.sh vue-nuxt+python-fastapi
+bash .aikit-config/scripts/attach.sh vue-nuxt --pack devops
+bash .aikit-config/scripts/attach.sh vue-nuxt+<backend-профиль>
 ```
 
 `attach.sh` создаёт `CLAUDE.md`, `.claude/agents/`, `.claude/skills/`, `.claude/settings.json`, `.mcp.json`, `PRODUCT.md`, контракты профилей в `.aikit/profiles.json` и память проекта в `.aikit/memory/`. Профили одного проекта могут жить в разных папках монорепо (`web/`, `api/`) — установщик найдёт их сам.

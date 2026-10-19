@@ -3,24 +3,12 @@
   "owner": {
     "name": "undef1ned-dev"
   },
-  "description": "AIKit — агенты, скиллы, хуки и MCP для команд Vue/Nuxt, FastAPI и Django.",
+  "description": "AIKit — агенты, скиллы, хуки и MCP для команд Vue/Nuxt и других стеков по контракту профиля.",
   "plugins": [
     {
       "name": "aikit",
       "source": "./",
       "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
-      "category": "development"
-    },
-    {
-      "name": "python-django",
-      "source": "./profiles/python-django",
-      "description": "Профиль AIKit Python Django (Django 5.x, DRF, Django Admin): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
-      "category": "development"
-    },
-    {
-      "name": "python-fastapi",
-      "source": "./profiles/python-fastapi",
-      "description": "Профиль AIKit Python FastAPI (FastAPI 0.115+, SQLAlchemy 2.0, LangGraph): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
       "category": "development"
     },
     {
@@ -30,21 +18,9 @@
       "category": "development"
     },
     {
-      "name": "ai",
-      "source": "./packs/ai",
-      "description": "Pack: AI для AIKit — AI-разработка: проектирование LLM-интеграций, оптимизация промптов, агентные пайплайны",
-      "category": "development"
-    },
-    {
       "name": "devops",
       "source": "./packs/devops",
       "description": "Pack: DevOps для AIKit — DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
-      "category": "development"
-    },
-    {
-      "name": "quality",
-      "source": "./packs/quality",
-      "description": "Pack: Quality для AIKit — Расширенное качество кода: анализ покрытия тестами, технический долг, рефакторинг",
       "category": "development"
     }
   ]

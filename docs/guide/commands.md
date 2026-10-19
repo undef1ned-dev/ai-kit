@@ -36,6 +36,8 @@
 | Команда | Что делает | Агенты |
 |---|---|---|
 | `/security-check` | Аудит безопасности: OWASP Top 10, секреты в коде и конфигах, авторизация, инъекции | `security-auditor` |
+| `/coverage-check` | Запускает тесты с покрытием, находит критичные модули без тестов и предлагает тест-кейсы | quality-специалист профиля (`specialists.quality`) |
+| `/tech-debt` | Аудит технического долга: большие модули, дублирование, нарушения слоёв, TODO; backlog P1/P2/P3 | quality-специалист профиля (`specialists.quality`) |
 | `/write-ui-texts` | Пишет или проверяет тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг | `ux-writer` |
 
 ## Память проекта
@@ -69,10 +71,6 @@
 | Где | Скиллы |
 |---|---|
 | `vue-nuxt` | `/new-page`, `/new-component`, `/new-composable`, `/new-store`, `/new-middleware`, `/new-plugin`, `/new-server-route`, `/add-tests`, `/design-implement`, `/design-review` |
-| `python-fastapi` | `/new-router`, `/add-migration` |
-| `python-django` | `/new-app`, `/setup-admin` |
-| пак `quality` | `/coverage-check`, `/tech-debt` |
 | пак `devops` | `/dockerize`, `/setup-ci` |
-| пак `ai` | `/design-prompt`, `/audit-prompts` |
 
 Описание каждого — в [каталоге](../site/catalog.html).

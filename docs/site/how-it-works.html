@@ -31,20 +31,20 @@
 <p>Подробная матрица с ограничениями — <a href="runtime-support.html">Поддержка runtime</a>.</p>
 <h2 id="ядро-не-знает-стеков"><a class="anchor" href="#ядро-не-знает-стеков" aria-hidden="true">#</a>Ядро не знает стеков</h2>
 <p>Главная идея устройства: общие сценарии (<code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code>) не содержат ни одного имени стека или агента профиля. Всё стековое они читают из <code>.aikit/profiles.json</code> — файла, куда установщик собрал <a href="glossary.html#контракт-профиля">контракты</a> подключённых профилей.</p>
-<p>Вот фрагмент такого файла для fullstack-проекта, где Nuxt живёт в <code>web/</code>, а FastAPI — в <code>api/</code>:</p>
+<p>Вот фрагмент такого файла для fullstack-проекта, где Nuxt живёт в <code>web/</code>, а бэкенд на Spring (профиль из примера <a href="adding-a-stack.html">Как добавить стек</a>) — в <code>api/</code>:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">json</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>{
   &quot;profiles&quot;: {
-    &quot;python-fastapi&quot;: {
+    &quot;java-spring&quot;: {
       &quot;role&quot;: &quot;backend&quot;,
-      &quot;stack&quot;: &quot;FastAPI 0.115+, SQLAlchemy 2.0, LangGraph&quot;,
+      &quot;stack&quot;: &quot;Java 21, Spring Boot 3, JUnit 5&quot;,
       &quot;agents&quot;: {
-        &quot;architect&quot;: &quot;fastapi-architect&quot;,
-        &quot;coder&quot;: &quot;fastapi-coder&quot;,
-        &quot;tester&quot;: &quot;fastapi-tester&quot;,
-        &quot;reviewer&quot;: &quot;fastapi-reviewer&quot;
+        &quot;architect&quot;: &quot;spring-architect&quot;,
+        &quot;coder&quot;: &quot;spring-coder&quot;,
+        &quot;tester&quot;: &quot;spring-tester&quot;,
+        &quot;reviewer&quot;: &quot;spring-reviewer&quot;
       },
-      &quot;commands&quot;: { &quot;lint&quot;: &quot;uv run ruff check {files}&quot;, &quot;test&quot;: &quot;uv run pytest&quot; },
-      &quot;path_signals&quot;: [&quot;routers/&quot;, &quot;schemas/&quot;, &quot;models/&quot;],
+      &quot;commands&quot;: { &quot;lint&quot;: &quot;./mvnw checkstyle:check&quot;, &quot;test&quot;: &quot;./mvnw test&quot; },
+      &quot;path_signals&quot;: [&quot;src/main/java/&quot;, &quot;src/test/java/&quot;],
       &quot;root&quot;: &quot;api&quot;
     },
     &quot;vue-nuxt&quot;: {
@@ -80,7 +80,7 @@
 <p>«Добавь эндпоинт заказов и страницу, которая их показывает» — работа и для бэкенда, и для фронтенда. <code>/implement-feature</code> проходит цепочку по каждому профилю: <strong>сначала backend</strong> — он фиксирует API-контракт, затем web. План бэкенд-архитектора передаётся фронтенд-архитектору, поэтому страница использует ровно тот API, который сделан.</p>
 <h2 id="специалисты-и-пайплайны"><a class="anchor" href="#специалисты-и-пайплайны" aria-hidden="true">#</a>Специалисты и пайплайны</h2>
 <p>Четыре роли — обязательная цепочка кода. Кроме неё профиль может иметь два вида дополнительных агентов.</p>
-<div class="table-wrap"><table><thead><tr><th></th><th>Специалист</th><th>Пайплайн</th></tr></thead><tbody><tr><td>Что это</td><td>Один агент</td><td>Цепочка из нескольких агентов</td></tr><tr><td>Когда работает</td><td>Внутри цепочки кода, если задача подходит под <code>when</code></td><td>Сам по себе, если задача целиком подходит под <code>when</code> и код не нужен; или внутри фичи после архитектора</td></tr><tr><td>Что даёт</td><td>Совет: уточняет план для кодера</td><td>Готовый результат (артефакт): модель, текстура, документ</td></tr><tr><td>Пример в ките</td><td><code>vue-design-bridge</code>, <code>django-admin-expert</code>, <code>fastapi-langgraph-expert</code></td><td>Пока нет в профилях кита — пример ниже</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>Специалист</th><th>Пайплайн</th></tr></thead><tbody><tr><td>Что это</td><td>Один агент</td><td>Цепочка из нескольких агентов</td></tr><tr><td>Когда работает</td><td>Внутри цепочки кода, если задача подходит под <code>when</code></td><td>Сам по себе, если задача целиком подходит под <code>when</code> и код не нужен; или внутри фичи после архитектора</td></tr><tr><td>Что даёт</td><td>Совет: уточняет план для кодера</td><td>Готовый результат (артефакт): модель, текстура, документ</td></tr><tr><td>Пример в ките</td><td><code>vue-design-bridge</code>, <code>vue-quality-analyst</code></td><td>Пока нет в профилях кита — пример ниже</td></tr></tbody></table></div>
 <p>Примеры на гипотетическом профиле для модов Minecraft с пайплайном <code>asset</code> (арт-директор → моделлер → текстурщик → ревью ассетов):</p>
 <div class="table-wrap"><table><thead><tr><th>Задача</th><th>Что запустится</th></tr></thead><tbody><tr><td>«Нарисуй текстуру для рубинового меча»</td><td>Только пайплайн <code>asset</code>: кода нет</td></tr><tr><td>«Добавь рубиновую руду: блок, генерация в мире, текстура»</td><td>Цепочка кода; пайплайн <code>asset</code> идёт после архитектора, кодер получает готовые пути к модели и текстуре</td></tr><tr><td>«Перепиши регистрацию блоков на DeferredRegister»</td><td>Только цепочка кода</td></tr><tr><td>«Сверь новый экран настроек с макетом» (профиль <code>vue-nuxt</code>)</td><td>Цепочка кода + специалист <code>vue-design-bridge</code></td></tr></tbody></table></div>
 <p>Как описать специалиста и пайплайн в своём профиле — <a href="adding-a-stack.html#пайплайны-работа-кроме-кода">Как добавить стек</a>.</p>
@@ -90,7 +90,7 @@
 <p><code>/check-feature</code> запускает приложение командой <code>run</code> из контракта и проходит сценарий фичи: в браузере (Playwright MCP или встроенный браузер runtime) для профиля с UI, запросами — для API. Смотрит ошибки в консоли и логах, в конце останавливает приложение. Ничего не чинит — только сообщает, работает ли.</p>
 <h2 id="workflow-визард"><a class="anchor" href="#workflow-визард" aria-hidden="true">#</a>/workflow — визард</h2>
 <p><code>/implement-feature</code> всегда ведёт задачу по цепочке кода. <code>/workflow</code> сначала разбирается, что за задача, и подбирает рецепт:</p>
-<div class="table-wrap"><table><thead><tr><th>Задача</th><th>Рецепт</th></tr></thead><tbody><tr><td>Реализовать фичу</td><td><code>feature-delivery</code>: architect → coder → tester + reviewer</td></tr><tr><td>Написать тесты к готовому коду</td><td><code>test-pass</code>: только tester</td></tr><tr><td>Проверить код</td><td><code>review-pass</code>: только reviewer</td></tr><tr><td>Работа под <code>when</code> пайплайна профиля</td><td>Шаги пайплайна</td></tr><tr><td>Анализ идеи, безопасность, DevOps, AI</td><td>Агенты ядра и паков: <code>mvp-analyst</code>, <code>security-auditor</code>, <code>devops-engineer</code>, <code>ai-architect</code></td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>Задача</th><th>Рецепт</th></tr></thead><tbody><tr><td>Реализовать фичу</td><td><code>feature-delivery</code>: architect → coder → tester + reviewer</td></tr><tr><td>Написать тесты к готовому коду</td><td><code>test-pass</code>: только tester</td></tr><tr><td>Проверить код</td><td><code>review-pass</code>: только reviewer</td></tr><tr><td>Работа под <code>when</code> пайплайна профиля</td><td>Шаги пайплайна</td></tr><tr><td>Анализ идеи, безопасность, DevOps</td><td>Агенты ядра и паков: <code>mvp-analyst</code>, <code>security-auditor</code>, <code>devops-engineer</code></td></tr></tbody></table></div>
 <p>Визард показывает план и ждёт подтверждения, потом идёт по шагам. Удобен, когда не знаешь, с чего начать.</p>
 <h2 id="от-идеи-до-кода"><a class="anchor" href="#от-идеи-до-кода" aria-hidden="true">#</a>От идеи до кода</h2>
 <p>Для крупной фичи есть цепочка до разработки:</p>

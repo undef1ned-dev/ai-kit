@@ -8,7 +8,7 @@ scripts/attach.sh as the primary production flow.
 
 Usage:
     python scripts/build-adapter-package.py codex --profile vue-nuxt
-    python scripts/build-adapter-package.py opencode --profile python-fastapi --pack devops
+    python scripts/build-adapter-package.py opencode --profile vue-nuxt --pack devops
 """
 
 from __future__ import annotations
@@ -485,7 +485,7 @@ def build_package(
         if not (ROOT / "packs" / pack_name).exists():
             raise SystemExit(f"Unknown pack '{pack_name}'")
         compatible_profiles = read_pack_compatible_profiles(pack_name)
-        # In a multi-profile setup a pack only needs one compatible profile (e.g. the ai pack for the backend in fullstack-web)
+        # In a multi-profile setup a pack only needs one compatible profile (e.g. a backend-only pack in a web + backend setup)
         if compatible_profiles and not any(profile_name in compatible_profiles for profile_name in profiles):
             raise SystemExit(
                 f"Pack '{pack_name}' is not compatible with any of profile(s): {', '.join(profiles)}"

@@ -109,7 +109,7 @@
 
 ```bash
 python3 scripts/run-evals.py vue-nuxt --quick             # один профиль, каждый кейс один раз
-python3 scripts/run-evals.py vue-nuxt python-fastapi      # несколько групп, полный прогон
+python3 scripts/run-evals.py vue-nuxt core                # несколько групп, полный прогон
 python3 scripts/run-evals.py --changed --quick            # группы, которые задели изменения ветки и незакоммиченные правки
 python3 scripts/run-evals.py all --quick                  # все группы (то же без аргументов)
 python3 scripts/run-evals.py vue-nuxt --runtime both --quick   # Claude Code и Codex рядом

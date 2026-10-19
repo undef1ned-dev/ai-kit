@@ -27,7 +27,7 @@ check() {
   if "$@" >/dev/null 2>&1; then pass "$description"; else fail "$description"; fi
 }
 
-# .aikit/profiles.json: оба профиля, агенты java-spring по ролям, папки найдены по маркерам
+# .aikit/profiles.json: оба профиля, агенты java-spring по ролям и quality-специалист, папки найдены по маркерам
 check_contracts() {
   "$PYTHON_BIN" - "$1/.aikit/profiles.json" <<'PY'
 import json, pathlib, sys
@@ -37,6 +37,7 @@ spring = contracts["java-spring"]
 assert spring["agents"] == {role: f"spring-{role}" for role in ("architect", "coder", "tester", "reviewer")}, spring["agents"]
 assert spring["root"] == "api" and contracts["vue-nuxt"]["root"] == "web", (spring["root"], contracts["vue-nuxt"]["root"])
 assert spring["commands"]["test"] == "./mvnw test", spring["commands"]
+assert spring["specialists"]["quality"]["agent"] == "spring-quality-analyst", spring["specialists"]
 assert spring["pipelines"]["api-docs"]["steps"] == ["spring-api-documenter", "spring-reviewer"], spring["pipelines"]
 PY
 }

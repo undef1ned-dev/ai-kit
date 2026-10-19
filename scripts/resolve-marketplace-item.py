@@ -3,7 +3,7 @@
 Resolve a marketplace item and explain how it is distributed inside AIKit.
 
 Usage:
-    python3 scripts/resolve-marketplace-item.py pack quality
+    python3 scripts/resolve-marketplace-item.py pack devops
     python3 scripts/resolve-marketplace-item.py preset frontend-team --json
     python3 scripts/resolve-marketplace-item.py adapter codex
 """

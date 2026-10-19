@@ -101,7 +101,7 @@ echo "▶ Повторный запуск с профилем vue-nuxt"
 init --runtime claude --preset "$PRESET"
 check "повторный запуск: CLAUDE.md не дублирует блок, настройки не дублируются" bash -c "$(declare -f check_rules check_claude_settings); PROJECT_DIR='$PROJECT_DIR' PRESET_FILE='$PRESET_FILE' KIT_ROOT='$KIT_ROOT' PYTHON_BIN='$PYTHON_BIN'; check_rules CLAUDE.md && check_claude_settings"
 init --runtime codex --profiles vue-nuxt
-check "смена профилей: агенты Codex других профилей убраны" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-coder.toml' && ! ls '$PROJECT_DIR'/.codex/agents/fastapi-*.toml '$PROJECT_DIR'/.codex/agents/django-*.toml"
+check "смена набора: агенты Codex убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-coder.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"

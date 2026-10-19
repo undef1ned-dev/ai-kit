@@ -1,9 +1,0 @@
-{
-  "name": "fullstack-web",
-  "label": "Fullstack Web",
-  "description": "Vue/Nuxt + FastAPI setup for fullstack product teams.",
-  "profiles": ["vue-nuxt", "python-fastapi"],
-  "packs": ["quality", "devops", "ai"],
-  "recommended_adapter": "claude",
-  "source": "aikit-core"
-}

@@ -9,7 +9,7 @@
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
 #   4. Каталог документации видит все скиллы-папки профилей и паков
-#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны)
+#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны), у каждого профиля есть специалист quality
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
@@ -109,6 +109,8 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
     if set(data["agents"]) != ROLES:
         errors.append(f"{manifest}: agents должны быть ровно по ролям {sorted(ROLES)}")
     errors += [f"{manifest}: нет агента {name}" for name in data["agents"].values() if not agent_exists(name)]
+    if "quality" not in data.get("specialists", {}):
+        errors.append(f"{manifest}: нет специалиста quality (его зовут /coverage-check и /tech-debt)")
     for name, spec in data.get("specialists", {}).items():
         if not agent_exists(spec.get("agent", "")) or not spec.get("when", "").strip():
             errors.append(f"{manifest}: специалист {name} без агента или без when")

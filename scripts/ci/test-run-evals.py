@@ -93,8 +93,8 @@ def main() -> int:
         typo = runner.resolve_groups(["vue-nux"], cases)
     check(typo is None and "vue-nux" in error.getvalue(), "опечатка в имени — ошибка, а не прогон всего набора")
     check(runner.changed_groups(["profiles/vue-nuxt/agents/vue-reviewer.md"], cases) == ["vue-nuxt"], "правка профиля — только его группа")
-    check(runner.changed_groups(["evals/fixtures/fastapi-app/routers/users.py"], cases) == ["python-fastapi"], "правка фикстуры — группы, которые её используют")
-    check(runner.changed_groups(["evals/python-django/new-app/prompt.md"], cases) == ["python-django"], "правка кейса — его группа")
+    check(runner.changed_groups(["evals/fixtures/nuxt-app/components/users/UserList.vue"], cases) == ["core", "vue-nuxt"], "правка фикстуры — группы, которые её используют")
+    check(runner.changed_groups(["evals/vue-nuxt/new-component/prompt.md"], cases) == ["vue-nuxt"], "правка кейса — его группа")
     check(runner.changed_groups(["base/skills/git-commit/SKILL.md"], cases) == runner.known_groups(cases), "правка base — все группы")
     check(runner.changed_groups(["packs/devops/agents/devops-engineer.md", "README.md"], cases) == [], "паки и документация эвалы не затрагивают")
 
