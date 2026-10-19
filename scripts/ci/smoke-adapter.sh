@@ -96,7 +96,7 @@ assert agents, "нет агентов"
 for path in agents:
     with open(path, "rb") as f:
         data = tomllib.load(f)
-    missing = {"name", "description", "developer_instructions"} - data.keys()
+    missing = {"name", "description", "developer_instructions", "model"} - data.keys()
     assert not missing, f"{path.name}: нет полей {missing}"
 PY
 }
@@ -159,7 +159,7 @@ check_opencode_agents() {
   for f in "$PROJECT_DIR"/.opencode/agents/*.md; do
     [[ -f "$f" ]] || continue
     found=1
-    grep -q '^description: "..*"' "$f" && grep -q '^mode: "subagent"' "$f" || { echo "неверный агент: $f" >&2; return 1; }
+    grep -q '^description: "..*"' "$f" && grep -q '^mode: "subagent"' "$f" && grep -q '^model: ..*/..*' "$f" || { echo "неверный агент: $f" >&2; return 1; }
   done
   [[ "$found" == 1 ]]
 }
@@ -203,7 +203,7 @@ check_runtime_files() {
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
       ;;
     opencode)
-      check "агенты OpenCode с description и mode: subagent$stage" check_opencode_agents
+      check "агенты OpenCode с description, mode: subagent и model$stage" check_opencode_agents
       ;;
   esac
   check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp

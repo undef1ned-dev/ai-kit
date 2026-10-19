@@ -172,6 +172,7 @@ if [[ -d "$AGENTS_DST" ]]; then
   AGENT_COUNT="$(ls "$AGENTS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
   SKILL_COUNT="$(echo "$INSTALLED_SKILLS" | wc -w | tr -d ' ')"
   log_ok "Агенты обновлены ($AGENT_COUNT шт)"
+  apply_agent_models
   log_ok "Скиллы обновлены ($SKILL_COUNT шт)"
 else
   log_warn ".claude/agents/ не найдена — запусти attach.sh"

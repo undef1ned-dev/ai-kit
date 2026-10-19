@@ -323,6 +323,7 @@ done
 
 AGENT_COUNT="$(ls "$AGENTS_DST"/*.md 2>/dev/null | wc -l | tr -d ' ')"
 log_ok "Субагенты в .claude/agents/ ($AGENT_COUNT шт)"
+apply_agent_models
 
 # =============================================================================
 # PRODUCT.md — шаблон если нет

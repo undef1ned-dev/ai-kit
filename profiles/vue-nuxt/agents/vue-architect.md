@@ -2,7 +2,7 @@
 name: vue-architect
 description: Vue/Nuxt архитектор. Проектирует структуру frontend-фичи до написания кода. Используй перед новой страницей, клиентским flow или сложным состоянием.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "frontend", "architecture"]

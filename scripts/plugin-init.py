@@ -30,6 +30,7 @@ import shutil
 import sys
 from pathlib import Path
 
+import agent_models
 import memory_paths
 import preset_utils
 import profile_contract
@@ -177,7 +178,9 @@ def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], p
     for source in sources:
         for agent in sorted((source / "agents").glob("*.md")):
             shutil.copyfile(agent, agents_dir / agent.name)
-    return [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace)]
+    rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace)]
+    agent_models.apply("codex", workspace)
+    return rendered
 
 
 def parse_args() -> argparse.Namespace:

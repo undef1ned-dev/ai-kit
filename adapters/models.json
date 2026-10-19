@@ -1,0 +1,26 @@
+{
+  "tiers": ["opus", "sonnet", "haiku"],
+  "checked": "2026-10-20",
+  "runtimes": {
+    "claude": {
+      "opus": {"model": "opus"},
+      "sonnet": {"model": "sonnet"},
+      "haiku": {"model": "haiku"}
+    },
+    "codex": {
+      "opus": {"model": "gpt-6-astra", "model_reasoning_effort": "high"},
+      "sonnet": {"model": "gpt-6.1-sol", "model_reasoning_effort": "medium"},
+      "haiku": {"model": "gpt-6-luna", "model_reasoning_effort": "low"}
+    },
+    "opencode": {
+      "opus": {"model": "anthropic/claude-opus-5-5"},
+      "sonnet": {"model": "anthropic/claude-sonnet-5-5"},
+      "haiku": {"model": "anthropic/claude-haiku-5-5"}
+    }
+  },
+  "sources": {
+    "claude": "https://code.claude.com/docs/en/sub-agents",
+    "codex": "https://learn.chatgpt.com/docs/models",
+    "opencode": "https://opencode.ai/docs/agents/"
+  }
+}

@@ -26,7 +26,7 @@
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
   <div><b>20</b><span>агенты</span></div>
-  <div><b>31</b><span>скиллы</span></div>
+  <div><b>32</b><span>скиллы</span></div>
   <div><b>1</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
 </div>
@@ -41,7 +41,7 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">32</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">33</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -93,13 +93,13 @@
 </article><article class="entry-card entry-agent" id="agent-release-manager" data-filter="release-manager релиз-менеджер. собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">release-manager</span></header>
   <p>Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.</p>
-  <div class="chips"><span class="chip chip-out">→ RELEASE_NOTES</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ RELEASE_NOTES</span><span class="chip">haiku</span></div>
   <div class="entry-example"><span>Подготовь release notes для версии 2.5.0</span><button class="copy-btn" type="button" data-copy="Подготовь release notes для версии 2.5.0">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/release-manager.md">base/agents/release-manager.md</a>
 </article><article class="entry-card entry-agent" id="agent-security-auditor" data-filter="security-auditor аудитор безопасности. проверяет код на owasp top 10, секреты в коде, проблемы с авторизацией, инъекции. запускай перед релизом или после крупных изменений.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">security-auditor</span></header>
   <p>Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.</p>
-  <div class="chips"><span class="chip chip-out">→ SECURITY_AUDIT</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ SECURITY_AUDIT</span><span class="chip">opus</span></div>
   <div class="entry-example"><span>Проверь безопасность перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность перед релизом">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/security-auditor.md">base/agents/security-auditor.md</a>
 </article><article class="entry-card entry-agent" id="agent-skill-builder" data-filter="skill-builder создаёт новый скилл через структурированный опрос по 4 фазам. генерирует папку &lt;name&gt;/skill.md с оркестрацией агентов и чётким форматом вывода. используй когда нужно добавить новый скилл в репозиторий.">
@@ -111,7 +111,7 @@
 </article><article class="entry-card entry-agent" id="agent-tech-planner" data-filter="tech-planner технический планировщик. читает продуктовый mvp-документ и переводит его в технический план реализации по платформам. определяет api-контракт, scope каждой платформы, порядок реализации. используй после mvp-analyst, перед архитекторами.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">tech-planner</span></header>
   <p>Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй после mvp-analyst, перед архитекторами.</p>
-  <div class="chips"><span class="chip chip-out">→ TECH_PLAN</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ TECH_PLAN</span><span class="chip">opus</span></div>
   <div class="entry-example"><span>Составь технический план для docs/mvp/export-pdf.md</span><button class="copy-btn" type="button" data-copy="Составь технический план для docs/mvp/export-pdf.md">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/tech-planner.md">base/agents/tech-planner.md</a>
 </article><article class="entry-card entry-agent" id="agent-ux-writer" data-filter="ux-writer ux-копирайтер. пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. следит за консистентностью терминологии.">
@@ -127,7 +127,7 @@
   <div class="entry-example"><span>Реализуй фичу: добавить экспорт пользователей в CSV</span><button class="copy-btn" type="button" data-copy="Реализуй фичу: добавить экспорт пользователей в CSV">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/workflow-runner.md">base/agents/workflow-runner.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">19</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">20</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
@@ -223,6 +223,12 @@
 
   <div class="entry-example"><span>/security-check перед релизом 2.5.0</span><button class="copy-btn" type="button" data-copy="/security-check перед релизом 2.5.0">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/security-check/SKILL.md">base/skills/security-check/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-set-model" data-filter="set-model сменить модель агента aikit в проекте: уровень (opus, sonnet, haiku) или конкретную модель для claude code, codex или opencode. записывает .aikit/models.json — общий для команды, хранится в git. используй, когда пользователь просит поставить агенту другую модель или показать, какие модели у агентов.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/set-model</span></header>
+  <p>Сменить модель агента AIKit в проекте: уровень (opus, sonnet, haiku) или конкретную модель для Claude Code, Codex или OpenCode. Записывает .aikit/models.json — общий для команды, хранится в git. Используй, когда пользователь просит поставить агенту другую модель или показать, какие модели у агентов.</p>
+  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
+  <div class="entry-example"><span>/set-model security-auditor sonnet</span><button class="copy-btn" type="button" data-copy="/set-model security-auditor sonnet">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/set-model/SKILL.md">base/skills/set-model/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-tech-debt" data-filter="tech-debt аудит технического долга: большие модули, дублирование, нарушения архитектурных слоёв, незакрытые todo; результат — приоритизированный backlog улучшений. используй, когда пользователь просит оценить техдолг.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/tech-debt</span></header>
   <p>Аудит технического долга: большие модули, дублирование, нарушения архитектурных слоёв, незакрытые TODO; результат — приоритизированный backlog улучшений. Используй, когда пользователь просит оценить техдолг.</p>
@@ -263,7 +269,7 @@
   <h3>Агенты <span class="count">6</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-vue-architect" data-filter="vue-architect vue/nuxt архитектор. проектирует структуру frontend-фичи до написания кода. используй перед новой страницей, клиентским flow или сложным состоянием.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-architect</span></header>
   <p>Vue/Nuxt архитектор. Проектирует структуру frontend-фичи до написания кода. Используй перед новой страницей, клиентским flow или сложным состоянием.</p>
-  <div class="chips"><span class="chip chip-out">→ ARCHITECT_PLAN</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ ARCHITECT_PLAN</span><span class="chip">opus</span></div>
   <div class="entry-example"><span>Спроектируй экран уведомлений в Nuxt</span><button class="copy-btn" type="button" data-copy="Спроектируй экран уведомлений в Nuxt">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-architect.md">profiles/vue-nuxt/agents/vue-architect.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-coder" data-filter="vue-coder vue/nuxt разработчик. реализует файлы по architect_plan. используй после получения плана от vue-architect.">
@@ -287,7 +293,7 @@
 </article><article class="entry-card entry-agent" id="agent-vue-reviewer" data-filter="vue-reviewer vue/nuxt code reviewer. проверяет код по coder_result и tester_result.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-reviewer</span></header>
   <p>Vue/Nuxt code reviewer. Проверяет код по CODER_RESULT и TESTER_RESULT.</p>
-  <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip">opus</span></div>
   <div class="entry-example"><span>Проверь код по CODER_RESULT и TESTER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT и TESTER_RESULT">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-reviewer.md">profiles/vue-nuxt/agents/vue-reviewer.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-tester" data-filter="vue-tester vue/nuxt qa. пишет unit и component тесты по coder_result, при необходимости предлагает e2e-проверку через playwright.">

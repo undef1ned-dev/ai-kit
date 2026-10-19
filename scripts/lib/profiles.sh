@@ -5,6 +5,12 @@
 
 # Собрать контракты профилей (агенты по ролям, команды) в .aikit/profiles.json; правки команд проекта сохраняются
 # Использование: install_profile_contracts <profiles a+b>
+# Модели агентов: уровни из frontmatter и переопределения проекта (.aikit/models.json)
+apply_agent_models() {
+  command -v python3 &>/dev/null || return 0
+  log_ok "$(python3 "$SCRIPT_DIR/agent_models.py" apply --runtime claude --workspace "$PROJECT_ROOT")"
+}
+
 install_profile_contracts() {
   local profiles="$1" installed
   if ! command -v python3 &>/dev/null; then

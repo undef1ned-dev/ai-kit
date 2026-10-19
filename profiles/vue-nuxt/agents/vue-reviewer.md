@@ -2,7 +2,7 @@
 name: vue-reviewer
 description: Vue/Nuxt code reviewer. Проверяет код по CODER_RESULT и TESTER_RESULT.
 tools: Read, Grep, Glob, Bash
-model: sonnet
+model: opus
 version: "1.1.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "frontend", "review"]
