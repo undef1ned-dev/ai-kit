@@ -33,6 +33,7 @@ const PROJECT_SEARCH_DEPTH = 6
 const MODES = { send: 'Отправить', fill: 'Вставить' }
 
 let project = null
+let sessionRoot = ''
 let groups = []
 let commands = []
 let agents = []
@@ -51,7 +52,7 @@ let memory = memorySummary(null)
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
 const passThrough = ($, e, next) => next(e)
-const historyKey = () => 'history:' + (project?.root ?? '')
+const historyKey = () => 'history:' + (project?.root ?? sessionRoot)
 
 function joinPath(...parts) {
   return parts.join('/').replace(/\\/g, '/').replace(/\/+/g, '/')
@@ -73,7 +74,8 @@ async function readJson($, path) {
 
 // The project root is the nearest folder with .aikit/profiles.json, from the session root up
 async function findProject($) {
-  let dir = String(await $.session.root()).replace(/\\/g, '/')
+  sessionRoot = String(await $.session.root()).replace(/\\/g, '/')
+  let dir = sessionRoot
   for (let depth = 0; dir && depth < PROJECT_SEARCH_DEPTH; depth += 1) {
     const contracts = await readJson($, joinPath(dir, PROFILES_FILE))
     if (contracts && typeof contracts.profiles === 'object') {
@@ -365,21 +367,27 @@ function argumentPanel($, ui) {
   })
 }
 
+// Base commands work without a profile; /setup adds the profile's commands and contracts
+function notConnected($, ui) {
+  const { Box, Text, Button } = ui
+  return Box({
+    flexDirection: 'row',
+    columnGap: 1,
+    flexWrap: 'wrap',
+    marginTop: 1,
+    children: [
+      Text({ dimColor: true, children: ['Проект не подключён: доступны базовые команды, команды профиля появятся после'] }),
+      Button({ key: 'setup', label: '/aikit:setup', plain: true, onPress: () => press($, findEntry('setup', $.plugin.name)) }),
+    ],
+  })
+}
+
 function commandsTab($, ui) {
   const { Box, Text, Button } = ui
-  if (!project) {
-    return Box({
-      flexDirection: 'column',
-      marginTop: 1,
-      children: [
-        Text({ children: ['Проект не подключён к AIKit: нет .aikit/profiles.json.'] }),
-        Button({ key: 'setup', label: 'Подключить: /aikit:setup', onPress: () => press($, findEntry('setup', $.plugin.name)) }),
-      ],
-    })
-  }
   return Box({
     flexDirection: 'column',
     children: [
+      ...(project ? [] : [notConnected($, ui)]),
       ...(selected ? [argumentPanel($, ui)] : []),
       ...groups.map(group =>
         Box({

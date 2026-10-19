@@ -183,11 +183,13 @@ test('the reference tab lists commands with hints and filters them', async ($, o
   expect(await ui.find({ type: 'Text', text: /^\/memory-status/ })).toBeUndefined()
 })
 
-test('a project without AIKit offers setup', async ($, on) => {
+test('a project without AIKit shows base commands and offers setup', async ($, on) => {
   stubKit(on, { isConnected: false })
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await ui.find({ key: 'setup' })).toBeDefined()
+  expect(await ui.find({ key: 'cmd-aikit-implement-feature' })).toBeDefined()
+  expect(await ui.find({ key: 'cmd-vue-nuxt-new-page' })).toBeUndefined()
 })
 
 test('memory size uses the /memory-status limits', () => {
