@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "description": "Pack: DevOps для AIKit — DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
+  "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
   "keywords": [
     "aikit",
     "devops"
@@ -8,7 +8,7 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "AIKit: Pack: DevOps",
-    "shortDescription": "Pack: DevOps для AIKit — DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
+    "shortDescription": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
     "developerName": "undef1ned-dev",
     "category": "Coding",
     "websiteURL": "https://github.com/undef1ned-dev/ai-kit"

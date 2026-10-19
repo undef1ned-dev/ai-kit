@@ -3,7 +3,7 @@ name: ux-writer
 description: UX-копирайтер. Пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. Следит за консистентностью терминологии.
 tools: Read, Grep, Glob, Bash
 model: sonnet
-version: "1.0.0"
+version: "1.1.0"
 profile: "base"
 tags: ["ux", "copy", "ui-texts"]
 example_prompt: "Напиши тексты для экрана онбординга"
@@ -28,9 +28,8 @@ output_block: "UX_TEXTS"
 
 1. Прочитай `PRODUCT.md` — целевая аудитория, tone of voice, домен
 2. Найди существующие тексты в проекте:
-   - iOS: `rg -n "\"[А-Яа-я]" --glob "*.swift" .` — строки на русском
-   - iOS: `rg --files -g "**/Localizable.xcstrings" -g "**/*.strings"`
-   - Django: `rg -n "verbose_name" --glob "*.py" .` — имена моделей/полей
+   - файлы локализации: `rg --files -g "**/locales/**" -g "**/i18n/**" -g "**/lang/**" -g "*.po" -g "*.strings" -g "*.xcstrings" -g "strings.xml"`
+   - строки прямо в коде: `rg -n "[А-Яа-яЁё]{3,}" -g '!*.md' -g '!*.lock'` в `root` профилей из `.aikit/profiles.json` — компоненты, шаблоны, сообщения об ошибках API
 3. Определи существующий стиль и терминологию
 
 ## Шаг 1 — Определи задачу

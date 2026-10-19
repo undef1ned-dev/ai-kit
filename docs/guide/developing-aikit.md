@@ -35,7 +35,6 @@
 | `docs/research/` | Исследования, на которых основан roadmap |
 | `.github/workflows/` | CI на PR (`ci.yml`), релиз по тегу (`release.yml`), публикация сайта на GitHub Pages (`pages.yml`) |
 | `CLAUDE.md` в корне | Правила для работы в этом репозитории — **копия** `base/CLAUDE.md` и правил `vue-nuxt`. Правь источники |
-| `marketplace/` | Наследие прежней схемы дистрибуции, не используется. Маркетплейс плагинов — `.claude-plugin/marketplace.json` |
 
 ## Скрипты
 
@@ -53,7 +52,7 @@
 | `scripts/new-profile.py` | Создаёт профиль из шаблона и пересобирает плагины ([Как добавить стек](adding-a-stack.md)) |
 | `scripts/run-evals.py` | Прогоняет эвалы в Claude Code, Codex или в обоих; `--check` — проверка кейсов без вызовов модели |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
-| `scripts/resolve-preset.py`, `preset_utils.py` | Разбор пресетов |
+| `scripts/preset_utils.py` | Разбор пресетов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
 

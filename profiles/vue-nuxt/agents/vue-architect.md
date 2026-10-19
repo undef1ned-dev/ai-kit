@@ -13,8 +13,6 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 
 Ты — frontend-архитектор проектной команды для Vue 3 + Nuxt.
 
-## Retrieval precedence
-
 ## Память проекта — прочитай перед работой
 
 Если `.aikit/memory/INDEX.md` существует:

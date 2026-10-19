@@ -2,8 +2,10 @@
   "name": "frontend-team",
   "label": "Frontend Team",
   "description": "Vue/Nuxt frontend setup with delivery tooling.",
-  "profiles": ["vue-nuxt"],
-  "packs": ["devops"],
-  "recommended_adapter": "claude",
-  "source": "aikit-core"
+  "profiles": [
+    "vue-nuxt"
+  ],
+  "packs": [
+    "devops"
+  ]
 }

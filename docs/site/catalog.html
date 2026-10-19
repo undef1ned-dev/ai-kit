@@ -60,11 +60,11 @@
   <div class="chips"><span class="chip chip-out">→ AIKIT_MAINTENANCE_REPORT</span><span class="chip">sonnet</span></div>
   <div class="entry-example"><span>Улучши routing policy для multi-profile задач и обнови документацию</span><button class="copy-btn" type="button" data-copy="Улучши routing policy для multi-profile задач и обнови документацию">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/aikit-maintainer.md">base/agents/aikit-maintainer.md</a>
-</article><article class="entry-card entry-agent" id="agent-cross-project-analyst" data-filter="cross-project-analyst кросс-проектный аналитик. анализирует влияние изменений между backend и ios — когда меняется api, определяет что нужно обновить на другой стороне. помогает с координацией.">
+</article><article class="entry-card entry-agent" id="agent-cross-project-analyst" data-filter="cross-project-analyst кросс-проектный аналитик. анализирует, как изменение api или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">cross-project-analyst</span></header>
-  <p>Кросс-проектный аналитик. Анализирует влияние изменений между backend и iOS — когда меняется API, определяет что нужно обновить на другой стороне. Помогает с координацией.</p>
-  <div class="chips"><span class="chip chip-out">→ CROSS_CHECK_REPORT</span><span class="chip">sonnet</span></div>
-  <div class="entry-example"><span>Изменился endpoint /api/v1/profile — что нужно обновить в iOS?</span><button class="copy-btn" type="button" data-copy="Изменился endpoint /api/v1/profile — что нужно обновить в iOS?">Копировать</button></div>
+  <p>Кросс-проектный аналитик. Анализирует, как изменение API или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать.</p>
+  <div class="chips"><span class="chip chip-out">→ CROSS_PROJECT_ANALYSIS</span><span class="chip">sonnet</span></div>
+  <div class="entry-example"><span>Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?</span><button class="copy-btn" type="button" data-copy="Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/cross-project-analyst.md">base/agents/cross-project-analyst.md</a>
 </article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует командную память .aikit/memory/ — сжимает index до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. запускай через /optimize-memory, когда /memory-status показывает предупреждение.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-optimizer</span></header>
@@ -84,22 +84,22 @@
   <div class="chips"><span class="chip chip-out">→ MVP_ANALYSIS</span><span class="chip">sonnet</span></div>
   <div class="entry-example"><span>Проанализируй идею: добавить экспорт отчётов в PDF</span><button class="copy-btn" type="button" data-copy="Проанализируй идею: добавить экспорт отчётов в PDF">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/mvp-analyst.md">base/agents/mvp-analyst.md</a>
-</article><article class="entry-card entry-agent" id="agent-platform-evangelist" data-filter="platform-evangelist продуктовый стратег и евангелист aikit. упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, mcp/rag narrative, runtime value и product-facing surfaces.">
+</article><article class="entry-card entry-agent" id="agent-platform-evangelist" data-filter="platform-evangelist продуктовый стратег и евангелист aikit. упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, история про mcp, плагины и память, runtime value и product-facing surfaces.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">platform-evangelist</span></header>
-  <p>Продуктовый стратег и евангелист AIKit. Упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, MCP/RAG narrative, runtime value и product-facing surfaces.</p>
+  <p>Продуктовый стратег и евангелист AIKit. Упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, история про MCP, плагины и память, runtime value и product-facing surfaces.</p>
   <div class="chips"><span class="chip chip-out">→ PLATFORM_GROWTH_PLAN</span><span class="chip">sonnet</span></div>
-  <div class="entry-example"><span>Сформируй product plan для развития AIKit как MCP + RAG platform</span><button class="copy-btn" type="button" data-copy="Сформируй product plan для развития AIKit как MCP + RAG platform">Копировать</button></div>
+  <div class="entry-example"><span>Сформируй product plan для развития AIKit как плагина с MCP и командной памятью</span><button class="copy-btn" type="button" data-copy="Сформируй product plan для развития AIKit как плагина с MCP и командной памятью">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/platform-evangelist.md">base/agents/platform-evangelist.md</a>
-</article><article class="entry-card entry-agent" id="agent-release-manager" data-filter="release-manager релиз-менеджер. собирает changelog из коммитов, генерирует release notes для app store / внутренней рассылки, проверяет готовность к релизу.">
+</article><article class="entry-card entry-agent" id="agent-release-manager" data-filter="release-manager релиз-менеджер. собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">release-manager</span></header>
-  <p>Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для App Store / внутренней рассылки, проверяет готовность к релизу.</p>
+  <p>Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.</p>
   <div class="chips"><span class="chip chip-out">→ RELEASE_NOTES</span><span class="chip">sonnet</span></div>
   <div class="entry-example"><span>Подготовь release notes для версии 2.5.0</span><button class="copy-btn" type="button" data-copy="Подготовь release notes для версии 2.5.0">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/release-manager.md">base/agents/release-manager.md</a>
 </article><article class="entry-card entry-agent" id="agent-security-auditor" data-filter="security-auditor аудитор безопасности. проверяет код на owasp top 10, секреты в коде, проблемы с авторизацией, инъекции. запускай перед релизом или после крупных изменений.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">security-auditor</span></header>
   <p>Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.</p>
-  <div class="chips"><span class="chip chip-out">→ SECURITY_REPORT</span><span class="chip">sonnet</span></div>
+  <div class="chips"><span class="chip chip-out">→ SECURITY_AUDIT</span><span class="chip">sonnet</span></div>
   <div class="entry-example"><span>Проверь безопасность перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность перед релизом">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/security-auditor.md">base/agents/security-auditor.md</a>
 </article><article class="entry-card entry-agent" id="agent-skill-builder" data-filter="skill-builder создаёт новый скилл через структурированный опрос по 4 фазам. генерирует папку &lt;name&gt;/skill.md с оркестрацией агентов и чётким форматом вывода. используй когда нужно добавить новый скилл в репозиторий.">
@@ -360,24 +360,24 @@
 </article></div>
 </section>
 <section class="catalog-panel" id="pack-devops" data-panel style="--accent-local:#d97706">
-  <div class="panel-head"><h2>Pack: DevOps</h2><p>DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии</p></div>
+  <div class="panel-head"><h2>Pack: DevOps</h2><p>Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля</p></div>
   <p class="muted">Подходит к любому профилю.</p>
-  <h3>Агенты <span class="count">1</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-devops-engineer" data-filter="devops-engineer devops инженер. проектирует docker-конфигурации, gitlab ci/cd пайплайны, deployment стратегии. используй когда нужно настроить инфраструктуру или автоматизировать процесс доставки.">
+  <h3>Агенты <span class="count">1</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-devops-engineer" data-filter="devops-engineer devops инженер. упаковывает проект в docker и настраивает ci/cd (github actions или gitlab ci) под стек и команды профиля из .aikit/profiles.json. используй когда нужно настроить контейнеризацию, пайплайн или деплой.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">devops-engineer</span></header>
-  <p>DevOps инженер. Проектирует Docker-конфигурации, GitLab CI/CD пайплайны, deployment стратегии. Используй когда нужно настроить инфраструктуру или автоматизировать процесс доставки.</p>
+  <p>DevOps инженер. Упаковывает проект в Docker и настраивает CI/CD (GitHub Actions или GitLab CI) под стек и команды профиля из .aikit/profiles.json. Используй когда нужно настроить контейнеризацию, пайплайн или деплой.</p>
   <div class="chips"><span class="chip chip-out">→ DEVOPS_RESULT</span><span class="chip">sonnet</span></div>
-  <div class="entry-example"><span>Создай Docker + CI/CD для FastAPI проекта</span><button class="copy-btn" type="button" data-copy="Создай Docker + CI/CD для FastAPI проекта">Копировать</button></div>
+  <div class="entry-example"><span>Упакуй проект в Docker и настрой CI с тестами и сборкой образа</span><button class="copy-btn" type="button" data-copy="Упакуй проект в Docker и настрой CI с тестами и сборкой образа">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/agents/devops-engineer.md">packs/devops/agents/devops-engineer.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">2</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-dockerize" data-filter="dockerize создать dockerfile, docker-compose.yml и .dockerignore под стек проекта. используй, когда пользователь просит упаковать проект в docker.">
+  <h3>Скиллы <span class="count">2</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-dockerize" data-filter="dockerize создать dockerfile, docker-compose.yml и .dockerignore под стек и команды профиля проекта. используй, когда пользователь просит упаковать проект в docker.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/dockerize</span></header>
-  <p>Создать Dockerfile, docker-compose.yml и .dockerignore под стек проекта. Используй, когда пользователь просит упаковать проект в Docker.</p>
+  <p>Создать Dockerfile, docker-compose.yml и .dockerignore под стек и команды профиля проекта. Используй, когда пользователь просит упаковать проект в Docker.</p>
 
   <div class="entry-example"><span>/dockerize</span><button class="copy-btn" type="button" data-copy="/dockerize">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/dockerize/SKILL.md">packs/devops/skills/dockerize/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-setup-ci" data-filter="setup-ci создать или улучшить ci/cd-пайплайн: тесты, сборка docker-образа, деплой на staging и production. используй, когда пользователь просит настроить ci/cd.">
+</article><article class="entry-card entry-skill" id="skill-setup-ci" data-filter="setup-ci создать или улучшить ci/cd-пайплайн (github actions или gitlab ci): проверки командами профиля, сборка docker-образа, деплой на staging и production. используй, когда пользователь просит настроить ci/cd.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/setup-ci</span></header>
-  <p>Создать или улучшить CI/CD-пайплайн: тесты, сборка Docker-образа, деплой на staging и production. Используй, когда пользователь просит настроить CI/CD.</p>
+  <p>Создать или улучшить CI/CD-пайплайн (GitHub Actions или GitLab CI): проверки командами профиля, сборка Docker-образа, деплой на staging и production. Используй, когда пользователь просит настроить CI/CD.</p>
 
   <div class="entry-example"><span>/setup-ci</span><button class="copy-btn" type="button" data-copy="/setup-ci">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/setup-ci/SKILL.md">packs/devops/skills/setup-ci/SKILL.md</a>

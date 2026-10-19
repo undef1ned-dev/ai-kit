@@ -2,8 +2,12 @@
   "name": "devops",
   "label": "Pack: DevOps",
   "version": "1.0.0",
-  "description": "DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
-  "agents": ["devops-engineer"],
-  "skills": ["dockerize", "setup-ci"],
-  "source": "local"
+  "description": "Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
+  "agents": [
+    "devops-engineer"
+  ],
+  "skills": [
+    "dockerize",
+    "setup-ci"
+  ]
 }

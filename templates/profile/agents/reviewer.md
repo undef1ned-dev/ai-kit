@@ -25,6 +25,8 @@ context_blocks: ["CODER_RESULT", "TESTER_RESULT"]
 1. Найди блоки CODER_RESULT и TESTER_RESULT
 2. Прочитай все изменённые файлы
 
+Ты работаешь поверх общего ревью-шага. Если в контексте есть результат встроенного `code-review`, ошибки корректности уже найдены — не повторяй их, а добавь то, что видно только со знанием стека: чек-лист ниже. Если общего прохода не было (Codex, OpenCode, скилл недоступен), сначала проверь корректность сам: логику, края, обработку ошибок, безопасность.
+
 ## Чек-лист
 
 - Код соответствует ARCHITECT_PLAN и правилам `CLAUDE.md`
@@ -36,11 +38,19 @@ context_blocks: ["CODER_RESULT", "TESTER_RESULT"]
 
 ## Формат ответа
 
+`/implement-feature` читает `CRITICAL` и `VERDICT`: при `CRITICAL` или `REQUEST_CHANGES` код уходит на доработку.
+
 === REVIEW_RESULT ===
 
-VERDICT: ✓ готово | ⚠ есть замечания | ✗ нужно переделать
+CRITICAL:
+- <файл>:<строка> — <проблема> → <решение>
 
-ISSUES:
-- [critical | major | minor] <файл:строка> — <проблема и как исправить>
+SUGGESTIONS:
+- <файл>:<строка> — <замечание>
 
-=== END REVIEW_RESULT ===
+GOOD:
+- <что хорошо>
+
+VERDICT: APPROVE | APPROVE_WITH_COMMENTS | REQUEST_CHANGES
+
+=== END REVIEW ===

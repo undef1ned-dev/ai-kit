@@ -39,6 +39,4 @@ def resolve_preset(name: str) -> dict[str, Any]:
         "profiles": profiles,
         "profiles_arg": "+".join(profiles),
         "packs": packs,
-        "recommended_adapter": str(preset.get("recommended_adapter", "")),
-        "source": str(preset.get("source", "")),
     }
