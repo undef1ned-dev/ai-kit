@@ -1,6 +1,6 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { agentRows, memorySummary, parseArgumentHint, parseFrontmatter, resolveCommandName, trackTiming } from '../catalog.js'
+import { agentRows, isAtLeast, memorySummary, parseArgumentHint, parseFrontmatter, resolveCommandName, summary, trackTiming } from '../catalog.js'
 
 const PROJECT = '/work/shop'
 const PROFILES = JSON.stringify({ profiles: { 'vue-nuxt': { label: 'Vue Nuxt', root: 'web' } } })
@@ -40,6 +40,7 @@ type Kit = {
   filled?: string[]
   memoryLines?: number
   statuses?: (string | undefined)[]
+  engine?: string
 }
 
 function stubKit(on, kit: Kit) {
@@ -49,6 +50,7 @@ function stubKit(on, kit: Kit) {
   on('session.root', () => ({ value: PROJECT }))
   on('command.register', () => ({ value: undefined }))
   on('command.list', () => ({ value: COMMANDS }))
+  on('session.version', () => ({ value: { version: kit.engine ?? '2.1.296', base: kit.engine ?? '2.1.296' } }))
   on('agent.list', () => ({ value: kit.agents ?? [] }))
   on('ui.open', () => ({ value: { isPlaced: true } }))
   on('ui.toast', () => ({ value: undefined }))
@@ -166,7 +168,7 @@ test('subagents started from the chat show with their status', async ($, on) => 
   })
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
-  expect(await ui.find({ type: 'Text', text: 'Субагенты · работают: 1' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'работают: 1' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: 'vue-coder' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: /^готово · / })).toBeDefined()
 })
@@ -203,7 +205,7 @@ test('a full INDEX shows in the header and as a line under the prompt', async ($
   stubKit(on, kit)
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
-  expect(await ui.find({ type: 'Text', text: '· память 55/60 — пора /optimize-memory' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'память 55/60 — пора /optimize-memory' })).toBeDefined()
   expect(kit.statuses).toEqual(['память: INDEX 55/60 строк — пора /optimize-memory'])
 })
 
@@ -212,6 +214,37 @@ test('a small INDEX shows its size and no line under the prompt', async ($, on) 
   stubKit(on, kit)
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
-  expect(await ui.find({ type: 'Text', text: '· память 12/60' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'память 12/60' })).toBeDefined()
   expect(kit.statuses).toEqual([undefined])
+})
+
+test('cards show the first clause of a description', () => {
+  expect(summary('Реализовать фичу через цепочку агентов: архитектор → кодер. Флаги')).toBe('Реализовать фичу через цепочку агентов')
+  expect(summary('Показать состояние памяти')).toBe('Показать состояние памяти')
+})
+
+test('typography is used from the engine release that draws it', () => {
+  expect(isAtLeast('2.1.299', '2.1.299')).toBe(true)
+  expect(isAtLeast('2.1.300', '2.1.299')).toBe(true)
+  expect(isAtLeast('2.2.0', '2.1.299')).toBe(true)
+  expect(isAtLeast('2.1.296', '2.1.299')).toBe(false)
+  expect(isAtLeast(undefined, '2.1.299')).toBe(false)
+})
+
+test('from 2.1.299 the pane draws headings, primary buttons and checkboxes', async ($, on) => {
+  stubKit(on, { engine: '2.1.299' })
+  await start($)
+  let ui
+  try {
+    ui = await $.ui.mount({ ...PANE, surface: 'desktop' })
+  } catch (error) {
+    // The engine running the test validates the tree; one before 2.1.299 refuses typography props
+    if (/prop "(size|weight)" is not allowed/.test(String(error))) return
+    throw error
+  }
+  await ui.press({ key: 'cmd-aikit-implement-feature' })
+  expect(await ui.find({ type: 'Button', text: '☐ --tdd' })).toBeDefined()
+  await ui.press({ key: 'flag---tdd' })
+  expect(await ui.find({ type: 'Button', text: '☑ --tdd' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'Разработка' })).toBeDefined()
 })

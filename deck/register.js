@@ -9,6 +9,7 @@ import {
   buildGroups,
   clockTime,
   commandLine,
+  isAtLeast,
   isHidden,
   isRunning,
   MEMORY_INDEX_LIMIT,
@@ -16,6 +17,7 @@ import {
   parseFrontmatter,
   resolveCommandName,
   skillEntry,
+  summary,
   trackTiming,
 } from './catalog.js'
 
@@ -31,6 +33,12 @@ const INIT_FILE = '.aikit/plugin-init.json'
 const MEMORY_INDEX = '.aikit/memory/INDEX.md'
 const PROJECT_SEARCH_DEPTH = 6
 const MODES = { send: 'Отправить', fill: 'Вставить' }
+const RICH_UI_VERSION = '2.1.299'
+const CARD_GAP = 1
+const CARD_MIN_WIDTH = 24
+const CARD_TWO_COLUMNS = 56
+const CARD_THREE_COLUMNS = 90
+const DEFAULT_COLUMNS = 60
 
 let project = null
 let sessionRoot = ''
@@ -48,6 +56,7 @@ let fieldError = ''
 let docsFilter = ''
 let isPaneOpen = false
 let memory = memorySummary(null)
+let isRich = false
 
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
@@ -237,43 +246,61 @@ function press($, entry) {
   select($, entry)
 }
 
-function memoryText(ui) {
+// Typography and the primary button style came in Claude Code 2.1.299; an earlier engine refuses
+// a tree that sets them, so the deck draws plain bold text there
+function look(ui) {
   const { Text } = ui
-  if (memory.lines === null) return Text({ dimColor: true, children: ['· память не заведена'] })
-  const text = `· память ${memory.lines}/${MEMORY_INDEX_LIMIT}`
-  return memory.needsOptimize ? Text({ color: 'warning', children: [text + ' — пора /optimize-memory'] }) : Text({ dimColor: true, children: [text] })
+  const sized = (size, weight, props, text) =>
+    Text(isRich ? { ...props, size, weight, children: [text] } : { ...props, ...(weight ? { bold: true } : {}), children: [text] })
+  return {
+    title: text => sized('title', 'bold', {}, text),
+    heading: (text, props = {}) => sized('heading', 'semibold', props, text),
+    label: (text, props = {}) => sized('body', 'semibold', props, text),
+    caption: (text, props = {}) => sized('footnote', undefined, { dimColor: true, ...props }, text),
+    variant: isActive => (isRich ? { variant: isActive ? 'primary' : 'secondary' } : {}),
+  }
+}
+
+function memoryText(ui) {
+  const { caption } = look(ui)
+  if (memory.lines === null) return caption('память не заведена')
+  const text = `память ${memory.lines}/${MEMORY_INDEX_LIMIT}`
+  return memory.needsOptimize ? caption(text + ' — пора /optimize-memory', { dimColor: false, color: 'warning' }) : caption(text)
 }
 
 function header($, ui) {
-  const { Box, Text, Button } = ui
+  const { Box, Button } = ui
+  const { title, caption, variant } = look(ui)
   const scope = project
     ? [...project.profiles.map(profile => profile.name + (profile.root === '.' ? '' : ` (${profile.root}/)`)), ...project.packs].join(' · ')
     : 'проект не подключён'
+  const tabButton = (id, label, hotkey) =>
+    Button({ key: 'tab-' + id, label, hotkey, ...variant(tab === id), dimColor: tab !== id, onPress: () => ((tab = id), redraw($)) })
   return Box({
     flexDirection: 'column',
+    rowGap: 1,
     children: [
-      Box({
-        flexDirection: 'row',
-        columnGap: 1,
-        flexWrap: 'wrap',
-        children: [
-          Text({ bold: true, children: ['AIKit Deck'] }),
-          Text({ dimColor: true, children: [scope] }),
-          ...(project ? [memoryText(ui)] : []),
-        ],
-      }),
       Box({
         flexDirection: 'row',
         columnGap: 2,
         flexWrap: 'wrap',
+        alignItems: 'flex-end',
+        children: [title('AIKit Deck'), caption(scope), ...(project ? [memoryText(ui)] : [])],
+      }),
+      Box({
+        flexDirection: 'row',
+        columnGap: 1,
+        flexWrap: 'wrap',
+        alignItems: 'center',
         children: [
-          Button({ key: 'tab-commands', label: 'Команды', hotkey: '1', plain: true, dimColor: tab !== 'commands', onPress: () => ((tab = 'commands'), redraw($)) }),
-          Button({ key: 'tab-docs', label: 'Справка', hotkey: '2', plain: true, dimColor: tab !== 'docs', onPress: () => ((tab = 'docs'), redraw($)) }),
+          tabButton('commands', 'Команды', '1'),
+          tabButton('docs', 'Справка', '2'),
+          Box({ flexGrow: 1, children: [] }),
           Button({
             key: 'mode',
             label: `Режим: ${MODES[mode]}`,
             hotkey: 'm',
-            plain: true,
+            dimColor: true,
             onPress: async () => {
               mode = mode === 'send' ? 'fill' : 'send'
               redraw($)
@@ -286,129 +313,152 @@ function header($, ui) {
   })
 }
 
+function card(ui, props, children) {
+  return ui.Box({ flexDirection: 'column', borderStyle: 'round', borderDimColor: true, paddingX: 1, ...props, children })
+}
+
 function agentsSection(ui, now) {
   const { Box, Text } = ui
+  const { heading, caption } = look(ui)
   const rows = agentRows(agents, timing, now, FINISHED_AGENTS_SHOWN)
   const running = rows.filter(row => row.isRunning).length
-  const title = running > 0 ? `Субагенты · работают: ${running}` : 'Субагенты · сейчас никто не работает'
-  return Box({
-    flexDirection: 'column',
-    marginTop: 1,
-    children: [
-      Text({ dimColor: true, children: [title] }),
-      ...rows.map(row =>
-        Box({
-          key: 'agent-' + row.id,
-          flexDirection: 'row',
-          columnGap: 1,
-          children: [
-            Text({ color: row.isRunning ? 'warning' : row.status === 'completed' ? 'success' : 'error', children: [row.isRunning ? '●' : row.status === 'completed' ? '✓' : '✗'] }),
-            Text({ children: [row.type] }),
-            Text({ dimColor: true, wrap: 'truncate-end', children: [row.description || row.name || ''] }),
-            Text({ dimColor: true, children: [row.isRunning ? row.elapsed : `${row.status === 'completed' ? 'готово' : row.status} · ${row.elapsed}`] }),
-          ],
-        }),
-      ),
-    ],
-  })
-}
-
-function argumentPanel($, ui) {
-  const { Box, Text, Button, Input } = ui
-  const entry = selected
-  const field = entry.args.field
-  const action = mode === 'send' ? 'запустить' : 'вставить'
-  return Box({
-    flexDirection: 'column',
-    marginTop: 1,
-    borderStyle: 'round',
-    paddingX: 1,
-    children: [
+  return card(ui, { rowGap: 0 }, [
+    Box({
+      flexDirection: 'row',
+      columnGap: 2,
+      alignItems: 'flex-end',
+      children: [heading('Субагенты'), caption(running > 0 ? `работают: ${running}` : 'сейчас никто не работает')],
+    }),
+    ...rows.map(row =>
       Box({
+        key: 'agent-' + row.id,
         flexDirection: 'row',
-        columnGap: 2,
-        flexWrap: 'wrap',
+        columnGap: 1,
         children: [
-          Text({ color: 'suggestion', children: ['/' + entry.skill] }),
-          ...entry.args.flags.map(flag =>
-            Button({
-              key: 'flag-' + flag,
-              label: (flags.has(flag) ? '[x] ' : '[ ] ') + flag,
-              plain: true,
-              onPress: () => {
-                flags.has(flag) ? flags.delete(flag) : flags.add(flag)
-                redraw($)
-              },
-            }),
-          ),
-          Button({ key: 'cancel', label: 'отмена', plain: true, dimColor: true, onPress: () => ((selected = null), redraw($)) }),
+          Text({ color: row.isRunning ? 'warning' : row.status === 'completed' ? 'success' : 'error', children: [row.isRunning ? '●' : row.status === 'completed' ? '✓' : '✗'] }),
+          Text({ children: [row.type] }),
+          Box({ flexGrow: 1, flexShrink: 1, children: [Text({ dimColor: true, wrap: 'truncate-end', children: [row.description || row.name || ''] })] }),
+          Text({ dimColor: true, children: [row.isRunning ? row.elapsed : `${row.status === 'completed' ? 'готово' : row.status} · ${row.elapsed}`] }),
         ],
       }),
-      field
-        ? Input({
-            key: 'arg',
-            label: field.isRequired ? field.placeholder : `${field.placeholder} (необязательно)`,
-            placeholder: entry.example.replace(/^\/?[\w:-]+\s*/, '') || field.placeholder,
-            value: argText,
-            submitLabel: action,
-            autoFocus: true,
-            onInput: value => {
-              argText = value
-              fieldError = ''
-            },
-            onSubmit: value => {
-              argText = value
-              return submit($, entry)
-            },
-          })
-        : Button({ key: 'run', label: action, autoFocus: true, onPress: () => submit($, entry) }),
-      ...(fieldError ? [Text({ color: 'error', children: [fieldError] })] : []),
-    ],
-  })
+    ),
+  ])
 }
 
-// Base commands work without a profile; /setup adds the profile's commands and contracts
 function notConnected($, ui) {
-  const { Box, Text, Button } = ui
-  return Box({
-    flexDirection: 'row',
-    columnGap: 1,
-    flexWrap: 'wrap',
-    marginTop: 1,
-    children: [
-      Text({ dimColor: true, children: ['Проект не подключён: доступны базовые команды, команды профиля появятся после'] }),
-      Button({ key: 'setup', label: '/aikit:setup', plain: true, onPress: () => press($, findEntry('setup', $.plugin.name)) }),
-    ],
+  const { Box, Button } = ui
+  const { caption } = look(ui)
+  return card(ui, {}, [
+    Box({
+      flexDirection: 'row',
+      columnGap: 1,
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      children: [
+        caption('Проект не подключён: доступны базовые команды. Команды профиля появятся после', { dimColor: false }),
+        Button({ key: 'setup', label: '/aikit:setup', onPress: () => press($, findEntry('setup', $.plugin.name)) }),
+      ],
+    }),
+  ])
+}
+
+// A flag is a checkbox: ☑ when on; a terminal draws it without the button frame
+function flagBox($, ui, flag, surface) {
+  const isOn = flags.has(flag)
+  return ui.Button({
+    key: 'flag-' + flag,
+    label: `${isOn ? '☑' : '☐'} ${flag}`,
+    ...(surface === 'terminal' ? { plain: true } : look(ui).variant(isOn)),
+    dimColor: !isOn,
+    onPress: () => {
+      isOn ? flags.delete(flag) : flags.add(flag)
+      redraw($)
+    },
   })
 }
 
-function commandsTab($, ui) {
-  const { Box, Text, Button } = ui
+function argumentPanel($, ui, surface) {
+  const { Box, Text, Button, Input } = ui
+  const { heading, caption } = look(ui)
+  const entry = selected
+  const field = entry.args.field
+  const action = mode === 'send' ? 'Запустить' : 'Вставить'
+  return card(ui, { borderDimColor: false, borderColor: 'suggestion', paddingX: 2, paddingY: 1, rowGap: 1 }, [
+    Box({
+      flexDirection: 'row',
+      columnGap: 2,
+      alignItems: 'flex-end',
+      children: [
+        heading('/' + entry.skill, { color: 'suggestion' }),
+        Box({ flexGrow: 1, flexShrink: 1, children: [caption(summary(entry.description), { wrap: 'truncate-end' })] }),
+        Button({ key: 'cancel', label: 'Отмена', role: 'dismiss', dimColor: true, onPress: () => ((selected = null), redraw($)) }),
+      ],
+    }),
+    ...(entry.args.flags.length > 0
+      ? [Box({ flexDirection: 'row', columnGap: 2, flexWrap: 'wrap', children: entry.args.flags.map(flag => flagBox($, ui, flag, surface)) })]
+      : []),
+    field
+      ? Input({
+          key: 'arg',
+          label: field.isRequired ? field.placeholder : `${field.placeholder} (необязательно)`,
+          placeholder: entry.example.replace(/^\/?[\w:-]+\s*/, '') || field.placeholder,
+          value: argText,
+          submitLabel: action,
+          autoFocus: true,
+          onInput: value => {
+            argText = value
+            fieldError = ''
+          },
+          onSubmit: value => {
+            argText = value
+            return submit($, entry)
+          },
+        })
+      : Box({ flexDirection: 'row', children: [Button({ key: 'run', label: action, autoFocus: true, ...look(ui).variant(true), onPress: () => submit($, entry) })] }),
+    ...(fieldError ? [Text({ color: 'error', children: [fieldError] })] : []),
+  ])
+}
+
+// Cards in as many columns as the pane is wide enough for
+function cardWidth(columns) {
+  const perRow = columns >= CARD_THREE_COLUMNS ? 3 : columns >= CARD_TWO_COLUMNS ? 2 : 1
+  return Math.max(CARD_MIN_WIDTH, Math.floor((columns - CARD_GAP * (perRow - 1)) / perRow))
+}
+
+function commandCard($, ui, entry, width) {
+  const { label, caption } = look(ui)
+  const isAvailable = Boolean(resolveCommandName(entry, commands))
+  const hasArgs = Boolean(entry.args.field) || entry.args.flags.length > 0
+  return card(ui, { key: `card-${entry.owner}-${entry.skill}`, width, rowGap: 0 }, [
+    ui.Button({
+      key: `cmd-${entry.owner}-${entry.skill}`,
+      plain: true,
+      dimColor: !isAvailable,
+      onPress: () => press($, entry),
+      children: [label(entry.skill), ...(hasArgs ? [caption(' …')] : [])],
+    }),
+    caption(isAvailable ? summary(entry.description) : 'не установлена', { wrap: 'truncate-end' }),
+  ])
+}
+
+function commandsTab($, ui, columns, surface) {
+  const { Box, Button } = ui
+  const { heading, caption } = look(ui)
+  const width = cardWidth(columns)
   return Box({
     flexDirection: 'column',
+    rowGap: 2,
     children: [
       ...(project ? [] : [notConnected($, ui)]),
-      ...(selected ? [argumentPanel($, ui)] : []),
+      ...(selected ? [argumentPanel($, ui, surface)] : []),
       ...groups.map(group =>
         Box({
           key: 'group-' + group.id,
           flexDirection: 'column',
-          marginTop: 1,
+          rowGap: 1,
           children: [
-            Text({ dimColor: true, children: [group.title] }),
-            Box({
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              columnGap: 1,
-              children: group.entries.map(entry =>
-                Button({
-                  key: `cmd-${entry.owner}-${entry.skill}`,
-                  label: entry.skill + (entry.args.field || entry.args.flags.length > 0 ? ' …' : ''),
-                  dimColor: !resolveCommandName(entry, commands),
-                  onPress: () => press($, entry),
-                }),
-              ),
-            }),
+            heading(group.title),
+            Box({ flexDirection: 'row', flexWrap: 'wrap', columnGap: CARD_GAP, rowGap: 1, children: group.entries.map(entry => commandCard($, ui, entry, width)) }),
           ],
         }),
       ),
@@ -416,16 +466,15 @@ function commandsTab($, ui) {
         ? [
             Box({
               flexDirection: 'column',
-              marginTop: 1,
+              rowGap: 1,
               children: [
-                Text({ dimColor: true, children: ['Последние запуски'] }),
+                heading('Последние запуски'),
                 ...history.slice(0, HISTORY_SHOWN).map((item, index) =>
                   Button({
                     key: 'history-' + index,
-                    label: `${clockTime(item.at)}  ${item.line}`,
                     plain: true,
-                    dimColor: true,
                     onPress: () => repeat($, item.line),
+                    children: [caption(clockTime(item.at) + '  '), item.line],
                   }),
                 ),
               ],
@@ -452,18 +501,19 @@ function repeat($, line) {
 
 function docsTab($, ui) {
   const { Box, Text, Input } = ui
+  const { heading, label, caption } = look(ui)
   const query = docsFilter.trim().toLowerCase()
   const matches = entry => !query || `${entry.skill} ${entry.description}`.toLowerCase().includes(query)
   return Box({
     flexDirection: 'column',
-    marginTop: 1,
+    rowGap: 2,
     children: [
       Input({
         key: 'docs-filter',
         label: 'Поиск',
         placeholder: 'имя или слово из описания',
         value: docsFilter,
-        submitLabel: 'найти',
+        submitLabel: 'Найти',
         onInput: value => ((docsFilter = value), redraw($)),
         onSubmit: value => ((docsFilter = value), redraw($)),
       }),
@@ -474,20 +524,15 @@ function docsTab($, ui) {
           Box({
             key: 'docs-' + group.id,
             flexDirection: 'column',
-            marginTop: 1,
+            rowGap: 1,
             children: [
-              Text({ bold: true, children: [group.title] }),
+              heading(group.title),
               ...group.entries.map(entry =>
-                Box({
-                  key: `doc-${entry.owner}-${entry.skill}`,
-                  flexDirection: 'column',
-                  marginTop: 1,
-                  children: [
-                    Text({ color: 'suggestion', children: [`/${resolveCommandName(entry, commands) ?? entry.skill} ${entry.argumentHint}`.trim()] }),
-                    Text({ children: [entry.description] }),
-                    ...(entry.example ? [Text({ dimColor: true, children: ['Пример: ' + entry.example] })] : []),
-                  ],
-                }),
+                card(ui, { key: `doc-${entry.owner}-${entry.skill}`, paddingY: 0 }, [
+                  label(`/${resolveCommandName(entry, commands) ?? entry.skill} ${entry.argumentHint}`.trim(), { color: 'suggestion' }),
+                  Text({ children: [entry.description] }),
+                  ...(entry.example ? [caption('Пример: ' + entry.example)] : []),
+                ]),
               ),
             ],
           }),
@@ -505,6 +550,12 @@ async function openPane($, focus) {
 export function register(on) {
   on('session.start', async ($, e, next) => {
     mode = (await $.store.get('mode')) === 'fill' ? 'fill' : 'send'
+    try {
+      const engine = await $.session.version()
+      isRich = isAtLeast(engine.base ?? engine.version, RICH_UI_VERSION)
+    } catch {
+      isRich = false
+    }
     await loadCatalog($)
     await refreshMemory($)
     await refreshAgents($)
@@ -574,9 +625,13 @@ export function register(on) {
     isPaneOpen = true
     const ui = $.ui.resolve(e)
     const now = await $.clock.now()
+    const columns = Math.max(CARD_MIN_WIDTH, (e.props?.bodyColumns ?? DEFAULT_COLUMNS) - 2)
     return ui.Box({
       flexDirection: 'column',
-      children: [header($, ui), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui)],
+      rowGap: 2,
+      paddingX: 1,
+      paddingY: 1,
+      children: [header($, ui), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui, columns, e.surface)],
     })
   })
 }
