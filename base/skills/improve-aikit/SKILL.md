@@ -1,6 +1,7 @@
 ---
 name: "improve-aikit"
 description: "Развивать сам репозиторий AIKit через агента aikit-maintainer: агенты, скиллы, манифесты, routing, память, документация. Запускай только по явной просьбе пользователя."
+argument-hint: "<что улучшить>"
 disable-model-invocation: true
 version: "1.0.0"
 profile: "base"

@@ -1,0 +1,4 @@
+{
+  "description": "AIKit Deck — панель команд кита и субагентов сессии (мод Claude Code)",
+  "modules": ["../deck/register.js"]
+}

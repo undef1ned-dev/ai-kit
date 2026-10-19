@@ -35,6 +35,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Запреты (permissions) | `permissions` в `.claude/settings.json` | `sandbox_mode`, `approval_policy` в `config.toml` | `permission` в `opencode.json` и у агента |
 | Плагины / marketplace | `.claude-plugin/plugin.json`, `marketplace.json`: скиллы, агенты, хуки, MCP | `.codex-plugin/plugin.json`: скиллы, хуки, MCP — **без агентов**; маркетплейс читает и `.claude-plugin/marketplace.json` | npm-плагины |
 | Имена из плагина | скилл `/плагин:имя` (и `/имя`, если не занято), агент — только `плагин:имя` | скилл `$имя` | — |
+| Свой интерфейс (панели, строка под полем ввода) | моды: `modules` в `hooks/hooks.json` плагина | нет | нет |
 
 ---
 
@@ -97,6 +98,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Правила проекта | ✅ блок AIKit в `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md` | — |
 | Права, запрет `.env`, без соавторства, плагины для команды | ✅ `.claude/settings.json`: `permissions`, `attribution`, `extraKnownMarketplaces`, `enabledPlugins` | ⚠️ только хук; маркетплейс каждый добавляет сам | — |
 | Обновление | ✅ `/plugin marketplace update aikit` — плагины без `version` обновляются с каждым коммитом в `main` | ✅ `codex plugin marketplace upgrade` | — |
+| Панель AIKit Deck: кнопки команд, справка, субагенты сессии, размер памяти | ✅ мод плагина ядра, `/deck`; тесты мода — `claude plugin test` | 🚫 модов нет | 🚫 |
 
 ### Эвалы
 
@@ -136,4 +138,5 @@ GLM отдельно не поддерживается: это модель, а 
 | Хуки плагина | Claude Code, Codex | Хуки плагина включены во всех проектах пользователя | Хук с флагом `--plugin` работает только в проектах с `.aikit/` |
 | Эвалы | Claude Code | В изолированном прогоне не грузится `CLAUDE.md` проекта с блоком AIKit — скиллы и агенты профиля выбираются только по их `description` | Так эвалы мерят вклад самих плагинов; найденные провалы автовызова — задачи на описания скиллов и агентов |
 | Эвалы | Codex | Нет команды для эвалов; скилл или агент в выводе `codex exec` не отличить | Раннер оценивает только общие проверки: ответ, файлы, трассу |
+| Панель AIKit Deck | Codex, OpenCode, установка `attach.sh` | Моды есть только в плагинах Claude Code | Команды — из чата (`/` или `$`), справка — [Команды](guide/commands.md), память — `/memory-status` |
 | Контекст в начале сессии | OpenCode | Плагин не добавляет контекст при старте сессии | `.aikit/memory/INDEX.md` и `PRODUCT.md` в `instructions` в `opencode.json` — OpenCode читает их сам |

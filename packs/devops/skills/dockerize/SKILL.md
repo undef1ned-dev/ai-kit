@@ -1,6 +1,7 @@
 ---
 name: "dockerize"
 description: "Создать Dockerfile, docker-compose.yml и .dockerignore под стек проекта. Используй, когда пользователь просит упаковать проект в Docker."
+argument-hint: "[стек или особенности сборки]"
 version: "1.0.0"
 profile: "pack:devops"
 tags: ["devops", "docker"]

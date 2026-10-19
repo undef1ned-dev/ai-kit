@@ -1,6 +1,7 @@
 ---
 name: "capture-memory"
 description: "Зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). Запускай только по явной просьбе пользователя."
+argument-hint: "[что зафиксировать]"
 disable-model-invocation: true
 version: "2.0.0"
 profile: "base"

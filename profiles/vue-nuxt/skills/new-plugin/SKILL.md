@@ -1,6 +1,7 @@
 ---
 name: "new-plugin"
 description: "Создать Nuxt plugin для app-level интеграции, provide/inject или инициализации зависимости. Используй, когда библиотеку или сервис нужно подключить на уровне приложения."
+argument-hint: "<имя>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "plugin", "provide", "injection"]

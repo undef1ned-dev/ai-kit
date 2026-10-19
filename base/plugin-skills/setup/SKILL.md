@@ -1,6 +1,7 @@
 ---
 name: "setup"
 description: "Подключить проект к AIKit, установленному плагинами: выбрать профили и паки, записать правила в CLAUDE.md или AGENTS.md, контракты .aikit/profiles.json, память и настройки команды. Используй после установки плагинов AIKit или при смене профилей проекта."
+argument-hint: "[профили или пресет]"
 version: "1.0.0"
 profile: "base"
 tags: ["setup", "plugin", "onboarding"]

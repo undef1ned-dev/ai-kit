@@ -1,6 +1,7 @@
 ---
 name: "setup-ci"
 description: "Создать или улучшить CI/CD-пайплайн: тесты, сборка Docker-образа, деплой на staging и production. Используй, когда пользователь просит настроить CI/CD."
+argument-hint: "[CI-система или окружения]"
 version: "1.0.0"
 profile: "pack:devops"
 tags: ["devops", "ci-cd", "gitlab"]

@@ -1,6 +1,7 @@
 ---
 name: "add-tests"
 description: "Написать Vitest и component-тесты (@vue/test-utils) для существующего Vue/Nuxt-кода. Используй, когда пользователь просит покрыть тестами компонент, composable или store."
+argument-hint: "<файлы для тестов>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "testing"]

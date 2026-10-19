@@ -1,6 +1,7 @@
 ---
 name: "implement-mvp"
 description: "Перевести MVP-документ из docs/mvp/ в технический план: API-контракт, scope по платформам, порядок реализации (агент tech-planner). Используй после analyze-mvp, когда идея одобрена и нужно спланировать разработку."
+argument-hint: "<путь к MVP-документу>"
 version: "1.0.0"
 profile: "base"
 tags: ["planning", "architecture", "cross-platform"]

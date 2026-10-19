@@ -1,6 +1,7 @@
 ---
 name: "new-middleware"
 description: "Создать Nuxt route middleware для auth, redirect или navigation policy. Используй, когда нужна защита или перенаправление маршрутов."
+argument-hint: "<имя>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "middleware", "routing", "auth"]

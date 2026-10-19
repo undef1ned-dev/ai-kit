@@ -1,6 +1,7 @@
 ---
 name: "new-composable"
 description: "Создать composable для Vue/Nuxt с корректной реактивностью, явным API и переиспользованием VueUse. Используй, когда логику компонента нужно вынести в composable."
+argument-hint: "<useName>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "composable", "vueuse"]

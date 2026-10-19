@@ -1,6 +1,7 @@
 ---
 name: "new-component"
 description: "Создать Vue-компонент с типизированными props, emits и slots и понятным API для переиспользования. Используй, когда нужен новый компонент."
+argument-hint: "<ИмяКомпонента>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "component", "scaffold"]

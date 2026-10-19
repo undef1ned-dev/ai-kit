@@ -16,6 +16,8 @@
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
 #  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы
 #  11. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
+#  12. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
+#      Тесты мода (claude plugin test) запускает run-all.sh, если установлен Claude Code
 
 set -eo pipefail
 
@@ -188,6 +190,39 @@ fi
 
 echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
 "$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))
+
+echo "▶ AIKit Deck: мод панели (hooks/hooks.json, deck/)"
+"$PYTHON_BIN" -c '
+import json, pathlib, re, sys
+errors = []
+hooks = pathlib.Path("hooks/hooks.json")
+modules = json.loads(hooks.read_text(encoding="utf-8")).get("modules", [])
+if len(modules) != 1:
+    errors.append("hooks/hooks.json: в modules должен быть один путь")
+for module in modules:
+    if not (hooks.parent / module).resolve().is_file():
+        errors.append(f"hooks/hooks.json: нет модуля {module}")
+catalog = pathlib.Path("deck/catalog.js").read_text(encoding="utf-8")
+skills = {path.parent.name for folder in ("base/skills", "base/plugin-skills") for path in pathlib.Path(folder).glob("*/SKILL.md")}
+for block in re.findall(r"skills: \[([^\]]*)\]", catalog):
+    for name in re.findall(r"\x27([\w-]+)\x27", block):
+        if name not in skills:
+            errors.append(f"deck/catalog.js: в группе панели скилл {name}, которого нет в base/")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ модуль на месте, группы панели ссылаются на существующие скиллы")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+if command -v node &>/dev/null; then
+  # The modules are ES modules: node checks them as .mjs
+  DECK_COPY="$(mktemp -d)"
+  for module in deck/*.js; do
+    copy="$DECK_COPY/$(basename "$module" .js).mjs"
+    cp "$module" "$copy"
+    node --check "$copy" && echo "  ✓ $module: синтаксис JS" || { echo "  ✗ $module: синтаксис JS"; FAILURES=$((FAILURES + 1)); }
+  done
+fi
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Статические проверки: ошибок — $FAILURES"
