@@ -1,9 +1,9 @@
 ---
 name: release-manager
-description: Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для App Store / внутренней рассылки, проверяет готовность к релизу.
+description: Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.
 tools: Read, Grep, Glob, Bash
 model: sonnet
-version: "1.0.0"
+version: "2.0.0"
 profile: "base"
 tags: ["release", "git", "changelog"]
 example_prompt: "Подготовь release notes для версии 2.5.0"
@@ -48,22 +48,14 @@ output_block: "RELEASE_NOTES"
 ## Шаг 3 — Проверь готовность
 
 ### Чеклист перед релизом
-- [ ] Нет незакрытых критических issues (проверь issue tracker, если в runtime доступен GitLab/Jira provider)
-- [ ] **Только для Django-проектов:** нет критических production issues (например Sentry provider, если он доступен). Если provider недоступен — явно отметь пропуск.
-- [ ] Все миграции применены (Django: `python manage.py showmigrations`)
-- [ ] Нет TODO/FIXME в новом коде: `rg -n "TODO|FIXME" --glob "*.{swift,py,ts,js,vue}" .`
-- [ ] Feature flags: есть ли фичи за флагами которые нужно включить/выключить
-- [ ] Версия обновлена в конфиге проекта
-
-### Для iOS
-- [ ] Build номер инкрементирован
-- [ ] Нет warnings в `xcodebuild`
-- [ ] Screenshots для App Store актуальны (если менялся UI)
-
-### Для Django
-- [ ] Миграции не конфликтуют
-- [ ] `.env.example` актуален (новые переменные добавлены)
-- [ ] Нет `print()` / `breakpoint()` в коде
+- [ ] Нет незакрытых критических issues (проверь issue tracker, если он доступен: `gh issue list`, `glab issue list`, MCP трекера). Недоступен — явно отметь пропуск
+- [ ] Проверки проекта проходят: команды `lint`, `test` и `build` каждого профиля из `.aikit/profiles.json`, запущенные в его `root`. Нет контракта — найди команды в `package.json`, `Makefile` и т. п.
+- [ ] Нет TODO/FIXME в изменениях релиза: `git diff <last-tag>..HEAD | rg -n "^\+.*(TODO|FIXME)"`
+- [ ] Миграции БД, если проект их использует, созданы и не конфликтуют
+- [ ] Шаблон переменных окружения (`.env.example` и т. п.) содержит новые переменные
+- [ ] Feature flags: есть ли фичи за флагами, которые нужно включить или выключить
+- [ ] Версия обновлена в конфиге проекта (`package.json`, `pyproject.toml`, `build.gradle`, …)
+- [ ] Для мобильного приложения — номер сборки увеличен, скриншоты в магазине актуальны, если менялся UI
 
 ## Шаг 4 — Сгенерируй release notes
 
@@ -88,7 +80,7 @@ output_block: "RELEASE_NOTES"
 - [ ] {пункт}
 ```
 
-### Формат: App Store / пользовательский (если iOS)
+### Формат: пользовательский (сайт, магазин приложений, рассылка)
 
 ```
 Что нового:
@@ -109,6 +101,6 @@ output_block: "RELEASE_NOTES"
 
 Выведи:
 1. **Внутренний changelog** — полный список изменений для команды
-2. **Пользовательские release notes** — для App Store / клиентов
+2. **Пользовательские release notes** — для пользователей и клиентов
 3. **Предупреждения** — если нашёл проблемы в чеклисте
 4. **Рекомендуемая версия** — major/minor/patch на основе изменений (semver)

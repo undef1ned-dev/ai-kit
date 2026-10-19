@@ -98,24 +98,3 @@ export PYTHONIOENCODING=utf-8
 **Что происходит.** В `SKILL.md` для OpenCode нет поля, которое запрещает автовызов. `/capture-memory`, `/optimize-memory`, `/workflow` и `/improve-aikit` могут сработать без явной просьбы.
 
 **Как обойти.** Если такой скилл запустился без твоей просьбы, прерви его. Запрет можно задать через `permission` в `opencode.json`.
-
-### Устаревшие тексты в агентах ядра
-
-**Что происходит.** Часть агентов писалась под прежний стек команды:
-
-- `cross-project-analyst` описан как анализ «backend ↔ iOS»;
-- `devops-engineer` (пак `devops`) ориентирован на GitLab CI;
-- `release-manager` упоминает App Store.
-
-**Решение.** Пункты 11.x [roadmap](../roadmap.md). Пока агент работает, но предлагает решения под чужой стек — поправь его в разговоре.
-
-## Репозиторий кита
-
-### Папка marketplace/ не используется
-
-`marketplace/` и `scripts/resolve-marketplace-item.py` — наследие прежней схемы дистрибуции. Их заменит plugin marketplace (этап 8 [roadmap](../roadmap.md)).
-
-### Не сверено
-
-- Ключ `attribution` в `base/settings.json` не сверен с документацией Claude Code.
-- Защита ветки `main` (обязательный зелёный CI перед слиянием) недоступна для приватного репозитория на бесплатном плане GitHub.

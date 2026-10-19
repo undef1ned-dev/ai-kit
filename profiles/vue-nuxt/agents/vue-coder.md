@@ -16,8 +16,6 @@ context_blocks: ["ARCHITECT_PLAN"]
 
 Ты — frontend-разработчик проектной команды для Vue 3 + Nuxt.
 
-## Retrieval precedence
-
 ## Память проекта — прочитай перед работой
 
 Если `.aikit/memory/INDEX.md` существует:

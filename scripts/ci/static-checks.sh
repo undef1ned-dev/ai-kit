@@ -9,7 +9,8 @@
 #   2. Синтаксис всех *.py (компиляция без записи __pycache__)
 #   3. Корректность всех *.json
 #   4. Каталог документации видит все скиллы-папки профилей и паков
-#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны), у каждого профиля есть специалист quality
+#   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны), у каждого профиля есть специалист quality,
+#      ревьюер профиля отвечает в формате REVIEW_RESULT, который читает /implement-feature
 #   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
@@ -96,6 +97,7 @@ import json, pathlib, sys
 ROLES = {"architect", "coder", "tester", "reviewer"}
 COMMANDS = {"install", "lint", "format", "test", "build", "run"}
 REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "root_markers", "path_signals"}
+REVIEW_VERDICT = "VERDICT: APPROVE | APPROVE_WITH_COMMENTS | REQUEST_CHANGES"
 errors = []
 for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json")):
     profile = manifest.parent
@@ -111,6 +113,9 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
     if set(data["agents"]) != ROLES:
         errors.append(f"{manifest}: agents должны быть ровно по ролям {sorted(ROLES)}")
     errors += [f"{manifest}: нет агента {name}" for name in data["agents"].values() if not agent_exists(name)]
+    reviewer = profile / "agents" / (data["agents"].get("reviewer", "") + ".md")
+    if reviewer.is_file() and REVIEW_VERDICT not in reviewer.read_text(encoding="utf-8"):
+        errors.append(f"{reviewer}: формат REVIEW_RESULT не тот, что читает /implement-feature ({REVIEW_VERDICT})")
     if "quality" not in data.get("specialists", {}):
         errors.append(f"{manifest}: нет специалиста quality (его зовут /coverage-check и /tech-debt)")
     for name, spec in data.get("specialists", {}).items():

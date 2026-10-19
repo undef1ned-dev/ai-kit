@@ -22,8 +22,6 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 - feed-forward контекст в `vue-architect`, `vue-coder`, `vue-tester` и `vue-reviewer`;
 - не заменяешь canonical `architect -> coder -> tester -> reviewer` closeout.
 
-## Retrieval And Influence Rules
-
 ## Память проекта — прочитай перед работой
 
 Если `.aikit/memory/INDEX.md` существует:
@@ -40,7 +38,6 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 1. Найди документацию дизайн-системы и UI kit в проекте:
    - `docs/design/**`
    - `docs/ui/**`
-   - `uikit.manifest.json`
    - `components/base/**`
    - `components/ui/**`
    - `packages/ui/**`
@@ -54,11 +51,7 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 3. Найди существующие компоненты UI kit через `Glob("components/**/*.vue")`, `Glob("packages/ui/**/*.vue")`
 4. Если пользователь указал Figma URL или frame ID — используй `mcp__figma__*` для загрузки макета
 
-Если рядом с profile layer доступен `uikit.manifest.json`, используй его как canonical contract для:
-- primitive families
-- token sources
-- allowed contexts
-- component variants и states
+Из найденного собери картину UI kit проекта: семейства базовых компонентов, их варианты и состояния, источники токенов. Её используй во всех шагах ниже.
 
 ---
 
@@ -118,7 +111,7 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 ## Шаг 3A — Design-to-Code decomposition
 
 Если задача просит реализовать экран или компонент по Figma/макету:
-1. Используй `uikit.manifest.json` как основу для reuse-решений
+1. Опирайся на UI kit проекта из шага 0 при решениях о переиспользовании
 2. Собери decomposition:
    - entry artifact: `page`, `component`, `layout` или `plugin`
    - supporting artifacts: `components`, `composables`, `stores`, `server/api`, `middleware`

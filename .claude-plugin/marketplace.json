@@ -20,7 +20,7 @@
     {
       "name": "devops",
       "source": "./packs/devops",
-      "description": "Pack: DevOps для AIKit — DevOps инструменты: Docker, GitLab CI/CD, deployment стратегии",
+      "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
       "category": "development"
     }
   ]
