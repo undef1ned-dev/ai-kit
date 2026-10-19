@@ -1,0 +1,28 @@
+{
+  "name": "python-django",
+  "description": "Профиль AIKit Python Django (Django 5.x, DRF, Django Admin): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "keywords": [
+    "aikit",
+    "python-django"
+  ],
+  "skills": "./skills/",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.82"
+      ]
+    },
+    "sentry": {
+      "url": "https://mcp.sentry.dev/mcp"
+    }
+  },
+  "interface": {
+    "displayName": "AIKit: Python Django",
+    "shortDescription": "Профиль AIKit Python Django (Django 5.x, DRF, Django Admin): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

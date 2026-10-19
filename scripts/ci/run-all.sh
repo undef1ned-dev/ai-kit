@@ -5,7 +5,7 @@
 #   bash scripts/ci/run-all.sh
 #
 # Повторяет шаги задачи CI: статические проверки, attach.sh для всех пресетов,
-# адаптеры Codex и OpenCode для всех пресетов, новый профиль из шаблона. Не останавливается на первой ошибке.
+# адаптеры Codex и OpenCode и подключение через плагины для всех пресетов, новый профиль из шаблона. Не останавливается на первой ошибке.
 
 set -o pipefail
 
@@ -33,6 +33,7 @@ for preset_file in "$KIT_ROOT"/presets/*.json; do
   for adapter in codex opencode; do
     run_step "$adapter $preset" bash "$KIT_ROOT/scripts/ci/smoke-adapter.sh" "$adapter" "$preset" "$WORK_DIR/adapters"
   done
+  run_step "plugin $preset" bash "$KIT_ROOT/scripts/ci/smoke-plugin.sh" "$preset" "$WORK_DIR/plugins"
 done
 run_step "new-profile" bash "$KIT_ROOT/scripts/ci/smoke-new-profile.sh" "$WORK_DIR/new-profile"
 

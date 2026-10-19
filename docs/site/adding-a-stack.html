@@ -81,10 +81,12 @@
 <ul><li>Шаги идут по порядку; каждый агент получает задачу и выходной блок предыдущего (<code>output_block</code> во frontmatter, например <code>ART_BRIEF</code> → <code>MODEL_RESULT</code> → <code>TEXTURE_RESULT</code>).</li><li>Задача целиком подходит под <code>when</code> и не меняет код («нарисуй текстуру меча») — <code>/implement-feature</code> и <code>/workflow</code> запускают только пайплайн.</li><li>Фиче нужен и код, и пайплайн («добавь новую руду») — пайплайн идёт после архитектора, его результат получает кодер.</li><li>Отличие от <code>specialists</code>: специалист — один агент, который дополняет цепочку кода; пайплайн — самостоятельная цепочка из нескольких агентов.</li></ul>
 <p>Агент работает текстом. Если шаг должен создать бинарный файл (PNG-текстуру, звук), дай агенту инструмент: скрипт в проекте, который он запускает, или MCP-сервер (ключи — только через переменные окружения).</p>
 <h2 id="шаг-3-проверить"><a class="anchor" href="#шаг-3-проверить" aria-hidden="true">#</a>Шаг 3 — проверить</h2>
-<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
-bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт собран
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>python3 scripts/build-plugins.py   # new-profile.py уже собрал плагин; повтори после правок агентов, скиллов и mcp.json
+python3 scripts/generate-docs.py   # профиль появится в каталоге сайта документации
+bash scripts/ci/static-checks.sh   # контракт полон, агенты существуют, имена уникальны, сайт и плагины собраны
 bash scripts/ci/run-all.sh         # всё целиком, включая установку на тестовые проекты</code></pre></div>
-<p>Подключить к своему проекту — отдельно или вместе с другими профилями:</p>
+<p>Профиль — это и плагин маркетплейса: после слияния в <code>main</code> его ставят как <code>/plugin install java-spring@aikit</code> и подключают <code>/aikit:setup vue-nuxt+java-spring</code>.</p>
+<p>Через установщик — отдельно или вместе с другими профилями:</p>
 <div class="code-block"><div class="code-head"><span class="code-lang">bash</span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>bash .aikit-config/scripts/attach.sh java-spring
 bash .aikit-config/scripts/attach.sh vue-nuxt+java-spring --pack quality</code></pre></div>
 <p>Если профиль будет частой комбинацией — добавь пресет: <code>presets/&lt;name&gt;.json</code> с полями <code>name</code>, <code>label</code>, <code>description</code>, <code>profiles</code>, <code>packs</code>.</p>

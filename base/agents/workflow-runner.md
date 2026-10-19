@@ -51,13 +51,16 @@ output_block: "WORKFLOW_SUMMARY"
 ```
 Прочитай `.aikit/profiles.json` — контракты профилей проекта
 Прочитай агентов runtime: `.claude/agents/` (Claude Code) или `.aikit/agents/` (Codex, OpenCode)
+Если кит стоит плагинами (`.aikit/plugin-init.json`), этих папок нет: в Claude Code агенты — в плагинах
+(список доступных агентов, имена `aikit:<агент>` и `<профиль>:<агент>`; файлы ядра — `${CLAUDE_PLUGIN_ROOT}/base/agents/`),
+в Codex — `.codex/agents/*.toml` (name, description, developer_instructions)
 Для каждого агента прочитай frontmatter (name, tags, depends_on, output_block, context_files, context_blocks)
-Если runtime = Codex, `.codex/agents/*.toml` используй только как registration layer, не как source of truth для frontmatter
+Если runtime = Codex и есть `.aikit/agents/`, `.codex/agents/*.toml` используй только как registration layer, не как source of truth для frontmatter
 Прочитай `CLAUDE.md` или `AGENTS.md` — стек проекта
 Прочитай PRODUCT.md если есть
 ```
 
-Если `.aikit/profiles.json` или агентов нет — сообщи: "AIKit не установлен в проект. Подключи его через `attach.sh` или установщик адаптера и повтори попытку."
+Если `.aikit/profiles.json` или агентов нет — сообщи: "AIKit не установлен в проект. Подключи его скиллом `/aikit:setup` (плагины), через `attach.sh` или установщик адаптера и повтори попытку."
 
 Из контрактов собери карту и используй её в выборе цепочки:
 - профиль → агенты по ролям (`architect → coder → tester → reviewer`)

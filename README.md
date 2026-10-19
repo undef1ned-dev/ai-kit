@@ -1,10 +1,25 @@
 # AIKit
 
-AIKit — переиспользуемый набор AI-агентов и скиллов для Claude Code: профили под стек, агенты, скиллы, пресеты и адаптеры для других runtime.
+AIKit — переиспользуемый набор AI-агентов и скиллов для Claude Code и Codex: профили под стек, агенты, скиллы, хуки, пресеты; ставится плагинами или установщиком, есть адаптер для OpenCode.
 
 ## Подключить AIKit к проекту
 
-Из проекта, к которому нужно подключить AIKit:
+### Плагинами — Claude Code и Codex
+
+В Claude Code:
+
+```text
+/plugin marketplace add undef1ned-dev/ai-kit
+/plugin install aikit@aikit
+/plugin install vue-nuxt@aikit
+/aikit:setup frontend-team
+```
+
+Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`, `python-fastapi`, `python-django`) и пак (`quality`, `devops`, `ai`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
+
+В Codex: `codex plugin marketplace add undef1ned-dev/ai-kit`, `codex plugin add aikit@aikit` и плагины профилей, затем скилл `$setup`. Агентов плагины Codex не поставляют — `$setup` пишет их в `.codex/agents/`.
+
+### Установщиком — OpenCode и запасной путь
 
 ```bash
 git submodule add git@github.com:undef1ned-dev/ai-kit.git .aikit-config
@@ -57,11 +72,13 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 
 ## Разрабатывать этот репозиторий
 
-Для развития самого кита используй `/improve-aikit`. Проверить установку можно на пустом проекте:
+Для развития самого кита используй `/improve-aikit`. Агенты и скиллы кита в этот репозиторий не копируются — запускай Claude Code с плагином из рабочей копии:
 
 ```bash
-bash <путь-к-киту>/scripts/attach.sh --preset frontend-team
+claude --plugin-dir .
 ```
+
+Все проверки CI локально: `bash scripts/ci/run-all.sh`. Подробно — [Разработка AIKit](docs/guide/developing-aikit.md).
 
 ## Документация
 

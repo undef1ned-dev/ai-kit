@@ -1,0 +1,16 @@
+{
+  "name": "quality",
+  "description": "Pack: Quality для AIKit — Расширенное качество кода: анализ покрытия тестами, технический долг, рефакторинг",
+  "keywords": [
+    "aikit",
+    "quality"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AIKit: Pack: Quality",
+    "shortDescription": "Pack: Quality для AIKit — Расширенное качество кода: анализ покрытия тестами, технический долг, рефакторинг",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

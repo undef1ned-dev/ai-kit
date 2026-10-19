@@ -38,6 +38,7 @@ jobs:
             for adapter in codex opencode; do
               bash scripts/ci/smoke-adapter.sh "$adapter" "$(basename "$preset" .json)" "$RUNNER_TEMP"
             done
+            bash scripts/ci/smoke-plugin.sh "$(basename "$preset" .json)" "$RUNNER_TEMP"
           done
           bash scripts/ci/smoke-new-profile.sh "$RUNNER_TEMP/new-profile"
 

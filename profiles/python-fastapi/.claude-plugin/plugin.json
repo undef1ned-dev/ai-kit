@@ -1,0 +1,26 @@
+{
+  "name": "python-fastapi",
+  "description": "Профиль AIKit Python FastAPI (FastAPI 0.115+, SQLAlchemy 2.0, LangGraph): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "author": {
+    "name": "undef1ned-dev"
+  },
+  "homepage": "https://github.com/undef1ned-dev/ai-kit",
+  "repository": "https://github.com/undef1ned-dev/ai-kit",
+  "keywords": [
+    "aikit",
+    "python-fastapi"
+  ],
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.82"
+      ]
+    },
+    "sentry": {
+      "type": "http",
+      "url": "https://mcp.sentry.dev/mcp"
+    }
+  }
+}

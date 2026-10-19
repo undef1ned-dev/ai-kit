@@ -83,24 +83,24 @@ def merge_hooks(config: dict, kit_groups: dict[str, dict]) -> dict:
     return config
 
 
-def claude_groups() -> dict[str, dict]:
+def claude_groups(command: str = CLAUDE_COMMAND) -> dict[str, dict]:
     groups = {}
     for event, (matcher, _, timeout, _) in EVENTS.items():
         group: dict = {"matcher": matcher} if matcher else {}
-        group["hooks"] = [{"type": "command", "command": CLAUDE_COMMAND, "timeout": timeout}]
+        group["hooks"] = [{"type": "command", "command": command, "timeout": timeout}]
         groups[event] = group
     return groups
 
 
-def codex_groups() -> dict[str, dict]:
+def codex_groups(command: str = CODEX_COMMAND, command_windows: str = CODEX_COMMAND_WINDOWS) -> dict[str, dict]:
     groups = {}
     for event, (_, matcher, timeout, status) in EVENTS.items():
         group: dict = {"matcher": matcher} if matcher else {}
         group["hooks"] = [
             {
                 "type": "command",
-                "command": CODEX_COMMAND,
-                "commandWindows": CODEX_COMMAND_WINDOWS,
+                "command": command,
+                "commandWindows": command_windows,
                 "timeout": timeout,
                 "statusMessage": status,
             }

@@ -65,6 +65,15 @@ jobs:
           done
           exit $status
 
+      - name: Smoke plugins (Claude Code, Codex)
+        if: success() || failure()
+        run: |
+          status=0
+          for preset in presets/*.json; do
+            bash scripts/ci/smoke-plugin.sh "$(basename "$preset" .json)" "$RUNNER_TEMP/plugins" || status=1
+          done
+          exit $status
+
       - name: Smoke new profile from template
         if: success() || failure()
         run: bash scripts/ci/smoke-new-profile.sh "$RUNNER_TEMP/new-profile"

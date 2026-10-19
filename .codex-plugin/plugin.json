@@ -1,0 +1,85 @@
+{
+  "name": "aikit",
+  "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
+  "keywords": [
+    "aikit"
+  ],
+  "skills": [
+    "./base/skills/",
+    "./base/plugin-skills/"
+  ],
+  "hooks": {
+    "hooks": {
+      "SessionStart": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "timeout": 30,
+              "statusMessage": "AIKit: память проекта"
+            }
+          ]
+        }
+      ],
+      "PreToolUse": [
+        {
+          "matcher": "Bash|apply_patch",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "timeout": 30,
+              "statusMessage": "AIKit: проверка правил"
+            }
+          ]
+        }
+      ],
+      "PostToolUse": [
+        {
+          "matcher": "apply_patch",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "timeout": 300,
+              "statusMessage": "AIKit: форматирование и линтер"
+            }
+          ]
+        }
+      ],
+      "Stop": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "timeout": 600,
+              "statusMessage": "AIKit: тесты"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@4.1.1"
+      ]
+    }
+  },
+  "interface": {
+    "displayName": "AIKit",
+    "shortDescription": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

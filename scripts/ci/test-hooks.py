@@ -77,10 +77,10 @@ class Project:
         (root / "sub").mkdir()
         (root / "sub" / "a.py").write_text("x = 1\n", encoding="utf-8")
 
-    def run(self, event: dict, session: str = "s1") -> tuple[int, dict, str]:
+    def run(self, event: dict, session: str = "s1", flags: tuple[str, ...] = ()) -> tuple[int, dict, str]:
         event = {"cwd": str(self.root), "session_id": session, **event}
         result = subprocess.run(
-            [sys.executable, str(HOOK)], input=json.dumps(event).encode("utf-8"), capture_output=True, cwd=self.root
+            [sys.executable, str(HOOK), *flags], input=json.dumps(event).encode("utf-8"), capture_output=True, cwd=self.root
         )
         stdout = result.stdout.decode("utf-8").strip()
         return result.returncode, json.loads(stdout) if stdout else {}, result.stderr.decode("utf-8")
@@ -173,6 +173,19 @@ def main() -> int:
         _, output, _ = project.run({"hook_event_name": "SessionStart", "source": "startup"})
         context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
         expect("память и PRODUCT.md добавлены в контекст", "состояние корзины" in context and "Продаём книги" in context, context)
+
+        print("▶ Хук из плагина (--plugin)")
+        commit_event = {"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": 'git commit -m "wip"'}}
+        code, _, _ = project.run(commit_event, flags=("--plugin",))
+        expect("в проекте с .aikit/ правила действуют", code == BLOCKED)
+        with tempfile.TemporaryDirectory() as other:
+            outsider = Path(other)
+            subprocess.run(["git", "init", "-q"], cwd=outsider, check=True)
+            event = {**commit_event, "cwd": str(outsider), "session_id": "s1"}
+            result = subprocess.run(
+                [sys.executable, str(HOOK), "--plugin"], input=json.dumps(event).encode("utf-8"), capture_output=True, cwd=outsider
+            )
+            expect("в проекте без .aikit/ хук ничего не проверяет", result.returncode == 0 and not result.stdout.strip())
 
         print("▶ Устойчивость")
         code, _, _ = project.run({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": None})

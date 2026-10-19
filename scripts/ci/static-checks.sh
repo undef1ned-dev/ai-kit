@@ -14,6 +14,7 @@
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
+#  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы
 
 set -eo pipefail
 
@@ -158,7 +159,7 @@ for layer in layers:
         match = re.search(r"(?m)^name:\s*\"?([\w-]+)", path.read_text(encoding="utf-8"))
         if not match or match.group(1) != path.stem:
             errors.append(f"{path}: name не совпадает с именем файла")
-    for path in layer.glob("skills/*/SKILL.md"):
+    for path in [*layer.glob("skills/*/SKILL.md"), *layer.glob("plugin-skills/*/SKILL.md")]:
         skills[path.parent.name].append(str(layer))
 errors += [f"агент {name} есть в {owners}" for name, owners in agents.items() if len(owners) > 1]
 errors += [f"скилл {name} есть в {owners}" for name, owners in skills.items() if len(owners) > 1]
@@ -169,6 +170,9 @@ sys.exit(1 if errors else 0)
 
 echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
+
+echo "▶ Плагины: манифесты Claude Code и Codex собраны из исходников кита"
+"$PYTHON_BIN" scripts/build-plugins.py --check && echo "  ✓ маркетплейс и плагины актуальны" || FAILURES=$((FAILURES + 1))
 
 echo "▶ Хуки: сценарии base/hooks/aikit_hook.py"
 "$PYTHON_BIN" scripts/ci/test-hooks.py || FAILURES=$((FAILURES + 1))

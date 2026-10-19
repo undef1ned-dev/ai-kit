@@ -18,7 +18,7 @@ GLM отдельно не поддерживается: это модель, а 
 
 ## 1. Что умеет каждый runtime
 
-Справочник по родным механизмам. Сверено с документацией 2026-10-12.
+Справочник по родным механизмам. Сверено с документацией 2026-10-12, плагины — 2026-10-19.
 
 | Возможность | Claude Code | Codex | OpenCode |
 |---|---|---|---|
@@ -33,7 +33,8 @@ GLM отдельно не поддерживается: это модель, а 
 | Секреты для MCP | `${VAR}` в `.mcp.json` | `env_vars = ["VAR"]`, `bearer_token_env_var` | `{env:VAR}` |
 | Хуки | `hooks` в `.claude/settings.json` | `.codex/hooks.json` или `[hooks]` в `.codex/config.toml`; нужно одобрить через `/hooks` | JS/TS-плагин в `.opencode/plugins/` (`tool.execute.before` / `after`, `session.idle`) |
 | Запреты (permissions) | `permissions` в `.claude/settings.json` | `sandbox_mode`, `approval_policy` в `config.toml` | `permission` в `opencode.json` и у агента |
-| Плагины / marketplace | есть | есть (свой формат) | npm-плагины |
+| Плагины / marketplace | `.claude-plugin/plugin.json`, `marketplace.json`: скиллы, агенты, хуки, MCP | `.codex-plugin/plugin.json`: скиллы, хуки, MCP — **без агентов**; маркетплейс читает и `.claude-plugin/marketplace.json` | npm-плагины |
+| Имена из плагина | скилл `/плагин:имя` (и `/имя`, если не занято), агент — только `плагин:имя` | скилл `$имя` | — |
 
 ---
 
@@ -82,6 +83,21 @@ GLM отдельно не поддерживается: это модель, а 
 | Smoke-тест в CI | ✅ правила, скиллы, настройки, обновление | ✅ правила, скиллы, TOML агентов, обновление | ✅ правила, скиллы, агенты, обновление |
 | Изоляция проекта | ✅ | ✅ ничего не пишется в `~/.codex` | ✅ |
 
+### Установка плагинами
+
+Маркетплейс `aikit` — `.claude-plugin/marketplace.json` в корне репозитория: ядро `aikit`, по плагину на профиль и пак. Проект подключает скилл `/aikit:setup` (`scripts/plugin-init.py`). Проверено smoke-тестами (`scripts/ci/smoke-plugin.sh`) и `claude plugin validate`; Claude Code — вживую (`--plugin-dir`), Codex — только по формату.
+
+| Возможность | Claude Code | Codex | OpenCode |
+|---|---|---|---|
+| Маркетплейс и плагины ядра, профилей, паков | ✅ `/plugin marketplace add undef1ned-dev/ai-kit` | ⚠️ `codex plugin marketplace add undef1ned-dev/ai-kit`, не проверено вживую | 🚫 остаётся установщик |
+| Скиллы | ✅ из плагинов | ⚠️ из плагинов | — |
+| Агенты | ✅ из плагинов, имя с префиксом плагина | ⚠️ плагины Codex не поставляют агентов — `/aikit:setup` пишет `.codex/agents/*.toml` | — |
+| Хуки | ✅ из плагина ядра, только в проектах с `.aikit/` | ⚠️ из плагина ядра (`${PLUGIN_ROOT}`), не проверено вживую | — |
+| MCP-серверы | ✅ из плагинов | ⚠️ из плагинов | — |
+| Правила проекта | ✅ блок AIKit в `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md` | — |
+| Права, запрет `.env`, без соавторства, плагины для команды | ✅ `.claude/settings.json`: `permissions`, `attribution`, `extraKnownMarketplaces`, `enabledPlugins` | ⚠️ только хук; маркетплейс каждый добавляет сам | — |
+| Обновление | ✅ `/plugin marketplace update aikit` — плагины без `version` обновляются с каждым коммитом в `main` | ✅ `codex plugin marketplace upgrade` | — |
+
 ---
 
 ## 3. Известные ограничения
@@ -105,4 +121,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Общий ревью-шаг | Codex, OpenCode | Встроенное ревью (`/review`) агент не может вызвать сам | Ревьюер профиля делает общий проход (корректность, ошибки, безопасность) перед своим чек-листом; `/review` можно запустить вручную |
 | Worktree для `/implement-feature` | Claude Code | Встроенная изоляция сабагентов (`isolation: worktree`) ответвляется от ветки по умолчанию, а не от текущей, и даёт каждому агенту свой worktree | Оркестратор сам создаёт один worktree от `HEAD` (`git worktree add`) — одинаково во всех runtime |
 | Проверка UI в `/check-feature` | все | Нужен браузерный инструмент | Playwright MCP профиля или встроенный браузер runtime; без них — проверка запросами |
+| Агенты в плагине | Codex | Манифест плагина Codex не поддерживает агентов | `/aikit:setup` (`plugin-init.py --runtime codex`) пишет агентов ядра, профилей и паков в `.codex/agents/*.toml`; при смене профилей лишние убираются |
+| Имена агентов из плагина | Claude Code | Агент плагина находится только по имени с префиксом: `vue-nuxt:vue-coder`, а в `.aikit/profiles.json` записано `vue-coder` | В блоке правил `CLAUDE.md` — правило префикса; если агент вызван без префикса, Claude Code в ошибке перечисляет правильные имена |
+| Хуки плагина | Claude Code, Codex | Хуки плагина включены во всех проектах пользователя | Хук с флагом `--plugin` работает только в проектах с `.aikit/` |
 | Контекст в начале сессии | OpenCode | Плагин не добавляет контекст при старте сессии | `.aikit/memory/INDEX.md` и `PRODUCT.md` в `instructions` в `opencode.json` — OpenCode читает их сам |
