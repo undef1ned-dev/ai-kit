@@ -89,7 +89,7 @@ codex plugin add vue-nuxt@aikit
 
 Хуки плагина работают только в проектах с папкой `.aikit/`: в других твоих проектах плагин ничего не проверяет.
 
-Обновление: `/plugin marketplace update aikit` в Claude Code, `codex plugin marketplace upgrade` в Codex. Чтобы сменить набор профилей, запусти `/aikit:setup` заново — лишние агенты Codex уберутся, правки команды в `.aikit/profiles.json` сохранятся.
+Обновление в Claude Code: `/plugin marketplace update aikit` обновляет каталог, затем `/plugin update aikit@aikit` (и так для каждого плагина профиля) обновляет сам плагин; изменения подхватываются после перезапуска сессии. В Codex — `codex plugin marketplace upgrade`. Чтобы сменить набор профилей, запусти `/aikit:setup` заново — лишние агенты Codex уберутся, правки команды в `.aikit/profiles.json` сохранятся.
 
 ## Установка установщиком в Claude Code
 

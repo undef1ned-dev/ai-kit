@@ -97,7 +97,7 @@ GLM отдельно не поддерживается: это модель, а 
 | MCP-серверы | ✅ из плагинов | ⚠️ из плагинов | — |
 | Правила проекта | ✅ блок AIKit в `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md` | — |
 | Права, запрет `.env`, без соавторства, плагины для команды | ✅ `.claude/settings.json`: `permissions`, `attribution`, `extraKnownMarketplaces`, `enabledPlugins` | ⚠️ только хук; маркетплейс каждый добавляет сам | — |
-| Обновление | ✅ `/plugin marketplace update aikit` — плагины без `version` обновляются с каждым коммитом в `main` | ✅ `codex plugin marketplace upgrade` | — |
+| Обновление | ✅ `/plugin marketplace update aikit`, затем `/plugin update <плагин>@aikit` и перезапуск сессии — плагины без `version` обновляются с каждым коммитом в `main` | ✅ `codex plugin marketplace upgrade` | — |
 | Панель AIKit Deck: кнопки команд, справка, субагенты сессии, размер памяти | ✅ мод плагина ядра, `/deck`; тесты мода — `claude plugin test` | 🚫 модов нет | 🚫 |
 
 ### Эвалы
