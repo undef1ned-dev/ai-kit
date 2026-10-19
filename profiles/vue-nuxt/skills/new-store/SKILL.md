@@ -1,6 +1,7 @@
 ---
 name: "new-store"
 description: "Создать Pinia store для состояния фичи: данные, флаги loading/error, actions. Используй, когда состояние нужно разделить между страницами или компонентами."
+argument-hint: "<имя>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "pinia", "state"]

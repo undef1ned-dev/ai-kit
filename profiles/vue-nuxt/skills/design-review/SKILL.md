@@ -1,6 +1,7 @@
 ---
 name: "design-review"
 description: "Проверить Vue/Nuxt-реализацию на соответствие UI kit, дизайн-токенам и Figma-макету. Используй, когда нужно сверить готовый UI с дизайном."
+argument-hint: "<файл и ссылка на макет>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "design", "figma", "design-system", "uikit"]

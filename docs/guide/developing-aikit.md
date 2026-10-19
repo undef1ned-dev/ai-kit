@@ -19,6 +19,7 @@
 | `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `CLAUDE.md`, `agents/`, `skills/`, `settings.json`, `mcp.json`; `.claude-plugin/` и `.codex-plugin/` — манифесты плагина (генерируются) |
 | `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json`, манифесты плагина |
 | `.claude-plugin/`, `.codex-plugin/` в корне | Маркетплейс `aikit` (`marketplace.json`, его читают и Claude Code, и Codex) и манифесты плагина ядра: корень плагина `aikit` — весь репозиторий. Генерируются `scripts/build-plugins.py` |
+| `hooks/hooks.json`, `deck/` | Мод [AIKit Deck](commands.md#панель-aikit-deck) плагина ядра (только Claude Code): `hooks.json` указывает на `deck/register.js`, чистые функции — `deck/catalog.js`, тесты — `deck/tests/` |
 | `presets/*.json` | Пресеты: `name`, `label`, `description`, `profiles`, `packs` |
 | `templates/profile/` | Шаблон нового профиля для `scripts/new-profile.py` |
 | `adapters/<runtime>/` | Описание адаптера (`adapter.manifest.json`) и шаблоны файлов runtime |
@@ -81,6 +82,12 @@
 ### Хук
 
 Логика всех хуков — в `base/hooks/aikit_hook.py`: один обработчик на событие (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`), вход — JSON в формате Claude Code и Codex. Плагин `base/hooks/opencode-plugin.js` переводит события OpenCode в тот же формат. Новое событие — запись в `EVENTS` в `scripts/hooks_config.py` и обработчик в скрипте. Скрипт без зависимостей, Python 3.9+. Каждое правило — сценарий в `scripts/ci/test-hooks.py`.
+
+### Панель AIKit Deck
+
+Мод Claude Code в плагине ядра: `deck/register.js` — события и отрисовка, `deck/catalog.js` — чистые функции (каталог из `SKILL.md`, разбор `argument-hint`, субагенты, память). Группы базовых команд — `GROUPS` в `catalog.js`; новый базовый скилл без группы попадает в «Прочее». Команды профилей и паков панель берёт из их `skills/` сама. API модов — [документация Claude Code](https://code.claude.com/docs/en/plugins/mods/overview).
+
+Панель не должна вызывать модель: `claude plugin validate .` печатает все её вызовы API (`calls:`) — `$.model` среди них быть не должно. Тесты — `claude plugin test` в корне репозитория, без сессии и сети; в CI Claude Code нет, поэтому их запускает только `run-all.sh`. Вживую: `claude --plugin-dir .` в проекте с `.aikit/profiles.json`, затем `/deck`.
 
 ### MCP-сервер
 
@@ -190,11 +197,12 @@ bash scripts/ci/run-all.sh
 
 | Проверка | Что ловит |
 |---|---|
-| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`) |
+| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро не называет агентов профилей; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS |
 | `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
 | `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
 | `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей |
 | `scripts/ci/smoke-new-profile.sh` | Профиль из шаблона ставится без правок ядра, вместе с пайплайном, в монорепо |
+| `claude plugin test` | Мод AIKit Deck: кнопки, поле аргумента, режимы, справка, субагенты, память. Только локально, если установлен Claude Code |
 
 CI (`.github/workflows/ci.yml`) запускает то же самое на Linux и Windows.
 

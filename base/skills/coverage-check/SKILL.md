@@ -1,6 +1,7 @@
 ---
 name: "coverage-check"
 description: "Проверить покрытие тестами: запустить тесты с coverage, найти непокрытые критичные модули и предложить тесты для главных пробелов. Используй, когда пользователь спрашивает про покрытие."
+argument-hint: "[путь]"
 version: "2.0.0"
 profile: "base"
 tags: ["quality", "testing", "coverage"]

@@ -5,7 +5,9 @@
 #   bash scripts/ci/run-all.sh
 #
 # Повторяет шаги задачи CI: статические проверки, attach.sh для всех пресетов,
-# адаптеры Codex и OpenCode и подключение через плагины для всех пресетов, новый профиль из шаблона. Не останавливается на первой ошибке.
+# адаптеры Codex и OpenCode и подключение через плагины для всех пресетов, новый профиль из шаблона.
+# Если установлен Claude Code — ещё тесты мода AIKit Deck (claude plugin test, без вызовов модели);
+# в CI его нет, поэтому этот шаг только локальный. Не останавливается на первой ошибке.
 
 set -o pipefail
 
@@ -36,6 +38,11 @@ for preset_file in "$KIT_ROOT"/presets/*.json; do
   run_step "plugin $preset" bash "$KIT_ROOT/scripts/ci/smoke-plugin.sh" "$preset" "$WORK_DIR/plugins"
 done
 run_step "new-profile" bash "$KIT_ROOT/scripts/ci/smoke-new-profile.sh" "$WORK_DIR/new-profile"
+if command -v claude &>/dev/null; then
+  run_step "deck" bash -c "cd '$KIT_ROOT' && claude plugin test"
+else
+  echo "– deck: Claude Code не установлен, тесты мода пропущены"
+fi
 
 if [[ ${#FAILED[@]} -gt 0 ]]; then
   echo "✗ Не прошло: ${FAILED[*]}"

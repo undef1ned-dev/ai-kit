@@ -1,6 +1,7 @@
 ---
 name: "design-implement"
 description: "Превратить Figma-макет или другой design-input в implementation brief для Vue/Nuxt и провести задачу через design-aware цепочку architect → coder. Используй, когда задача начинается с макета."
+argument-hint: "<ссылка на макет и задача>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "design", "figma", "implementation", "uikit"]

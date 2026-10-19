@@ -1,6 +1,7 @@
 ---
 name: git-commit
 description: "Convention for writing git commit messages in this repository: Conventional Commits 1.0.0. MUST be followed for every commit created in the project — always, automatically, without the user having to ask. Trigger whenever you are about to run `git commit` (including amend, squash or rewriting history), or when the user says «закоммить», «коммит», «сделай коммит», «commit», or asks to save/commit changes. Also forbids any co-authorship trailers."
+user-invocable: false
 ---
 
 # Формат коммитов — Conventional Commits

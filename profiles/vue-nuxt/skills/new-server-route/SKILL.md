@@ -1,6 +1,7 @@
 ---
 name: "new-server-route"
 description: "Создать Nitro server route для BFF или proxy-логики с валидацией запроса и безопасной обработкой ответа. Используй, когда нужен эндпоинт в server/api."
+argument-hint: "<путь.метод>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "nitro", "server-api", "bff"]

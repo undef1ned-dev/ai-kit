@@ -1,6 +1,7 @@
 ---
 name: "new-page"
 description: "Создать Nuxt-страницу с типизированной загрузкой данных, SEO и состояниями loading, error, empty. Используй, когда нужна новая страница или роут."
+argument-hint: "<маршрут>"
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "page", "scaffold"]
