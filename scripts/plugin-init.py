@@ -12,7 +12,7 @@ Plugins bring agents, skills, hooks and MCP servers; what belongs to the project
                    and the enabled plugins, so teammates get the same set after trusting the folder
     codex        — .codex/agents/*.toml: Codex plugins cannot ship agents, so they are written here
 
-The script runs from the core plugin (its root is the AIKit repository) via the /aikit:init skill.
+The script runs from the core plugin (its root is the AIKit repository) via the /aikit:setup skill.
 State of the previous run is kept in .aikit/plugin-init.json: agents it wrote and are no longer needed are removed.
 
 Usage:
