@@ -25,8 +25,8 @@
 <h1 class="page-title">Каталог профилей</h1>
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
-  <div><b>17</b><span>агенты</span></div>
-  <div><b>31</b><span>скиллы</span></div>
+  <div><b>16</b><span>агенты</span></div>
+  <div><b>30</b><span>скиллы</span></div>
   <div><b>1</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
 </div>
@@ -41,14 +41,14 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">29</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
 <section class="catalog-panel" id="base" data-panel style="--accent-local:#4f46e5">
   <div class="panel-head"><h2>Base</h2><p>Ядро кита: ставится в любой проект вместе с любым профилем</p></div>
 
-  <h3>Агенты <span class="count">10</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder создаёт нового агента через структурированный опрос по 6 фазам. генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. используй когда нужно добавить нового специализированного агента в репозиторий.">
+  <h3>Агенты <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder создаёт нового агента через структурированный опрос по 6 фазам. генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. используй когда нужно добавить нового специализированного агента в репозиторий.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">agent-builder</span></header>
   <p>Создаёт нового агента через структурированный опрос по 6 фазам. Генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. Используй когда нужно добавить нового специализированного агента в репозиторий.</p>
   <div class="chips"><span class="chip chip-out">→ AGENT_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
@@ -102,14 +102,8 @@
   <div class="chips"><span class="chip chip-out">→ UX_TEXTS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тексты для экрана онбординга</span><button class="copy-btn" type="button" data-copy="Напиши тексты для экрана онбординга">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/ux-writer.md">base/agents/ux-writer.md</a>
-</article><article class="entry-card entry-agent" id="agent-workflow-runner" data-filter="workflow-runner оркестратор рабочих процессов. читает манифесты агентов, строит цепочку по depends_on, проводит разработчика через каждый шаг с передачей контекста. используй через skill `workflow` или напрямую как custom agent `workflow-runner`.">
-  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">workflow-runner</span></header>
-  <p>Оркестратор рабочих процессов. Читает манифесты агентов, строит цепочку по depends_on, проводит разработчика через каждый шаг с передачей контекста. Используй через skill `workflow` или напрямую как custom agent `workflow-runner`.</p>
-  <div class="chips"><span class="chip chip-out">→ WORKFLOW_SUMMARY</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
-  <div class="entry-example"><span>Реализуй фичу: добавить экспорт пользователей в CSV</span><button class="copy-btn" type="button" data-copy="Реализуй фичу: добавить экспорт пользователей в CSV">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/workflow-runner.md">base/agents/workflow-runner.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">19</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">18</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
@@ -211,12 +205,6 @@
 
   <div class="entry-example"><span>/tech-debt</span><button class="copy-btn" type="button" data-copy="/tech-debt">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/tech-debt/SKILL.md">base/skills/tech-debt/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-workflow" data-filter="workflow интерактивный визард: определить тип задачи, построить цепочку агентов по манифестам и провести разработчика по шагам. запускай только по явной просьбе пользователя.">
-  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/workflow</span></header>
-  <p>Интерактивный визард: определить тип задачи, построить цепочку агентов по манифестам и провести разработчика по шагам. Запускай только по явной просьбе пользователя.</p>
-  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
-  <div class="entry-example"><span>workflow реализуй фичу экспорта отчётов в PDF</span><button class="copy-btn" type="button" data-copy="workflow реализуй фичу экспорта отчётов в PDF">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/workflow/SKILL.md">base/skills/workflow/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-write-ui-texts" data-filter="write-ui-texts написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. используй, когда задача касается текстов в ui.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/write-ui-texts</span></header>
   <p>Написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. Используй, когда задача касается текстов в UI.</p>

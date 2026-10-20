@@ -44,7 +44,7 @@
 <p>Пример: <code>vue-architect</code>, <code>vue-tester</code>, <code>security-auditor</code>.</p>
 <h3 id="скилл"><a class="anchor" href="#скилл" aria-hidden="true">#</a>Скилл</h3>
 <p>Готовый сценарий, папка <code>&lt;name&gt;/SKILL.md</code>. Внутри — инструкция «как сделать вот это»: какие агенты нужны, в каком порядке, что проверить. Скилл вызывают командой (<code>/implement-feature</code> в Claude Code, <code>$implement-feature</code> в Codex). Runtime может вызвать его и сам, если задача подходит под <code>description</code> скилла — это <strong>автовызов</strong>.</p>
-<p>Скиллы с побочными эффектами (<code>/capture-memory</code>, <code>/workflow</code>) работают только по явному вызову: в Claude Code это поле <code>disable-model-invocation: true</code>.</p>
+<p>Скиллы с побочными эффектами (<code>/capture-memory</code>, <code>/set-model</code>) работают только по явному вызову: в Claude Code это поле <code>disable-model-invocation: true</code>.</p>
 <h3 id="slash-команда"><a class="anchor" href="#slash-команда" aria-hidden="true">#</a>Slash-команда</h3>
 <p>Команда вида <code>/name</code>. В AIKit это способ вызвать скилл. Раньше в Claude Code были отдельные команды в <code>.claude/commands/</code>, теперь их заменили скиллы — при обновлении кита старые команды убираются.</p>
 <h3 id="mcp-сервер"><a class="anchor" href="#mcp-сервер" aria-hidden="true">#</a>MCP-сервер</h3>
@@ -60,7 +60,7 @@
 <p>Это не то же самое, что встроенная память runtime. Например, auto memory Claude Code (<code>~/.claude/projects/&lt;project&gt;/memory/</code>) личная: её пишет сам Claude по твоим поправкам, и она есть только на твоей машине. Правило «так делаем в проекте» — в <code>.aikit/memory/</code>, «так люблю я» — во встроенную память или <code>CLAUDE.local.md</code>. История задач в память не пишется: она уже есть в git и PR.</p>
 <h2 id="как-устроен-кит"><a class="anchor" href="#как-устроен-кит" aria-hidden="true">#</a>Как устроен кит</h2>
 <h3 id="base"><a class="anchor" href="#base" aria-hidden="true">#</a>Base</h3>
-<p>Ядро кита — папка <code>base/</code>: общие правила, агенты и скиллы, которые ставятся в любой проект: <code>/implement-feature</code>, <code>/workflow</code>, <code>/security-check</code>, <code>/analyze-mvp</code>, <code>git-commit</code>, память. Ядро ничего не знает о конкретных стеках — всё стековое оно берёт из <a href="#контракт-профиля">контракта профиля</a>.</p>
+<p>Ядро кита — папка <code>base/</code>: общие правила, агенты и скиллы, которые ставятся в любой проект: <code>/implement-feature</code>, <code>/security-check</code>, <code>/analyze-mvp</code>, <code>git-commit</code>, память. Ядро ничего не знает о конкретных стеках — всё стековое оно берёт из <a href="#контракт-профиля">контракта профиля</a>.</p>
 <h3 id="профиль"><a class="anchor" href="#профиль" aria-hidden="true">#</a>Профиль</h3>
 <p>Всё, что нужно для одного стека: папка <code>profiles/&lt;name&gt;/</code>. В ней правила стека (<code>CLAUDE.md</code>), четыре агента по ролям, специалисты, скиллы стека (<code>/new-page</code>, <code>/new-component</code>), MCP-серверы, разрешения на команды и <a href="#контракт-профиля">контракт</a>. Сейчас есть <code>vue-nuxt</code>. Новый стек добавляется <a href="adding-a-stack.html">по шаблону</a>.</p>
 <h3 id="контракт-профиля"><a class="anchor" href="#контракт-профиля" aria-hidden="true">#</a>Контракт профиля</h3>
@@ -91,7 +91,7 @@
 <h3 id="root-профиля"><a class="anchor" href="#root-профиля" aria-hidden="true">#</a>Root профиля</h3>
 <p>Папка профиля в проекте. В монорепо фронтенд может лежать в <code>web/</code>, а бэкенд — в <code>api/</code>. Установщик ищет папку по <code>root_markers</code> (<code>web/nuxt.config.ts</code> → <code>web</code>) и записывает её в <code>root</code> в <code>.aikit/profiles.json</code>. Команды профиля запускаются в этой папке.</p>
 <h3 id="aikitprofilesjson"><a class="anchor" href="#aikitprofilesjson" aria-hidden="true">#</a>.aikit/profiles.json</h3>
-<p>Файл в проекте, где собраны контракты всех подключённых профилей плюс найденный <code>root</code>. Его читают <code>/implement-feature</code>, <code>/workflow</code> и агенты в любом runtime. <code>commands</code> и <code>root</code> в нём можно править под проект. Рядом лежит <code>.aikit/profiles.kit-defaults.json</code>: в нём прежние значения кита, по ним обновление понимает, что именно поменяла команда.</p>
+<p>Файл в проекте, где собраны контракты всех подключённых профилей плюс найденный <code>root</code>. Его читают <code>/implement-feature</code> и агенты в любом runtime. <code>commands</code> и <code>root</code> в нём можно править под проект. Рядом лежит <code>.aikit/profiles.kit-defaults.json</code>: в нём прежние значения кита, по ним обновление понимает, что именно поменяла команда.</p>
 <h3 id="адаптер"><a class="anchor" href="#адаптер" aria-hidden="true">#</a>Адаптер</h3>
 <p>Часть кита, которая раскладывает одни и те же агенты, скиллы и правила в формат конкретного runtime. Для Claude Code это <code>attach.sh</code>, для Codex и OpenCode — <code>install-adapter-package.py</code>. Описания адаптеров лежат в <code>adapters/&lt;runtime&gt;/</code>.</p>
 <h3 id="установщик"><a class="anchor" href="#установщик" aria-hidden="true">#</a>Установщик</h3>
@@ -101,7 +101,7 @@
 <h3 id="aikit-config"><a class="anchor" href="#aikit-config" aria-hidden="true">#</a>.aikit-config</h3>
 <p>Папка, куда кит подключается к проекту как git submodule — ссылка на репозиторий AIKit внутри твоего репозитория. Все скрипты запускаются оттуда: <code>bash .aikit-config/scripts/attach.sh</code>.</p>
 <h3 id="оркестратор"><a class="anchor" href="#оркестратор" aria-hidden="true">#</a>Оркестратор</h3>
-<p>Скилл или агент, который сам не пишет код, а ведёт цепочку других агентов: <code>/implement-feature</code>, <code>/workflow</code> и его агент <code>workflow-runner</code>, <code>tech-planner</code>.</p>
+<p>Скилл или агент, который сам не пишет код, а ведёт цепочку других агентов: <code>/implement-feature</code>, <code>/fix-bug</code>, <code>tech-planner</code>.</p>
     </article>
     <nav class="pager"><a class="pager-prev" href="index.html"><span>Назад</span>Что такое AIKit</a><a class="pager-next" href="getting-started.html"><span>Дальше</span>Установка</a></nav>
     <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/glossary.md">docs/guide/glossary.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>

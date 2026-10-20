@@ -60,4 +60,4 @@
 ## Доступные скиллы
 
 <!-- TODO: профильные скиллы (`profiles/{{PROFILE}}/skills/<name>/SKILL.md`), если есть.
-`/implement-feature`, `/workflow` и `/security-check` общие и работают с этим профилем без правок. -->
+`/implement-feature` и `/security-check` общие и работают с этим профилем без правок. -->

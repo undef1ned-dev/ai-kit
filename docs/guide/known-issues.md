@@ -95,6 +95,6 @@ export PYTHONIOENCODING=utf-8
 
 ### OpenCode может сам запустить скиллы с побочными эффектами
 
-**Что происходит.** В `SKILL.md` для OpenCode нет поля, которое запрещает автовызов. `/capture-memory`, `/optimize-memory`, `/workflow` и `/set-model` могут сработать без явной просьбы.
+**Что происходит.** В `SKILL.md` для OpenCode нет поля, которое запрещает автовызов. `/capture-memory`, `/optimize-memory` и `/set-model` могут сработать без явной просьбы.
 
 **Как обойти.** Если такой скилл запустился без твоей просьбы, прерви его. Запрет можно задать через `permission` в `opencode.json`.

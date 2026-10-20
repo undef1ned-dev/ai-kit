@@ -22,8 +22,7 @@
     "./base/agents/security-auditor.md",
     "./base/agents/skill-builder.md",
     "./base/agents/tech-planner.md",
-    "./base/agents/ux-writer.md",
-    "./base/agents/workflow-runner.md"
+    "./base/agents/ux-writer.md"
   ],
   "hooks": {
     "SessionStart": [

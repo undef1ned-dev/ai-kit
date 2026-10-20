@@ -197,7 +197,7 @@ check_runtime_files() {
   check "в скиллах нет \$ARGUMENTS и нераскрытых шаблонов$stage" check_no_raw_placeholders
   case "$ADAPTER" in
     codex)
-      check "скилл workflow не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/workflow/agents/openai.yaml"
+      check "скилл capture-memory не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/capture-memory/agents/openai.yaml"
       check "агенты Codex — валидный TOML$stage" check_codex_agents
       check "нет markdown-дублей агентов в .codex/agents$stage" test "$(count_files "$PROJECT_DIR/.codex/agents" '*.md')" -eq 0
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"

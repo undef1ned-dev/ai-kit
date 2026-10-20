@@ -149,7 +149,7 @@ names = set()
 for manifest in pathlib.Path("profiles").glob("*/profile.manifest.json"):
     data = json.loads(manifest.read_text(encoding="utf-8"))
     names |= set(data["agents"].values()) | {spec["agent"] for spec in data.get("specialists", {}).values()}
-files = [*pathlib.Path("base/skills").glob("*/SKILL.md"), pathlib.Path("base/agents/workflow-runner.md"), pathlib.Path("base/agents/tech-planner.md")]
+files = [*pathlib.Path("base/skills").glob("*/SKILL.md"), pathlib.Path("base/agents/tech-planner.md")]
 errors = []
 for path in files:
     text = path.read_text(encoding="utf-8")

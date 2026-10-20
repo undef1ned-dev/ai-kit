@@ -2,7 +2,7 @@
 """
 Create a new AIKit profile from templates/profile/: contract, rules, four role agents, quality specialist, settings.
 
-The kit core (installers, /implement-feature, workflow-runner) reads everything it needs from
+The kit core (installers, /implement-feature) reads everything it needs from
 profile.manifest.json, so a new stack needs no changes outside profiles/<name>/.
 See docs/guide/adding-a-stack.md.
 
