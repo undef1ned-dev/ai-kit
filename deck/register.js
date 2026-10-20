@@ -31,6 +31,9 @@ const HISTORY_SHOWN = 5
 const PROFILES_FILE = '.aikit/profiles.json'
 const INIT_FILE = '.aikit/plugin-init.json'
 const MEMORY_INDEX = '.aikit/memory/INDEX.md'
+// The project's own skills; in the kit repository — improve-aikit, run-evals, check-models
+const PROJECT_SKILLS = '.claude/skills'
+const PROJECT_OWNER = 'project'
 // Team settings: commit 'ask' — the git-commit skill offers messages to choose, 'auto' — commits by the rules
 const SETTINGS_FILE = '.aikit/settings.json'
 const PROJECT_SEARCH_DEPTH = 6
@@ -50,6 +53,8 @@ let groups = []
 let commands = []
 let agents = []
 const timing = new Map()
+// Subagent id → the model its last request went to, from turn.step
+const agentModels = new Map()
 let history = []
 let mode = 'send'
 let tab = 'commands'
@@ -66,6 +71,9 @@ let wasOpenedHere = false
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
 const passThrough = ($, e, next) => next(e)
+const streamThrough = async function* ($, e, next) {
+  return yield* next(e)
+}
 const historyKey = () => 'history:' + (project?.root ?? sessionRoot)
 const openedKey = () => 'opened:' + (project?.root ?? sessionRoot)
 
@@ -164,7 +172,8 @@ async function loadCatalog($) {
   for (const pack of project?.packs ?? []) {
     sections.push({ id: 'pack-' + pack, title: `Пак ${pack}`, entries: await readSkills($, joinPath(kit, 'packs', pack, 'skills'), pack) })
   }
-  groups = buildGroups(base, sections)
+  const own = await readSkills($, joinPath(project?.root ?? team?.root ?? sessionRoot, PROJECT_SKILLS), PROJECT_OWNER)
+  groups = buildGroups(base, sections, own)
   try {
     commands = await $.command.list()
   } catch {
@@ -225,7 +234,7 @@ async function remember($, line, source) {
 async function launch($, entry, text) {
   const name = resolveCommandName(entry, commands)
   if (!name) {
-    $.ui.toast(`/${entry.skill} недоступна: установите плагин ${entry.owner}@aikit`)
+    $.ui.toast(entry.owner === PROJECT_OWNER ? `/${entry.skill} недоступна в этой сессии` : `/${entry.skill} недоступна: установите плагин ${entry.owner}@aikit`)
     return
   }
   const args = [...flags, String(text ?? '').trim()].filter(Boolean).join(' ')
@@ -359,7 +368,7 @@ function card(ui, props, children) {
 function agentsSection(ui, now) {
   const { Box, Text } = ui
   const { heading, caption } = look(ui)
-  const rows = agentRows(agents, timing, now, FINISHED_AGENTS_SHOWN)
+  const rows = agentRows(agents, timing, now, FINISHED_AGENTS_SHOWN, agentModels)
   const running = rows.filter(row => row.isRunning).length
   return card(ui, { rowGap: 0 }, [
     Box({
@@ -377,6 +386,7 @@ function agentsSection(ui, now) {
           Text({ color: row.isRunning ? 'warning' : row.status === 'completed' ? 'success' : 'error', children: [row.isRunning ? '●' : row.status === 'completed' ? '✓' : '✗'] }),
           Text({ children: [row.type] }),
           Box({ flexGrow: 1, flexShrink: 1, children: [Text({ dimColor: true, wrap: 'truncate-end', children: [row.description || row.name || ''] })] }),
+          ...(row.model ? [Text({ key: 'model-' + row.id, color: 'suggestion', children: [row.model] })] : []),
           Text({ dimColor: true, children: [row.isRunning ? row.elapsed : `${row.status === 'completed' ? 'готово' : row.status} · ${row.elapsed}`] }),
         ],
       }),
@@ -624,7 +634,9 @@ export function register(on) {
       description: 'AIKit Deck: кнопки команд кита, справка и субагенты сессии',
       immediate: true,
     })
-    if (project) await openPane($, false)
+    // Opens by itself where the deck belongs: a connected project, team settings alone (the kit repository)
+    // or a folder where the deck was opened before
+    if (project || team || wasOpenedHere) await openPane($, false)
     return next(e)
   })
 
@@ -672,6 +684,18 @@ export function register(on) {
     await refreshAgents($)
     return result
   }).catch(passThrough)
+
+  // A subagent's request names its model: the one the API answered with, or the one it was sent to.
+  // The hook only reads the request and passes it on unchanged
+  on('turn.step', async function* ($, e, next) {
+    const result = yield* next(e)
+    const model = result?.usage?.model ?? e.model
+    if (e.agentId && model && agentModels.get(e.agentId) !== model) {
+      agentModels.set(e.agentId, model)
+      redraw($)
+    }
+    return result
+  }).catch(streamThrough)
 
   // A background subagent reports its end with a task notification
   on('session.receive', async ($, e, next) => {

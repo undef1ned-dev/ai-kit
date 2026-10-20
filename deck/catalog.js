@@ -6,9 +6,10 @@ export const GROUPS = [
   { id: 'plan', title: 'Анализ и планирование', skills: ['analyze-mvp', 'implement-mvp', 'cross-check'] },
   { id: 'quality', title: 'Качество и безопасность', skills: ['security-check', 'coverage-check', 'tech-debt', 'write-ui-texts'] },
   { id: 'memory', title: 'Память', skills: ['capture-memory', 'memory-status', 'optimize-memory'] },
-  { id: 'kit', title: 'Кит', skills: ['create-agent', 'create-skill', 'set-model', 'setup'] },
+  { id: 'kit', title: 'Кит', skills: ['create-agent', 'create-skill', 'set-model', 'setup', 'improve-aikit'] },
 ]
 export const OTHER_GROUP = { id: 'other', title: 'Прочее' }
+export const PROJECT_GROUP = { id: 'project', title: 'Скиллы проекта' }
 
 const FLAG_TOKEN = /^\[(--[\w-]+)\]$/
 const RUNNING_STATUSES = new Set(['pending', 'running', 'waiting'])
@@ -65,12 +66,17 @@ export function isHidden(frontmatter) {
   return frontmatter['user-invocable'] === 'false'
 }
 
-// Base skills by group, then one group per profile and per pack of the project
-export function buildGroups(baseEntries, sections) {
+// Base skills by group, then one group per profile and per pack, then the project's own skills
+// from .claude/skills/. A project skill named in GROUPS (improve-aikit in the kit repository) joins that group;
+// a project copy of a kit skill (left from an attach.sh install) is skipped
+export function buildGroups(baseEntries, sections, projectEntries = []) {
+  const kitSkills = new Set([...baseEntries, ...sections.flatMap(section => section.entries)].map(entry => entry.skill))
+  const own = projectEntries.filter(entry => !kitSkills.has(entry.skill))
+  const known = [...baseEntries, ...own]
   const groups = []
   const placed = new Set()
   for (const group of GROUPS) {
-    const entries = group.skills.map(skill => baseEntries.find(entry => entry.skill === skill)).filter(Boolean)
+    const entries = group.skills.map(skill => known.find(entry => entry.skill === skill)).filter(Boolean)
     entries.forEach(entry => placed.add(entry.skill))
     if (entries.length > 0) groups.push({ id: group.id, title: group.title, entries })
   }
@@ -79,6 +85,8 @@ export function buildGroups(baseEntries, sections) {
   for (const section of sections) {
     if (section.entries.length > 0) groups.push(section)
   }
+  const rest = own.filter(entry => !placed.has(entry.skill))
+  if (rest.length > 0) groups.push({ ...PROJECT_GROUP, entries: rest })
   return groups
 }
 
@@ -105,12 +113,27 @@ export function isRunning(agent) {
   return RUNNING_STATUSES.has(agent.status)
 }
 
-// Running agents first (oldest on top), then the latest finished ones
-export function agentRows(agents, timing, now, finishedLimit) {
+// "claude-haiku-4-5-20251001" → "haiku-4-5": the family and version fit a subagent row
+export function shortModel(model) {
+  return String(model ?? '')
+    .trim()
+    .replace(/^claude-/, '')
+    .replace(/-\d{8}$/, '')
+}
+
+// Running agents first (oldest on top), then the latest finished ones. The model comes from the agent list
+// when the engine gives it, otherwise from the subagent's requests (models: agent id → model)
+export function agentRows(agents, timing, now, finishedLimit, models = new Map()) {
   const rows = agents.map(agent => {
     const times = timing.get(agent.id) ?? { startedAt: now }
     const end = isRunning(agent) ? now : times.finishedAt ?? now
-    return { ...agent, isRunning: isRunning(agent), elapsed: formatElapsed(end - times.startedAt), startedAt: times.startedAt }
+    return {
+      ...agent,
+      model: shortModel(agent.model ?? models.get(agent.id)),
+      isRunning: isRunning(agent),
+      elapsed: formatElapsed(end - times.startedAt),
+      startedAt: times.startedAt,
+    }
   })
   const running = rows.filter(row => row.isRunning).sort((a, b) => a.startedAt - b.startedAt)
   const finished = rows.filter(row => !row.isRunning).sort((a, b) => b.startedAt - a.startedAt).slice(0, finishedLimit)

@@ -95,7 +95,7 @@
 
 ### Панель AIKit Deck
 
-Мод Claude Code в плагине ядра: `deck/register.js` — события и отрисовка, `deck/catalog.js` — чистые функции (каталог из `SKILL.md`, разбор `argument-hint`, субагенты, память). Группы базовых команд — `GROUPS` в `catalog.js`; новый базовый скилл без группы попадает в «Прочее». Команды профилей и паков панель берёт из их `skills/` сама. API модов — [документация Claude Code](https://code.claude.com/docs/en/plugins/mods/overview).
+Мод Claude Code в плагине ядра: `deck/register.js` — события и отрисовка, `deck/catalog.js` — чистые функции (каталог из `SKILL.md`, разбор `argument-hint`, субагенты, память). Группы базовых команд — `GROUPS` в `catalog.js`; новый базовый скилл без группы попадает в «Прочее». Команды профилей и паков панель берёт из их `skills/` сама, свои скиллы проекта — из `.claude/skills/` корня проекта; скилл проекта, названный в `GROUPS` (`improve-aikit` репозитория кита), встаёт в эту группу, остальные — в «Скиллы проекта». Модель субагента панель берёт из события `turn.step` (`e.agentId`, `result.usage.model`): в документации `$.agent.list()` поля модели нет (если оно появится в списке, панель возьмёт его первым). Хук `turn.step` только читает запрос и передаёт его дальше без изменений. API модов — [документация Claude Code](https://code.claude.com/docs/en/plugins/mods/overview).
 
 Панель не должна вызывать модель: `claude plugin validate .` печатает все её вызовы API (`calls:`) — `$.model` среди них быть не должно. Тесты — `claude plugin test` в корне репозитория, без сессии и сети; в CI Claude Code нет, поэтому их запускает только `run-all.sh`. Вживую: `claude --plugin-dir .` в проекте с `.aikit/profiles.json`, затем `/deck`.
 

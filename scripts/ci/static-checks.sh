@@ -225,11 +225,12 @@ for module in modules:
     if not (hooks.parent / module).resolve().is_file():
         errors.append(f"hooks/hooks.json: нет модуля {module}")
 catalog = pathlib.Path("deck/catalog.js").read_text(encoding="utf-8")
-skills = {path.parent.name for folder in ("base/skills", "base/plugin-skills") for path in pathlib.Path(folder).glob("*/SKILL.md")}
+# .claude/skills/ — own skills of the kit repository (improve-aikit), shown when the deck runs here
+skills = {path.parent.name for folder in ("base/skills", "base/plugin-skills", ".claude/skills") for path in pathlib.Path(folder).glob("*/SKILL.md")}
 for block in re.findall(r"skills: \[([^\]]*)\]", catalog):
     for name in re.findall(r"\x27([\w-]+)\x27", block):
         if name not in skills:
-            errors.append(f"deck/catalog.js: в группе панели скилл {name}, которого нет в base/")
+            errors.append(f"deck/catalog.js: в группе панели скилл {name}, которого нет в base/ и .claude/skills/")
 for error in errors:
     print(f"  ✗ {error}")
 if not errors:
