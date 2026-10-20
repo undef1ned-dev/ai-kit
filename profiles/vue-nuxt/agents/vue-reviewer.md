@@ -1,7 +1,7 @@
 ---
 name: vue-reviewer
 description: Vue/Nuxt code reviewer. Проверяет код по CODER_RESULT и TESTER_RESULT.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: opus
 version: "1.1.0"
 profile: "vue-nuxt"

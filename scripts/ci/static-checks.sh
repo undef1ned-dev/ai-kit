@@ -20,6 +20,7 @@
 #  12. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
 #  13. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
 #      Тесты мода (claude plugin test) запускает run-all.sh, если установлен Claude Code
+#  14. MCP в агентах: если в тексте агента есть mcp__<сервер>__, то в его tools этот сервер разрешён (иначе субагент не получит MCP)
 
 set -eo pipefail
 
@@ -232,6 +233,29 @@ if command -v node &>/dev/null; then
     node --check "$copy" && echo "  ✓ $module: синтаксис JS" || { echo "  ✗ $module: синтаксис JS"; FAILURES=$((FAILURES + 1)); }
   done
 fi
+
+echo "▶ MCP в агентах: инструмент из текста разрешён в tools"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+# An agent with an explicit tools list gets no MCP tools unless they are listed (in plugins the name is mcp__plugin_<plugin>_<server>__*)
+errors = []
+for path in sorted(pathlib.Path(".").glob("base/agents/*.md")) + sorted(pathlib.Path(".").glob("profiles/*/agents/*.md")) + sorted(pathlib.Path(".").glob("packs/*/agents/*.md")):
+    text = path.read_text(encoding="utf-8")
+    head, _, body = text.partition("\n---\n")
+    tools_line = next((line for line in head.splitlines() if line.startswith("tools:")), None)
+    if tools_line is None:
+        continue
+    allowed = [item.strip() for item in tools_line[len("tools:"):].split(",")]
+    for server in sorted(set(re.findall(r"mcp__([A-Za-z0-9-]+)__", body))):
+        listed = any(item.startswith(f"mcp__{server}__") or re.match(rf"mcp__plugin_.+_{re.escape(server)}__", item) for item in allowed)
+        if not listed:
+            errors.append(f"{path.as_posix()}: в тексте mcp__{server}__*, а в tools его нет — субагент не получит MCP")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ MCP-инструменты из текста агентов перечислены в tools")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Статические проверки: ошибок — $FAILURES"

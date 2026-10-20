@@ -1,7 +1,7 @@
 ---
 name: vue-design-bridge
 description: Мост между дизайном и Vue/Nuxt кодом. Проверяет соответствие UI kit, дизайн-токенов и Figma-макетов, подсказывает правильные компоненты и паттерны реализации.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, mcp__figma__*, mcp__plugin_vue-nuxt_figma__*
 model: sonnet
 version: "1.0.0"
 profile: "vue-nuxt"
@@ -49,7 +49,7 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
    - Tailwind theme tokens
    - shared composables / constants
 3. Найди существующие компоненты UI kit через `Glob("components/**/*.vue")`, `Glob("packages/ui/**/*.vue")`
-4. Если пользователь указал Figma URL или frame ID — используй `mcp__figma__*` для загрузки макета
+4. Если пользователь указал Figma URL или frame ID — загрузи макет через Figma MCP (шаг 4)
 
 Из найденного собери картину UI kit проекта: семейства базовых компонентов, их варианты и состояния, источники токенов. Её используй во всех шагах ниже.
 
@@ -128,12 +128,13 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 
 Если пользователь указал Figma URL или frame ID:
 
-1. Извлеки `file_key` и `node_id`
-2. Получи данные о макете через:
-   - `mcp__figma__get_file`
-   - `mcp__figma__get_file_nodes`
-   - `mcp__figma__get_image`
-   - при необходимости `mcp__figma__get_file_styles` и `mcp__figma__get_file_components`
+1. Извлеки `fileKey` и `nodeId` из ссылки: `figma.com/design/:fileKey/…?node-id=1-2` → `nodeId` = `1:2` (дефис заменить на двоеточие)
+2. Получи данные о макете через Figma MCP (инструменты официального сервера; в зависимости от установки имена начинаются с `mcp__figma__` или `mcp__plugin_vue-nuxt_figma__`):
+   - `create_session` с `fileKey` — до остальных вызовов
+   - `get_design_context` — структура, стили и референс-код фрейма
+   - `get_screenshot` — изображение для визуальной сверки
+   - `get_metadata` — дерево слоёв, если фрейм большой
+   - `get_variable_defs` — токены и переменные макета
 3. Сравни:
    - структура и композиция блоков
    - отступы и layout gaps

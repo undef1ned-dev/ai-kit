@@ -1,7 +1,7 @@
 ---
 name: vue-coder
 description: Vue/Nuxt разработчик. Реализует файлы по ARCHITECT_PLAN. Используй после получения плана от vue-architect.
-tools: Read, Grep, Glob, Write, Edit, Bash
+tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: sonnet
 version: "1.0.0"
 profile: "vue-nuxt"
