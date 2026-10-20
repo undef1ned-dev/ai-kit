@@ -29,10 +29,10 @@ output_block: "QUALITY_REPORT"
 
 ## Шаг 1 — Покрытие тестами
 
-Запусти тесты с покрытием — команду `test` из контракта с флагом coverage, по умолчанию:
+Запусти тесты с покрытием — команду `test` из контракта с флагами покрытия Vitest:
 
 ```bash
-npx vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=text
+<команда test профиля> --coverage --coverage.reporter=text-summary --coverage.reporter=text
 ```
 
 Если `@vitest/coverage-v8` не установлен — не ставь его сам: скажи об этом в отчёте и оцени покрытие по наличию тестов на каждый модуль.

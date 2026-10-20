@@ -141,7 +141,7 @@ scope: {global | features/{module}}
 - [001] JWT + refresh tokens, не сессии → decisions/001-auth.md
 
 ## Коррекции агентов
-- vue-architect: не предлагать Middleware слой → corrections/vue-architect.md
+- {агент}: не предлагать Middleware слой → corrections/{агент}.md
 
 ## Паттерны
 - Обработка ошибок: Result<T, AppError> везде → patterns/error-handling.md
