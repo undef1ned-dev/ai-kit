@@ -25,7 +25,7 @@
 <h1 class="page-title">Каталог профилей</h1>
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
-  <div><b>20</b><span>агенты</span></div>
+  <div><b>18</b><span>агенты</span></div>
   <div><b>32</b><span>скиллы</span></div>
   <div><b>1</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
@@ -41,14 +41,14 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">33</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">31</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
 <section class="catalog-panel" id="base" data-panel style="--accent-local:#4f46e5">
   <div class="panel-head"><h2>Base</h2><p>Ядро кита: ставится в любой проект вместе с любым профилем</p></div>
 
-  <h3>Агенты <span class="count">13</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder создаёт нового агента через структурированный опрос по 6 фазам. генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. используй когда нужно добавить нового специализированного агента в репозиторий.">
+  <h3>Агенты <span class="count">11</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder создаёт нового агента через структурированный опрос по 6 фазам. генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. используй когда нужно добавить нового специализированного агента в репозиторий.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">agent-builder</span></header>
   <p>Создаёт нового агента через структурированный опрос по 6 фазам. Генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. Используй когда нужно добавить нового специализированного агента в репозиторий.</p>
   <div class="chips"><span class="chip chip-out">→ AGENT_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
@@ -84,18 +84,6 @@
   <div class="chips"><span class="chip chip-out">→ MVP_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй идею: добавить экспорт отчётов в PDF</span><button class="copy-btn" type="button" data-copy="Проанализируй идею: добавить экспорт отчётов в PDF">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/mvp-analyst.md">base/agents/mvp-analyst.md</a>
-</article><article class="entry-card entry-agent" id="agent-platform-evangelist" data-filter="platform-evangelist продуктовый стратег и евангелист aikit. упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, история про mcp, плагины и память, runtime value и product-facing surfaces.">
-  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">platform-evangelist</span></header>
-  <p>Продуктовый стратег и евангелист AIKit. Упаковывает платформу в понятную историю для команды: позиционирование, onboarding, adoption paths, история про MCP, плагины и память, runtime value и product-facing surfaces.</p>
-  <div class="chips"><span class="chip chip-out">→ PLATFORM_GROWTH_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
-  <div class="entry-example"><span>Сформируй product plan для развития AIKit как плагина с MCP и командной памятью</span><button class="copy-btn" type="button" data-copy="Сформируй product plan для развития AIKit как плагина с MCP и командной памятью">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/platform-evangelist.md">base/agents/platform-evangelist.md</a>
-</article><article class="entry-card entry-agent" id="agent-release-manager" data-filter="release-manager релиз-менеджер. собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.">
-  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">release-manager</span></header>
-  <p>Релиз-менеджер. Собирает changelog из коммитов, генерирует release notes для команды и пользователей (сайт, магазин приложений, рассылка), проверяет готовность к релизу.</p>
-  <div class="chips"><span class="chip chip-out">→ RELEASE_NOTES</span><span class="chip" title="Модель в Claude Code">Claude: haiku</span><span class="chip" title="Модель в Codex">Codex: gpt-6-luna · low</span></div>
-  <div class="entry-example"><span>Подготовь release notes для версии 2.5.0</span><button class="copy-btn" type="button" data-copy="Подготовь release notes для версии 2.5.0">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/release-manager.md">base/agents/release-manager.md</a>
 </article><article class="entry-card entry-agent" id="agent-security-auditor" data-filter="security-auditor аудитор безопасности. проверяет код на owasp top 10, секреты в коде, проблемы с авторизацией, инъекции. запускай перед релизом или после крупных изменений.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">security-auditor</span></header>
   <p>Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.</p>

@@ -135,7 +135,6 @@ output_block: "WORKFLOW_SUMMARY"
 - "docker", "CI", "деплой" → `devops-engineer`
 - "тексты", "копирайтинг" → `ux-writer`
 - "покрытие", "tech debt" → специалист `quality` профиля (`specialists.quality`)
-- "релиз", "changelog" → `release-manager`
 
 ## Шаг 1.5 — Выбор профиля
 
