@@ -439,6 +439,10 @@ def run_claude(args: argparse.Namespace, run_dir: Path) -> tuple[int, dict | Non
     shim = python3_shim()
     if shim:
         env["PATH"] = f"{shim}{os.pathsep}{env.get('PATH', '')}"
+    if os.name == "nt":
+        bash_dir = Path(bash_executable()).parent
+        if bash_dir.is_dir():
+            env["PATH"] = f"{bash_dir}{os.pathsep}{env.get('PATH', '')}"
     command = claude_command(args, output_dir)
     limits_before = None if args.no_limits else subscription_limits()
     print("▶ Claude Code:", " ".join(shlex.quote(part) for part in command), flush=True)
