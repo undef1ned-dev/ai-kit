@@ -51,6 +51,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `set-model`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
 | Старые команды прежних версий кита | ✅ убираются из `.claude/commands/` при обновлении, свои команды пользователя остаются | ✅ `.codex/commands/` убирается | — |
 | Сабагенты | ✅ `.claude/agents/` | ✅ `.codex/agents/*.toml` (проект должен быть доверенным) | ✅ `.opencode/agents/*.md`, `mode: subagent` |
+| Свои агенты и скиллы проекта (`/create-agent`, `/create-skill` в проекте), обновление кита их не трогает | ✅ `.claude/agents/<имя>.md`, `.claude/skills/<имя>/` | ⚠️ `.codex/agents/<имя>.toml`, `.agents/skills/<имя>/`; не проверено вживую | ⚠️ `.opencode/agents/<имя>.md`, `.opencode/skills/<имя>/`; не проверено вживую |
 | Модели агентов: уровень в описании агента (`opus`, `sonnet`, `haiku`) → модель runtime из `adapters/models.json` | ✅ алиасы Claude Code, всегда последняя версия семейства | ✅ `model` и `model_reasoning_effort` в TOML агента | ✅ `model` агента (`provider/model`) |
 | Своя модель агента в проекте (`/set-model`, `.aikit/models.json`) | ✅ в файле агента; при установке плагинами — параметр `model` при запуске по правилу из `CLAUDE.md` | ✅ | ✅ |
 | MCP-серверы | ✅ `.mcp.json` | ✅ блок AIKit в `.codex/config.toml` (проект должен быть доверенным) | ✅ раздел `mcp` в `opencode.json` |

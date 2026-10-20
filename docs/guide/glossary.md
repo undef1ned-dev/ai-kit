@@ -36,7 +36,7 @@
 
 Модель с отдельной ролью и своей инструкцией: «ты — архитектор Vue/Nuxt, прочитай проект и выведи план в таком формате». Его ещё называют *сабагентом*. Главный ассистент запускает агента как помощника. Агент работает в своём контексте и возвращает результат.
 
-Файл агента — Markdown с заголовком (frontmatter): `name`, `description`, `tools` (что агенту разрешено), `output_block` (какой блок он выводит) и текст инструкции. Где лежат агенты: `.claude/agents/` в Claude Code, `.codex/agents/` в Codex, `.opencode/agents/` в OpenCode.
+Файл агента — Markdown с заголовком (frontmatter): `name`, `description`, `tools` (что агенту разрешено), `output_block` (какой блок он выводит) и текст инструкции. Где лежат агенты: `.claude/agents/` в Claude Code, `.codex/agents/` в Codex (там агент — TOML: установщик переводит его из Markdown), `.opencode/agents/` в OpenCode. Свой агент проекта создаёт `/create-agent`.
 
 Пример: `vue-architect`, `vue-tester`, `security-auditor`.
 
