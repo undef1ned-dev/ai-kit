@@ -41,7 +41,6 @@ npx vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=t
 - общее покрытие (цель — больше 70% для `composables/`, `stores/`, `server/api/`, `utils/`)
 - модули с 0% — приоритет для тестов
 - компоненты с логикой (условный рендер, emits, формы) без component-тестов
-- ключевые пользовательские сценарии без Playwright E2E
 
 ## Шаг 2 — Технический долг
 

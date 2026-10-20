@@ -321,9 +321,6 @@ PLUGINS_TO_TEST:
 SERVER_ROUTES_TO_TEST:
 - <route>: auth, response shape, error path
 
-E2E_FLOWS:
-- <маршрут>: <что должен пройти пользователь>
-
 LINT: <команда lint профиля> → <прошло / что упало>
 
 === END CODER_RESULT ===

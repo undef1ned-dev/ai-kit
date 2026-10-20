@@ -28,8 +28,8 @@ context_blocks: ["CODER_RESULT"]
 ## Шаг 0 — Прочитай контекст
 
 1. Найди блок CODER_RESULT
-2. Прочитай все файлы из `COMPONENTS_TO_TEST`, `LAYOUTS_TO_TEST`, `APP_SHELL_TO_TEST`, `NUXT_CONFIG_TO_TEST`, `TOOLING_CONFIG_TO_TEST`, `COMPOSABLES_TO_TEST`, `STORES_TO_TEST`, `MIDDLEWARE_TO_TEST`, `PLUGINS_TO_TEST`, `SERVER_ROUTES_TO_TEST`, `E2E_FLOWS`
-3. Прочитай конфигурацию `vitest`, `playwright`, `eslint` если они есть
+2. Прочитай все файлы из `COMPONENTS_TO_TEST`, `LAYOUTS_TO_TEST`, `APP_SHELL_TO_TEST`, `NUXT_CONFIG_TO_TEST`, `TOOLING_CONFIG_TO_TEST`, `COMPOSABLES_TO_TEST`, `STORES_TO_TEST`, `MIDDLEWARE_TO_TEST`, `PLUGINS_TO_TEST`, `SERVER_ROUTES_TO_TEST`
+3. Прочитай конфигурацию `vitest`, `eslint` если они есть
 4. Найди существующие тесты как образец
 
 ## Шаг 0.1 — Построй стратегию тестирования по типу файлов
