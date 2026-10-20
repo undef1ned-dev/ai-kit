@@ -54,6 +54,7 @@
 | `scripts/run-evals.py` | Прогоняет эвалы в Claude Code, Codex или в обоих; `--check` — проверка кейсов без вызовов модели |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/preset_utils.py` | Разбор пресетов |
+| `scripts/project_settings.py` | Настройки команды в `.aikit/settings.json`: режим коммитов `ask` или `auto`; пишут установщики, переключает AIKit Deck |
 | `scripts/agent_models.py` | Модели агентов: уровень из frontmatter и `adapters/models.json` → модель runtime, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |

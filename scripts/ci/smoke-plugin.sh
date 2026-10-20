@@ -84,18 +84,20 @@ printf '# Заметки команды\n' > "$PROJECT_DIR/CLAUDE.md"
 printf '# Заметки команды\n' > "$PROJECT_DIR/AGENTS.md"
 printf '{"model": "opus", "permissions": {"allow": ["Bash(make *)"]}}\n' > "$PROJECT_DIR/.claude/settings.json"
 
-echo "▶ plugin-init.py --runtime claude --preset $PRESET"
-init --runtime claude --preset "$PRESET"
+echo "▶ plugin-init.py --runtime claude --preset $PRESET --commit auto"
+init --runtime claude --preset "$PRESET" --commit auto
 check "CLAUDE.md: блок правил базы и профилей, текст команды сохранён" check_rules CLAUDE.md
 check ".claude/settings.json: права, маркетплейс aikit, плагины пресета" check_claude_settings
 check ".aikit/profiles.json: контракты профилей" test -s "$PROJECT_DIR/.aikit/profiles.json"
 check ".aikit/memory/INDEX.md и PRODUCT.md" test -f "$PROJECT_DIR/.aikit/memory/INDEX.md" -a -f "$PROJECT_DIR/PRODUCT.md"
+check ".aikit/settings.json: коммиты без вопроса о сообщении" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 check "агенты и скиллы не копируются в проект — их дают плагины" test ! -e "$PROJECT_DIR/.claude/agents" -a ! -e "$PROJECT_DIR/.claude/skills"
 
 echo "▶ plugin-init.py --runtime codex --preset $PRESET"
 init --runtime codex --preset "$PRESET"
 check "AGENTS.md: блок правил базы и профилей, текст команды сохранён" check_rules AGENTS.md
 check ".codex/agents/: агенты базы и профилей в TOML" check_codex_agents
+check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 
 echo "▶ Повторный запуск с профилем vue-nuxt"
 init --runtime claude --preset "$PRESET"

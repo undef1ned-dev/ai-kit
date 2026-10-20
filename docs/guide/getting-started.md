@@ -51,7 +51,7 @@
    /aikit:setup frontend-team
    ```
 
-   Аргумент — пресет или профили через `+`. Без аргумента скилл определит стек по проекту и предложит выбор.
+   Аргумент — пресет или профили через `+`. Без аргумента скилл определит стек по проекту и предложит выбор. Ещё он спросит, как оформлять коммиты: предлагать 2–3 сообщения на выбор или коммитить сразу по тем же правилам ([подробнее](commands.md#коммиты-с-вопросом-или-без)).
 
 3. **Заполни `PRODUCT.md`** в корне проекта: что за продукт, для кого, ключевые сущности. Агенты читают его перед решениями.
 
@@ -82,6 +82,7 @@ codex plugin add vue-nuxt@aikit
 | `.claude/settings.json` | Только Claude Code: разрешения на команды профиля, запрет чтения `.env`, без соавторства в коммитах, маркетплейс `aikit` и включённые плагины | да |
 | `.codex/agents/` | Только Codex: агенты ядра, профилей и паков | да |
 | `.aikit/profiles.json` | Контракты профилей: агенты по ролям, папка `root`, команды проверки | да |
+| `.aikit/settings.json` | Настройки команды: `commit` — `ask` (варианты сообщения на выбор) или `auto` (коммит без вопроса) | да |
 | `.aikit/profiles.kit-defaults.json` | Прежние значения кита — по ним повторный запуск сохраняет твои правки | да |
 | `.aikit/plugin-init.json` | Выбранные профили и паки — для повторного запуска | да |
 | `.aikit/memory/` | [Память проекта](glossary.md#память-проекта) | да |
@@ -108,6 +109,8 @@ codex plugin add vue-nuxt@aikit
    bash .aikit-config/scripts/attach.sh vue-nuxt --pack devops
    ```
 
+   В терминале установщик спросит, как оформлять коммиты; без вопроса — флаг `--commit ask` или `--commit auto`.
+
 3. **Заполни `PRODUCT.md`** и **закоммить результат** — установка состоит из обычных файлов в репозитории.
 
 ## Что появится в проекте при установке установщиком
@@ -121,6 +124,7 @@ codex plugin add vue-nuxt@aikit
 | `.aikit/hooks/aikit_hook.py` | [Хуки](how-it-works.md#хуки-правила-которые-соблюдаются-всегда): правила коммитов, веток и секретов, линтер после правки, тесты в конце ответа | да |
 | `.mcp.json` | MCP-серверы | да |
 | `.aikit/profiles.json` | Контракты профилей: агенты по ролям, папка `root`, команды проверки | да |
+| `.aikit/settings.json` | Настройки команды: `commit` — `ask` (варианты сообщения на выбор) или `auto` (коммит без вопроса) | да |
 | `.aikit/profiles.kit-defaults.json` | Прежние значения кита — по ним обновление сохраняет твои правки | да |
 | `.aikit/memory/` | [Память проекта](glossary.md#память-проекта) | да |
 | `PRODUCT.md` | Описание продукта — заполняет команда | да |
@@ -155,9 +159,9 @@ codex plugin add vue-nuxt@aikit
 python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace .
 ```
 
-Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt` и `--pack devops`.
+Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt` и `--pack devops`. `--commit auto` — коммитить без вопроса о сообщении (по умолчанию `ask`).
 
-Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, хуки в `.codex/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/hooks/` и `.aikit/memory/`.
+Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, хуки в `.codex/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/settings.json`, `.aikit/hooks/` и `.aikit/memory/`.
 
 > [!IMPORTANT]
 > Codex применяет агентов, MCP и хуки из `.codex/` только в **доверенном** проекте. Отметь проект доверенным при первом запуске Codex — иначе агенты AIKit не загрузятся. Хуки Codex запускает только после одобрения: открой `/hooks` и отметь хуки AIKit доверенными; после обновления кита, если хуки изменились, — ещё раз. Figma и Sentry в Codex авторизуются командой `codex mcp login <name>`.

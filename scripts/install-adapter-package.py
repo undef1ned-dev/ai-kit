@@ -21,6 +21,7 @@ import agent_models
 import hooks_config
 import mcp_config
 import profile_contract
+import project_settings
 from memory_paths import ensure_memory_structure
 from preset_utils import resolve_preset
 
@@ -72,6 +73,7 @@ def parse_args() -> argparse.Namespace:
     selector.add_argument("--profile", help="profile or profile1+profile2")
     selector.add_argument("--preset", help="preset name under presets/")
     parser.add_argument("--pack", action="append", default=[], help="optional pack name, can be repeated")
+    parser.add_argument("--commit", choices=project_settings.COMMIT_MODES, help="ask for the commit message or commit by the rules")
     parser.add_argument(
         "--workspace",
         required=True,
@@ -593,6 +595,7 @@ def main() -> int:
     workspace = Path(args.workspace).resolve()
     profiles_arg, packs = resolve_profiles_and_packs(args.profile, args.preset, list(args.pack))
     install_package(args.adapter, profiles_arg, packs, workspace, args.mode)
+    project_settings.write(workspace, args.commit)
 
     print(f"Installed adapter package '{args.adapter}' into {workspace}")
     return 0

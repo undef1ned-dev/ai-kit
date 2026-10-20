@@ -31,6 +31,8 @@ const HISTORY_SHOWN = 5
 const PROFILES_FILE = '.aikit/profiles.json'
 const INIT_FILE = '.aikit/plugin-init.json'
 const MEMORY_INDEX = '.aikit/memory/INDEX.md'
+// Team settings: commit 'ask' — the git-commit skill offers messages to choose, 'auto' — commits by the rules
+const SETTINGS_FILE = '.aikit/settings.json'
 const PROJECT_SEARCH_DEPTH = 6
 const MODES = { send: 'Отправить', fill: 'Вставить' }
 const RICH_UI_VERSION = '2.1.299'
@@ -89,6 +91,7 @@ async function findProject($) {
     const contracts = await readJson($, joinPath(dir, PROFILES_FILE))
     if (contracts && typeof contracts.profiles === 'object') {
       const init = await readJson($, joinPath(dir, INIT_FILE))
+      const settings = await readJson($, joinPath(dir, SETTINGS_FILE))
       return {
         root: dir,
         profiles: Object.entries(contracts.profiles).map(([name, contract]) => ({
@@ -97,6 +100,7 @@ async function findProject($) {
           root: typeof contract?.root === 'string' ? contract.root : '.',
         })),
         packs: Array.isArray(init?.packs) ? init.packs.filter(name => typeof name === 'string') : [],
+        settings: settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {},
       }
     }
     dir = parentOf(dir)
@@ -268,7 +272,7 @@ function memoryText(ui) {
   return memory.needsOptimize ? caption(text + ' — пора /optimize-memory', { dimColor: false, color: 'warning' }) : caption(text)
 }
 
-function header($, ui) {
+function header($, ui, surface) {
   const { Box, Button } = ui
   const { title, caption, variant } = look(ui)
   const scope = project
@@ -296,6 +300,7 @@ function header($, ui) {
           tabButton('commands', 'Команды', '1'),
           tabButton('docs', 'Справка', '2'),
           Box({ flexGrow: 1, children: [] }),
+          ...(project ? [commitToggle($, ui, surface)] : []),
           Button({
             key: 'mode',
             label: `Режим: ${MODES[mode]}`,
@@ -310,6 +315,30 @@ function header($, ui) {
         ],
       }),
     ],
+  })
+}
+
+// The team's commit mode lives in the project, so the toggle writes .aikit/settings.json for everyone
+function commitToggle($, ui, surface) {
+  const isAuto = project.settings.commit === 'auto'
+  return ui.Button({
+    key: 'commit',
+    label: `${isAuto ? '☑' : '☐'} Коммит без вопроса`,
+    hotkey: 'c',
+    ...(surface === 'terminal' ? { plain: true } : look(ui).variant(isAuto)),
+    dimColor: !isAuto,
+    onPress: async () => {
+      const settings = { ...project.settings, commit: isAuto ? 'ask' : 'auto' }
+      try {
+        await $.fs.write(joinPath(project.root, SETTINGS_FILE), JSON.stringify(settings, null, 2) + '\n')
+      } catch {
+        $.ui.toast(`Не удалось записать ${SETTINGS_FILE}`)
+        return
+      }
+      project.settings = settings
+      redraw($)
+      $.ui.toast(settings.commit === 'auto' ? 'Коммиты: сообщение по правилам, без вопроса' : 'Коммиты: сначала варианты сообщения на выбор')
+    },
   })
 }
 
@@ -631,7 +660,7 @@ export function register(on) {
       rowGap: 2,
       paddingX: 1,
       paddingY: 1,
-      children: [header($, ui), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui, columns, e.surface)],
+      children: [header($, ui, e.surface), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui, columns, e.surface)],
     })
   })
 }
