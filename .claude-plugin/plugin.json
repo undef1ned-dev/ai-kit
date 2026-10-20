@@ -15,7 +15,6 @@
   ],
   "agents": [
     "./base/agents/agent-builder.md",
-    "./base/agents/aikit-maintainer.md",
     "./base/agents/cross-project-analyst.md",
     "./base/agents/memory-optimizer.md",
     "./base/agents/memory-writer.md",

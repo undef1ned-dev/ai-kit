@@ -27,10 +27,7 @@ from preset_utils import resolve_preset
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE_MEMORY_INDEX = ROOT / "base" / "memory" / "INDEX.md"
-COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventory-fixtures.json"
 
-INSTALL_MODE_CONSUMER = "consumer"
-INSTALL_MODE_MAINTAINER = "maintainer"
 ROOT_FILES_BLOCKED_IN_CONSUMER = {
     "AIKIT.md",
     "CLAUDE.md",
@@ -38,6 +35,7 @@ ROOT_FILES_BLOCKED_IN_CONSUMER = {
     "PRODUCT.md",
     "RUNTIME.md",
 }
+# Earlier AIKit versions installed a maintainer handoff prompt; an update removes it
 MAINTAINER_PROMPT_NAME = "CONTINUE_AIKIT_MAINTAINER.md"
 AGENTS_MD_BEGIN = "<!-- BEGIN AIKIT — managed by AIKit installer, edits inside this block are overwritten -->"
 AGENTS_MD_END = "<!-- END AIKIT -->"
@@ -78,15 +76,6 @@ def parse_args() -> argparse.Namespace:
         "--workspace",
         required=True,
         help="target workspace where runtime files should be installed",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=[INSTALL_MODE_CONSUMER, INSTALL_MODE_MAINTAINER],
-        default=INSTALL_MODE_CONSUMER,
-        help=(
-            "install mode. consumer keeps AIKit under runtime/config directories; "
-            "maintainer preserves AIKit development handoff files"
-        ),
     )
     return parser.parse_args()
 
@@ -253,34 +242,6 @@ def remove_path(path: Path) -> None:
         shutil.rmtree(path)
     elif path.exists():
         path.unlink()
-
-
-def maintainer_command_file_names() -> set[str]:
-    if not COMMAND_SURFACE_FIXTURE.exists():
-        return set()
-    data = read_json(COMMAND_SURFACE_FIXTURE)
-    root_commands = data.get("root_commands", [])
-    if not isinstance(root_commands, list):
-        return set()
-    names: set[str] = set()
-    for item in root_commands:
-        if not isinstance(item, dict) or item.get("scope") != "maintainer-local":
-            continue
-        path_text = str(item.get("path", "")).strip()
-        if path_text:
-            names.add(Path(path_text).name)
-    return names
-
-
-def strip_consumer_command_surfaces(workspace: Path) -> None:
-    blocked_names = maintainer_command_file_names()
-    if not blocked_names:
-        return
-    for commands_root in (workspace / ".codex" / "commands", workspace / ".claude" / "commands"):
-        if not commands_root.exists():
-            continue
-        for file_name in blocked_names:
-            remove_path(commands_root / file_name)
 
 
 def strip_maintainer_entrypoints(path: Path) -> None:
@@ -480,7 +441,6 @@ def apply_consumer_workspace_policy(adapter: dict, workspace: Path) -> None:
     strip_maintainer_entrypoints(workspace / ".aikit" / "runtime-entrypoints.json")
     strip_consumer_manifest_fields(workspace / ".aikit" / "adapter.manifest.json")
     strip_consumer_manifest_fields(workspace / ".aikit" / "package.manifest.json")
-    strip_consumer_command_surfaces(workspace)
 
 
 def rewrite_local_script_commands(workspace: Path, adapter: dict) -> None:
@@ -503,13 +463,12 @@ def rewrite_local_script_commands(workspace: Path, adapter: dict) -> None:
             rewrite_text_file(markdown_path, replacements)
 
 
-def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path, install_mode: str) -> None:
+def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path) -> None:
     summary = [
         f"# AIKit Install Summary — {adapter['label']}",
         "",
         f"- Runtime: `{adapter['runtime']}`",
         f"- Status: `{adapter['status']}`",
-        f"- Install mode: `{install_mode}`",
         f"- Memory path: `{adapter['memory_path']}`",
         f"- Installed into: `{workspace}`",
         "",
@@ -526,11 +485,6 @@ def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path, ins
                 "- Хуки AIKit (`.codex/hooks.json`) заработают после одобрения в `/hooks`.",
             ]
         )
-    continuation = adapter.get("continuation_prompt", "")
-    if continuation and install_mode == INSTALL_MODE_MAINTAINER:
-        summary.append(f"- Для продолжения развития AIKit используй `{continuation}`.")
-    if install_mode == INSTALL_MODE_CONSUMER:
-        summary.append("- Root markdown-файлы AIKit maintainer mode не устанавливаются в consumer workspace.")
     summary.extend(
         [
             "",
@@ -546,7 +500,6 @@ def install_package(
     profiles_arg: str,
     packs: list[str],
     workspace: Path,
-    install_mode: str = INSTALL_MODE_CONSUMER,
 ) -> dict:
     workspace.mkdir(parents=True, exist_ok=True)
 
@@ -558,20 +511,18 @@ def install_package(
 
     with tempfile.TemporaryDirectory(prefix=f"aikit-install-{adapter_name}-") as temp_dir:
         temp_root = Path(temp_dir)
-        memory_paths = consumer_memory_paths(adapter) if install_mode == INSTALL_MODE_CONSUMER else []
+        memory_paths = consumer_memory_paths(adapter)
         bundle_root = builder.build_package(
             adapter_name,
             profiles_arg,
             packs,
             temp_root,
-            package_mode=install_mode,
         )
         remove_previous_native_paths(workspace)
         remove_legacy_claude_commands(workspace, bundle_root)
-        sync_bundle(bundle_root, workspace, skip_rel_paths=memory_paths if install_mode == INSTALL_MODE_CONSUMER else None)
-        if install_mode == INSTALL_MODE_CONSUMER:
-            apply_consumer_workspace_policy(adapter, workspace)
-            ensure_consumer_memory_dirs(workspace, memory_paths)
+        sync_bundle(bundle_root, workspace, skip_rel_paths=memory_paths)
+        apply_consumer_workspace_policy(adapter, workspace)
+        ensure_consumer_memory_dirs(workspace, memory_paths)
         rewrite_local_script_commands(workspace, adapter)
         runtime = str(adapter.get("runtime", "")).strip()
         if runtime in {"codex", "opencode"}:
@@ -585,7 +536,7 @@ def install_package(
         profile_contract.install(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
         if runtime in hooks_config.RUNTIMES:
             hooks_config.install(runtime, workspace)
-        write_install_summary(adapter, workspace, bundle_root, install_mode)
+        write_install_summary(adapter, workspace, bundle_root)
 
     return adapter
 
@@ -594,7 +545,7 @@ def main() -> int:
     args = parse_args()
     workspace = Path(args.workspace).resolve()
     profiles_arg, packs = resolve_profiles_and_packs(args.profile, args.preset, list(args.pack))
-    install_package(args.adapter, profiles_arg, packs, workspace, args.mode)
+    install_package(args.adapter, profiles_arg, packs, workspace)
     project_settings.write(workspace, args.commit)
 
     print(f"Installed adapter package '{args.adapter}' into {workspace}")

@@ -6,7 +6,7 @@ export const GROUPS = [
   { id: 'plan', title: 'Анализ и планирование', skills: ['analyze-mvp', 'implement-mvp', 'cross-check'] },
   { id: 'quality', title: 'Качество и безопасность', skills: ['security-check', 'coverage-check', 'tech-debt', 'write-ui-texts'] },
   { id: 'memory', title: 'Память', skills: ['capture-memory', 'memory-status', 'optimize-memory'] },
-  { id: 'kit', title: 'Кит', skills: ['create-agent', 'create-skill', 'improve-aikit', 'set-model', 'setup'] },
+  { id: 'kit', title: 'Кит', skills: ['create-agent', 'create-skill', 'set-model', 'setup'] },
 ]
 export const OTHER_GROUP = { id: 'other', title: 'Прочее' }
 

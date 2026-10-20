@@ -21,9 +21,7 @@
     ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
     ".aikit/runtime-entrypoints.json",
-    "CONTINUE_AIKIT_MAINTAINER.md",
     ".opencode/AIKIT.md",
-    ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
     ".opencode/entrypoints.json",
     ".agents/skills/",
     ".opencode/agents/",
@@ -44,12 +42,6 @@
       "purpose": "Runtime-specific AIKit instructions for OpenCode workspaces."
     },
     {
-      "name": "continue-maintainer",
-      "path": ".opencode/CONTINUE_AIKIT_MAINTAINER.md",
-      "kind": "continuation",
-      "purpose": "Continue developing AIKit inside OpenCode using the maintainer handoff prompt."
-    },
-    {
       "name": "opencode-native-agents",
       "path": ".opencode/agents/",
       "kind": "agent-entry",
@@ -65,10 +57,9 @@
       "name": "packaged-agents",
       "path": ".aikit/agents/",
       "kind": "agent-entry",
-      "purpose": "Canonical maintainer agent packaged for OpenCode runtime."
+      "purpose": "AIKit agents packaged for the OpenCode TUI runtime."
     }
   ],
-  "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",
   "source_layers": [
     "base",
     "profiles",
