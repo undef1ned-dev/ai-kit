@@ -9,81 +9,35 @@ orchestrates: []
 example_prompt: "/new-composable useNotificationsFilters"
 ---
 
-Создай новый composable для Vue/Nuxt.
+Создай новый composable `composables/<Name>.ts`.
 
-Запроси у пользователя:
+Запроси у пользователя то, чего нет в задаче:
 1. Имя composable
 2. Для какой задачи он нужен
 3. Какие входы и выходы ожидаются
-4. Нужны ли async-запросы, debounce, storage или route sync
+4. Нужны ли async-запросы, debounce, storage или синхронизация с маршрутом
 
-## Контекст перед реализацией
+## Перед созданием
 
-Перед scaffold проверь:
-- existing composables and stores;
-- frontend intelligence context for target kind `composable`;
-- VueUse alternatives for debounce, storage, media, async state or browser APIs;
-- SSR-safe requirements for browser-only side effects.
+- Изучи существующие `composables/`, `stores/` и похожие файлы проекта
+- Проверь, нет ли готового решения во VueUse: debounce, storage, media query, async state, браузерные API
 
-## Декомпозиция
+## Composable или store
 
-Определи:
-- public API: inputs, returned refs/computed/actions and error surface;
-- reactive ownership: local refs/computed vs store state;
-- side effects: watchers, route sync, storage, network, lifecycle cleanup;
-- tests: sync behavior, async behavior and cleanup.
+- Composable — переиспользуемая логика и локальное состояние: фильтры одной страницы, query params, логика представления
+- Store — только состояние, общее для нескольких страниц или компонентов и живущее дольше одного экрана
+- Если состояние нужно одной странице — store не создавай
 
-Перед scaffold:
-- изучи существующие `components/`, `composables/`, `stores/` и похожие файлы проекта
-- проверь, есть ли уже похожие patterns, VueUse-ready решения или store-level abstractions
+## Требования
 
-Создай файл `composables/<Name>.ts`.
+- понятный контракт: входы, возвращаемые refs, computed и функции, ошибки
+- `ref` — для изменяемого локального состояния, `computed` — для производного, `watch` — только для явных побочных эффектов с очисткой
+- без изменяемого состояния на уровне модуля: при SSR оно общее для всех пользователей
+- браузерные побочные эффекты — только на клиенте (`import.meta.client`, `onMounted`)
+- не возвращай несвязанное состояние и не дублируй store
 
-Требования:
-- composable должен иметь понятный контракт: входы, возвращаемые значения, ошибки
-- корректная реактивность: `ref`, `computed`, `watch` только там, где они действительно нужны
-- сначала проверь, можно ли опереться на VueUse, а не писать утилиты вручную
-- если есть client-only side effect, учти SSR-safe guard
-- не превращай composable в глобальный store
+## После создания
 
-## Reactivity ownership
-
-Composable owns reusable logic, not durable cross-page feature state.
-
-Use:
-- `ref` for local mutable state;
-- `computed` for derived state;
-- `watch` only for explicit side effects with cleanup;
-- Pinia store when state must be shared across routes, sessions or multiple feature surfaces.
-
-## Phase 33 frontend examples
-
-For a composable vs store decision:
-- choose composable for route-local filters, derived query params and reusable view logic;
-- choose store only for shared durable feature state used across pages/components;
-- name watch cleanup, SSR guards and VueUse alternatives;
-- explain why reactivity ownership stays local or moves to Pinia.
-
-If state only supports one page interaction, do not create a store.
-
-## Anti-patterns
-
-Не делай:
-- hidden module-level mutable state that leaks between users;
-- watcher side effects without cleanup;
-- browser API access without SSR guard;
-- composable that duplicates a store;
-- broad API that returns unrelated state.
-
-После создания:
-1. Покажи публичный API composable
-2. Объясни, почему это composable, а не store
+1. Запусти `lint` и `format` профиля из `.aikit/profiles.json` на созданных файлах (в папке `root` профиля, пути вместо `{files}`); если добавил тест — и `test`
+2. Покажи публичный API composable и объясни, почему это composable, а не store
 3. Предложи 2-3 тестовых кейса
-
-## Validation gates
-
-Минимум:
-```bash
-pnpm vitest
-pnpm eslint .
-```

@@ -9,77 +9,28 @@ orchestrates: []
 example_prompt: "/new-page account/notifications"
 ---
 
-Создай новую Nuxt page.
+Создай новую Nuxt-страницу `pages/<route>.vue`.
 
 Если путь страницы не указан — запроси его у пользователя.
 
-## Контекст перед реализацией
+## Перед созданием
 
-Перед scaffold собери frontend intelligence context:
-- изучи существующие `components/`, `composables/`, `stores/` и похожие файлы проекта;
-- проверь UI kit manifest, component reuse recommendations and frontend task workflow context gate;
-- проверь SSR data source, auth needs, route params and layout constraints.
+- Изучи существующие `components/`, `composables/`, `stores/`, layouts и похожие страницы проекта
+- Определи источник данных, нужна ли авторизация, параметры маршрута и layout
+- Если поля ответа API не совпадают с тем, что нужно странице, — остановись и уточни контракт, не придумывай поля
 
-## Декомпозиция
+## Требования
 
-Раздели страницу на:
-- page shell: route, SEO, data loading, state selection;
-- feature component: heavy UI blocks and interaction surfaces;
-- composables: reusable data/query/filter logic;
-- stores: shared feature state only when page-local state is insufficient;
-- tests: page smoke, component behavior and key states.
-
-SSR/hydration boundary обязателен: browser-only APIs must be guarded and client-only effects must not run during server rendering.
-
-Создай:
-- `pages/<route>.vue`
-
-Перед scaffold:
-- проверь, какие `components/`, `composables/`, `stores/` и UI kit artifacts уже есть в проекте
-
-Требования:
-- `<script setup lang=\"ts\">`
+- `<script setup lang="ts">`
 - `useSeoMeta()` для title
-- явные loading / error / empty / success состояния
-- `useAsyncData()` или `useFetch()` в зависимости от сценария
-- вынеси тяжёлую UI-часть в локальный feature component если экран получается большим
-- учитывай SSR-safe поведение
+- `useAsyncData()` или `useFetch()` с явным key — загрузка данных в странице, а не в визуальных компонентах
+- явные состояния loading, error, empty и success, в стиле существующих страниц
+- браузерные API — только за `import.meta.client` или в `onMounted`: на сервере их нет
+- тяжёлую UI-часть вынеси в feature-компонент, повторяемую логику — в composable, общее состояние — в store
+- компоненты и токены UI kit вместо хардкода; новый компонент — только если существующих не хватает
 
-## UI kit reuse
+## После создания
 
-Перед созданием новых primitives:
-- выбери существующие UI kit components, variants and tokens already present in the project;
-- если нужен новый component, explain why existing primitive is insufficient;
-- keep loading/error/empty/success states visually consistent with existing page patterns.
-
-## Phase 33 frontend examples
-
-For an SSR provider evidence join:
-- record provider refs as review-required context, not implementation truth;
-- map provider fields through the backend/API contract before page state;
-- keep `useAsyncData()` or `useFetch()` SSR-safe and provide fallback for missing provider fields;
-- render loading, error, empty and success states with UI kit reuse before creating new primitives.
-
-If provider evidence and API contract disagree, stop and ask for a contract decision before scaffolding.
-
-## Anti-patterns
-
-Не делай:
-- page that hardcodes tokens or bypasses UI kit primitives;
-- client-only API access during SSR;
-- data fetching hidden inside visual components;
-- route page without loading, error, empty and success states;
-- giant page component when feature components are warranted.
-
-После создания:
-1. Покажи путь страницы
-2. Объясни какие данные грузятся на сервере
-3. Подскажи какие composables/store стоит добавить следующим шагом
-
-## Validation gates
-
-Минимум:
-```bash
-pnpm vitest
-pnpm eslint .
-```
+1. Запусти `lint` и `format` профиля из `.aikit/profiles.json` на созданных файлах (в папке `root` профиля, пути вместо `{files}`); если добавил тест — и `test`
+2. Покажи путь страницы и объясни, какие данные грузятся на сервере
+3. Подскажи, какие composables или store стоит добавить следующим шагом

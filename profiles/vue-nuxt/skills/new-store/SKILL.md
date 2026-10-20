@@ -9,80 +9,36 @@ orchestrates: []
 example_prompt: "/new-store notifications"
 ---
 
-Создай новый Pinia store.
+Создай новый Pinia store `stores/<name>.ts`.
 
 Если имя store не указано — запроси его у пользователя.
 
-## Контекст перед реализацией
+## Перед созданием
 
-Перед scaffold проверь:
-- existing stores and composables;
-- frontend intelligence context for target kind `store`;
-- whether state is shared across pages/components or can remain local/composable-owned;
-- persistence, SSR and user-session boundaries.
+- Изучи существующие `stores/`, `composables/` и похожие файлы проекта
+- Проверь, не решается ли задача существующим store или composable
 
-## Декомпозиция
+## Store или composable
 
-Определи:
-- state shape and ownership;
-- getters/computed derived state;
-- actions for load/update/reset;
-- API/composable dependencies;
-- tests for pending/error/success and reset behavior.
+Store нужен, когда:
+- одно и то же состояние нужно нескольким страницам или компонентам;
+- состоянию нужны actions, сброс или сохранение между сессиями;
+- жизненный цикл запросов к API стоит держать в одном месте.
 
-Перед scaffold:
-- изучи существующие `components/`, `composables/`, `stores/` и похожие файлы проекта
-- проверь, не решается ли задача через уже существующий composable или через reuse текущего store
+Если состояние живёт в одном компоненте или на одной странице (открыта ли модалка, выбранная вкладка, фильтры страницы) — используй локальное состояние, query params или composable, а не store.
 
-Создай файл `stores/<name>.ts`.
+## Требования
 
-Требования:
 - setup store через `defineStore`
 - типизированное состояние
-- явные `pending` / `error`
-- actions для загрузки, обновления и очистки состояния
-- не дублируй store если сценарий решается обычным composable
-- если уместно, используй VueUse для persistence или side effects
+- явные `pending` и `error`
+- actions для загрузки, обновления и сброса, с обработкой ошибок
+- без дублирования запросов, которые уже делает composable
+- при SSR состояние не должно утекать между пользователями
+- сохранение между сессиями (например через VueUse) — только если оно явно нужно
 
-## Pinia ownership
+## После создания
 
-Store owns shared durable feature state only.
-
-Use store when:
-- multiple pages/components need the same state;
-- state needs actions, reset or persistence;
-- API lifecycle should be centralized.
-
-Prefer composable/local state when the data is scoped to one component or one page interaction.
-
-## Phase 33 frontend examples
-
-Use this rule to reject store for local-only state when:
-- modal open state, selected tab or one-page filters do not need cross-route reuse;
-- route state can live in query params plus a composable;
-- SSR would risk cross-user state leakage;
-- actions would only duplicate local component events.
-
-Create Pinia only when Pinia ownership is durable, shared and testable through actions/reset paths.
-
-## Anti-patterns
-
-Не делай:
-- global store for page-local filters;
-- state shared across users during SSR;
-- actions without error handling and reset path;
-- duplicated fetch logic across store and composable;
-- persistence without explicit opt-in.
-
-После создания:
-1. Покажи публичный API store
-2. Объясни когда store лучше store, а когда composable
-3. Предложи 2-3 тестовых кейса для него
-
-## Validation gates
-
-Минимум:
-```bash
-pnpm vitest
-pnpm eslint .
-```
+1. Запусти `lint` и `format` профиля из `.aikit/profiles.json` на созданных файлах (в папке `root` профиля, пути вместо `{files}`); если добавил тест — и `test`
+2. Покажи публичный API store и объясни, почему здесь нужен store, а не composable
+3. Предложи 2-3 тестовых кейса
