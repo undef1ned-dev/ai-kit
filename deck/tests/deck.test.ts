@@ -281,6 +281,16 @@ test('the commit toggle writes the team setting and keeps other keys', async ($,
   expect(await ui.find({ type: 'Button', text: '☑ Коммит без вопроса' })).toBeDefined()
 })
 
+test('a repository with team settings alone, like the kit itself, has the commit toggle', async ($, on) => {
+  const kit: Kit = { isConnected: false, settings: JSON.stringify({ commit: 'auto' }), written: [] }
+  stubKit(on, kit)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Button', text: '☑ Коммит без вопроса' })).toBeDefined()
+  await ui.press({ key: 'commit' })
+  expect(JSON.parse(kit.written?.[0].text ?? '')).toEqual({ commit: 'ask' })
+})
+
 test('a project without AIKit has no commit toggle', async ($, on) => {
   stubKit(on, { isConnected: false })
   await start($)

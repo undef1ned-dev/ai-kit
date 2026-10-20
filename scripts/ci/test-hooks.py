@@ -153,6 +153,14 @@ def main() -> int:
         _, output, _ = project.run({"hook_event_name": "Stop"}, session="big")
         expect("после крупной задачи предложен /capture-memory", "/capture-memory" in output.get("systemMessage", ""), str(output))
 
+        memory = project.root / ".aikit" / "memory"
+        memory.rename(memory.with_name("memory-off"))
+        for index in range(8):
+            project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(web / "components" / f"Item{index}.vue")}}, session="no-memory")
+        _, output, _ = project.run({"hook_event_name": "Stop"}, session="no-memory")
+        expect("без .aikit/memory/ (репозиторий кита) /capture-memory не предлагается", "/capture-memory" not in output.get("systemMessage", ""), str(output))
+        memory.with_name("memory-off").rename(memory)
+
         print_cwd_and_fail = f'{PYTHON} -c "import os; print(os.getcwd()); raise SystemExit(1)"'
         project.set_profile({"lint": f"{print_cwd_and_fail} {{files}}", "test": print_cwd_and_fail})
         worktree_file = project.root / ".aikit" / "worktrees" / "feat-cart" / "web" / "components" / "Cart.vue"
