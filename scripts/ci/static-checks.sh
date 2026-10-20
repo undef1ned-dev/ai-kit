@@ -180,6 +180,15 @@ for error in errors:
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
+echo "▶ CLAUDE.md в корне — копия base/CLAUDE.md и правил vue-nuxt"
+"$PYTHON_BIN" -c '
+import pathlib, sys
+expected = pathlib.Path("base/CLAUDE.md").read_text(encoding="utf-8") + "\n---\n\n" + pathlib.Path("profiles/vue-nuxt/CLAUDE.md").read_text(encoding="utf-8")
+if pathlib.Path("CLAUDE.md").read_text(encoding="utf-8") != expected:
+    print("  ✗ CLAUDE.md отстал от источников: собери его из base/CLAUDE.md, строки «---» и profiles/vue-nuxt/CLAUDE.md (раздел «Карта репозитория» в docs/guide/developing-aikit.md)")
+    sys.exit(1)
+' || FAILURES=$((FAILURES + 1))
+
 echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
 

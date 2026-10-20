@@ -59,7 +59,7 @@
 <p>Сначала специалист по дизайну профиля соберёт из макета implementation brief и сверит его с UI kit, потом задача пройдёт обычную цепочку агентов. Чтобы проверить уже готовую реализацию, используй <code>/design-review</code>. Для Figma MCP нужен вход через OAuth — runtime попросит его при первом вызове.</p>
 <h3 id="идея-план-код"><a class="anchor" href="#идея-план-код" aria-hidden="true">#</a>Идея → план → код</h3>
 <div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>/analyze-mvp система достижений: бейджи за действия в продукте, показываем в профиле</code></pre></div>
-<p><code>mvp-analyst</code> проведёт короткое интервью и запишет анализ в <code>docs/mvp/</code>. Затем <code>/implement-mvp</code> превратит его в технический план по частям системы, а каждую часть реализует <code>/implement-feature</code>.</p>
+<p>Ассистент проведёт короткое интервью, а <code>mvp-analyst</code> по ответам запишет анализ в <code>docs/mvp/</code>. Затем <code>/implement-mvp</code> превратит его в технический план по частям системы, а каждую часть реализует <code>/implement-feature</code>.</p>
 <h3 id="тесты-к-готовому-коду"><a class="anchor" href="#тесты-к-готовому-коду" aria-hidden="true">#</a>Тесты к готовому коду</h3>
 <div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента vue-tester: напиши тесты для composables/useAuth.ts</code></pre></div>
 <p>Или скилл профиля, если он есть: <code>/add-tests</code> в <code>vue-nuxt</code>. В других профилях — тестировщик профиля (<code>agents.tester</code> в <code>.aikit/profiles.json</code>).</p>

@@ -37,7 +37,7 @@
 | `docs/runtime-support.md` | Матрица возможностей по runtime |
 | `docs/research/` | Исследования, на которых основан roadmap |
 | `.github/workflows/` | CI на PR (`ci.yml`), релиз по тегу (`release.yml`), публикация сайта на GitHub Pages (`pages.yml`) |
-| `CLAUDE.md` в корне | Правила для работы в этом репозитории — **копия** `base/CLAUDE.md` и правил `vue-nuxt`. Правь источники |
+| `CLAUDE.md` в корне | Правила для работы в этом репозитории — **копия** `base/CLAUDE.md`, строки `---` и `profiles/vue-nuxt/CLAUDE.md`. Правь источники и обнови копию: расхождение ловит статическая проверка |
 
 ## Скрипты
 
