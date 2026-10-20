@@ -85,7 +85,7 @@
 
 | Где | Скиллы |
 |---|---|
-| `vue-nuxt` | `/new-page`, `/new-component`, `/new-composable`, `/new-store`, `/new-middleware`, `/new-plugin`, `/new-server-route`, `/add-tests`, `/design-implement`, `/design-review` |
+| `vue-nuxt` | `/new-page`, `/new-component`, `/new-composable`, `/new-store`, `/new-middleware`, `/new-plugin`, `/new-server-route`, `/add-tests`, `/design-review` |
 | пак `devops` | `/dockerize`, `/setup-ci` |
 
 Описание каждого — в [каталоге](../site/catalog.html).

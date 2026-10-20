@@ -47,7 +47,6 @@ bash .aikit-config/scripts/attach.sh vue-nuxt+<backend-профиль>
 - `/implement-feature` — реализация фичи через цепочку architect → coder → tester + reviewer; `--tdd` — сначала тесты, `--worktree` — в отдельном git worktree.
 - `/fix-bug` — исправление бага: тест, который ловит баг, затем фикс.
 - `/check-feature` — запуск приложения и проверка фичи в браузере.
-- `/design-implement` — реализация, где основной вход — дизайн.
 - `/design-review` — проверка реализации на соответствие UI kit и макету.
 - `/security-check` — аудит безопасности.
 - `/capture-memory` — зафиксировать решения и паттерны после задачи.

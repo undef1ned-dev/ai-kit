@@ -11,7 +11,7 @@ example_prompt: "/design-review pages/account/index.vue и https://www.figma.com
 
 Запусти агент `vue-design-bridge` для проверки соответствия UI kit и дизайн-системе.
 
-Если задача не про аудит, а про реализацию нового экрана или компонента по Figma/макету, используй `/design-implement`, а не этот skill.
+Если задача не про аудит, а про реализацию нового экрана или компонента по Figma/макету, используй `/implement-feature` со ссылкой на макет, а не этот skill.
 
 $ARGUMENTS
 
@@ -19,7 +19,7 @@ $ARGUMENTS
 
 `/design-review` is a `specialist overlay start`.
 
-Use it only when the task is explicitly review-first and design-scoped. If the request is implementation-first, use `/design-implement`, а не этот skill, or fall back to `/implement-feature` when the task is not design-led.
+Use it only when the task is explicitly review-first and design-scoped. If the request is implementation-first, use `/implement-feature` with the mockup link instead.
 
 ## Контекст перед реализацией
 

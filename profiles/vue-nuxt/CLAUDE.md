@@ -185,4 +185,3 @@ describe("auth store", () => {
 - `/new-store` — создать Pinia store для состояния фичи
 - `/add-tests` — написать Vitest/VTU тесты для существующего кода
 - `/design-review` — проверить реализацию на соответствие UI kit, токенам и Figma
-- `/design-implement` — превратить Figma/макет в implementation brief и затем пройти design-aware delivery flow

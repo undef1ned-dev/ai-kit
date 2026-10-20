@@ -26,7 +26,7 @@
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
   <div><b>16</b><span>агенты</span></div>
-  <div><b>30</b><span>скиллы</span></div>
+  <div><b>29</b><span>скиллы</span></div>
   <div><b>1</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
 </div>
@@ -41,7 +41,7 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -163,9 +163,9 @@
 
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/git-commit/SKILL.md">base/skills/git-commit/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.">
+</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету figma.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-feature</span></header>
-  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.</p>
+  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету Figma.</p>
 
   <div class="entry-example"><span>/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read</span><button class="copy-btn" type="button" data-copy="/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/implement-feature/SKILL.md">base/skills/implement-feature/SKILL.md</a>
@@ -267,18 +267,12 @@
   <div class="entry-example"><span>Напиши тесты по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Напиши тесты по CODER_RESULT">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-tester.md">profiles/vue-nuxt/agents/vue-tester.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">10</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-add-tests" data-filter="add-tests написать vitest и component-тесты (@vue/test-utils) для существующего vue/nuxt-кода. используй, когда пользователь просит покрыть тестами компонент, composable или store.">
+  <h3>Скиллы <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-add-tests" data-filter="add-tests написать vitest и component-тесты (@vue/test-utils) для существующего vue/nuxt-кода. используй, когда пользователь просит покрыть тестами компонент, composable или store.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/add-tests</span></header>
   <p>Написать Vitest и component-тесты (@vue/test-utils) для существующего Vue/Nuxt-кода. Используй, когда пользователь просит покрыть тестами компонент, composable или store.</p>
 
   <div class="entry-example"><span>/add-tests pages/account/index.vue и stores/auth.ts</span><button class="copy-btn" type="button" data-copy="/add-tests pages/account/index.vue и stores/auth.ts">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/add-tests/SKILL.md">profiles/vue-nuxt/skills/add-tests/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-design-implement" data-filter="design-implement превратить figma-макет или другой design-input в implementation brief для vue/nuxt и провести задачу через design-aware цепочку architect → coder. используй, когда задача начинается с макета.">
-  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/design-implement</span></header>
-  <p>Превратить Figma-макет или другой design-input в implementation brief для Vue/Nuxt и провести задачу через design-aware цепочку architect → coder. Используй, когда задача начинается с макета.</p>
-
-  <div class="entry-example"><span>/design-implement реализуй страницу уведомлений по https://www.figma.com/file/...</span><button class="copy-btn" type="button" data-copy="/design-implement реализуй страницу уведомлений по https://www.figma.com/file/...">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/design-implement/SKILL.md">profiles/vue-nuxt/skills/design-implement/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-design-review" data-filter="design-review проверить vue/nuxt-реализацию на соответствие ui kit, дизайн-токенам и figma-макету. используй, когда нужно сверить готовый ui с дизайном.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/design-review</span></header>
   <p>Проверить Vue/Nuxt-реализацию на соответствие UI kit, дизайн-токенам и Figma-макету. Используй, когда нужно сверить готовый UI с дизайном.</p>
