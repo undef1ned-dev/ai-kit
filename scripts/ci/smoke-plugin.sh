@@ -70,7 +70,7 @@ check_rules() {
 check_codex_agents() {
   local profile agent
   [[ -f "$PROJECT_DIR/.codex/agents/memory-writer.toml" ]] || return 1
-  ! ls "$PROJECT_DIR"/.codex/agents/*.md >/dev/null 2>&1 || return 1
+  [[ -z "$(find "$PROJECT_DIR/.codex/agents" -type f -name '*.md' ! -name my-local.md)" ]] || return 1
   for profile in $("$PYTHON_BIN" -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1], encoding="utf-8"))["profiles"]))' "$PRESET_FILE" | tr -d '\r'); do
     for agent in "$KIT_ROOT"/profiles/"$profile"/agents/*.md; do
       grep -q '^developer_instructions = """' "$PROJECT_DIR/.codex/agents/$(basename "$agent" .md).toml" || return 1
@@ -93,8 +93,15 @@ check ".aikit/memory/INDEX.md и PRODUCT.md" test -f "$PROJECT_DIR/.aikit/memory
 check ".aikit/settings.json: коммиты без вопроса о сообщении" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 check "агенты и скиллы не копируются в проект — их дают плагины" test ! -e "$PROJECT_DIR/.claude/agents" -a ! -e "$PROJECT_DIR/.claude/skills"
 
+# Свой агент команды в .codex/agents: ни конвертация в TOML, ни смена набора его не трогают
+mkdir -p "$PROJECT_DIR/.codex/agents"
+printf -- '---\nname: "my-local"\ndescription: "Свой агент"\n---\nСвоя роль\n' > "$PROJECT_DIR/.codex/agents/my-local.md"
+LOCAL_SUM="$(cksum < "$PROJECT_DIR/.codex/agents/my-local.md")"
+check_local_agent() { [[ "$(cksum < "$PROJECT_DIR/.codex/agents/my-local.md")" == "$LOCAL_SUM" ]]; }
+
 echo "▶ plugin-init.py --runtime codex --preset $PRESET"
 init --runtime codex --preset "$PRESET"
+check "свой агент команды в .codex/agents остался markdown и не изменён" check_local_agent
 check "AGENTS.md: блок правил базы и профилей, текст команды сохранён" check_rules AGENTS.md
 check ".codex/agents/: агенты базы и профилей в TOML" check_codex_agents
 check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
@@ -104,6 +111,7 @@ init --runtime claude --preset "$PRESET"
 check "повторный запуск: CLAUDE.md не дублирует блок, настройки не дублируются" bash -c "$(declare -f check_rules check_claude_settings); PROJECT_DIR='$PROJECT_DIR' PRESET_FILE='$PRESET_FILE' KIT_ROOT='$KIT_ROOT' PYTHON_BIN='$PYTHON_BIN'; check_rules CLAUDE.md && check_claude_settings"
 init --runtime codex --profiles vue-nuxt
 check "смена набора: агенты Codex убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-coder.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
+check "смена набора: свой агент команды не тронут" check_local_agent
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"
