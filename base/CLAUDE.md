@@ -21,7 +21,7 @@
 ```
 main                  — стабильная версия, изменения только через PR/MR с ревью
 develop               — интеграционная ветка (если используется)
-<type>/<description>  — feat/, fix/, hotfix/, release/, chore/
+<type>/<description>  — feat/, fix/, hotfix/, release/, chore/, docs/, refactor/, test/, ci/, build/, perf/, style/
                         например feat/oauth-login, fix/issue-42-empty-list-crash, release/v1.4.0
 ```
 
@@ -70,6 +70,9 @@ build(deps): обновлены зависимости
 - Не добавляй docstrings/комментарии к коду, который не менялся
 - Перед destructive-операциями (удаление файлов, reset, force push) — спросить подтверждение
 - Если задача неясна — уточни, не угадывай
+
+### Имена агентов
+- Кит стоит плагинами Claude Code (есть `.aikit/plugin-init.json`) — агента кита запускай с префиксом плагина: базовые — `aikit:<агент>`, агенты профиля или пака — `<профиль|пак>:<агент>`. Агенты из `.claude/agents/` (установка `attach.sh`, свои агенты проекта) — без префикса
 
 ### Модели агентов
 - Если в `.aikit/models.json` для агента задана модель, в Claude Code передавай её параметром `model` при запуске агента: значение — уровень (`opus`, `sonnet`, `haiku`) или объект по runtime, тогда бери поле `claude`. Нет записи — модель из описания агента

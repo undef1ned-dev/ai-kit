@@ -185,7 +185,7 @@ scope: {global | features/{module}}
 
 **1** — ничего не делай с git, переходи к отчёту.
 
-**2** — `git add .aikit/memory/` и коммит по `git-commit`: `docs(memory): <что зафиксировано>`. Сначала предложи сообщение и дождись одобрения.
+**2** — `git add .aikit/memory/` и коммит по `git-commit`: `docs(memory): <что зафиксировано>`. Сообщение — по режиму коммитов из скилла `git-commit` (`.aikit/settings.json`: `ask` — предложи варианты и дождись выбора, `auto` — коммить сразу и покажи хеш).
 
 **3** — отдельная ветка и PR:
 
@@ -197,7 +197,7 @@ git commit -m "docs(memory): {что зафиксировано}"
 git push -u origin "$BRANCH"
 ```
 
-Сообщение коммита сначала согласуй с пользователем. Затем открой PR по хостингу из `git remote get-url origin`:
+Сообщение коммита — по тому же режиму `git-commit`. Затем открой PR по хостингу из `git remote get-url origin`:
 - **GitHub** — `gh pr create --title "docs(memory): …" --body-file <файл>`; ревьюер — `--reviewer <login>`, если он известен (строка `reviewer:` в `PRODUCT.md` или ответ пользователя);
 - **GitLab** — `glab mr create --title "docs(memory): …" --description "…"`, если `glab` установлен;
 - нет `gh` / `glab` или они не авторизованы — дай ссылку на создание PR/MR (GitHub: `https://github.com/<owner>/<repo>/pull/new/<branch>`, GitLab: `<url>/-/merge_requests/new?merge_request[source_branch]=<branch>`) и текст описания.
