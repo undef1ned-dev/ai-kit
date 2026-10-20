@@ -43,6 +43,8 @@ const CARD_THREE_COLUMNS = 90
 const DEFAULT_COLUMNS = 60
 
 let project = null
+// Where the team settings live: a connected project, or a folder with .aikit/settings.json alone (the kit repository)
+let team = null
 let sessionRoot = ''
 let groups = []
 let commands = []
@@ -85,15 +87,21 @@ async function readJson($, path) {
   }
 }
 
-// The project root is the nearest folder with .aikit/profiles.json, from the session root up
+const asSettings = value => (value && typeof value === 'object' && !Array.isArray(value) ? value : null)
+
+// The project root is the nearest folder with .aikit/profiles.json, from the session root up;
+// on the way the nearest .aikit/settings.json becomes the team settings
 async function findProject($) {
   sessionRoot = String(await $.session.root()).replace(/\\/g, '/')
+  team = null
   let dir = sessionRoot
   for (let depth = 0; dir && depth < PROJECT_SEARCH_DEPTH; depth += 1) {
+    const settings = asSettings(await readJson($, joinPath(dir, SETTINGS_FILE)))
+    if (settings && !team) team = { root: dir, settings }
     const contracts = await readJson($, joinPath(dir, PROFILES_FILE))
     if (contracts && typeof contracts.profiles === 'object') {
       const init = await readJson($, joinPath(dir, INIT_FILE))
-      const settings = await readJson($, joinPath(dir, SETTINGS_FILE))
+      if (!team) team = { root: dir, settings: {} }
       return {
         root: dir,
         profiles: Object.entries(contracts.profiles).map(([name, contract]) => ({
@@ -102,7 +110,6 @@ async function findProject($) {
           root: typeof contract?.root === 'string' ? contract.root : '.',
         })),
         packs: Array.isArray(init?.packs) ? init.packs.filter(name => typeof name === 'string') : [],
-        settings: settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {},
       }
     }
     dir = parentOf(dir)
@@ -303,7 +310,7 @@ function header($, ui, surface) {
           tabButton('commands', 'Команды', '1'),
           tabButton('docs', 'Справка', '2'),
           Box({ flexGrow: 1, children: [] }),
-          ...(project ? [commitToggle($, ui, surface)] : []),
+          ...(team ? [commitToggle($, ui, surface)] : []),
           Button({
             key: 'mode',
             label: `Режим: ${MODES[mode]}`,
@@ -321,9 +328,9 @@ function header($, ui, surface) {
   })
 }
 
-// The team's commit mode lives in the project, so the toggle writes .aikit/settings.json for everyone
+// The team's commit mode lives in the repository, so the toggle writes .aikit/settings.json for everyone
 function commitToggle($, ui, surface) {
-  const isAuto = project.settings.commit === 'auto'
+  const isAuto = team.settings.commit === 'auto'
   return ui.Button({
     key: 'commit',
     label: `${isAuto ? '☑' : '☐'} Коммит без вопроса`,
@@ -331,14 +338,14 @@ function commitToggle($, ui, surface) {
     ...(surface === 'terminal' ? { plain: true } : look(ui).variant(isAuto)),
     dimColor: !isAuto,
     onPress: async () => {
-      const settings = { ...project.settings, commit: isAuto ? 'ask' : 'auto' }
+      const settings = { ...team.settings, commit: isAuto ? 'ask' : 'auto' }
       try {
-        await $.fs.write(joinPath(project.root, SETTINGS_FILE), JSON.stringify(settings, null, 2) + '\n')
+        await $.fs.write(joinPath(team.root, SETTINGS_FILE), JSON.stringify(settings, null, 2) + '\n')
       } catch {
         $.ui.toast(`Не удалось записать ${SETTINGS_FILE}`)
         return
       }
-      project.settings = settings
+      team.settings = settings
       redraw($)
       $.ui.toast(settings.commit === 'auto' ? 'Коммиты: сообщение по правилам, без вопроса' : 'Коммиты: сначала варианты сообщения на выбор')
     },

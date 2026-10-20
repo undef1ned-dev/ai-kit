@@ -16,7 +16,8 @@ Events:
     PostToolUse  — runs the profile's format and lint commands from .aikit/profiles.json on the
                    changed file; lint problems go back to the agent as additionalContext.
     Stop         — once code changed, runs the profile's test command; failed tests keep the agent
-                   working (decision: block). After a large task suggests /capture-memory.
+                   working (decision: block). After a large task suggests /capture-memory,
+                   if the project keeps team memory (.aikit/memory/).
     SessionStart — adds .aikit/memory/INDEX.md and PRODUCT.md to the session context.
 
 With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
@@ -42,7 +43,8 @@ BLOCK_EXIT_CODE = 2
 PLUGIN_FLAG = "--plugin"
 PROFILES_FILE = Path(".aikit") / "profiles.json"
 WORKTREES_DIR = Path(".aikit") / "worktrees"
-MEMORY_INDEX = Path(".aikit") / "memory" / "INDEX.md"
+MEMORY_DIR = Path(".aikit") / "memory"
+MEMORY_INDEX = MEMORY_DIR / "INDEX.md"
 PRODUCT_FILE = Path("PRODUCT.md")
 PRODUCT_TEMPLATE_MARKER = "[Название продукта]"
 CONTEXT_FILE_LIMIT = 4000
@@ -545,7 +547,8 @@ def stop(event: dict) -> int:
     elif failures:
         notes.append("тесты всё ещё падают — см. вывод выше")
     touched = state.get("touched", [])
-    if len(touched) >= LARGE_TASK_FILES and not state.get("memory_suggested"):
+    keeps_memory = (project / MEMORY_DIR).is_dir()
+    if keeps_memory and len(touched) >= LARGE_TASK_FILES and not state.get("memory_suggested"):
         notes.append(f"изменено {len(touched)} файлов — зафиксируй решения и коррекции через /capture-memory")
         state["memory_suggested"] = True
     if notes:
