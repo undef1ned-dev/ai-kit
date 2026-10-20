@@ -11,7 +11,7 @@
 #   4. Каталог документации видит все скиллы-папки профилей и паков
 #   5. Контракт профиля (profile.manifest.json) полон и ссылается на существующих агентов (роли, специалисты, пайплайны), у каждого профиля есть специалист quality,
 #      ревьюер профиля отвечает в формате REVIEW_RESULT, который читает /implement-feature
-#   6. Базовые оркестраторы и скиллы не называют агентов профилей по имени — берут их из .aikit/profiles.json
+#   6. Агенты и скиллы base/ не называют агентов профилей и паков по имени — берут их из .aikit/profiles.json
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
@@ -21,6 +21,11 @@
 #  13. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
 #      Тесты мода (claude plugin test) запускает run-all.sh, если установлен Claude Code
 #  14. MCP в агентах: если в тексте агента есть mcp__<сервер>__, то в его tools этот сервер разрешён (иначе субагент не получит MCP)
+#  15. Пути кита в обратных кавычках (`docs/...`, `scripts/...`, `base/...` и т.п.) в агентах, скиллах и шаблоне профиля существуют
+#  16. depends_on и orchestrates агентов указывают на существующих агентов
+#  17. Агенты и скиллы профилей и шаблон профиля не зовут менеджер пакетов (npm, npx, pnpm, yarn) — команды из .aikit/profiles.json
+#  18. Агент или скилл с командой git commit следует режиму коммитов скилла git-commit
+#  19. Скиллы разработки кита: у копий .claude/skills/<имя> и .agents/skills/<имя> одинаковые name и description
 
 set -eo pipefail
 
@@ -143,20 +148,18 @@ for error in errors:
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
-echo "▶ Базовые оркестраторы: агенты профилей только из контракта, без имён в тексте"
+echo "▶ Ядро base/: агенты профилей и паков только из контракта, без имён в тексте"
 "$PYTHON_BIN" -c '
-import json, pathlib, re, sys
-names = set()
-for manifest in pathlib.Path("profiles").glob("*/profile.manifest.json"):
-    data = json.loads(manifest.read_text(encoding="utf-8"))
-    names |= set(data["agents"].values()) | {spec["agent"] for spec in data.get("specialists", {}).values()}
-files = [*pathlib.Path("base/skills").glob("*/SKILL.md"), pathlib.Path("base/agents/tech-planner.md")]
+import pathlib, re, sys
+# Base works with any set of profiles and packs, so it names roles from the contract, not their agents
+names = {path.stem for layer in ("profiles", "packs") for path in pathlib.Path(layer).glob("*/agents/*.md")}
+files = [*pathlib.Path("base/skills").glob("*/SKILL.md"), *pathlib.Path("base/plugin-skills").glob("*/SKILL.md"), *pathlib.Path("base/agents").glob("*.md")]
 errors = []
-for path in files:
+for path in sorted(files):
     text = path.read_text(encoding="utf-8")
-    errors += [f"{path}: {name}" for name in sorted(names) if re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", text)]
+    errors += [f"{path.as_posix()}: {name}" for name in sorted(names) if re.search(rf"(?<![\w-]){re.escape(name)}(?![\w-])", text)]
 for error in errors:
-    print(f"  ✗ имя агента профиля вместо роли из контракта: {error}")
+    print(f"  ✗ имя агента профиля или пака вместо роли из контракта: {error}")
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
@@ -263,6 +266,122 @@ for error in errors:
     print(f"  ✗ {error}")
 if not errors:
     print("  ✓ MCP-инструменты из текста агентов перечислены в tools")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Пути кита в агентах и скиллах существуют"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+root = pathlib.Path(".")
+files = [*root.glob("base/agents/*.md"), *root.glob("base/skills/*/SKILL.md"), *root.glob("base/plugin-skills/*/SKILL.md")]
+files += [*root.glob("profiles/*/agents/*.md"), *root.glob("profiles/*/skills/*/SKILL.md")]
+files += [*root.glob("packs/*/agents/*.md"), *root.glob("packs/*/skills/*/SKILL.md"), *root.glob("templates/profile/**/*.md")]
+KIT_PATH = re.compile(r"`((?:docs|scripts|base|profiles|packs|templates|adapters|deck)/[^`\s]*)`")
+PLACEHOLDER = re.compile(r"[<>{}*]|\.\.\.|…")
+# Paths in the user project, not in the kit: the folder is created there
+PROJECT_PATHS = {
+    "docs/mvp",  # /analyze-mvp writes MVP documents into the project
+}
+errors = []
+for path in sorted(files):
+    for match in KIT_PATH.finditer(path.read_text(encoding="utf-8")):
+        target = match.group(1)
+        if PLACEHOLDER.search(target):
+            continue
+        target = re.split(r"[#:]", target)[0].rstrip("/.,")
+        if target not in PROJECT_PATHS and not (root / target).exists():
+            errors.append(f"{path.as_posix()}: нет пути {target} в ките (если это путь проекта пользователя — добавь его в PROJECT_PATHS)")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ пути кита в агентах и скиллах существуют")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ depends_on и orchestrates агентов указывают на существующих агентов"
+"$PYTHON_BIN" -c '
+import json, pathlib, re, sys
+LAYERS = ("base/agents/*.md", "profiles/*/agents/*.md", "packs/*/agents/*.md")
+TEMPLATE_PREFIX = "{{PREFIX}}-"
+agents = {path.stem for pattern in LAYERS for path in pathlib.Path(".").glob(pattern)}
+template = {path.stem for path in pathlib.Path("templates/profile/agents").glob("*.md")}
+errors = []
+for pattern in (*LAYERS, "templates/profile/agents/*.md"):
+    for path in sorted(pathlib.Path(".").glob(pattern)):
+        head = path.read_text(encoding="utf-8").partition("\n---\n")[0]
+        for field, value in re.findall(r"(?m)^(depends_on|orchestrates):\s*(.*)$", head):
+            try:
+                names = json.loads(value)
+            except ValueError:
+                names = None
+            if not isinstance(names, list):
+                errors.append(f"{path.as_posix()}: {field} — список строк в формате [\"агент\"]")
+                continue
+            for name in names:
+                # The profile template names its agents {{PREFIX}}-<role>
+                known = template if name.startswith(TEMPLATE_PREFIX) else agents
+                if name.removeprefix(TEMPLATE_PREFIX) not in known:
+                    errors.append(f"{path.as_posix()}: {field} ссылается на агента {name}, которого нет в ките")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ depends_on и orchestrates указывают на существующих агентов")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Агенты и скиллы профилей: команды из контракта, без npm, npx, pnpm, yarn"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+# The package manager is the team choice: agents take install, lint, test and the rest from .aikit/profiles.json
+files = [*pathlib.Path("profiles").glob("*/agents/*.md"), *pathlib.Path("profiles").glob("*/skills/*/SKILL.md"), *pathlib.Path("templates/profile").glob("**/*.md")]
+errors = []
+for path in sorted(files):
+    for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        match = re.search(r"(?<![\w./-])(npm|npx|pnpm|yarn) ", line)
+        if match:
+            errors.append(f"{path.as_posix()}:{number}: {match.group(1)} — возьми команду профиля из .aikit/profiles.json")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ агенты и скиллы профилей не зовут менеджер пакетов напрямую")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ git commit в агентах и скиллах — по режиму коммитов скилла git-commit"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+layers = ("base", "profiles/*", "packs/*")
+patterns = ("agents/*.md", "skills/*/SKILL.md", "plugin-skills/*/SKILL.md")
+files = [path for layer in layers for pattern in patterns for path in pathlib.Path(".").glob(f"{layer}/{pattern}")]
+errors = []
+for path in sorted(files):
+    text = path.read_text(encoding="utf-8")
+    if path.parent.name != "git-commit" and re.search(r"\bgit commit\b", text) and "git-commit" not in text:
+        errors.append(f"{path.as_posix()}: есть git commit, но нет ссылки на скилл git-commit — сообщение по его правилам, вопрос пользователю по режиму commit (ask | auto) из .aikit/settings.json")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ команды git commit следуют режиму коммитов")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
+echo "▶ Скиллы разработки кита: копии в .claude/skills и .agents/skills описаны одинаково"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+# Bodies may differ between runtimes, the name and description do not
+def field(path, key):
+    head = path.read_text(encoding="utf-8").partition("\n---\n")[0]
+    match = re.search(rf"(?m)^{key}:\s*(.*)$", head)
+    return match.group(1).strip() if match else None
+claude = {path.parent.name: path for path in pathlib.Path(".claude/skills").glob("*/SKILL.md")}
+codex = {path.parent.name: path for path in pathlib.Path(".agents/skills").glob("*/SKILL.md")}
+errors = [f"скилл {name} есть только в {(claude.get(name) or codex.get(name)).parent.as_posix()}" for name in sorted(claude.keys() ^ codex.keys())]
+for name in sorted(claude.keys() & codex.keys()):
+    errors += [f"{claude[name].as_posix()} и {codex[name].as_posix()}: разный {key}" for key in ("name", "description") if field(claude[name], key) != field(codex[name], key)]
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ копии скиллов для Claude Code и Codex описаны одинаково")
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
