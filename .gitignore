@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 .idea/
 .claude/settings.local.json
+# Превью сервера в приложении Claude (локальный запуск, у каждого свой)
+.claude/launch.json
 .aikit/runtime/agent-tasks/
 .aikit/runtime/frontend-comparison-timeline/
 .aikit/runtime/workflow-hooks/
