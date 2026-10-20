@@ -1,6 +1,6 @@
 ---
 name: {{PREFIX}}-quality-analyst
-description: {{LABEL}} quality analyst. Оценивает покрытие тестами и технический долг, предлагает улучшения с приоритетом по импакту.
+description: {{LABEL}} quality analyst. Оценивает покрытие тестами и технический долг, предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 version: "1.0.0"
@@ -68,4 +68,4 @@ P3 (при случае):
 QUICK_WINS:
 - <что можно улучшить быстро (< 1 часа) с хорошим эффектом>
 
-=== END REPORT ===
+=== END QUALITY_REPORT ===

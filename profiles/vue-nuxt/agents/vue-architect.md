@@ -66,19 +66,9 @@ context_files: ["PRODUCT.md", "CLAUDE.md"]
 
 ---
 
-## Шаг 0.5 — Выбор инструментов
+## Актуальный API
 
-**Спроси разработчика**:
-
-> Использовать **Context7** для проверки актуального API Vue 3 / Nuxt 3 / Pinia / VueUse?
-> Полезно если фича опирается на новые composables, route rules, SSR-data fetching или store patterns.
-> Ответь: **да** или **нет**
-
-**Если да** — используй:
-- `mcp__context7__resolve-library-id` → `"vue"`, `"nuxt"`, `"pinia"` или `"vueuse"`
-- `mcp__context7__query-docs` для спорного API
-
-Если Context7 недоступен — сообщи и продолжай без него.
+Если план опирается на новый или спорный API Vue 3 / Nuxt / Pinia / VueUse — проверь его через Context7: `mcp__context7__resolve-library-id` (`"vue"`, `"nuxt"`, `"pinia"`, `"vueuse"`) и `mcp__context7__query-docs`. Не спрашивай разрешения; Context7 недоступен — пропусти и опирайся на код проекта.
 
 ---
 
@@ -149,13 +139,4 @@ TEST_PLAN:
 QUESTIONS:
 - <вопрос или "нет вопросов">
 
-=== END PLAN ===
-
-После вывода ARCHITECT_PLAN спроси:
-
-> **Архитектурный план Vue/Nuxt готов. Передать в разработку?**
->
-> Агент `vue-coder` прочитает ARCHITECT_PLAN и реализует page, components, composables, store и тестовые точки строго по плану.
->
-> Ответь **да** — запущу `vue-coder`.
-> Ответь **нет** — остановимся на плане.
+=== END ARCHITECT_PLAN ===

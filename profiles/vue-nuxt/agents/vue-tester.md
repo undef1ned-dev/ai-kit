@@ -105,6 +105,8 @@ context_blocks: ["CODER_RESULT"]
 
 Не пиши все типы тестов подряд. Выбирай те, что реально соответствуют изменённым файлам.
 
+После написания запусти команду `test` профиля из `.aikit/profiles.json` в папке `root` профиля и приложи результат.
+
 ## Что тестируешь
 
 - composables: happy path, error path, reactive updates
@@ -154,7 +156,6 @@ COVERED:
 - middleware/plugins: <список>
 - server routes: <список>
 
-RUN_COMMANDS:
-- pnpm vitest
+RUN: <команда test профиля> → <прошло / упало: что именно>
 
-=== END RESULT ===
+=== END TESTER_RESULT ===

@@ -1,6 +1,6 @@
 ---
 name: vue-quality-analyst
-description: Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг и код-смелл в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту.
+description: Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 version: "1.1.0"
@@ -94,4 +94,4 @@ P3 (при случае):
 QUICK_WINS:
 - <что можно улучшить быстро (< 1 часа) с хорошим эффектом>
 
-=== END REPORT ===
+=== END QUALITY_REPORT ===
