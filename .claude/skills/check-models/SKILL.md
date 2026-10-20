@@ -30,6 +30,6 @@ argument-hint: "[claude|codex|opencode]"
 После согласия:
 1. Поправь `adapters/models.json`, поставь сегодняшнюю дату в `checked`.
 2. Прогони `PYTHONIOENCODING=utf-8 bash scripts/ci/run-all.sh`.
-3. Предложи 2–3 варианта сообщения коммита по `git-commit` (например `build(models): обновлены модели Codex`) и дождись выбора.
+3. Закоммить по `git-commit` (например `build(models): обновлены модели Codex`): режим из `.aikit/settings.json` — `ask` — предложи 2–3 варианта и дождись выбора, `auto` — коммить сразу.
 
 Не запускай проверку сама по себе — только когда пользователь вызвал этот скилл.

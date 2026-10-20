@@ -159,6 +159,14 @@ git init -q
 mkdir -p web && touch web/nuxt.config.ts
 # Проект на прежней версии кита: память только в .claude/memory/
 mkdir -p .claude/memory/decisions && echo "# JWT, не сессии" > .claude/memory/decisions/001-auth.md
+# Свои агент и скиллы команды: установка и обновление их не затирают; скилл с именем скилла кита (tech-debt) пропускается с предупреждением
+mkdir -p .claude/agents .claude/skills/my-local-skill .claude/skills/tech-debt
+printf -- '---\nname: my-local\ndescription: Свой агент\n---\nСвоя роль\n' > .claude/agents/my-local.md
+printf -- '---\nname: "my-local-skill"\ndescription: "Свой скилл"\n---\nСвой скилл\n' > .claude/skills/my-local-skill/SKILL.md
+printf -- '---\nname: "tech-debt"\ndescription: "Свой скилл с именем как у кита"\n---\nСвой tech-debt\n' > .claude/skills/tech-debt/SKILL.md
+LOCAL_FILES=(.claude/agents/my-local.md .claude/skills/my-local-skill/SKILL.md .claude/skills/tech-debt/SKILL.md)
+LOCAL_SUMS="$(cksum "${LOCAL_FILES[@]}")"
+check_local_files() { [[ "$(cksum "${LOCAL_FILES[@]}")" == "$LOCAL_SUMS" ]]; }
 
 echo "▶ attach.sh"
 bash "$KIT_ROOT/scripts/attach.sh" --preset "$PRESET" > attach.log 2>&1 || { cat attach.log; echo "✗ attach.sh завершился с ошибкой"; exit 1; }
@@ -184,6 +192,8 @@ check "память проекта перенесена из .claude/memory/ п�
 check "зеркало .claude/memory/ не обновляется: только старое содержимое" test ! -e .claude/memory/INDEX.md
 check "хуки AIKit в .claude/settings.json, скрипт блокирует коммит не по формату" check_hooks
 check "версия конфигурации записана" test -s .claude/.config-version
+check "свои агент и скиллы команды не тронуты" check_local_files
+check "скилл с именем как у кита пропущен с предупреждением" grep -q "Скилл tech-debt пропущен" attach.log
 
 # Прежние версии кита ставили команды в .claude/commands/, а смена набора скиллов оставляла старые папки
 mkdir -p .claude/commands .claude/skills/legacy-kit-skill
@@ -212,6 +222,7 @@ check "модель агента из .aikit/models.json применена по
 check "скиллы корректны после обновления" check_skills
 check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
 check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md
+check "свои агент и скиллы команды не тронуты после обновления" check_local_files
 check ".mcp.json после обновления: серверы кита и пользователя, .gitignore очищен" check_mcp my-server
 check ".gitignore: свои правила сохранены" grep -qx "node_modules/" .gitignore
 check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited

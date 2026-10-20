@@ -37,6 +37,25 @@ case "$ADAPTER" in
     ;;
   opencode) printf '{"mcp": {"my-server": {"type": "local", "command": ["my-mcp"]}}}\n' > "$PROJECT_DIR/opencode.json" ;;
 esac
+# Свои агенты и скиллы команды (их создаёт /create-agent в проекте): установка и обновление не должны их менять.
+# В тексте есть путь .claude/agents/ — установщик подменяет его только в файлах кита
+LOCAL_FILES=(".agents/skills/my-local-skill/SKILL.md")
+mkdir -p "$PROJECT_DIR/.agents/skills/my-local-skill"
+printf -- '---\nname: "my-local-skill"\ndescription: "Свой скилл"\n---\nСм. .claude/agents/ и .claude/skills/\n' > "$PROJECT_DIR/${LOCAL_FILES[0]}"
+case "$ADAPTER" in
+  codex)
+    LOCAL_FILES+=(".codex/agents/my-local.md" ".codex/agents/my-local-toml.toml")
+    mkdir -p "$PROJECT_DIR/.codex/agents"
+    printf -- '---\nname: "my-local"\ndescription: "Свой агент"\n---\nСм. .claude/agents/\n' > "$PROJECT_DIR/.codex/agents/my-local.md"
+    printf 'name = "my-local-toml"\ndescription = "Свой агент"\nmodel = "my-model"\ndeveloper_instructions = """\nСм. .claude/agents/\n"""\n' > "$PROJECT_DIR/.codex/agents/my-local-toml.toml"
+    ;;
+  opencode)
+    LOCAL_FILES+=(".opencode/agents/my-local.md")
+    mkdir -p "$PROJECT_DIR/.opencode/agents"
+    printf -- '---\ndescription: "Свой агент"\nmode: subagent\n---\nСм. .claude/agents/\n' > "$PROJECT_DIR/.opencode/agents/my-local.md"
+    ;;
+esac
+LOCAL_SUMS="$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")"
 
 FAILURES=0
 pass() { echo "  ✓ $1"; }
@@ -158,6 +177,7 @@ check_opencode_agents() {
   local f found=0
   for f in "$PROJECT_DIR"/.opencode/agents/*.md; do
     [[ -f "$f" ]] || continue
+    [[ "$(basename "$f")" == my-local.md ]] && continue
     found=1
     grep -q '^description: "..*"' "$f" && grep -q '^mode: "subagent"' "$f" && grep -q '^model: ..*/..*' "$f" || { echo "неверный агент: $f" >&2; return 1; }
   done
@@ -189,17 +209,23 @@ assert result.returncode == 2, f"ветка не по формату не заб
 PY
 }
 
+# Свои файлы на месте и не изменены: .md не превращён в TOML, пути в тексте не подменены
+check_local_files() {
+  [[ "$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")" == "$LOCAL_SUMS" ]]
+}
+
 check_runtime_files() {
   local stage="$1"
+  check "свои агенты и скиллы команды не тронуты$stage" check_local_files
   check "AGENTS.md: блок AIKit один, правила пользователя сохранены$stage" check_agents_md
   check "скиллы в .agents/skills: name = папка, есть description$stage" check_native_skills
   check "скилл git-commit установлен$stage" test -f "$PROJECT_DIR/.agents/skills/git-commit/SKILL.md"
   check "в скиллах нет \$ARGUMENTS и нераскрытых шаблонов$stage" check_no_raw_placeholders
   case "$ADAPTER" in
     codex)
-      check "скилл workflow не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/workflow/agents/openai.yaml"
+      check "скилл capture-memory не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/capture-memory/agents/openai.yaml"
       check "агенты Codex — валидный TOML$stage" check_codex_agents
-      check "нет markdown-дублей агентов в .codex/agents$stage" test "$(count_files "$PROJECT_DIR/.codex/agents" '*.md')" -eq 0
+      check "нет markdown-дублей агентов кита в .codex/agents$stage" test -z "$(find "$PROJECT_DIR/.codex/agents" -type f -name '*.md' ! -name my-local.md)"
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
       ;;
     opencode)

@@ -9,28 +9,29 @@ orchestrates: []
 example_prompt: "/new-middleware auth"
 ---
 
-Создай новый route middleware для Vue/Nuxt.
+Создай новый route middleware `middleware/<name>.ts`.
 
-Запроси у пользователя:
+Запроси у пользователя то, чего нет в задаче:
 1. Имя middleware
 2. Для какого сценария он нужен: auth, guest-only, onboarding, locale, feature gating
 3. На каких маршрутах он должен работать
-4. Какие redirect или abort правила ожидаются
+4. Какие правила redirect или abort ожидаются
 
-Перед scaffold:
-- изучи существующие `components/`, `composables/`, `stores/` и похожие файлы проекта
-- проверь, нет ли уже похожего guard-flow, auth pattern или навигационного контракта
+## Перед созданием
 
-Создай файл `middleware/<name>.ts`.
+- Изучи существующие `middleware/`, `stores/`, `composables/` и страницы, которые middleware будет защищать
+- Проверь, нет ли уже похожего guard: auth-проверки, redirect-правила, глобального middleware
 
-Требования:
-- используй стандартный Nuxt route middleware pattern
-- не дублируй store/page логику, если middleware должен только принять навигационное решение
-- избегай redirect loops
-- учитывай SSR и client navigation
-- если нужен auth state, опирайся на существующий store/composable проекта
+## Требования
 
-После создания:
-1. Покажи contract middleware
-2. Объясни, почему это middleware, а не page-level check
-3. Предложи test cases для allowed, redirected и edge-case навигации
+- стандартный Nuxt route middleware через `defineNuxtRouteMiddleware`
+- middleware только принимает навигационное решение и не дублирует логику store или страницы
+- без циклических redirect
+- одинаково корректен при SSR и при навигации на клиенте
+- auth state — из существующего store или composable проекта
+
+## После создания
+
+1. Запусти `lint` и `format` профиля из `.aikit/profiles.json` на созданных файлах (в папке `root` профиля, пути вместо `{files}`); если добавил тест — и `test`
+2. Покажи, на каких маршрутах и с какими правилами работает middleware, и объясни, почему это middleware, а не проверка на странице
+3. Предложи тестовые кейсы: доступ разрешён, redirect, граничные случаи навигации

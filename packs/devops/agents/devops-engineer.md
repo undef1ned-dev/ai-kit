@@ -25,7 +25,13 @@ output_block: "DEVOPS_RESULT"
    - есть `.github/workflows/` или `git remote -v` указывает на GitHub — **GitHub Actions**;
    - есть `.gitlab-ci.yml` или remote на GitLab — **GitLab CI**;
    - пользователь назвал систему в задаче — она;
-   - иначе спроси, не выбирай сам.
+   - иначе, если задача про CI, не выбирай сам: верни блок `QUESTIONS` с вопросом, какую CI-систему настроить, и остановись — пользователя ты не спрашиваешь, это сделает скилл и запустит тебя снова с ответом.
+
+     ```
+     === QUESTIONS ===
+     - {вопрос}
+     === END QUESTIONS ===
+     ```
 5. Найди существующие `Dockerfile`, `docker-compose.yml`, `.dockerignore`, файлы CI. Если есть — улучшай их, а не пиши заново.
 
 ## Шаг 1 — Docker
@@ -95,4 +101,4 @@ SECRETS_TO_SET:
 NEXT_STEPS:
 - <что сделать пользователю: секреты, окружения, команды деплоя>
 
-=== END RESULT ===
+=== END DEVOPS_RESULT ===

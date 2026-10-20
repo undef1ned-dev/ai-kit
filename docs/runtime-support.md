@@ -48,9 +48,10 @@ GLM отдельно не поддерживается: это модель, а 
 | Установка всех пресетов | ✅ | ✅ | ✅ |
 | Правила проекта | ✅ `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md`, текст пользователя вне блока сохраняется | ✅ тот же `AGENTS.md` |
 | Скиллы | ✅ `.claude/skills/<name>/SKILL.md` — все скиллы base, профилей и паков | ✅ `.agents/skills/<name>/SKILL.md` | ✅ `.agents/skills/<name>/SKILL.md` |
-| Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `workflow`, `set-model`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
+| Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `set-model`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
 | Старые команды прежних версий кита | ✅ убираются из `.claude/commands/` при обновлении, свои команды пользователя остаются | ✅ `.codex/commands/` убирается | — |
 | Сабагенты | ✅ `.claude/agents/` | ✅ `.codex/agents/*.toml` (проект должен быть доверенным) | ✅ `.opencode/agents/*.md`, `mode: subagent` |
+| Свои агенты и скиллы проекта (`/create-agent`, `/create-skill` в проекте), обновление кита их не трогает | ✅ `.claude/agents/<имя>.md`, `.claude/skills/<имя>/` | ⚠️ `.codex/agents/<имя>.toml`, `.agents/skills/<имя>/`; не проверено вживую | ⚠️ `.opencode/agents/<имя>.md`, `.opencode/skills/<имя>/`; не проверено вживую |
 | Модели агентов: уровень в описании агента (`opus`, `sonnet`, `haiku`) → модель runtime из `adapters/models.json` | ✅ алиасы Claude Code, всегда последняя версия семейства | ✅ `model` и `model_reasoning_effort` в TOML агента | ✅ `model` агента (`provider/model`) |
 | Своя модель агента в проекте (`/set-model`, `.aikit/models.json`) | ✅ в файле агента; при установке плагинами — параметр `model` при запуске по правилу из `CLAUDE.md` | ✅ | ✅ |
 | MCP-серверы | ✅ `.mcp.json` | ✅ блок AIKit в `.codex/config.toml` (проект должен быть доверенным) | ✅ раздел `mcp` в `opencode.json` |
@@ -59,10 +60,10 @@ GLM отдельно не поддерживается: это модель, а 
 | Figma, Sentry — официальные удалённые MCP с входом через OAuth | ✅ | ✅ `codex mcp login <name>` | ⚠️ Figma пускает только клиентов из своего каталога |
 | `.claude/settings.json` хранится в git | ✅ правило в `.gitignore` от прежних версий убирается | — | — |
 | Контракты профилей в проекте (`.aikit/profiles.json`), правки команд сохраняются при обновлении | ✅ | ✅ | ✅ |
-| Общий `/implement-feature` и `workflow-runner` берут агентов и команды из `.aikit/profiles.json` | ✅ | ✅ | ✅ |
+| Общий `/implement-feature` берёт агентов и команды из `.aikit/profiles.json` | ✅ | ✅ | ✅ |
 | Монорепо: папка каждого профиля (`root`) находится при установке, команды запускаются в ней | ✅ | ✅ | ✅ |
 | Новый профиль из шаблона (`scripts/new-profile.py`) ставится без правок ядра | ✅ | ✅ | ✅ (не проверено smoke) |
-| Пайплайны профиля (`pipelines`) в `/implement-feature` и `workflow-runner` | ✅ | ✅ | ✅ |
+| Пайплайны профиля (`pipelines`) в `/implement-feature` | ✅ | ✅ | ✅ |
 | `/implement-feature`: тестировщик и ревьюер параллельно, линтер — пока они работают | ✅ фоновые сабагенты | ✅ несколько сабагентов, ожидание всех | ✅ несколько сабагентов в одном сообщении |
 | `/implement-feature --worktree`: работа в git worktree от текущей ветки, перенос по согласию | ✅ | ✅ | ✅ |
 | `/implement-feature --tdd`, `/fix-bug`: сначала падающий тест | ✅ | ✅ | ✅ |

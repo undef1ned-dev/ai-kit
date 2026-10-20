@@ -2,7 +2,7 @@
 // the subagent list and history formatting. No mods API calls here, so tests run them directly.
 
 export const GROUPS = [
-  { id: 'dev', title: 'Разработка', skills: ['implement-feature', 'fix-bug', 'check-feature', 'workflow'] },
+  { id: 'dev', title: 'Разработка', skills: ['implement-feature', 'fix-bug', 'check-feature'] },
   { id: 'plan', title: 'Анализ и планирование', skills: ['analyze-mvp', 'implement-mvp', 'cross-check'] },
   { id: 'quality', title: 'Качество и безопасность', skills: ['security-check', 'coverage-check', 'tech-debt', 'write-ui-texts'] },
   { id: 'memory', title: 'Память', skills: ['capture-memory', 'memory-status', 'optimize-memory'] },

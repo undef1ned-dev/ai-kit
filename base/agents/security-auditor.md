@@ -1,7 +1,7 @@
 ---
 name: security-auditor
 description: Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: opus
 version: "2.0.0"
 profile: "base"
@@ -27,11 +27,13 @@ output_block: "SECURITY_AUDIT"
 
 1. Прочитай `.aikit/profiles.json`: `stack`, `role` и `root` каждого профиля — что проверять и где. Нет контракта — определи стек по файлам проекта (`package.json`, `pyproject.toml`, `pom.xml`, `go.mod`, `Podfile`, …)
 2. Если пользователь указал конкретные файлы — проверь только их
-3. Если нет — проверяй изменения с последнего коммита:
+3. Если нет — проверяй незакоммиченные изменения: правки рабочего дерева и индекса плюс новые файлы:
    ```bash
-   git diff --name-only HEAD~1
+   git diff --name-only HEAD
+   git status --short
    ```
-   Или все файлы проекта, если попросили полный аудит.
+   Незакоммиченных правок нет или попросили проверить ветку — изменения ветки относительно базы: `git diff --name-only <база>...HEAD` (база — `develop`, если есть, иначе `main`).
+   Все файлы проекта — если попросили полный аудит.
 
 ## Шаг 0.5 — Уточни best practices стека (необязательно)
 

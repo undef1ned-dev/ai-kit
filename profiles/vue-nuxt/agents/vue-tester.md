@@ -1,6 +1,6 @@
 ---
 name: vue-tester
-description: Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT, при необходимости предлагает E2E-проверку через Playwright.
+description: Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT. Проверку в запущенном приложении делает /check-feature.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
 version: "1.0.0"
@@ -28,8 +28,8 @@ context_blocks: ["CODER_RESULT"]
 ## Шаг 0 — Прочитай контекст
 
 1. Найди блок CODER_RESULT
-2. Прочитай все файлы из `COMPONENTS_TO_TEST`, `LAYOUTS_TO_TEST`, `APP_SHELL_TO_TEST`, `NUXT_CONFIG_TO_TEST`, `TOOLING_CONFIG_TO_TEST`, `COMPOSABLES_TO_TEST`, `STORES_TO_TEST`, `MIDDLEWARE_TO_TEST`, `PLUGINS_TO_TEST`, `SERVER_ROUTES_TO_TEST`, `E2E_FLOWS`
-3. Прочитай конфигурацию `vitest`, `playwright`, `eslint` если они есть
+2. Прочитай все файлы из `COMPONENTS_TO_TEST`, `LAYOUTS_TO_TEST`, `APP_SHELL_TO_TEST`, `NUXT_CONFIG_TO_TEST`, `TOOLING_CONFIG_TO_TEST`, `COMPOSABLES_TO_TEST`, `STORES_TO_TEST`, `MIDDLEWARE_TO_TEST`, `PLUGINS_TO_TEST`, `SERVER_ROUTES_TO_TEST`
+3. Прочитай конфигурацию `vitest`, `eslint` если они есть
 4. Найди существующие тесты как образец
 
 ## Шаг 0.1 — Построй стратегию тестирования по типу файлов
@@ -105,15 +105,7 @@ context_blocks: ["CODER_RESULT"]
 
 Не пиши все типы тестов подряд. Выбирай те, что реально соответствуют изменённым файлам.
 
-## Шаг 0.5 — Выбор инструментов
-
-**Спроси разработчика**:
-
-> Использовать **Playwright** для E2E/визуальной проверки маршрута?
-> Нужен доступный dev-сервер приложения.
-> Ответь: **да** или **нет**
-
-Если ответ **да** — используй Playwright MCP для проверки основного user flow.
+После написания запусти команду `test` профиля из `.aikit/profiles.json` в папке `root` профиля и приложи результат.
 
 ## Что тестируешь
 
@@ -149,14 +141,6 @@ describe("FeatureCard", () => {
 })
 ```
 
-## Playwright проверка
-
-Если разработчик ответил **да**:
-- открой нужный route
-- проверь что critical UI отображается
-- проверь основной happy path
-- сделай screenshot если это помогает подтвердить результат
-
 ## После написания тестов
 
 === TESTER_RESULT ===
@@ -171,10 +155,7 @@ COVERED:
 - stores/composables: <список>
 - middleware/plugins: <список>
 - server routes: <список>
-- e2e: <маршруты и сценарии>
 
-RUN_COMMANDS:
-- pnpm vitest
-- pnpm playwright test
+RUN: <команда test профиля> → <прошло / упало: что именно>
 
-=== END RESULT ===
+=== END TESTER_RESULT ===

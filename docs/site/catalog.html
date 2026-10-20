@@ -25,8 +25,8 @@
 <h1 class="page-title">Каталог профилей</h1>
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
-  <div><b>17</b><span>агенты</span></div>
-  <div><b>31</b><span>скиллы</span></div>
+  <div><b>16</b><span>агенты</span></div>
+  <div><b>29</b><span>скиллы</span></div>
   <div><b>1</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
 </div>
@@ -41,40 +41,40 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">29</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">16</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
 <section class="catalog-panel" id="base" data-panel style="--accent-local:#4f46e5">
   <div class="panel-head"><h2>Base</h2><p>Ядро кита: ставится в любой проект вместе с любым профилем</p></div>
 
-  <h3>Агенты <span class="count">10</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder создаёт нового агента через структурированный опрос по 6 фазам. генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. используй когда нужно добавить нового специализированного агента в репозиторий.">
+  <h3>Агенты <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-agent-builder" data-filter="agent-builder генерирует файл нового агента по готовым ответам интервью /create-agent — в репозитории кита агента кита, в проекте локального агента для claude code, codex или opencode. проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в agent_file, ничего не записывая. используй, когда ответы на вопросы о новом агенте собраны.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">agent-builder</span></header>
-  <p>Создаёт нового агента через структурированный опрос по 6 фазам. Генерирует готовый .md файл с чёткой ролью, алгоритмом, правилами и форматом вывода. Используй когда нужно добавить нового специализированного агента в репозиторий.</p>
+  <p>Генерирует файл нового агента по готовым ответам интервью /create-agent — в репозитории кита агента кита, в проекте локального агента для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в AGENT_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом агенте собраны.</p>
   <div class="chips"><span class="chip chip-out">→ AGENT_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
-  <div class="entry-example"><span>Создай агента для проверки локализации</span><button class="copy-btn" type="button" data-copy="Создай агента для проверки локализации">Копировать</button></div>
+  <div class="entry-example"><span>Сгенерируй агента по ответам интервью: проверка локализации, Claude Code</span><button class="copy-btn" type="button" data-copy="Сгенерируй агента по ответам интервью: проверка локализации, Claude Code">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/agent-builder.md">base/agents/agent-builder.md</a>
-</article><article class="entry-card entry-agent" id="agent-cross-project-analyst" data-filter="cross-project-analyst кросс-проектный аналитик. анализирует, как изменение api или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать.">
+</article><article class="entry-card entry-agent" id="agent-cross-project-analyst" data-filter="cross-project-analyst кросс-проектный аналитик. анализирует, как изменение api или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать. используй через /cross-check, когда меняется api или контракт данных между сторонами.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">cross-project-analyst</span></header>
-  <p>Кросс-проектный аналитик. Анализирует, как изменение API или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать.</p>
+  <p>Кросс-проектный аналитик. Анализирует, как изменение API или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать. Используй через /cross-check, когда меняется API или контракт данных между сторонами.</p>
   <div class="chips"><span class="chip chip-out">→ CROSS_PROJECT_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?</span><button class="copy-btn" type="button" data-copy="Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/cross-project-analyst.md">base/agents/cross-project-analyst.md</a>
-</article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует командную память .aikit/memory/ — сжимает index до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. запускай через /optimize-memory, когда /memory-status показывает предупреждение.">
+</article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует командную память .aikit/memory/ — сжимает index до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. запускай через /optimize-memory, когда /memory-status показывает предупреждение.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-optimizer</span></header>
-  <p>Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Запускай через /optimize-memory, когда /memory-status показывает предупреждение.</p>
-  <div class="chips"><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
+  <p>Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. Запускай через /optimize-memory, когда /memory-status показывает предупреждение.</p>
+  <div class="chips"><span class="chip chip-out">→ MEMORY_OPTIMIZATION</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-optimizer.md">base/agents/memory-optimizer.md</a>
-</article><article class="entry-card entry-agent" id="agent-memory-writer" data-filter="memory-writer фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. коммит и pr — по желанию пользователя. используй через /capture-memory после завершения работы.">
+</article><article class="entry-card entry-agent" id="agent-memory-writer" data-filter="memory-writer фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. git не трогает — сохранение выбирает и делает скилл. используй через /capture-memory, когда записи собраны и подтверждены пользователем.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-writer</span></header>
-  <p>Фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. Коммит и PR — по желанию пользователя. Используй через /capture-memory после завершения работы.</p>
-  <div class="chips"><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
+  <p>Фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. Git не трогает — сохранение выбирает и делает скилл. Используй через /capture-memory, когда записи собраны и подтверждены пользователем.</p>
+  <div class="chips"><span class="chip chip-out">→ MEMORY_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-writer.md">base/agents/memory-writer.md</a>
-</article><article class="entry-card entry-agent" id="agent-mvp-analyst" data-filter="mvp-analyst mvp-аналитик уровня зрелого продукта. принимает описание идеи и формирует структурированный анализ в docs/mvp/. учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. читает product.md для контекста продукта.">
+</article><article class="entry-card entry-agent" id="agent-mvp-analyst" data-filter="mvp-analyst mvp-аналитик уровня зрелого продукта. принимает описание идеи и формирует структурированный анализ в docs/mvp/. учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. читает product.md для контекста продукта. используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">mvp-analyst</span></header>
-  <p>MVP-аналитик уровня зрелого продукта. Принимает описание идеи и формирует структурированный анализ в docs/mvp/. Учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. Читает PRODUCT.md для контекста продукта.</p>
+  <p>MVP-аналитик уровня зрелого продукта. Принимает описание идеи и формирует структурированный анализ в docs/mvp/. Учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. Читает PRODUCT.md для контекста продукта. Используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.</p>
   <div class="chips"><span class="chip chip-out">→ MVP_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй идею: добавить экспорт отчётов в PDF</span><button class="copy-btn" type="button" data-copy="Проанализируй идею: добавить экспорт отчётов в PDF">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/mvp-analyst.md">base/agents/mvp-analyst.md</a>
@@ -84,32 +84,26 @@
   <div class="chips"><span class="chip chip-out">→ SECURITY_AUDIT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
   <div class="entry-example"><span>Проверь безопасность перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность перед релизом">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/security-auditor.md">base/agents/security-auditor.md</a>
-</article><article class="entry-card entry-agent" id="agent-skill-builder" data-filter="skill-builder создаёт новый скилл через структурированный опрос по 4 фазам. генерирует папку &lt;name&gt;/skill.md с оркестрацией агентов и чётким форматом вывода. используй когда нужно добавить новый скилл в репозиторий.">
+</article><article class="entry-card entry-agent" id="agent-skill-builder" data-filter="skill-builder генерирует новый скилл &lt;name&gt;/skill.md по готовым ответам интервью /create-skill — в репозитории кита скилл кита, в проекте локальный скилл для claude code, codex или opencode. проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в skill_file, ничего не записывая. используй, когда ответы на вопросы о новом скилле собраны.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">skill-builder</span></header>
-  <p>Создаёт новый скилл через структурированный опрос по 4 фазам. Генерирует папку &lt;name&gt;/SKILL.md с оркестрацией агентов и чётким форматом вывода. Используй когда нужно добавить новый скилл в репозиторий.</p>
+  <p>Генерирует новый скилл &lt;name&gt;/SKILL.md по готовым ответам интервью /create-skill — в репозитории кита скилл кита, в проекте локальный скилл для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в SKILL_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом скилле собраны.</p>
   <div class="chips"><span class="chip chip-out">→ SKILL_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
-  <div class="entry-example"><span>Создай скилл /check-l10n для запуска аудита локализации</span><button class="copy-btn" type="button" data-copy="Создай скилл /check-l10n для запуска аудита локализации">Копировать</button></div>
+  <div class="entry-example"><span>Сгенерируй скилл /check-l10n по ответам интервью</span><button class="copy-btn" type="button" data-copy="Сгенерируй скилл /check-l10n по ответам интервью">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/skill-builder.md">base/agents/skill-builder.md</a>
-</article><article class="entry-card entry-agent" id="agent-tech-planner" data-filter="tech-planner технический планировщик. читает продуктовый mvp-документ и переводит его в технический план реализации по платформам. определяет api-контракт, scope каждой платформы, порядок реализации. используй после mvp-analyst, перед архитекторами.">
+</article><article class="entry-card entry-agent" id="agent-tech-planner" data-filter="tech-planner технический планировщик. читает продуктовый mvp-документ и переводит его в технический план реализации по платформам. определяет api-контракт, scope каждой платформы, порядок реализации. используй через /implement-mvp после /analyze-mvp, перед архитекторами профилей.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">tech-planner</span></header>
-  <p>Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй после mvp-analyst, перед архитекторами.</p>
+  <p>Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй через /implement-mvp после /analyze-mvp, перед архитекторами профилей.</p>
   <div class="chips"><span class="chip chip-out">→ TECH_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
   <div class="entry-example"><span>Составь технический план для docs/mvp/export-pdf.md</span><button class="copy-btn" type="button" data-copy="Составь технический план для docs/mvp/export-pdf.md">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/tech-planner.md">base/agents/tech-planner.md</a>
-</article><article class="entry-card entry-agent" id="agent-ux-writer" data-filter="ux-writer ux-копирайтер. пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. следит за консистентностью терминологии.">
+</article><article class="entry-card entry-agent" id="agent-ux-writer" data-filter="ux-writer ux-копирайтер. пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. следит за консистентностью терминологии. используй через /write-ui-texts или из цепочки, когда нужно написать или проверить тексты интерфейса.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">ux-writer</span></header>
-  <p>UX-копирайтер. Пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. Следит за консистентностью терминологии.</p>
+  <p>UX-копирайтер. Пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. Следит за консистентностью терминологии. Используй через /write-ui-texts или из цепочки, когда нужно написать или проверить тексты интерфейса.</p>
   <div class="chips"><span class="chip chip-out">→ UX_TEXTS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тексты для экрана онбординга</span><button class="copy-btn" type="button" data-copy="Напиши тексты для экрана онбординга">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/ux-writer.md">base/agents/ux-writer.md</a>
-</article><article class="entry-card entry-agent" id="agent-workflow-runner" data-filter="workflow-runner оркестратор рабочих процессов. читает манифесты агентов, строит цепочку по depends_on, проводит разработчика через каждый шаг с передачей контекста. используй через skill `workflow` или напрямую как custom agent `workflow-runner`.">
-  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">workflow-runner</span></header>
-  <p>Оркестратор рабочих процессов. Читает манифесты агентов, строит цепочку по depends_on, проводит разработчика через каждый шаг с передачей контекста. Используй через skill `workflow` или напрямую как custom agent `workflow-runner`.</p>
-  <div class="chips"><span class="chip chip-out">→ WORKFLOW_SUMMARY</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
-  <div class="entry-example"><span>Реализуй фичу: добавить экспорт пользователей в CSV</span><button class="copy-btn" type="button" data-copy="Реализуй фичу: добавить экспорт пользователей в CSV">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/workflow-runner.md">base/agents/workflow-runner.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">19</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">18</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
@@ -133,15 +127,15 @@
 
   <div class="entry-example"><span>/coverage-check</span><button class="copy-btn" type="button" data-copy="/coverage-check">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/coverage-check/SKILL.md">base/skills/coverage-check/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-create-agent" data-filter="create-agent создать нового агента aikit через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента. используй, когда пользователь просит добавить или спроектировать агента.">
+</article><article class="entry-card entry-skill" id="skill-create-agent" data-filter="create-agent создать нового агента через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента: в репозитории кита — агента кита, в проекте — локального агента только для этого проекта. используй, когда пользователь просит добавить или спроектировать агента.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/create-agent</span></header>
-  <p>Создать нового агента AIKit через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента. Используй, когда пользователь просит добавить или спроектировать агента.</p>
+  <p>Создать нового агента через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента: в репозитории кита — агента кита, в проекте — локального агента только для этого проекта. Используй, когда пользователь просит добавить или спроектировать агента.</p>
 
   <div class="entry-example"><span>/create-agent агент для проверки локализации</span><button class="copy-btn" type="button" data-copy="/create-agent агент для проверки локализации">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/create-agent/SKILL.md">base/skills/create-agent/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-create-skill" data-filter="create-skill создать новый скилл aikit (папка &lt;name&gt;/skill.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. используй, когда пользователь просит добавить скилл или команду.">
+</article><article class="entry-card entry-skill" id="skill-create-skill" data-filter="create-skill создать новый скилл (папка &lt;name&gt;/skill.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. в репозитории кита — скилл кита, в проекте — локальный скилл только для этого проекта. используй, когда пользователь просит добавить скилл или команду.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/create-skill</span></header>
-  <p>Создать новый скилл AIKit (папка &lt;name&gt;/SKILL.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. Используй, когда пользователь просит добавить скилл или команду.</p>
+  <p>Создать новый скилл (папка &lt;name&gt;/SKILL.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. В репозитории кита — скилл кита, в проекте — локальный скилл только для этого проекта. Используй, когда пользователь просит добавить скилл или команду.</p>
 
   <div class="entry-example"><span>/create-skill /check-l10n для аудита переводов</span><button class="copy-btn" type="button" data-copy="/create-skill /check-l10n для аудита переводов">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/create-skill/SKILL.md">base/skills/create-skill/SKILL.md</a>
@@ -169,9 +163,9 @@
 
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/git-commit/SKILL.md">base/skills/git-commit/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.">
+</article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету figma.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-feature</span></header>
-  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком.</p>
+  <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты. Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету Figma.</p>
 
   <div class="entry-example"><span>/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read</span><button class="copy-btn" type="button" data-copy="/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/implement-feature/SKILL.md">base/skills/implement-feature/SKILL.md</a>
@@ -211,12 +205,6 @@
 
   <div class="entry-example"><span>/tech-debt</span><button class="copy-btn" type="button" data-copy="/tech-debt">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/tech-debt/SKILL.md">base/skills/tech-debt/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-workflow" data-filter="workflow интерактивный визард: определить тип задачи, построить цепочку агентов по манифестам и провести разработчика по шагам. запускай только по явной просьбе пользователя.">
-  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/workflow</span></header>
-  <p>Интерактивный визард: определить тип задачи, построить цепочку агентов по манифестам и провести разработчика по шагам. Запускай только по явной просьбе пользователя.</p>
-  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
-  <div class="entry-example"><span>workflow реализуй фичу экспорта отчётов в PDF</span><button class="copy-btn" type="button" data-copy="workflow реализуй фичу экспорта отчётов в PDF">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/workflow/SKILL.md">base/skills/workflow/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-write-ui-texts" data-filter="write-ui-texts написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. используй, когда задача касается текстов в ui.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/write-ui-texts</span></header>
   <p>Написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. Используй, когда задача касается текстов в UI.</p>
@@ -254,43 +242,37 @@
   <div class="chips"><span class="chip chip-out">→ CODER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Реализуй план из ARCHITECT_PLAN</span><button class="copy-btn" type="button" data-copy="Реализуй план из ARCHITECT_PLAN">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-coder.md">profiles/vue-nuxt/agents/vue-coder.md</a>
-</article><article class="entry-card entry-agent" id="agent-vue-design-bridge" data-filter="vue-design-bridge мост между дизайном и vue/nuxt кодом. проверяет соответствие ui kit, дизайн-токенов и figma-макетов, подсказывает правильные компоненты и паттерны реализации.">
+</article><article class="entry-card entry-agent" id="agent-vue-design-bridge" data-filter="vue-design-bridge мост между дизайном и vue/nuxt-кодом. проверяет соответствие ui kit, дизайн-токенам и figma-макету, раскладывает макет на компоненты для реализации. используй, когда задача идёт от макета figma или нужна сверка ui с дизайн-системой.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-design-bridge</span></header>
-  <p>Мост между дизайном и Vue/Nuxt кодом. Проверяет соответствие UI kit, дизайн-токенов и Figma-макетов, подсказывает правильные компоненты и паттерны реализации.</p>
+  <p>Мост между дизайном и Vue/Nuxt-кодом. Проверяет соответствие UI kit, дизайн-токенам и Figma-макету, раскладывает макет на компоненты для реализации. Используй, когда задача идёт от макета Figma или нужна сверка UI с дизайн-системой.</p>
   <div class="chips"><span class="chip chip-out">→ DESIGN_REVIEW</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проверь страницы профиля на соответствие UI kit и Figma</span><button class="copy-btn" type="button" data-copy="Проверь страницы профиля на соответствие UI kit и Figma">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-design-bridge.md">profiles/vue-nuxt/agents/vue-design-bridge.md</a>
-</article><article class="entry-card entry-agent" id="agent-vue-quality-analyst" data-filter="vue-quality-analyst аналитик качества vue/nuxt-кода. оценивает покрытие тестами vitest, находит технический долг и код-смелл в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту.">
+</article><article class="entry-card entry-agent" id="agent-vue-quality-analyst" data-filter="vue-quality-analyst аналитик качества vue/nuxt-кода. оценивает покрытие тестами vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-quality-analyst</span></header>
-  <p>Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг и код-смелл в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту.</p>
+  <p>Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.</p>
   <div class="chips"><span class="chip chip-out">→ QUALITY_REPORT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй качество кода в components/checkout/</span><button class="copy-btn" type="button" data-copy="Проанализируй качество кода в components/checkout/">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-quality-analyst.md">profiles/vue-nuxt/agents/vue-quality-analyst.md</a>
-</article><article class="entry-card entry-agent" id="agent-vue-reviewer" data-filter="vue-reviewer vue/nuxt code reviewer. проверяет код по coder_result и tester_result.">
+</article><article class="entry-card entry-agent" id="agent-vue-reviewer" data-filter="vue-reviewer vue/nuxt code reviewer. ревьюит vue/nuxt-код — файл, компонент или изменения ветки, в цепочке агентов — по coder_result: ssr и hydration, загрузку данных nuxt, api компонентов, pinia и безопасность. используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить vue/nuxt-код, в том числе перед мержем, и после реализации.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-reviewer</span></header>
-  <p>Vue/Nuxt code reviewer. Проверяет код по CODER_RESULT и TESTER_RESULT.</p>
+  <p>Vue/Nuxt code reviewer. Ревьюит Vue/Nuxt-код — файл, компонент или изменения ветки, в цепочке агентов — по CODER_RESULT: SSR и hydration, загрузку данных Nuxt, API компонентов, Pinia и безопасность. Используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить Vue/Nuxt-код, в том числе перед мержем, и после реализации.</p>
   <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
-  <div class="entry-example"><span>Проверь код по CODER_RESULT и TESTER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT и TESTER_RESULT">Копировать</button></div>
+  <div class="entry-example"><span>Проверь код по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-reviewer.md">profiles/vue-nuxt/agents/vue-reviewer.md</a>
-</article><article class="entry-card entry-agent" id="agent-vue-tester" data-filter="vue-tester vue/nuxt qa. пишет unit и component тесты по coder_result, при необходимости предлагает e2e-проверку через playwright.">
+</article><article class="entry-card entry-agent" id="agent-vue-tester" data-filter="vue-tester vue/nuxt qa. пишет unit и component тесты по coder_result. проверку в запущенном приложении делает /check-feature.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-tester</span></header>
-  <p>Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT, при необходимости предлагает E2E-проверку через Playwright.</p>
+  <p>Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT. Проверку в запущенном приложении делает /check-feature.</p>
   <div class="chips"><span class="chip chip-out">→ TESTER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тесты по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Напиши тесты по CODER_RESULT">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-tester.md">profiles/vue-nuxt/agents/vue-tester.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">10</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-add-tests" data-filter="add-tests написать vitest и component-тесты (@vue/test-utils) для существующего vue/nuxt-кода. используй, когда пользователь просит покрыть тестами компонент, composable или store.">
+  <h3>Скиллы <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-add-tests" data-filter="add-tests написать vitest и component-тесты (@vue/test-utils) для существующего vue/nuxt-кода. используй, когда пользователь просит покрыть тестами компонент, composable или store.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/add-tests</span></header>
   <p>Написать Vitest и component-тесты (@vue/test-utils) для существующего Vue/Nuxt-кода. Используй, когда пользователь просит покрыть тестами компонент, composable или store.</p>
 
   <div class="entry-example"><span>/add-tests pages/account/index.vue и stores/auth.ts</span><button class="copy-btn" type="button" data-copy="/add-tests pages/account/index.vue и stores/auth.ts">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/add-tests/SKILL.md">profiles/vue-nuxt/skills/add-tests/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-design-implement" data-filter="design-implement превратить figma-макет или другой design-input в implementation brief для vue/nuxt и провести задачу через design-aware цепочку architect → coder. используй, когда задача начинается с макета.">
-  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/design-implement</span></header>
-  <p>Превратить Figma-макет или другой design-input в implementation brief для Vue/Nuxt и провести задачу через design-aware цепочку architect → coder. Используй, когда задача начинается с макета.</p>
-
-  <div class="entry-example"><span>/design-implement реализуй страницу уведомлений по https://www.figma.com/file/...</span><button class="copy-btn" type="button" data-copy="/design-implement реализуй страницу уведомлений по https://www.figma.com/file/...">Копировать</button></div>
-  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/design-implement/SKILL.md">profiles/vue-nuxt/skills/design-implement/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-design-review" data-filter="design-review проверить vue/nuxt-реализацию на соответствие ui kit, дизайн-токенам и figma-макету. используй, когда нужно сверить готовый ui с дизайном.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/design-review</span></header>
   <p>Проверить Vue/Nuxt-реализацию на соответствие UI kit, дизайн-токенам и Figma-макету. Используй, когда нужно сверить готовый UI с дизайном.</p>

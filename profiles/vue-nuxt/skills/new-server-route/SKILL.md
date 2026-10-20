@@ -9,28 +9,29 @@ orchestrates: []
 example_prompt: "/new-server-route notifications/index.get"
 ---
 
-Создай новый Nitro server route.
+Создай новый Nitro server route `server/api/<path>.<method>.ts`.
 
-Запроси у пользователя:
+Запроси у пользователя то, чего нет в задаче:
 1. Путь route
 2. HTTP method
-3. Что route должен делать: proxy, aggregation, normalization, auth-aware endpoint
-4. Какие входные параметры и какой shape ответа нужен
+3. Что route должен делать: proxy, агрегация, нормализация ответа, endpoint с авторизацией
+4. Какие входные параметры и какая форма ответа нужны
 
-Перед scaffold:
-- изучи существующие `components/`, `composables/`, `stores/` и похожие файлы проекта
-- проверь, какие contracts, proxy-patterns и связанные frontend artifacts уже есть в проекте
+## Перед созданием
 
-Создай файл `server/api/<path>.<method>.ts`.
+- Изучи существующие `server/api/`, `server/utils/` и клиентский код, который будет вызывать route
+- Проверь, нет ли уже route или proxy с тем же назначением
 
-Требования:
-- используй стандартный Nitro route handler pattern
-- UI-логика запрещена: только server-side orchestration
-- явно обработай ошибки и shape ответа
-- если route пробрасывает auth/cookies/headers, сделай это осознанно и безопасно
-- если это простой proxy, не усложняй без причины
+## Требования
 
-После создания:
-1. Покажи contract route
-2. Объясни, почему здесь нужен `server/api`, а не прямой запрос из клиента
-3. Предложи test cases для happy path и error path
+- стандартный Nitro handler через `defineEventHandler`
+- только серверная логика, без UI-логики
+- входные параметры проверены, ошибки и форма ответа обработаны явно
+- auth, cookies и заголовки пробрасываются осознанно и без утечки токенов клиенту
+- простой proxy не усложнять без причины
+
+## После создания
+
+1. Запусти `lint` и `format` профиля из `.aikit/profiles.json` на созданных файлах (в папке `root` профиля, пути вместо `{files}`); если добавил тест — и `test`
+2. Покажи контракт route — вход, ответ, ошибки — и объясни, почему здесь нужен `server/api`, а не прямой запрос из клиента
+3. Предложи тестовые кейсы: happy path и error path

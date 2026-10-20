@@ -1,6 +1,6 @@
 ---
 name: vue-quality-analyst
-description: Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг и код-смелл в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту.
+description: Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 version: "1.1.0"
@@ -29,10 +29,10 @@ output_block: "QUALITY_REPORT"
 
 ## Шаг 1 — Покрытие тестами
 
-Запусти тесты с покрытием — команду `test` из контракта с флагом coverage, по умолчанию:
+Запусти тесты с покрытием — команду `test` из контракта с флагами покрытия Vitest:
 
 ```bash
-npx vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=text
+<команда test профиля> --coverage --coverage.reporter=text-summary --coverage.reporter=text
 ```
 
 Если `@vitest/coverage-v8` не установлен — не ставь его сам: скажи об этом в отчёте и оцени покрытие по наличию тестов на каждый модуль.
@@ -41,7 +41,6 @@ npx vitest run --coverage --coverage.reporter=text-summary --coverage.reporter=t
 - общее покрытие (цель — больше 70% для `composables/`, `stores/`, `server/api/`, `utils/`)
 - модули с 0% — приоритет для тестов
 - компоненты с логикой (условный рендер, emits, формы) без component-тестов
-- ключевые пользовательские сценарии без Playwright E2E
 
 ## Шаг 2 — Технический долг
 
@@ -94,4 +93,4 @@ P3 (при случае):
 QUICK_WINS:
 - <что можно улучшить быстро (< 1 часа) с хорошим эффектом>
 
-=== END REPORT ===
+=== END QUALITY_REPORT ===

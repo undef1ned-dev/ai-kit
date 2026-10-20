@@ -72,4 +72,4 @@ TEST_PLAN:
 QUESTIONS:
 - <вопрос или "нет вопросов">
 
-=== END PLAN ===
+=== END ARCHITECT_PLAN ===

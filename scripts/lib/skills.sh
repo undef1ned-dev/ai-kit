@@ -14,7 +14,11 @@ legacy_profile_prefix() {
 install_skill() {
   local src="$1" dst_root="$2" name="$3"
   local dst="$dst_root/$name"
-  rm -rf "$dst"
+  # Скиллы прошлой установки уже убраны, значит, папка осталась от команды: её не затираем
+  if [[ -e "$dst" ]]; then
+    log_warn "Скилл $name пропущен: в .claude/skills/ уже есть ваша папка с таким именем — переименуйте её и повторите установку"
+    return 0
+  fi
   cp -R "${src%/}" "$dst"
   local file="$dst/SKILL.md"
 

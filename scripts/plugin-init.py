@@ -177,10 +177,12 @@ def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], p
         (agents_dir / f"{name}.toml").unlink(missing_ok=True)
     sources = [ROOT / "base", *(ROOT / "profiles" / name for name in profiles), *(ROOT / "packs" / name for name in packs)]
     agents_dir.mkdir(parents=True, exist_ok=True)
+    kit_files: set[str] = set()
     for source in sources:
         for agent in sorted((source / "agents").glob("*.md")):
             shutil.copyfile(agent, agents_dir / agent.name)
-    rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace)]
+            kit_files.add(f".codex/agents/{agent.name}")
+    rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace, kit_files)]
     agent_models.apply("codex", workspace)
     return rendered
 

@@ -311,13 +311,21 @@ def strip_consumer_manifest_fields(path: Path) -> None:
         write_json(path, data)
 
 
-def render_codex_custom_agents(workspace: Path) -> list[dict[str, str]]:
+def kit_relative_files(bundle_root: Path) -> set[str]:
+    """Workspace-relative paths the package ships; everything else in the project belongs to the team."""
+    return {path.relative_to(bundle_root).as_posix() for path in bundle_root.rglob("*") if path.is_file()}
+
+
+def render_codex_custom_agents(workspace: Path, kit_files: set[str]) -> list[dict[str, str]]:
     agents_root = workspace / ".codex" / "agents"
     if not agents_root.exists():
         return []
 
     rendered: list[dict[str, str]] = []
     for agent_file in sorted(agents_root.glob("*.md")):
+        # A team's own markdown agent stays as it is: only the kit's agents are converted
+        if f".codex/agents/{agent_file.name}" not in kit_files:
+            continue
         content = read_text(agent_file)
         metadata = parse_frontmatter(content)
         role_name = str(metadata.get("name") or agent_file.stem).strip()
@@ -354,8 +362,8 @@ def render_codex_custom_agents(workspace: Path) -> list[dict[str, str]]:
     return rendered
 
 
-def prepare_codex_workspace_surface(workspace: Path) -> None:
-    render_codex_custom_agents(workspace)
+def prepare_codex_workspace_surface(workspace: Path, kit_files: set[str]) -> None:
+    render_codex_custom_agents(workspace, kit_files)
 
 
 def remove_previous_native_paths(workspace: Path) -> None:
@@ -443,7 +451,7 @@ def apply_consumer_workspace_policy(adapter: dict, workspace: Path) -> None:
     strip_consumer_manifest_fields(workspace / ".aikit" / "package.manifest.json")
 
 
-def rewrite_local_script_commands(workspace: Path, adapter: dict) -> None:
+def rewrite_local_script_commands(workspace: Path, adapter: dict, kit_files: set[str]) -> None:
     runtime = str(adapter.get("runtime", "")).strip()
     if runtime not in {"codex", "opencode"}:
         return
@@ -460,7 +468,8 @@ def rewrite_local_script_commands(workspace: Path, adapter: dict) -> None:
     }
     for root in (workspace / f".{runtime}", workspace / ".agents" / "skills"):
         for markdown_path in sorted(root.rglob("*.md")):
-            rewrite_text_file(markdown_path, replacements)
+            if markdown_path.relative_to(workspace).as_posix() in kit_files:
+                rewrite_text_file(markdown_path, replacements)
 
 
 def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path) -> None:
@@ -518,17 +527,18 @@ def install_package(
             packs,
             temp_root,
         )
+        kit_files = kit_relative_files(bundle_root)
         remove_previous_native_paths(workspace)
         remove_legacy_claude_commands(workspace, bundle_root)
         sync_bundle(bundle_root, workspace, skip_rel_paths=memory_paths)
         apply_consumer_workspace_policy(adapter, workspace)
         ensure_consumer_memory_dirs(workspace, memory_paths)
-        rewrite_local_script_commands(workspace, adapter)
+        rewrite_local_script_commands(workspace, adapter, kit_files)
         runtime = str(adapter.get("runtime", "")).strip()
         if runtime in {"codex", "opencode"}:
             merge_agents_md(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()])
         if runtime == "codex":
-            prepare_codex_workspace_surface(workspace)
+            prepare_codex_workspace_surface(workspace, kit_files)
         if runtime in {"codex", "opencode"}:
             agent_models.apply(runtime, workspace)
         if runtime in mcp_config.RUNTIMES:

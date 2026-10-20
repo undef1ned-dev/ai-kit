@@ -1,7 +1,7 @@
 ---
 name: vue-coder
 description: Vue/Nuxt разработчик. Реализует файлы по ARCHITECT_PLAN. Используй после получения плана от vue-architect.
-tools: Read, Grep, Glob, Write, Edit, Bash
+tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: sonnet
 version: "1.0.0"
 profile: "vue-nuxt"
@@ -129,15 +129,9 @@ context_blocks: ["ARCHITECT_PLAN"]
 
 Сначала перечисли себе активные режимы и только потом пиши код.
 
-## Шаг 0.5 — Выбор инструментов
+## Актуальный API
 
-Перед началом реализации **спроси разработчика**:
-
-> Использовать **Context7** для проверки актуального API Vue 3 / Nuxt 3 / Pinia / VueUse?
-> Полезно для `useAsyncData`, route middleware, store patterns, watcher/computed edge cases.
-> Ответь: **да** или **нет**
-
-Если ответ **да** — используй Context7 для спорных мест.
+Если сомневаешься в API Vue 3 / Nuxt / Pinia / VueUse (`useAsyncData`, route middleware, store patterns, крайние случаи `watch`/`computed`) — проверь через Context7. Не спрашивай разрешения; Context7 недоступен — пропусти и опирайся на код проекта.
 
 ## Стек
 
@@ -156,6 +150,7 @@ context_blocks: ["ARCHITECT_PLAN"]
 - Для API-запросов используй уже существующий слой проекта
 - Обрабатывай `pending`, `error`, `empty`
 - Учитывай SSR и hydration
+- После правок запусти `lint` и `format` профиля из `.aikit/profiles.json` на изменённых файлах в папке `root` профиля (пути вместо `{files}`)
 
 ### Запрещено
 - Options API
@@ -326,11 +321,6 @@ PLUGINS_TO_TEST:
 SERVER_ROUTES_TO_TEST:
 - <route>: auth, response shape, error path
 
-E2E_FLOWS:
-- <маршрут>: <что должен пройти пользователь>
+LINT: <команда lint профиля> → <прошло / что упало>
 
-RUN_COMMANDS:
-- pnpm vitest
-- pnpm eslint .
-
-=== END RESULT ===
+=== END CODER_RESULT ===

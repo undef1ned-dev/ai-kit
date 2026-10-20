@@ -288,7 +288,7 @@ def check_branch(name: str) -> str | None:
         return None
     return (
         f"Имя ветки «{name}» не по Conventional Branch. Формат: <type>/<описание>, "
-        "type — feat, fix, hotfix, release, chore (или docs, refactor, test, ci), "
+        "type — feat, fix, hotfix, release, chore (или docs, refactor, test, ci, build, perf, style), "
         "описание — строчная латиница, цифры и дефисы. Пример: feat/oauth-login."
     )
 

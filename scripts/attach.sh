@@ -427,6 +427,6 @@ echo "  3. После первой содержательной задачи з�
 if $MULTI_PROFILE; then
   echo ""
   echo "Подсказка мульти-профиль:"
-  echo "  /implement-feature и /workflow выбирают профиль по задаче; агенты и папки профилей — в .aikit/profiles.json"
+  echo "  /implement-feature выбирает профиль по задаче; агенты и папки профилей — в .aikit/profiles.json"
 fi
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
