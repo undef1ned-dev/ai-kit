@@ -59,11 +59,13 @@ let docsFilter = ''
 let isPaneOpen = false
 let memory = memorySummary(null)
 let isRich = false
+let wasOpenedHere = false
 
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
 const passThrough = ($, e, next) => next(e)
 const historyKey = () => 'history:' + (project?.root ?? sessionRoot)
+const openedKey = () => 'opened:' + (project?.root ?? sessionRoot)
 
 function joinPath(...parts) {
   return parts.join('/').replace(/\\/g, '/').replace(/\/+/g, '/')
@@ -162,6 +164,7 @@ async function loadCatalog($) {
     commands = []
   }
   history = (await $.store.get(historyKey())) ?? []
+  wasOpenedHere = Boolean(await $.store.get(openedKey()))
 }
 
 async function refreshMemory($) {
@@ -574,6 +577,24 @@ async function openPane($, focus) {
   const pane = { id: PANE, title: 'AIKit Deck', closeOnEscape: true }
   const opened = await $.ui.open(focus ? { ...pane, focus: true } : pane)
   isPaneOpen = Boolean(opened?.isPlaced) || focus
+  redraw($)
+  if (focus && !wasOpenedHere) {
+    wasOpenedHere = true
+    await $.store.set(openedKey(), true)
+  }
+}
+
+// A slash command waits for the turn to end; a button in the prompt footer, beside the session's mode labels,
+// opens the deck at any moment. The band above the prompt is left to other mods: it holds one tree at a time
+function footerWithButton($, ui, modes) {
+  return ui.Box({
+    flexDirection: 'row',
+    columnGap: 1,
+    children: [
+      ...(modes.length > 0 ? [ui.Text({ dimColor: true, children: [modes.join(' & ')] })] : []),
+      ui.Button({ key: 'open-deck', label: 'AIKit Deck', plain: true, onPress: () => openPane($, true) }),
+    ],
+  })
 }
 
 export function register(on) {
@@ -625,7 +646,10 @@ export function register(on) {
   }).catch(passThrough)
 
   on('ui.close', async ($, e, next) => {
-    if (e.id === PANE) isPaneOpen = false
+    if (e.id === PANE) {
+      isPaneOpen = false
+      redraw($)
+    }
     return next(e)
   }).catch(passThrough)
 
@@ -647,6 +671,12 @@ export function register(on) {
     const result = await next(e)
     if (e.origin?.kind === 'task-notification') await refreshAgents($)
     return result
+  }).catch(passThrough)
+
+  // Shown while the deck is closed, in a connected project or one where the deck was opened before
+  on('ui.render', { component: 'SessionMode' }, ($, e, next) => {
+    if (isPaneOpen || !(project || wasOpenedHere)) return next(e)
+    return footerWithButton($, $.ui.resolve(e), e.props.modes)
   }).catch(passThrough)
 
   on('ui.render', { component: 'Pane' }, async ($, e, next) => {

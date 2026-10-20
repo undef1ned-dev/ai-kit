@@ -24,6 +24,13 @@ const PANE = {
   viewport: { columns: 120, rows: 40 },
   props: { title: 'AIKit Deck', isFocused: true, bodyColumns: 60, placement: 'dock', scroll: { offset: 0, bodyRows: 40 }, view: {} },
 } as const
+const FOOTER = {
+  plugin: 'aikit',
+  component: 'SessionMode',
+  requestId: 'session-mode',
+  viewport: { columns: 120, rows: 40 },
+  props: { modes: ['focus'] },
+} as const
 
 // The engine hands paths in the platform's spelling
 const slash = (path: string) => path.replace(/\\/g, '/')
@@ -43,6 +50,8 @@ type Kit = {
   engine?: string
   settings?: string
   written?: { path: string; text: string }[]
+  isPlaced?: boolean
+  opened?: boolean[]
 }
 
 function stubKit(on, kit: Kit) {
@@ -54,7 +63,10 @@ function stubKit(on, kit: Kit) {
   on('command.list', () => ({ value: COMMANDS }))
   on('session.version', () => ({ value: { version: kit.engine ?? '2.1.296', base: kit.engine ?? '2.1.296' } }))
   on('agent.list', () => ({ value: kit.agents ?? [] }))
-  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('ui.open', ($, e) => {
+    kit.opened?.push(Boolean(e.focus))
+    return { value: { isPlaced: kit.isPlaced ?? true } }
+  })
   on('ui.toast', () => ({ value: undefined }))
   on('ui.status', ($, e) => {
     kit.statuses?.push(e.text)
@@ -274,4 +286,24 @@ test('a project without AIKit has no commit toggle', async ($, on) => {
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await ui.find({ key: 'commit' })).toBeUndefined()
+})
+
+test('while the deck is closed a button in the prompt footer opens it, beside the mode labels', async ($, on) => {
+  const kit: Kit = { isPlaced: false, opened: [] }
+  stubKit(on, kit)
+  await start($)
+  const footer = await $.ui.mount({ ...FOOTER, surface: 'desktop' })
+  expect(await footer.find({ type: 'Text', text: 'focus' })).toBeDefined()
+  await footer.press({ key: 'open-deck' })
+  expect(kit.opened).toEqual([false, true])
+})
+
+test('the button hides while the deck is open and in a project that never used it', async ($, on) => {
+  stubKit(on, {})
+  // The engine's own footer
+  on('ui.render', ($, e) => $.ui.resolve(e).Box({ key: 'engine-footer', children: [] }))
+  await start($)
+  const footer = await $.ui.mount({ ...FOOTER, surface: 'terminal' })
+  expect(await footer.find({ key: 'open-deck' })).toBeUndefined()
+  expect(await footer.find({ key: 'engine-footer' })).toBeDefined()
 })
