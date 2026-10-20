@@ -8,6 +8,7 @@ Plugins bring agents, skills, hooks and MCP servers; what belongs to the project
                    text outside the block stays as the team wrote it
     contracts    — .aikit/profiles.json: agents by role and commands of each profile
     memory       — .aikit/memory/ and the PRODUCT.md template, if the project has none
+    settings     — .aikit/settings.json: team settings, such as asking for the commit message or committing by the rules
     claude       — .claude/settings.json: kit permissions and attribution, the aikit marketplace
                    and the enabled plugins, so teammates get the same set after trusting the folder
     codex        — .codex/agents/*.toml: Codex plugins cannot ship agents, so they are written here
@@ -16,7 +17,7 @@ The script runs from the core plugin (its root is the AIKit repository) via the 
 State of the previous run is kept in .aikit/plugin-init.json: agents it wrote and are no longer needed are removed.
 
 Usage:
-    python3 scripts/plugin-init.py --runtime claude --profiles vue-nuxt [--packs devops] [--workspace .]
+    python3 scripts/plugin-init.py --runtime claude --profiles vue-nuxt [--packs devops] [--commit ask|auto] [--workspace .]
     python3 scripts/plugin-init.py --runtime codex --preset frontend-team
 """
 
@@ -34,6 +35,7 @@ import agent_models
 import memory_paths
 import preset_utils
 import profile_contract
+import project_settings
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -189,6 +191,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--profiles", help="profile1+profile2")
     parser.add_argument("--preset", help="preset name from presets/")
     parser.add_argument("--packs", default="", help='extra packs: "devops"')
+    parser.add_argument("--commit", choices=project_settings.COMMIT_MODES, help="ask for the commit message or commit by the rules")
     parser.add_argument("--workspace", default=".")
     return parser.parse_args()
 
@@ -207,6 +210,7 @@ def main() -> int:
     print(f"Контракты профилей: {', '.join(profile_contract.install(workspace, profiles))}")
     ensure_memory(workspace)
     print("Память: .aikit/memory/, PRODUCT.md")
+    print(f"Коммиты: {project_settings.describe(project_settings.write(workspace, args.commit))}")
     codex_agents = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
     if args.runtime == "claude":
         plugins = merge_claude_settings(workspace, profiles, packs)

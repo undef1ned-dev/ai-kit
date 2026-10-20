@@ -69,7 +69,7 @@ python3 --version</code></pre></div>
 <p><strong>Что происходит.</strong> Для проверки UI нужен браузерный инструмент: Playwright MCP (его подключает профиль <code>vue-nuxt</code>) или встроенный браузер runtime. Без них <code>/check-feature</code> проверяет, что страница отдаётся и в ней есть нужный текст, а клики и формы оставляет тебе.</p>
 <p><strong>Как обойти.</strong> Подключи Playwright MCP или проверь UI вручную по сценарию, который покажет ассистент.</p>
 <h3 id="opencode-может-сам-запустить-скиллы-с-побочными-эффектами"><a class="anchor" href="#opencode-может-сам-запустить-скиллы-с-побочными-эффектами" aria-hidden="true">#</a>OpenCode может сам запустить скиллы с побочными эффектами</h3>
-<p><strong>Что происходит.</strong> В <code>SKILL.md</code> для OpenCode нет поля, которое запрещает автовызов. <code>/capture-memory</code>, <code>/optimize-memory</code>, <code>/workflow</code> и <code>/improve-aikit</code> могут сработать без явной просьбы.</p>
+<p><strong>Что происходит.</strong> В <code>SKILL.md</code> для OpenCode нет поля, которое запрещает автовызов. <code>/capture-memory</code>, <code>/optimize-memory</code>, <code>/workflow</code> и <code>/set-model</code> могут сработать без явной просьбы.</p>
 <p><strong>Как обойти.</strong> Если такой скилл запустился без твоей просьбы, прерви его. Запрет можно задать через <code>permission</code> в <code>opencode.json</code>.</p>
     </article>
     <nav class="pager"><a class="pager-prev" href="runtime-support.html"><span>Назад</span>Поддержка runtime</a><a class="pager-next" href="roadmap.html"><span>Дальше</span>Roadmap</a></nav>

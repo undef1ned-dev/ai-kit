@@ -9,6 +9,7 @@
 3. **Каждая задача — для всех runtime.** Задача закрыта, когда сделана для Claude Code и Codex. Для OpenCode она сделана или явно отмечена как невозможная в [docs/runtime-support.md](../runtime-support.md).
 4. **Имена уникальны во всём ките.** Нет двух агентов или двух скиллов с одним именем — поэтому любые профили и паки ставятся вместе без переименований.
 5. **Минимальный diff.** Попутно не рефакторить. Одна задача — один коммит.
+6. **Кит не вызывает модель сам.** Ни CI, ни хуки, ни cron, ни AIKit Deck не запускают модель и не тратят лимиты. Эвалы и `/check-models` — только по явной команде человека.
 
 ## Карта репозитория
 
@@ -22,13 +23,13 @@
 | `hooks/hooks.json`, `deck/` | Мод [AIKit Deck](commands.md#панель-aikit-deck) плагина ядра (только Claude Code): `hooks.json` указывает на `deck/register.js`, чистые функции — `deck/catalog.js`, тесты — `deck/tests/` |
 | `presets/*.json` | Пресеты: `name`, `label`, `description`, `profiles`, `packs` |
 | `templates/profile/` | Шаблон нового профиля для `scripts/new-profile.py` |
-| `adapters/<runtime>/` | Описание адаптера (`adapter.manifest.json`) и шаблоны файлов runtime |
+| `adapters/<runtime>/` | Описание адаптера (`adapter.manifest.json`): куда runtime кладёт правила, агентов, скиллы и память |
 | `adapters/models.json` | Модели за уровнями агентов (`opus`, `sonnet`, `haiku`) в каждом runtime и источники; обновляется через `/check-models` |
 | `scripts/` | Установщики, генераторы, общие Python-модули |
 | `scripts/lib/` | Общие части `attach.sh` и `update.sh`: скиллы, MCP, контракты |
 | `scripts/ci/` | Проверки: статические и smoke-тесты установки |
 | `evals/` | [Эвалы](#эвалы): эталонные задачи ядра и профилей, фикстуры проектов, общий скрипт подготовки |
-| `.claude/skills/`, `.agents/skills/` | Скиллы для разработки самого кита (`run-evals`, `check-models`) — в проекты команд не ставятся |
+| `.claude/skills/`, `.agents/skills/`, `.claude/agents/` | Скиллы и агент для разработки самого кита (`improve-aikit` с агентом `aikit-maintainer`, `run-evals`, `check-models`) — в проекты команд не ставятся |
 | `docs/guide/` | Документация в Markdown — источник сайта |
 | `docs/site/` | Сайт документации: HTML собирается, `assets/site.css` и `site.js` пишутся руками |
 | `docs/roadmap.md` | План развития — что делаем и в каком порядке |
@@ -54,6 +55,7 @@
 | `scripts/run-evals.py` | Прогоняет эвалы в Claude Code, Codex или в обоих; `--check` — проверка кейсов без вызовов модели |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/preset_utils.py` | Разбор пресетов |
+| `scripts/project_settings.py` | Настройки команды в `.aikit/settings.json`: режим коммитов `ask` или `auto`; пишут установщики, переключает AIKit Deck |
 | `scripts/agent_models.py` | Модели агентов: уровень из frontmatter и `adapters/models.json` → модель runtime, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
@@ -216,6 +218,7 @@ CI (`.github/workflows/ci.yml`) запускает то же самое на Lin
 - Нужна команда `python3` — см. [Известные ошибки](known-issues.md#windows-нет-команды-python3).
 - Вывод скриптов с кириллицей: `export PYTHONIOENCODING=utf-8`.
 - Скрипты пишут файлы с переводом строки `\n`. Не сохраняй `.sh` с CRLF — bash на них падает.
+- Python на Windows по умолчанию пишет CRLF, и smoke-проверки на Linux падают. Пиши файлы через `Path.write_bytes(text.encode("utf-8"))` или `open(..., newline="\n")`. `.gitattributes` приводит файлы к LF при коммите; проверить индекс — `git grep -lI --cached $'\r'`.
 
 ## Git
 
@@ -225,6 +228,8 @@ CI (`.github/workflows/ci.yml`) запускает то же самое на Lin
 - Один этап roadmap — один PR в `main`.
 
 ## Порядок работы над задачей
+
+Задачу по киту можно отдать агенту `aikit-maintainer`: `/improve-aikit <что изменить>` в Claude Code или скилл `improve-aikit` в Codex. Он идёт по шагам ниже и прогоняет `run-all.sh`.
 
 <!-- steps -->
 1. Найди задачу в [roadmap](../roadmap.md) и прочитай связанные разделы этой документации.

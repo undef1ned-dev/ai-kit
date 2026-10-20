@@ -24,6 +24,13 @@ const PANE = {
   viewport: { columns: 120, rows: 40 },
   props: { title: 'AIKit Deck', isFocused: true, bodyColumns: 60, placement: 'dock', scroll: { offset: 0, bodyRows: 40 }, view: {} },
 } as const
+const FOOTER = {
+  plugin: 'aikit',
+  component: 'SessionMode',
+  requestId: 'session-mode',
+  viewport: { columns: 120, rows: 40 },
+  props: { modes: ['focus'] },
+} as const
 
 // The engine hands paths in the platform's spelling
 const slash = (path: string) => path.replace(/\\/g, '/')
@@ -41,6 +48,10 @@ type Kit = {
   memoryLines?: number
   statuses?: (string | undefined)[]
   engine?: string
+  settings?: string
+  written?: { path: string; text: string }[]
+  isPlaced?: boolean
+  opened?: boolean[]
 }
 
 function stubKit(on, kit: Kit) {
@@ -52,7 +63,10 @@ function stubKit(on, kit: Kit) {
   on('command.list', () => ({ value: COMMANDS }))
   on('session.version', () => ({ value: { version: kit.engine ?? '2.1.296', base: kit.engine ?? '2.1.296' } }))
   on('agent.list', () => ({ value: kit.agents ?? [] }))
-  on('ui.open', () => ({ value: { isPlaced: true } }))
+  on('ui.open', ($, e) => {
+    kit.opened?.push(Boolean(e.focus))
+    return { value: { isPlaced: kit.isPlaced ?? true } }
+  })
   on('ui.toast', () => ({ value: undefined }))
   on('ui.status', ($, e) => {
     kit.statuses?.push(e.text)
@@ -66,12 +80,17 @@ function stubKit(on, kit: Kit) {
   on('fs.read', ($, e) => {
     if (slash(e.path).endsWith('.aikit/profiles.json')) return kit.isConnected === false ? { deny: 'missing' } : { value: PROFILES }
     if (slash(e.path).endsWith('.aikit/plugin-init.json')) return { deny: 'missing' }
+    if (slash(e.path).endsWith('.aikit/settings.json')) return kit.settings === undefined ? { deny: 'missing' } : { value: kit.settings }
     if (slash(e.path).endsWith('.aikit/memory/INDEX.md')) {
       if (kit.memoryLines === undefined) return { deny: 'missing' }
       return { value: Array.from({ length: kit.memoryLines }, (_, i) => `- запись ${i}\n`).join('') }
     }
     const dir = Object.keys(SKILLS).find(item => slash(e.path).endsWith(item + '/SKILL.md'))
     return dir ? { value: skillFile(dir) } : { deny: 'missing' }
+  })
+  on('fs.write', ($, e) => {
+    kit.written?.push({ path: slash(e.path), text: e.text })
+    return { value: undefined }
   })
   on('command.run', ($, e) => {
     kit.ran?.push({ command: e.command, args: e.args })
@@ -247,4 +266,44 @@ test('from 2.1.299 the pane draws headings, primary buttons and checkboxes', asy
   await ui.press({ key: 'flag---tdd' })
   expect(await ui.find({ type: 'Button', text: '☑ --tdd' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: 'Разработка' })).toBeDefined()
+})
+
+test('the commit toggle writes the team setting and keeps other keys', async ($, on) => {
+  const kit: Kit = { settings: JSON.stringify({ commit: 'ask', other: 1 }), written: [] }
+  stubKit(on, kit)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Button', text: '☐ Коммит без вопроса' })).toBeDefined()
+  await ui.press({ key: 'commit' })
+  expect(kit.written?.length).toBe(1)
+  expect(kit.written?.[0].path.endsWith(PROJECT + '/.aikit/settings.json')).toBe(true)
+  expect(JSON.parse(kit.written?.[0].text ?? '')).toEqual({ commit: 'auto', other: 1 })
+  expect(await ui.find({ type: 'Button', text: '☑ Коммит без вопроса' })).toBeDefined()
+})
+
+test('a project without AIKit has no commit toggle', async ($, on) => {
+  stubKit(on, { isConnected: false })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ key: 'commit' })).toBeUndefined()
+})
+
+test('while the deck is closed a button in the prompt footer opens it, beside the mode labels', async ($, on) => {
+  const kit: Kit = { isPlaced: false, opened: [] }
+  stubKit(on, kit)
+  await start($)
+  const footer = await $.ui.mount({ ...FOOTER, surface: 'desktop' })
+  expect(await footer.find({ type: 'Text', text: 'focus' })).toBeDefined()
+  await footer.press({ key: 'open-deck' })
+  expect(kit.opened).toEqual([false, true])
+})
+
+test('the button hides while the deck is open and in a project that never used it', async ($, on) => {
+  stubKit(on, {})
+  // The engine's own footer
+  on('ui.render', ($, e) => $.ui.resolve(e).Box({ key: 'engine-footer', children: [] }))
+  await start($)
+  const footer = await $.ui.mount({ ...FOOTER, surface: 'terminal' })
+  expect(await footer.find({ key: 'open-deck' })).toBeUndefined()
+  expect(await footer.find({ key: 'engine-footer' })).toBeDefined()
 })

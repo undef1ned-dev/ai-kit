@@ -27,10 +27,6 @@ from preset_utils import resolve_preset
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "VERSION"
-COMMAND_SURFACE_FIXTURE = ROOT / "docs" / "fixtures" / "command-surface-inventory-fixtures.json"
-PACKAGE_MODE_CONSUMER = "consumer"
-PACKAGE_MODE_MAINTAINER = "maintainer"
-MAINTAINER_PROMPT_NAME = "CONTINUE_AIKIT_MAINTAINER.md"
 # Agent Skills standard location read by Codex and OpenCode (Claude Code uses .claude/skills)
 NATIVE_SKILLS_DIR = Path(".agents") / "skills"
 NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
@@ -49,12 +45,6 @@ def parse_args() -> argparse.Namespace:
         "--target",
         default=str(ROOT / "dist" / "adapters"),
         help="target directory root for generated bundle",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=[PACKAGE_MODE_CONSUMER, PACKAGE_MODE_MAINTAINER],
-        default=PACKAGE_MODE_CONSUMER,
-        help="package mode. consumer excludes maintainer-local command surfaces; maintainer preserves them",
     )
     return parser.parse_args()
 
@@ -128,45 +118,8 @@ def copy_markdown(src: Path, dst: Path) -> None:
     dst.write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
 
 
-def command_surface_scopes() -> dict[str, str]:
-    if not COMMAND_SURFACE_FIXTURE.exists():
-        return {}
-    data = read_json(COMMAND_SURFACE_FIXTURE)
-    scopes: dict[str, str] = {}
-    root_commands = data.get("root_commands", [])
-    if not isinstance(root_commands, list):
-        return scopes
-    for item in root_commands:
-        if not isinstance(item, dict):
-            continue
-        path_text = str(item.get("path", "")).strip()
-        scope = str(item.get("scope", "")).strip()
-        if path_text and scope:
-            scopes[path_text] = scope
-    return scopes
-
-
-def include_template_in_package(destination_rel: str, package_mode: str) -> bool:
-    if package_mode == PACKAGE_MODE_MAINTAINER:
-        return True
-    normalized = destination_rel.strip("/")
-    if Path(normalized).name == MAINTAINER_PROMPT_NAME:
-        return False
-    if normalized.startswith(".codex/commands/"):
-        return command_surface_scopes().get(normalized) == "user-facing"
-    return True
-
-
-def runtime_entrypoints_for_mode(adapter: dict, package_mode: str) -> list[dict]:
-    entrypoints = [entry for entry in adapter.get("runtime_entrypoints", []) if isinstance(entry, dict)]
-    if package_mode == PACKAGE_MODE_MAINTAINER:
-        return entrypoints
-    return [
-        entry
-        for entry in entrypoints
-        if entry.get("name") != "continue-maintainer"
-        and MAINTAINER_PROMPT_NAME not in str(entry.get("path", ""))
-    ]
+def runtime_entrypoints(adapter: dict) -> list[dict]:
+    return [entry for entry in adapter.get("runtime_entrypoints", []) if isinstance(entry, dict)]
 
 
 def mirror_tree(src: Path, dst: Path) -> None:
@@ -244,13 +197,7 @@ def merge_settings_documents(paths: list[Path]) -> dict:
     return merged
 
 
-def write_runtime_specific_files(
-    adapter_name: str,
-    adapter: dict,
-    profiles: list[str],
-    bundle_root: Path,
-    package_mode: str = PACKAGE_MODE_CONSUMER,
-) -> None:
+def write_runtime_specific_files(adapter_name: str, adapter: dict, profiles: list[str], bundle_root: Path) -> None:
     templates_dir = ROOT / "adapters" / adapter_name / "templates"
     if not templates_dir.exists():
         return
@@ -266,10 +213,7 @@ def write_runtime_specific_files(
     for template_path in sorted(templates_dir.rglob("*.tmpl")):
         rendered = render_runtime_template(template_path.read_text(encoding="utf-8"), variables)
         relative = template_path.relative_to(templates_dir)
-        destination_rel = str(relative).replace(".md.tmpl", ".md").replace(".tmpl", "")
-        if not include_template_in_package(destination_rel, package_mode):
-            continue
-        destination = bundle_root / destination_rel
+        destination = bundle_root / str(relative).replace(".md.tmpl", ".md").replace(".tmpl", "")
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_text(rendered, encoding="utf-8")
 
@@ -278,11 +222,10 @@ def write_runtime_entrypoints(
     adapter: dict,
     profiles: list[str],
     bundle_root: Path,
-    package_mode: str = PACKAGE_MODE_CONSUMER,
 ) -> None:
     runtime_root = bundle_root / ".aikit"
     runtime_root.mkdir(parents=True, exist_ok=True)
-    entrypoints = runtime_entrypoints_for_mode(adapter, package_mode)
+    entrypoints = runtime_entrypoints(adapter)
     manifest = {
         "adapter": adapter["runtime"],
         "label": adapter["label"],
@@ -327,7 +270,6 @@ def write_codex_native_surface(
     agents_dir: Path,
     skills_dir: Path,
     memory_dir: Path,
-    package_mode: str = PACKAGE_MODE_CONSUMER,
 ) -> None:
     if adapter.get("runtime") != "codex":
         return
@@ -342,7 +284,6 @@ def write_codex_native_surface(
         f"profiles={'+'.join(profiles)}",
         f"packs={' '.join(packs)}",
         f"version={read_repo_version()}",
-        f"package_mode={package_mode}",
     ]
     (codex_root / ".config-version").write_text("\n".join(version_lines) + "\n", encoding="utf-8")
 
@@ -462,11 +403,7 @@ def build_package(
     profiles_arg: str,
     packs: list[str],
     target_root: Path,
-    package_mode: str = PACKAGE_MODE_CONSUMER,
 ) -> Path:
-    if package_mode not in {PACKAGE_MODE_CONSUMER, PACKAGE_MODE_MAINTAINER}:
-        raise SystemExit(f"Unknown package mode '{package_mode}'")
-
     adapter_dir = ROOT / "adapters" / adapter_name
     manifest_path = adapter_dir / "adapter.manifest.json"
     if not manifest_path.exists():
@@ -543,7 +480,7 @@ def build_package(
         mirror_tree(canonical_memory_dir, runtime_memory_dir)
 
     write_combined_instruction(adapter, profiles, bundle_root / "AIKIT.md")
-    write_runtime_specific_files(adapter_name, adapter, profiles, bundle_root, package_mode)
+    write_runtime_specific_files(adapter_name, adapter, profiles, bundle_root)
     native_paths = write_claude_native_surface(adapter, profiles, packs, bundle_root, agents_dir, skills_dir)
     write_codex_native_surface(
         adapter,
@@ -553,11 +490,10 @@ def build_package(
         agents_dir,
         skills_dir,
         runtime_memory_dir,
-        package_mode,
     )
     native_paths += write_native_skills(adapter, bundle_root, skills_dir)
     native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
-    write_runtime_entrypoints(adapter, profiles, bundle_root, package_mode)
+    write_runtime_entrypoints(adapter, profiles, bundle_root)
 
     (runtime_root / "adapter.manifest.json").write_text(
         json.dumps(adapter, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -569,14 +505,12 @@ def build_package(
         "adapter_status": adapter["status"],
         "profiles": profiles,
         "packs": packs,
-        "package_mode": package_mode,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "agent_count": len(list(agents_dir.glob("*.md"))),
         "skill_count": len(skill_folders(skills_dir)),
         "memory_path": adapter["memory_path"],
-        "continuation_prompt": adapter.get("continuation_prompt", "") if package_mode == PACKAGE_MODE_MAINTAINER else "",
         "bundle_root": str(bundle_root.relative_to(ROOT if bundle_root.is_relative_to(ROOT) else bundle_root.parent)),
-        "runtime_entrypoint_count": len(runtime_entrypoints_for_mode(adapter, package_mode)),
+        "runtime_entrypoint_count": len(runtime_entrypoints(adapter)),
         "codex_native_agent_count": len(list((bundle_root / ".codex" / "agents").glob("*.md"))),
         # Paths outside .aikit/ owned by this package; the installer removes them before the next install
         "native_paths": native_paths,
@@ -621,7 +555,7 @@ def main() -> int:
         preset = resolve_preset(args.preset)
         profiles_arg = preset["profiles_arg"]
         packs = [*preset["packs"], *packs]
-    bundle_root = build_package(args.adapter, profiles_arg, packs, target_root, args.mode)
+    bundle_root = build_package(args.adapter, profiles_arg, packs, target_root)
     print(f"Built adapter package: {bundle_root}")
     return 0
 

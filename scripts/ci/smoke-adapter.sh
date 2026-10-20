@@ -221,6 +221,8 @@ run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG";
 
 check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
+check "инструкция runtime .$ADAPTER/AIKIT.md из шаблона адаптера" test -s "$PROJECT_DIR/.$ADAPTER/AIKIT.md"
+check "файла разработки кита CONTINUE_AIKIT_MAINTAINER.md нет" test ! -e "$PROJECT_DIR/.$ADAPTER/CONTINUE_AIKIT_MAINTAINER.md" -a ! -e "$PROJECT_DIR/CONTINUE_AIKIT_MAINTAINER.md"
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
 check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f '$PROJECT_DIR/.agents/skills/implement-feature/SKILL.md' && ! ls -d '$PROJECT_DIR'/.agents/skills/*-implement-feature 2>/dev/null"
 check "нет нераскрытых шаблонов {{...}}" bash -c "! grep -rlF '{{' '$PROJECT_DIR/.aikit/agents' '$PROJECT_DIR/.agents/skills' '$PROJECT_DIR/AGENTS.md'"

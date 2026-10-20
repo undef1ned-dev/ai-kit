@@ -31,6 +31,8 @@ const HISTORY_SHOWN = 5
 const PROFILES_FILE = '.aikit/profiles.json'
 const INIT_FILE = '.aikit/plugin-init.json'
 const MEMORY_INDEX = '.aikit/memory/INDEX.md'
+// Team settings: commit 'ask' — the git-commit skill offers messages to choose, 'auto' — commits by the rules
+const SETTINGS_FILE = '.aikit/settings.json'
 const PROJECT_SEARCH_DEPTH = 6
 const MODES = { send: 'Отправить', fill: 'Вставить' }
 const RICH_UI_VERSION = '2.1.299'
@@ -57,11 +59,13 @@ let docsFilter = ''
 let isPaneOpen = false
 let memory = memorySummary(null)
 let isRich = false
+let wasOpenedHere = false
 
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
 const passThrough = ($, e, next) => next(e)
 const historyKey = () => 'history:' + (project?.root ?? sessionRoot)
+const openedKey = () => 'opened:' + (project?.root ?? sessionRoot)
 
 function joinPath(...parts) {
   return parts.join('/').replace(/\\/g, '/').replace(/\/+/g, '/')
@@ -89,6 +93,7 @@ async function findProject($) {
     const contracts = await readJson($, joinPath(dir, PROFILES_FILE))
     if (contracts && typeof contracts.profiles === 'object') {
       const init = await readJson($, joinPath(dir, INIT_FILE))
+      const settings = await readJson($, joinPath(dir, SETTINGS_FILE))
       return {
         root: dir,
         profiles: Object.entries(contracts.profiles).map(([name, contract]) => ({
@@ -97,6 +102,7 @@ async function findProject($) {
           root: typeof contract?.root === 'string' ? contract.root : '.',
         })),
         packs: Array.isArray(init?.packs) ? init.packs.filter(name => typeof name === 'string') : [],
+        settings: settings && typeof settings === 'object' && !Array.isArray(settings) ? settings : {},
       }
     }
     dir = parentOf(dir)
@@ -158,6 +164,7 @@ async function loadCatalog($) {
     commands = []
   }
   history = (await $.store.get(historyKey())) ?? []
+  wasOpenedHere = Boolean(await $.store.get(openedKey()))
 }
 
 async function refreshMemory($) {
@@ -268,7 +275,7 @@ function memoryText(ui) {
   return memory.needsOptimize ? caption(text + ' — пора /optimize-memory', { dimColor: false, color: 'warning' }) : caption(text)
 }
 
-function header($, ui) {
+function header($, ui, surface) {
   const { Box, Button } = ui
   const { title, caption, variant } = look(ui)
   const scope = project
@@ -296,6 +303,7 @@ function header($, ui) {
           tabButton('commands', 'Команды', '1'),
           tabButton('docs', 'Справка', '2'),
           Box({ flexGrow: 1, children: [] }),
+          ...(project ? [commitToggle($, ui, surface)] : []),
           Button({
             key: 'mode',
             label: `Режим: ${MODES[mode]}`,
@@ -310,6 +318,30 @@ function header($, ui) {
         ],
       }),
     ],
+  })
+}
+
+// The team's commit mode lives in the project, so the toggle writes .aikit/settings.json for everyone
+function commitToggle($, ui, surface) {
+  const isAuto = project.settings.commit === 'auto'
+  return ui.Button({
+    key: 'commit',
+    label: `${isAuto ? '☑' : '☐'} Коммит без вопроса`,
+    hotkey: 'c',
+    ...(surface === 'terminal' ? { plain: true } : look(ui).variant(isAuto)),
+    dimColor: !isAuto,
+    onPress: async () => {
+      const settings = { ...project.settings, commit: isAuto ? 'ask' : 'auto' }
+      try {
+        await $.fs.write(joinPath(project.root, SETTINGS_FILE), JSON.stringify(settings, null, 2) + '\n')
+      } catch {
+        $.ui.toast(`Не удалось записать ${SETTINGS_FILE}`)
+        return
+      }
+      project.settings = settings
+      redraw($)
+      $.ui.toast(settings.commit === 'auto' ? 'Коммиты: сообщение по правилам, без вопроса' : 'Коммиты: сначала варианты сообщения на выбор')
+    },
   })
 }
 
@@ -545,6 +577,24 @@ async function openPane($, focus) {
   const pane = { id: PANE, title: 'AIKit Deck', closeOnEscape: true }
   const opened = await $.ui.open(focus ? { ...pane, focus: true } : pane)
   isPaneOpen = Boolean(opened?.isPlaced) || focus
+  redraw($)
+  if (focus && !wasOpenedHere) {
+    wasOpenedHere = true
+    await $.store.set(openedKey(), true)
+  }
+}
+
+// A slash command waits for the turn to end; a button in the prompt footer, beside the session's mode labels,
+// opens the deck at any moment. The band above the prompt is left to other mods: it holds one tree at a time
+function footerWithButton($, ui, modes) {
+  return ui.Box({
+    flexDirection: 'row',
+    columnGap: 1,
+    children: [
+      ...(modes.length > 0 ? [ui.Text({ dimColor: true, children: [modes.join(' & ')] })] : []),
+      ui.Button({ key: 'open-deck', label: 'AIKit Deck', plain: true, onPress: () => openPane($, true) }),
+    ],
+  })
 }
 
 export function register(on) {
@@ -596,7 +646,10 @@ export function register(on) {
   }).catch(passThrough)
 
   on('ui.close', async ($, e, next) => {
-    if (e.id === PANE) isPaneOpen = false
+    if (e.id === PANE) {
+      isPaneOpen = false
+      redraw($)
+    }
     return next(e)
   }).catch(passThrough)
 
@@ -620,6 +673,12 @@ export function register(on) {
     return result
   }).catch(passThrough)
 
+  // Shown while the deck is closed, in a connected project or one where the deck was opened before
+  on('ui.render', { component: 'SessionMode' }, ($, e, next) => {
+    if (isPaneOpen || !(project || wasOpenedHere)) return next(e)
+    return footerWithButton($, $.ui.resolve(e), e.props.modes)
+  }).catch(passThrough)
+
   on('ui.render', { component: 'Pane' }, async ($, e, next) => {
     if (e.requestId !== PANE) return next(e)
     isPaneOpen = true
@@ -631,7 +690,7 @@ export function register(on) {
       rowGap: 2,
       paddingX: 1,
       paddingY: 1,
-      children: [header($, ui), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui, columns, e.surface)],
+      children: [header($, ui, e.surface), agentsSection(ui, now), tab === 'docs' ? docsTab($, ui) : commandsTab($, ui, columns, e.surface)],
     })
   })
 }

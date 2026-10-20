@@ -48,7 +48,7 @@ GLM отдельно не поддерживается: это модель, а 
 | Установка всех пресетов | ✅ | ✅ | ✅ |
 | Правила проекта | ✅ `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md`, текст пользователя вне блока сохраняется | ✅ тот же `AGENTS.md` |
 | Скиллы | ✅ `.claude/skills/<name>/SKILL.md` — все скиллы base, профилей и паков | ✅ `.agents/skills/<name>/SKILL.md` | ✅ `.agents/skills/<name>/SKILL.md` |
-| Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `workflow`, `improve-aikit`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
+| Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `workflow`, `set-model`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |
 | Старые команды прежних версий кита | ✅ убираются из `.claude/commands/` при обновлении, свои команды пользователя остаются | ✅ `.codex/commands/` убирается | — |
 | Сабагенты | ✅ `.claude/agents/` | ✅ `.codex/agents/*.toml` (проект должен быть доверенным) | ✅ `.opencode/agents/*.md`, `mode: subagent` |
 | Модели агентов: уровень в описании агента (`opus`, `sonnet`, `haiku`) → модель runtime из `adapters/models.json` | ✅ алиасы Claude Code, всегда последняя версия семейства | ✅ `model` и `model_reasoning_effort` в TOML агента | ✅ `model` агента (`provider/model`) |

@@ -2,7 +2,7 @@
 name: "setup"
 description: "Подключить проект к AIKit, установленному плагинами: выбрать профили и паки, записать правила в CLAUDE.md или AGENTS.md, контракты .aikit/profiles.json, память и настройки команды. Используй после установки плагинов AIKit или при смене профилей проекта."
 argument-hint: "[профили или пресет]"
-version: "1.0.0"
+version: "1.1.0"
 profile: "base"
 tags: ["setup", "plugin", "onboarding"]
 orchestrates: []
@@ -29,14 +29,22 @@ example_prompt: "/aikit:setup vue-nuxt"
 
 Если `.aikit/plugin-init.json` уже есть — покажи текущие профили и паки и спроси, что поменять.
 
+## 2а. Спроси, как коммитить
+
+Вместе с выбором профилей спроси, как ассистенту оформлять коммиты:
+- **`ask`** (по умолчанию) — предлагать 2–3 сообщения по Conventional Commits и ждать выбора;
+- **`auto`** — выбирать сообщение по тем же правилам и коммитить без вопроса.
+
+Если `.aikit/settings.json` уже есть — покажи текущее значение `commit` и не меняй его без ответа. Настройка общая для команды; позже её можно переключить в AIKit Deck (`/deck`) или в самом файле.
+
 ## 3. Запусти подключение
 
 Runtime — `claude` в Claude Code, `codex` в Codex.
 
 ```bash
-python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --profiles <a+b> [--packs devops]
+python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --profiles <a+b> [--packs devops] --commit <ask|auto>
 # или готовый набор
-python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --preset <имя>
+python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --preset <имя> --commit <ask|auto>
 ```
 
 На Windows без `python3` — `python` или `py -3`.
@@ -54,8 +62,9 @@ python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --prese
 
 Профили:  {список}
 Паки:     {список или —}
+Коммиты:  {спрашивать сообщение | автоматически по правилам}
 Правила:  {CLAUDE.md | AGENTS.md} — блок AIKit, остальной текст файла не тронут
-Записано: .aikit/profiles.json, .aikit/memory/, PRODUCT.md{, .claude/settings.json | , .codex/agents/}
+Записано: .aikit/profiles.json, .aikit/settings.json, .aikit/memory/, PRODUCT.md{, .claude/settings.json | , .codex/agents/}
 
 Дальше:
   1. Заполни PRODUCT.md — агенты читают его для контекста

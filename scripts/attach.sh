@@ -6,6 +6,7 @@
 #   bash .aikit-config/scripts/attach.sh <profile1>+<profile2>
 #   bash .aikit-config/scripts/attach.sh <profile> --pack <pack-name>
 #   bash .aikit-config/scripts/attach.sh --preset <preset-name>
+#   bash .aikit-config/scripts/attach.sh <profile> --commit auto   # коммитить без вопроса о сообщении (по умолчанию ask)
 #
 # Примеры:
 #   bash .aikit-config/scripts/attach.sh vue-nuxt
@@ -19,6 +20,7 @@ set -eo pipefail
 PROFILES_ARG=""
 PRESET_NAME=""
 PACKS_LIST=""  # пространство-разделённый список паков (bash 3.2 совместимо)
+COMMIT_MODE=""  # ask | auto; пусто — спросить в терминале или оставить текущее
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --preset)
@@ -27,6 +29,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --pack)
       PACKS_LIST="${PACKS_LIST} $2"
+      shift 2
+      ;;
+    --commit)
+      COMMIT_MODE="$2"
       shift 2
       ;;
     *)
@@ -285,6 +291,19 @@ log_section "Контракты профилей"
 install_profile_contracts "$PROFILES_ARG"
 
 # =============================================================================
+# Настройки команды → .aikit/settings.json
+# =============================================================================
+log_section "Настройки команды"
+if [[ -z "$COMMIT_MODE" && -t 0 && ! -f "$PROJECT_ROOT/.aikit/settings.json" ]]; then
+  read -r -p "Коммиты: спрашивать сообщение (ask) или коммитить автоматически по правилам (auto)? [ask/auto] " COMMIT_MODE
+fi
+case "$COMMIT_MODE" in
+  ""|ask|auto) ;;
+  *) log_warn "Неизвестный режим коммитов '$COMMIT_MODE' — оставляю ask"; COMMIT_MODE="ask" ;;
+esac
+python3 "$SCRIPT_DIR/project_settings.py" --workspace "$PROJECT_ROOT" ${COMMIT_MODE:+--commit "$COMMIT_MODE"}
+
+# =============================================================================
 # Хуки → .aikit/hooks/ + hooks в .claude/settings.json
 # =============================================================================
 log_section "Хуки"
@@ -394,6 +413,7 @@ echo "  .claude/settings.json      — permissions и настройки (хра
 echo "  .mcp.json                  — MCP-серверы (хранится в git)"
 echo "  .aikit/hooks/aikit_hook.py — хуки: правила коммитов, веток и секретов, линтер, тесты, память"
 echo "  .aikit/profiles.json       — контракты профилей: агенты по ролям, папка и команды (root и команды можно править)"
+echo "  .aikit/settings.json       — настройки команды: спрашивать ли сообщение коммита (commit: ask | auto)"
 printf "  .claude/skills/            — скиллы: /name или автоматически по описанию (%s шт)\n" "$SKILL_COUNT"
 printf "  .claude/agents/            — субагенты (%s шт)\n" "$AGENT_COUNT"
 echo "  PRODUCT.md                 — заполни информацию о продукте"

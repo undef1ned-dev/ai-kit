@@ -514,6 +514,18 @@ def copy_button(text: str, label: str = "Копировать") -> str:
     return f'<button class="copy-btn" type="button" data-copy="{h(text)}">{label}</button>'
 
 
+def model_chips(tier: str) -> list[str]:
+    """An agent's model in each runtime: its tier for Claude Code, the model the tier maps to in Codex."""
+    if not tier:
+        return []
+    chips_html = [f'<span class="chip" title="Модель в Claude Code">Claude: {h(tier)}</span>']
+    codex = read_json(ROOT / "adapters" / "models.json").get("runtimes", {}).get("codex", {}).get(tier, {})
+    if codex.get("model"):
+        effort = f' · {codex["model_reasoning_effort"]}' if codex.get("model_reasoning_effort") else ""
+        chips_html.append(f'<span class="chip" title="Модель в Codex">Codex: {h(codex["model"] + effort)}</span>')
+    return chips_html
+
+
 def render_entry_card(entry: dict, section_id: str) -> str:
     kind = entry["_kind"]
     name = entry.get("name", "")
@@ -523,8 +535,7 @@ def render_entry_card(entry: dict, section_id: str) -> str:
         badges.append(f'<span class="chip chip-out">→ {h(entry["output_block"])}</span>')
     if str(entry.get("disable-model-invocation", "")).lower() == "true":
         badges.append('<span class="chip chip-warn">только явный вызов</span>')
-    if entry.get("model"):
-        badges.append(f'<span class="chip">{h(entry["model"])}</span>')
+    badges += model_chips(entry.get("model", ""))
     example = entry.get("example_prompt", "")
     example_html = (
         f'<div class="entry-example"><span>{h(example)}</span>{copy_button(example)}</div>' if example else ""

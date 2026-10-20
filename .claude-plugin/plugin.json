@@ -15,13 +15,10 @@
   ],
   "agents": [
     "./base/agents/agent-builder.md",
-    "./base/agents/aikit-maintainer.md",
     "./base/agents/cross-project-analyst.md",
     "./base/agents/memory-optimizer.md",
     "./base/agents/memory-writer.md",
     "./base/agents/mvp-analyst.md",
-    "./base/agents/platform-evangelist.md",
-    "./base/agents/release-manager.md",
     "./base/agents/security-auditor.md",
     "./base/agents/skill-builder.md",
     "./base/agents/tech-planner.md",

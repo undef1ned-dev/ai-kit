@@ -24,9 +24,7 @@
     ".aikit/profiles.kit-defaults.json",
     ".aikit/memory/",
     ".aikit/runtime-entrypoints.json",
-    "CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/AIKIT.md",
-    ".codex/CONTINUE_AIKIT_MAINTAINER.md",
     ".codex/entrypoints.json",
     ".codex/config.toml"
   ],
@@ -45,12 +43,6 @@
       "purpose": "Runtime-specific AIKit instructions for Codex workspaces."
     },
     {
-      "name": "continue-maintainer",
-      "path": ".codex/CONTINUE_AIKIT_MAINTAINER.md",
-      "kind": "continuation",
-      "purpose": "Continue developing AIKit inside Codex using the maintainer handoff prompt."
-    },
-    {
       "name": "codex-native-agents",
       "path": ".codex/agents/",
       "kind": "agent-entry",
@@ -66,10 +58,9 @@
       "name": "packaged-agents",
       "path": ".aikit/agents/",
       "kind": "agent-entry",
-      "purpose": "Canonical maintainer agent packaged for Codex runtime."
+      "purpose": "AIKit agents packaged for the Codex CLI / Desktop runtime."
     }
   ],
-  "continuation_prompt": "CONTINUE_AIKIT_MAINTAINER.md",
   "source_layers": [
     "base",
     "profiles",

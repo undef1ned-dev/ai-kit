@@ -39,22 +39,15 @@ def parse_args() -> argparse.Namespace:
         required=True,
         help="target workspace where runtime files should be updated",
     )
-    parser.add_argument(
-        "--mode",
-        choices=["consumer", "maintainer"],
-        default="consumer",
-        help="update mode forwarded to install-adapter-package.py",
-    )
     return parser.parse_args()
 
 
-def write_update_summary(adapter: dict, workspace: Path, profiles_arg: str, packs: list[str], install_mode: str) -> None:
+def write_update_summary(adapter: dict, workspace: Path, profiles_arg: str, packs: list[str]) -> None:
     summary = [
         f"# AIKit Update Summary — {adapter['label']}",
         "",
         f"- Runtime: `{adapter['runtime']}`",
         f"- Status: `{adapter['status']}`",
-        f"- Install mode: `{install_mode}`",
         f"- Updated at: `{datetime.now(timezone.utc).isoformat()}`",
         f"- Workspace: `{workspace}`",
         f"- Profiles: `{profiles_arg}`",
@@ -62,7 +55,6 @@ def write_update_summary(adapter: dict, workspace: Path, profiles_arg: str, pack
         "",
         "## Next steps",
         "- Проверь `.aikit/runtime-entrypoints.json` и runtime-local `entrypoints.json`.",
-        "- Если это maintainer workflow, повтори update с `--mode maintainer` и открой continuation prompt внутри runtime config root.",
         "- При необходимости повторно прогоняй install/update тем же selection contract.",
     ]
     (workspace / ".aikit" / "UPDATE.md").write_text("\n".join(summary) + "\n", encoding="utf-8")
@@ -73,8 +65,8 @@ def main() -> int:
     workspace = Path(args.workspace).resolve()
     installer = load_install_module()
     profiles_arg, packs = installer.resolve_profiles_and_packs(args.profile, args.preset, list(args.pack))
-    adapter = installer.install_package(args.adapter, profiles_arg, packs, workspace, args.mode)
-    write_update_summary(adapter, workspace, profiles_arg, packs, args.mode)
+    adapter = installer.install_package(args.adapter, profiles_arg, packs, workspace)
+    write_update_summary(adapter, workspace, profiles_arg, packs)
     print(f"Updated adapter package '{args.adapter}' in {workspace}")
     return 0
 

@@ -179,6 +179,7 @@ check "скилл git-branch установлен" test -f .claude/skills/git-br
 check "нет нераскрытых шаблонов {{...}}" bash -c '! grep -rlF "{{" .claude CLAUDE.md'
 check ".mcp.json: серверы с закреплёнными версиями, settings.json без MCP" check_mcp
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
+check ".aikit/settings.json: без --commit и терминала — спрашивать сообщение" grep -q '"commit": "ask"' .aikit/settings.json
 check "память проекта перенесена из .claude/memory/ прежних версий" test -f .aikit/memory/decisions/001-auth.md
 check "зеркало .claude/memory/ не обновляется: только старое содержимое" test ! -e .claude/memory/INDEX.md
 check "хуки AIKit в .claude/settings.json, скрипт блокирует коммит не по формату" check_hooks
