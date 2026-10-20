@@ -1,6 +1,6 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { agentRows, isAtLeast, memorySummary, parseArgumentHint, parseFrontmatter, resolveCommandName, summary, trackTiming } from '../catalog.js'
+import { agentRows, isAtLeast, memorySummary, parseArgumentHint, parseFrontmatter, resolveCommandName, shortModel, summary, trackTiming } from '../catalog.js'
 
 const PROJECT = '/work/shop'
 const PROFILES = JSON.stringify({ profiles: { 'vue-nuxt': { label: 'Vue Nuxt', root: 'web' } } })
@@ -10,12 +10,18 @@ const SKILLS: Record<string, string> = {
   'base/skills/git-commit': 'user-invocable: false',
   'base/plugin-skills/setup': 'argument-hint: "[профили или пресет]"',
   'profiles/vue-nuxt/skills/new-page': 'argument-hint: "<маршрут>"',
+  // The project's own skills: the kit repository's improve-aikit and run-evals, a leftover copy of a kit skill
+  '.claude/skills/improve-aikit': 'argument-hint: "<что изменить в ките>"',
+  '.claude/skills/run-evals': 'argument-hint: "[профиль]"',
+  '.claude/skills/implement-feature': 'argument-hint: "<задача>"',
 }
 const COMMANDS = [
   { name: 'implement-feature', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'memory-status', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'aikit:setup', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'new-page', description: '', source: 'plugin', plugin: 'vue-nuxt' },
+  { name: 'improve-aikit', description: '', source: 'project' },
+  { name: 'run-evals', description: '', source: 'project' },
 ]
 const PANE = {
   plugin: 'aikit',
@@ -52,11 +58,12 @@ type Kit = {
   written?: { path: string; text: string }[]
   isPlaced?: boolean
   opened?: boolean[]
+  stored?: Record<string, unknown>
 }
 
 function stubKit(on, kit: Kit) {
   mock.clock(on, { now: 60_000 })
-  mock.store(on, {})
+  mock.store(on, kit.stored ?? {})
   on('session.start', () => ({ cwd: PROJECT }))
   on('session.root', () => ({ value: PROJECT }))
   on('command.register', () => ({ value: undefined }))
@@ -316,4 +323,67 @@ test('the button hides while the deck is open and in a project that never used i
   const footer = await $.ui.mount({ ...FOOTER, surface: 'terminal' })
   expect(await footer.find({ key: 'open-deck' })).toBeUndefined()
   expect(await footer.find({ key: 'engine-footer' })).toBeDefined()
+})
+
+test('the project own skills show; improve-aikit joins the kit group, a copy of a kit skill is skipped', async ($, on) => {
+  const kit: Kit = { isConnected: false, settings: JSON.stringify({ commit: 'auto' }), ran: [] }
+  stubKit(on, kit)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ key: 'cmd-project-run-evals' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: 'Скиллы проекта' })).toBeDefined()
+  expect(await ui.find({ key: 'cmd-project-implement-feature' })).toBeUndefined()
+  await ui.press({ key: 'cmd-project-improve-aikit' })
+  await ui.input({ key: 'arg', text: 'кнопка в деке' })
+  expect(kit.ran).toEqual([{ command: 'improve-aikit', args: 'кнопка в деке' }])
+})
+
+test('the deck opens at session start in the kit repository', async ($, on) => {
+  const kit: Kit = { isConnected: false, settings: JSON.stringify({ commit: 'auto' }), opened: [] }
+  stubKit(on, kit)
+  await start($)
+  expect(kit.opened).toEqual([false])
+})
+
+test('a folder where the deck was opened before gets it at session start', async ($, on) => {
+  const kit: Kit = { isConnected: false, stored: { ['opened:' + PROJECT]: true }, opened: [] }
+  stubKit(on, kit)
+  await start($)
+  expect(kit.opened).toEqual([false])
+})
+
+test('a project without AIKit that never used the deck does not get it at session start', async ($, on) => {
+  const kit: Kit = { isConnected: false, opened: [] }
+  stubKit(on, kit)
+  await start($)
+  expect(kit.opened).toEqual([])
+})
+
+test('model names lose the claude- prefix and the date', () => {
+  expect(shortModel('claude-haiku-4-5-20251001')).toBe('haiku-4-5')
+  expect(shortModel('claude-opus-4-7')).toBe('opus-4-7')
+  expect(shortModel(undefined)).toBe('')
+})
+
+test('a subagent row shows the model from the agent list', async ($, on) => {
+  stubKit(on, { agents: [{ id: 'a1', type: 'vue-coder', description: 'Фильтр заказов', status: 'running', model: 'claude-sonnet-4-6' }] })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'sonnet-4-6' })).toBeDefined()
+})
+
+test('a subagent row shows the model its requests went to', async ($, on) => {
+  stubKit(on, { agents: [{ id: 'a1', type: 'vue-coder', description: 'Фильтр заказов', status: 'running' }] })
+  on('turn.step', async function* ($, e) {
+    yield { kind: 'text', index: 0, text: 'ok' }
+    return { turnId: e.turnId, index: e.index, answer: 'ok', toolUses: [], stopReason: 'end_turn', usage: { input_tokens: 1, output_tokens: 1, model: 'claude-haiku-4-5-20251001' } }
+  })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'haiku-4-5' })).toBeUndefined()
+  const stream = $.turn.step({ turnId: 't', index: 0, model: 'claude-haiku-4-5', messageCount: 1, agentId: 'a1' })
+  let step = await stream.next()
+  while (step.done !== true) step = await stream.next()
+  expect(step.value.answer).toBe('ok')
+  expect(await ui.find({ type: 'Text', text: 'haiku-4-5' })).toBeDefined()
 })
