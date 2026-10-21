@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.5.0] - 2026-10-21
+
+### Added
+- plugins: команда $aikit:update-agents обновляет агентов Codex
+
 ## [0.4.0] - 2026-10-21
 
 ### Added
