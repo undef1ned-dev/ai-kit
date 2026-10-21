@@ -13,6 +13,14 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.3.0] - 2026-10-21
+
+### Added
+- hooks: отметки запусков хуков, --status и проверка готовности в setup
+
+### Fixed
+- hooks: лаунчер Codex на Windows передаёт событие Python 3.9+, если python в PATH старый
+
 ## [0.2.0] - 2026-10-21
 
 ### Added
