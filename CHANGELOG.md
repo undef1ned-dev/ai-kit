@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.3.2] - 2026-10-21
+
+### Changed
+- product: из шаблона PRODUCT.md убраны аудитория, метрики и контакты команды (#33)
+
 ## [0.3.1] - 2026-10-21
 
 ### Changed
