@@ -85,6 +85,15 @@ def read_json(path: Path) -> dict:
     return data if isinstance(data, dict) else {}
 
 
+def merge_runtimes(state: dict, runtime: str) -> list[str]:
+    """Runtimes the project was set up for: the file is shared, so a rerun in one runtime must not drop the other."""
+    known = state.get("runtimes")
+    if not isinstance(known, list):
+        known = [state.get("runtime")]
+    merged = {name for name in known if name in RUNTIMES} | {runtime}
+    return [name for name in RUNTIMES if name in merged]
+
+
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n")
@@ -223,7 +232,7 @@ def main() -> int:
     else:
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
-    write_json(state_path, {"runtime": args.runtime, "profiles": profiles, "packs": packs, "codex_agents": codex_agents})
+    write_json(state_path, {"runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents})
     if (workspace / LEGACY_ATTACH_MARKER).exists():
         print(
             "! Проект раньше подключали через attach.sh: агенты и скиллы в .claude/ дублируют плагины. "

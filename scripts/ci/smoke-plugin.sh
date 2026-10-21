@@ -108,6 +108,7 @@ check "AGENTS.md: блок правил базы и профилей, текст
 check "AGENTS.md: объяснено, откуда в Codex берётся \$ARGUMENTS скиллов плагина" grep -qF '`$ARGUMENTS` в тексте скилла Codex не подставляет' "$PROJECT_DIR/AGENTS.md"
 check ".codex/agents/: агенты базы и профилей в TOML, правила проекта — AGENTS.md" check_codex_agents
 check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
+check "plugin-init.json: runtimes хранит оба runtime, запуск в одном не затирает другой" "$PYTHON_BIN" -c "import json,sys; sys.exit(json.load(open(sys.argv[1]))['runtimes'] != ['claude', 'codex'])" "$PROJECT_DIR/.aikit/plugin-init.json"
 
 echo "▶ Повторный запуск с профилем vue-nuxt"
 init --runtime claude --preset "$PRESET"
