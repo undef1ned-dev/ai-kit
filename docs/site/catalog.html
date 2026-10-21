@@ -25,9 +25,9 @@
 <h1 class="page-title">Каталог профилей</h1>
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
-  <div><b>16</b><span>агенты</span></div>
-  <div><b>29</b><span>скиллы</span></div>
-  <div><b>1</b><span>профили</span></div>
+  <div><b>23</b><span>агенты</span></div>
+  <div><b>38</b><span>скиллы</span></div>
+  <div><b>2</b><span>профили</span></div>
   <div><b>1</b><span>паки</span></div>
 </div>
 <p>Термины — на странице <a href="glossary.html">Термины</a>, как подключить — в <a href="getting-started.html">Установке</a>.</p>
@@ -41,7 +41,7 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="forge-1-12-java" style="--accent-local:#b45309">Forge 1.12.2 Java<span class="count">16</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -211,6 +211,122 @@
 
   <div class="entry-example"><span>/write-ui-texts экран онбординга нового пользователя</span><button class="copy-btn" type="button" data-copy="/write-ui-texts экран онбординга нового пользователя">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/write-ui-texts/SKILL.md">base/skills/write-ui-texts/SKILL.md</a>
+</article></div>
+</section>
+<section class="catalog-panel" id="forge-1-12-java" data-panel style="--accent-local:#b45309">
+  <div class="panel-head"><h2>Forge 1.12.2 Java</h2><p>Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito</p></div>
+  <div class="contract">
+  <h3>Цепочка агентов</h3>
+  <div class="flow"><div class="flow-node"><span class="flow-title">forge-1-12-java-architect</span><span class="flow-text">архитектор</span></div><span class="flow-arrow" aria-hidden="true">→</span><div class="flow-node"><span class="flow-title">forge-1-12-java-coder</span><span class="flow-text">кодер</span></div><span class="flow-arrow" aria-hidden="true">→</span><div class="flow-parallel"><div class="flow-node"><span class="flow-title">forge-1-12-java-tester</span><span class="flow-text">тестировщик</span></div><div class="flow-node"><span class="flow-title">forge-1-12-java-reviewer</span><span class="flow-text">ревьюер</span></div></div></div>
+  <div class="contract-grid">
+    <div><span class="label">Роль в системе</span><span>mod</span></div>
+    <div><span class="label">Стек</span><span>Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito</span></div>
+    <div><span class="label">Маркеры папки (root_markers)</span><span><span class="chip mono">src/main/resources/mcmod.info</span></span></div>
+    <div><span class="label">Пути профиля (path_signals)</span><span><span class="chip mono">src/main/java/</span><span class="chip mono">src/test/java/</span><span class="chip mono">build.gradle</span><span class="chip mono">gradle.properties</span></span></div>
+    <div><span class="label">Файлы кода для хуков (code_extensions)</span><span><span class="chip mono">.java</span></span></div>
+  </div>
+  <h3>Команды проекта</h3>
+  <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>./gradlew compileJava</code></td></tr><tr><td><code>lint</code></td><td><code>./gradlew compileJava check -x test</code></td></tr><tr><td><code>test</code></td><td><code>./gradlew test</code></td></tr><tr><td><code>build</code></td><td><code>./gradlew build</code></td></tr><tr><td><code>run</code></td><td><code>./gradlew runClient</code></td></tr></tbody></table></div>
+  <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>forge-1-12-java-quality-analyst</strong><span>нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)</span></div><div class="mini-card"><strong>forge-1-12-java-security-auditor</strong><span>аудит безопасности (/security-check) или фича добавляет либо меняет сетевые пакеты, контейнеры и инвентари, команды, права или сохранённые данные игроков</span></div></div>
+  <h3>Пайплайны</h3><div class="mini-grid"><div class="mini-card"><strong>docs</strong><span class="mono">forge-1-12-java-doc-writer</span><span>нужна только документация мода — написать или обновить .md в docs/ проекта без изменения кода</span></div></div>
+</div>
+  <h3>Агенты <span class="count">7</span></h3><div class="entry-grid"><article class="entry-card entry-agent" id="agent-forge-1-12-java-architect" data-filter="forge-1-12-java-architect архитектор java-кода мода minecraft 1.12.2 на forge. проектирует фичу до кода — блоки, предметы, tileentity, сущности, capability, сеть, команды, конфиг — со стороной (клиент или сервер), слоями и ооп-границами. используй перед новой механикой, блоком, машиной, пакетом или изменением сохранённых данных мода.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-architect</span></header>
+  <p>Архитектор Java-кода мода Minecraft 1.12.2 на Forge. Проектирует фичу до кода — блоки, предметы, TileEntity, сущности, capability, сеть, команды, конфиг — со стороной (клиент или сервер), слоями и ООП-границами. Используй перед новой механикой, блоком, машиной, пакетом или изменением сохранённых данных мода.</p>
+  <div class="chips"><span class="chip chip-out">→ ARCHITECT_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
+  <div class="entry-example"><span>Спроектируй дробилку руды: блок с TileEntity, GUI и удвоение выхода</span><button class="copy-btn" type="button" data-copy="Спроектируй дробилку руды: блок с TileEntity, GUI и удвоение выхода">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-architect.md">profiles/forge-1-12-java/agents/forge-1-12-java-architect.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-coder" data-filter="forge-1-12-java-coder java-разработчик мода minecraft 1.12.2 на forge. реализует классы по architect_plan — регистрация через registryevent, разделение клиента и сервера, безопасные пакеты, защитное чтение nbt, ооп без god-классов. используй после плана архитектора профиля или для точечной правки java-кода мода.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-coder</span></header>
+  <p>Java-разработчик мода Minecraft 1.12.2 на Forge. Реализует классы по ARCHITECT_PLAN — регистрация через RegistryEvent, разделение клиента и сервера, безопасные пакеты, защитное чтение NBT, ООП без god-классов. Используй после плана архитектора профиля или для точечной правки Java-кода мода.</p>
+  <div class="chips"><span class="chip chip-out">→ CODER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
+  <div class="entry-example"><span>Реализуй план из ARCHITECT_PLAN</span><button class="copy-btn" type="button" data-copy="Реализуй план из ARCHITECT_PLAN">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-coder.md">profiles/forge-1-12-java/agents/forge-1-12-java-coder.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-doc-writer" data-filter="forge-1-12-java-doc-writer технический писатель мода minecraft 1.12.2 на forge. пишет и обновляет документацию мода — markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, сущности, механики, команды, конфиг, сеть, api, сборка. код не меняет. используй, когда нужно написать документацию мода с нуля, обновить её после фичи или по coder_result, или проверить, что docs/ не отстала от кода.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-doc-writer</span></header>
+  <p>Технический писатель мода Minecraft 1.12.2 на Forge. Пишет и обновляет документацию мода — Markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, сущности, механики, команды, конфиг, сеть, API, сборка. Код не меняет. Используй, когда нужно написать документацию мода с нуля, обновить её после фичи или по CODER_RESULT, или проверить, что docs/ не отстала от кода.</p>
+  <div class="chips"><span class="chip chip-out">→ DOCS_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: haiku</span><span class="chip" title="Модель в Codex">Codex: gpt-6-luna · low</span></div>
+  <div class="entry-example"><span>Обнови документацию мода после добавления дробилки</span><button class="copy-btn" type="button" data-copy="Обнови документацию мода после добавления дробилки">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-doc-writer.md">profiles/forge-1-12-java/agents/forge-1-12-java-doc-writer.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-quality-analyst" data-filter="forge-1-12-java-quality-analyst аналитик качества java-кода мода minecraft 1.12.2 на forge. оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. используй для /coverage-check, /tech-debt или когда нужна оценка качества мода.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-quality-analyst</span></header>
+  <p>Аналитик качества Java-кода мода Minecraft 1.12.2 на Forge. Оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества мода.</p>
+  <div class="chips"><span class="chip chip-out">→ QUALITY_REPORT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
+  <div class="entry-example"><span>Проанализируй качество кода в пакете tileentity/</span><button class="copy-btn" type="button" data-copy="Проанализируй качество кода в пакете tileentity/">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-quality-analyst.md">profiles/forge-1-12-java/agents/forge-1-12-java-quality-analyst.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-reviewer" data-filter="forge-1-12-java-reviewer code reviewer java-кода мода minecraft 1.12.2 на forge. ревьюит файл, класс или изменения ветки, в цепочке агентов — по coder_result: серверная проверка пакетов, разделение клиента и сервера, регистрация, nbt, потоки, производительность тика, ооп и безопасность. используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить java-код мода, в том числе перед мержем, и после реализации.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-reviewer</span></header>
+  <p>Code reviewer Java-кода мода Minecraft 1.12.2 на Forge. Ревьюит файл, класс или изменения ветки, в цепочке агентов — по CODER_RESULT: серверная проверка пакетов, разделение клиента и сервера, регистрация, NBT, потоки, производительность тика, ООП и безопасность. Используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить Java-код мода, в том числе перед мержем, и после реализации.</p>
+  <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
+  <div class="entry-example"><span>Проверь код по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-reviewer.md">profiles/forge-1-12-java/agents/forge-1-12-java-reviewer.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-security-auditor" data-filter="forge-1-12-java-security-auditor аудитор безопасности серверного кода мода minecraft 1.12.2 на forge. проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение nbt и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientsideonly. используй для /security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-security-auditor</span></header>
+  <p>Аудитор безопасности серверного кода мода Minecraft 1.12.2 на Forge. Проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение NBT и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientSideOnly. Используй для /security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков.</p>
+  <div class="chips"><span class="chip chip-out">→ SERVER_SECURITY_AUDIT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6-astra · high</span></div>
+  <div class="entry-example"><span>Проверь безопасность сетевого кода и команд мода перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность сетевого кода и команд мода перед релизом">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-security-auditor.md">profiles/forge-1-12-java/agents/forge-1-12-java-security-auditor.md</a>
+</article><article class="entry-card entry-agent" id="agent-forge-1-12-java-tester" data-filter="forge-1-12-java-tester qa java-кода мода minecraft 1.12.2 на forge. пишет unit-тесты junit 4 и mockito по coder_result — логика domain, проверки пакетов, чтение nbt, граничные случаи — запускает их командой test профиля и описывает ручной сценарий проверки в runclient и runserver.">
+  <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-tester</span></header>
+  <p>QA Java-кода мода Minecraft 1.12.2 на Forge. Пишет unit-тесты JUnit 4 и Mockito по CODER_RESULT — логика domain, проверки пакетов, чтение NBT, граничные случаи — запускает их командой test профиля и описывает ручной сценарий проверки в runClient и runServer.</p>
+  <div class="chips"><span class="chip chip-out">→ TESTER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
+  <div class="entry-example"><span>Напиши тесты по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Напиши тесты по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-tester.md">profiles/forge-1-12-java/agents/forge-1-12-java-tester.md</a>
+</article></div>
+  <h3>Скиллы <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-forge-1-12-add-tests" data-filter="forge-1-12-add-tests написать unit-тесты junit 4 и mockito для существующего java-кода мода forge 1.12.2: логика domain, проверки пакетов, чтение nbt, конфиг, граничные случаи. используй, когда пользователь просит покрыть тестами класс или пакет мода.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-add-tests</span></header>
+  <p>Написать unit-тесты JUnit 4 и Mockito для существующего Java-кода мода Forge 1.12.2: логика domain, проверки пакетов, чтение NBT, конфиг, граничные случаи. Используй, когда пользователь просит покрыть тестами класс или пакет мода.</p>
+
+  <div class="entry-example"><span>/forge-1-12-add-tests domain/GrinderRecipes.java и network/SetModeMessage.java</span><button class="copy-btn" type="button" data-copy="/forge-1-12-add-tests domain/GrinderRecipes.java и network/SetModeMessage.java">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-add-tests/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-add-tests/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-mod-docs" data-filter="forge-1-12-mod-docs написать или обновить документацию мода forge 1.12.2 — markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, механики, команды, конфиг, сеть, api, сборка. используй, когда пользователь просит документацию мода, описать фичу в docs/ или проверить, что документация не отстала от кода.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-mod-docs</span></header>
+  <p>Написать или обновить документацию мода Forge 1.12.2 — Markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, механики, команды, конфиг, сеть, API, сборка. Используй, когда пользователь просит документацию мода, описать фичу в docs/ или проверить, что документация не отстала от кода.</p>
+
+  <div class="entry-example"><span>/forge-1-12-mod-docs дробилка</span><button class="copy-btn" type="button" data-copy="/forge-1-12-mod-docs дробилка">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-mod-docs/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-mod-docs/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-block" data-filter="forge-1-12-new-block создать новый блок мода forge 1.12.2: класс блока, регистрация блока и itemblock через registryevent, регистрация модели на клиенте, ключ перевода и список ресурсов, которые нужны блоку. используй, когда пользователь просит добавить в мод блок, руду или декоративный блок.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-block</span></header>
+  <p>Создать новый блок мода Forge 1.12.2: класс блока, регистрация блока и ItemBlock через RegistryEvent, регистрация модели на клиенте, ключ перевода и список ресурсов, которые нужны блоку. Используй, когда пользователь просит добавить в мод блок, руду или декоративный блок.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-block copper_ore</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-block copper_ore">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-block/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-block/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-command" data-filter="forge-1-12-new-command создать серверную команду мода forge 1.12.2 (commandbase): уровень прав, разбор и проверка аргументов, автодополнение, ответ через ключи перевода, регистрация в fmlserverstartingevent. используй, когда моду нужна команда для игроков или администратора.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-command</span></header>
+  <p>Создать серверную команду мода Forge 1.12.2 (CommandBase): уровень прав, разбор и проверка аргументов, автодополнение, ответ через ключи перевода, регистрация в FMLServerStartingEvent. Используй, когда моду нужна команда для игроков или администратора.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-command/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-command/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-config" data-filter="forge-1-12-new-config добавить параметры конфига мода forge 1.12.2 через аннотацию @config: категории, комментарии, диапазоны, ключи перевода и синхронизация при изменении в gui. используй, когда поведение мода должно настраиваться игроком или администратором сервера.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-config</span></header>
+  <p>Добавить параметры конфига мода Forge 1.12.2 через аннотацию @Config: категории, комментарии, диапазоны, ключи перевода и синхронизация при изменении в GUI. Используй, когда поведение мода должно настраиваться игроком или администратором сервера.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-config скорость дробилки 1-100, по умолчанию 20; включить генерацию медной руды</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-config скорость дробилки 1-100, по умолчанию 20; включить генерацию медной руды">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-config/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-config/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-item" data-filter="forge-1-12-new-item создать новый предмет мода forge 1.12.2: класс предмета, регистрация через registryevent, модель на клиенте, ключ перевода и список ресурсов. используй, когда пользователь просит добавить в мод предмет, инструмент, еду или материал.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-item</span></header>
+  <p>Создать новый предмет мода Forge 1.12.2: класс предмета, регистрация через RegistryEvent, модель на клиенте, ключ перевода и список ресурсов. Используй, когда пользователь просит добавить в мод предмет, инструмент, еду или материал.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-item copper_ingot</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-item copper_ingot">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-item/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-item/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-packet" data-filter="forge-1-12-new-packet создать сетевое сообщение мода forge 1.12.2 (imessage + imessagehandler в simplenetworkwrapper) с серверной проверкой каждого поля, лимитами размеров и работой с миром в главном потоке. используй, когда клиенту нужно отправить действие на сервер или серверу — данные клиенту.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-packet</span></header>
+  <p>Создать сетевое сообщение мода Forge 1.12.2 (IMessage + IMessageHandler в SimpleNetworkWrapper) с серверной проверкой каждого поля, лимитами размеров и работой с миром в главном потоке. Используй, когда клиенту нужно отправить действие на сервер или серверу — данные клиенту.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-packet set_grinder_mode</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-packet set_grinder_mode">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-packet/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-packet/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-new-tile-entity" data-filter="forge-1-12-new-tile-entity создать tileentity для блока мода forge 1.12.2: состояние, защитное чтение и запись nbt, синхронизация с клиентом, тик с троттлингом, инвентарь через capability. используй, когда блоку нужно хранить данные, работать как машина или иметь инвентарь.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-tile-entity</span></header>
+  <p>Создать TileEntity для блока мода Forge 1.12.2: состояние, защитное чтение и запись NBT, синхронизация с клиентом, тик с троттлингом, инвентарь через capability. Используй, когда блоку нужно хранить данные, работать как машина или иметь инвентарь.</p>
+
+  <div class="entry-example"><span>/forge-1-12-new-tile-entity grinder --tickable --inventory</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-tile-entity grinder --tickable --inventory">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-tile-entity/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-tile-entity/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-forge-1-12-setup-checkstyle" data-filter="forge-1-12-setup-checkstyle подключить checkstyle к моду forge 1.12.2: плагин checkstyle в build.gradle (gradle 4.9, forgegradle 3 или 2.3), правила профиля в config/checkstyle/checkstyle.xml — именование, неиспользуемые импорты, длина методов и файлов, порядок модификаторов, магические числа, пустые catch, system.out. используй, когда пользователь просит настроить checkstyle или линтер java-кода мода.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-setup-checkstyle</span></header>
+  <p>Подключить Checkstyle к моду Forge 1.12.2: плагин checkstyle в build.gradle (Gradle 4.9, ForgeGradle 3 или 2.3), правила профиля в config/checkstyle/checkstyle.xml — именование, неиспользуемые импорты, длина методов и файлов, порядок модификаторов, магические числа, пустые catch, System.out. Используй, когда пользователь просит настроить Checkstyle или линтер Java-кода мода.</p>
+  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
+  <div class="entry-example"><span>/forge-1-12-setup-checkstyle</span><button class="copy-btn" type="button" data-copy="/forge-1-12-setup-checkstyle">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-setup-checkstyle/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-setup-checkstyle/SKILL.md</a>
 </article></div>
 </section>
 <section class="catalog-panel" id="vue-nuxt" data-panel style="--accent-local:#00a876">

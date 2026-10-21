@@ -43,7 +43,7 @@
 | `label`, `stack` | Название и стек для людей и для выбора профиля по задаче | `/implement-feature`, каталог |
 | `role` | Часть системы: `backend`, `web` или своя (`mobile`, `mod`…). В мульти-профиле backend идёт первым — он фиксирует API | `/implement-feature`, `tech-planner` |
 | `agents` | Агенты по ролям: ровно `architect`, `coder`, `tester`, `reviewer` | все оркестраторы |
-| `specialists` | Дополнительные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}`. Специалист `quality` есть у каждого профиля — его зовут `/coverage-check` и `/tech-debt` | `/implement-feature` |
+| `specialists` | Дополнительные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}`. Специалист `quality` есть у каждого профиля — его зовут `/coverage-check` и `/tech-debt`. Необязательный специалист `security` проверяет то, что видно только со знанием стека, — его `/security-check` зовёт вместе с общим `security-auditor` (пример — `forge-1-12-java-security-auditor`) | `/implement-feature` |
 | `pipelines` | Необязательные цепочки, кроме кода: `{"<имя>": {"when": "<когда>", "steps": ["<агент>", …]}}` | `/implement-feature` |
 | `commands` | `install`, `lint`, `format`, `test` (обязательна), `build`, `run`. `{files}` — изменённые файлы. `install` ставит зависимости в `/implement-feature --worktree`, `run` запускает приложение в `/check-feature` | `/implement-feature`, `/fix-bug`, `/check-feature`, агенты, хуки |
 | `code_extensions` | Необязательно: расширения файлов кода (`[".java"]`). Хуки запускают `format` и `lint` только для них, а `test` — если менялись они. Без поля кодом считается любой файл в папке профиля | хуки |

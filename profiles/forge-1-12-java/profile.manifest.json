@@ -1,0 +1,47 @@
+{
+  "profile": "forge-1-12-java",
+  "label": "Forge 1.12.2 Java",
+  "role": "mod",
+  "stack": "Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito",
+  "agents": {
+    "architect": "forge-1-12-java-architect",
+    "coder": "forge-1-12-java-coder",
+    "tester": "forge-1-12-java-tester",
+    "reviewer": "forge-1-12-java-reviewer"
+  },
+  "specialists": {
+    "quality": {
+      "agent": "forge-1-12-java-quality-analyst",
+      "when": "нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)"
+    },
+    "security": {
+      "agent": "forge-1-12-java-security-auditor",
+      "when": "аудит безопасности (/security-check) или фича добавляет либо меняет сетевые пакеты, контейнеры и инвентари, команды, права или сохранённые данные игроков"
+    }
+  },
+  "pipelines": {
+    "docs": {
+      "when": "нужна только документация мода — написать или обновить .md в docs/ проекта без изменения кода",
+      "steps": ["forge-1-12-java-doc-writer"]
+    }
+  },
+  "commands": {
+    "install": "./gradlew compileJava",
+    "lint": "./gradlew compileJava check -x test",
+    "test": "./gradlew test",
+    "build": "./gradlew build",
+    "run": "./gradlew runClient"
+  },
+  "code_extensions": [
+    ".java"
+  ],
+  "root_markers": [
+    "src/main/resources/mcmod.info"
+  ],
+  "path_signals": [
+    "src/main/java/",
+    "src/test/java/",
+    "build.gradle",
+    "gradle.properties"
+  ]
+}

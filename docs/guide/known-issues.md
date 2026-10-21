@@ -87,6 +87,24 @@ export PYTHONIOENCODING=utf-8
 
 **Как обойти.** Поменяй `test` в `.aikit/profiles.json` на быструю команду (например, только unit-тесты) — хуки и `/implement-feature` возьмут её, обновление кита правку сохранит.
 
+### Windows: хуки не запускают свои ./-скрипты
+
+**Что происходит.** На Windows хуки запускают команды профиля через `cmd.exe`, а он не понимает путь вида `./script`. Обёртки Gradle и Maven хук запускает сам: `./gradlew` и `./mvnw` он заменяет на `.\gradlew` и `.\mvnw`, если рядом лежит `gradlew.bat` или `mvnw.cmd` (они есть в каждом wrapper). Свой скрипт без такой пары (`./scripts/test.sh`) хук не запустит и напишет «тесты не запустились — проверь вручную». Агенты и `/implement-feature` запускают команды через Bash, у них такие скрипты работают.
+
+**Как обойти.** Положи рядом со скриптом `.cmd`-версию с тем же именем (`test.cmd` для `./test`) или запускай `test` профиля сам.
+
+### Forge 1.12.2: сборка падает не на JDK 8
+
+**Что происходит.** Gradle 4.9 и ForgeGradle (3 в официальном MDK 14.23.5.2860, 2.3 в старых проектах) работают только на JDK 8. На JDK 11 и новее `./gradlew` падает до компиляции (`Unsupported class file major version`, `Could not determine java version`), и проверки профиля `forge-1-12-java` — `lint`, `test`, `build` — не проходят. Первая сборка скачивает и декомпилирует Minecraft — это несколько минут.
+
+**Как обойти.** Укажи JDK 8 в `JAVA_HOME` (или `org.gradle.java.home` в `gradle.properties` на своей машине, не в git) и выполни команду `install` профиля — `./gradlew compileJava`. В ForgeGradle 2.3 исходники Minecraft для IDE даёт `./gradlew setupDecompWorkspace`; в ForgeGradle 3 такой задачи нет.
+
+### Forge 1.12.2: «cannot find symbol setTranslationKey»
+
+**Что происходит.** Имена методов Minecraft зависят от маппингов MCP в `build.gradle`. В официальном MDK (`snapshot_20171003-1.12`) метод называется `setUnlocalizedName`, в `stable_39` — `setTranslationKey`. Примеры из интернета и старые подсказки агента могут взять не тот вариант.
+
+**Как обойти.** Агенты профиля берут имена из маппингов и кода проекта. Если сборка всё же упала с `cannot find symbol` — назови агенту маппинги из `build.gradle`; правило можно закрепить в `.aikit/memory/` через `/capture-memory`.
+
 ### Codex на Windows ищет python
 
 **Что происходит.** На Windows Codex запускает хуки командой `python`, а не `python3`. Если `python` — это Python 2 или заглушка Microsoft Store, хуки не сработают (действия при этом не блокируются).
