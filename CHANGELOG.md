@@ -5,10 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/)
 и использует [Semantic Versioning](https://semver.org/lang/ru/).
 
+Начиная с 0.2.0 секции версий пишет `scripts/bump-version.py` после слияния в `main` — из сообщений коммитов.
+`[Unreleased]` — для ручных заметок, автоматика его не трогает.
+
 ## [Unreleased]
 
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
+
+## [0.2.0] - 2026-10-21
+
+### Added
+- plugins: у плагинов Claude Code и Codex и записей маркетплейса есть `version` из `VERSION` — установленные плагины обновляются при её росте.
+- release: версия растёт автоматически после слияния в `main` — `scripts/bump-version.py` выбирает major, minor или patch по Conventional Commits и пишет эту секцию.
+- hooks: при старте сессии плагин один раз на версию сообщает, что в `main` вышла новая версия AIKit; проверка раз в сутки в фоне, отключается `AIKIT_NO_UPDATE_CHECK=1` или `update_check: false`.
+- С 0.1.0: маркетплейс плагинов и `/aikit:setup`, хуки, общий `/implement-feature` по контракту профиля, командная память, панель AIKit Deck, эвалы, уровни моделей агентов — подробно в `docs/roadmap.md`.
+
+### Changed
+- **Несовместимо.** С 0.1.0 переработаны контракт профиля и состав кита: удалены python-профили, адаптер GLM, `/workflow` и часть агентов ядра.
 
 ## [0.1.0] - 2026-04-20
 
