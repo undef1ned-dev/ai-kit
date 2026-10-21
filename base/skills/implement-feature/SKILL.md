@@ -27,6 +27,8 @@ example_prompt: "/implement-feature --tdd страница уведомлени�
 - `commands` — команды проекта `install`, `lint`, `format`, `test`, `build`, `run` (`{files}` — изменённые файлы);
 - `path_signals` — пути внутри `root`, по которым задача относится к профилю.
 
+На Windows в PowerShell команда профиля с `npx` или `npm` может упасть из-за ExecutionPolicy (`npx.ps1`): вызови `npx.cmd`/`npm.cmd` или выполни в Git Bash, ExecutionPolicy не меняй.
+
 Если кит стоит плагинами Claude Code (есть `.aikit/plugin-init.json`), агент профиля запускается с префиксом плагина — имени профиля: `<профиль>:<агент>`.
 
 Если файла нет — скажи, что AIKit не подключён к проекту (`/aikit:setup` при установке плагинами, иначе `attach.sh` или установщик адаптера), и остановись.

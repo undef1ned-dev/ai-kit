@@ -16,6 +16,8 @@ example_prompt: "/fix-bug при удалении последнего това�
 
 Прочитай `.aikit/profiles.json`: агенты профиля по ролям (`agents`), папка профиля (`root`), команды (`commands`), пути профиля (`path_signals`). Если файла нет — скажи, что AIKit не установлен в проект, и остановись.
 
+На Windows в PowerShell команда профиля с `npx` или `npm` может упасть из-за ExecutionPolicy (`npx.ps1`): вызови `npx.cmd`/`npm.cmd` или выполни в Git Bash, ExecutionPolicy не меняй.
+
 Выбери профиль бага так же, как `/implement-feature`: по путям из описания, стектрейса или логов, а без них — по `role` и `stack`. Если неочевидно — спроси.
 
 ## Шаг 1 — Воспроизведение
