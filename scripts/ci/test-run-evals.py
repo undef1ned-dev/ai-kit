@@ -17,6 +17,7 @@ import argparse
 import contextlib
 import importlib.util
 import io
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -129,6 +130,27 @@ def main() -> int:
         component = '<script setup lang="ts">\ndefineProps<{ id: number }>()\ndefineEmits<{ read: [id: number] }>()\n</script>\n<template><BaseButton data-test="read" /></template>\n'
         record = codex_run(runner, by_name["new-component"], fake, "готово", {"components/notifications/NotificationCard.vue": component})
         check(record["error"] is None and record["score"] == 1.0, f"new-component: фикстура скопирована, файл оценён ({record['error'] or record['score']})")
+
+        args = argparse.Namespace(codex_model=None, keep_temp=False)
+        record = runner.run_codex_case(by_name["commit-message"], [str(Path(folder) / "missing-codex")], args)
+        check(str(record["error"]).startswith("не удалось запустить"), f"нет исполняемого codex — ошибка запуска, а не подготовки проекта ({record['error']})")
+
+    print("▶ Путь к Codex CLI")
+    with tempfile.TemporaryDirectory() as folder:
+        # npm on Windows installs codex.cmd: a bare "codex" in the command is not found by CreateProcess
+        shim = Path(folder) / ("fake-codex.cmd" if os.name == "nt" else "fake-codex")
+        shim.write_bytes(b"@exit /b 0\r\n" if os.name == "nt" else b"#!/bin/sh\nexit 0\n")
+        shim.chmod(0o755)
+        seen: list[list[str]] = []
+        original_case, original_path = runner.run_codex_case, os.environ.get("PATH", "")
+        runner.run_codex_case = lambda case, codex_bin, args: seen.append(codex_bin) or {"score": 1.0, "graders": [], "error": None}
+        os.environ["PATH"] = f"{folder}{os.pathsep}{original_path}"
+        try:
+            args = argparse.Namespace(codex_bin="fake-codex --flag", quick=True, runs=None, threshold=0.5)
+            runner.run_codex([by_name["commit-message"]], args, Path(folder) / "run")
+        finally:
+            runner.run_codex_case, os.environ["PATH"] = original_case, original_path
+        check(bool(seen) and os.path.samefile(seen[0][0], shim) and seen[0][1:] == ["--flag"], f"codex запускается по пути из PATH ({seen})")
 
     print(f"\n{'✗ провалено проверок: ' + str(failures) if failures else '✓ раннер эвалов работает'}")
     return 1 if failures else 0

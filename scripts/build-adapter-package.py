@@ -32,6 +32,7 @@ NATIVE_SKILLS_DIR = Path(".agents") / "skills"
 NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
 NATIVE_ARGUMENTS_PLACEHOLDER = "(задача из запроса пользователя)"
 OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
+MODEL_RESOURCES = (Path("scripts") / "agent_models.py", Path("adapters") / "models.json")
 
 
 def parse_args() -> argparse.Namespace:
@@ -310,11 +311,8 @@ def write_native_skills(adapter: dict, bundle_root: Path, skills_dir: Path) -> l
         body = body.replace("$ARGUMENTS", NATIVE_ARGUMENTS_PLACEHOLDER)
         metadata = parse_frontmatter(raw)
         description = metadata.get("description", "").strip()
-        if adapter.get("runtime") == "codex" and metadata.get("disable-model-invocation") == "true":
-            # Codex counterpart of Claude Code's disable-model-invocation: the skill runs only on explicit $name
-            policy_file = destination / "agents" / "openai.yaml"
-            policy_file.parent.mkdir(parents=True, exist_ok=True)
-            policy_file.write_text("policy:\n  allow_implicit_invocation: false\n", encoding="utf-8")
+        # agents/openai.yaml (Codex counterpart of disable-model-invocation) comes with the skill folder:
+        # the plugin reads the same source
         if not description:
             raise SystemExit(f"Skill '{name}' has no description — required by Codex and OpenCode")
         if description[0] in ">|":
@@ -472,6 +470,11 @@ def build_package(
             copy_markdown(md, agents_dir / md.name)
         for folder in skill_folders(ROOT / "packs" / pack_name / "skills"):
             install_skill_folder(folder, skills_dir / folder.name)
+
+    # /set-model in a project without the kit sources: agent_models.py finds models.json and the agents in .aikit/
+    for resource in MODEL_RESOURCES:
+        (runtime_root / resource).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / resource, runtime_root / resource)
 
     # Memory seed
     populate_memory(canonical_memory_dir)

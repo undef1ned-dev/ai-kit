@@ -76,6 +76,8 @@ check_codex_agents() {
       grep -q '^developer_instructions = """' "$PROJECT_DIR/.codex/agents/$(basename "$agent" .md).toml" || return 1
     done
   done
+  # Codex reads the project rules from AGENTS.md: no agent sends it to CLAUDE.md
+  ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR"/.codex/agents/*.toml | grep -qv 'AGENTS\.md'
 }
 
 echo "▶ Проект → $PROJECT_DIR"
@@ -103,7 +105,8 @@ echo "▶ plugin-init.py --runtime codex --preset $PRESET"
 init --runtime codex --preset "$PRESET"
 check "свой агент команды в .codex/agents остался markdown и не изменён" check_local_agent
 check "AGENTS.md: блок правил базы и профилей, текст команды сохранён" check_rules AGENTS.md
-check ".codex/agents/: агенты базы и профилей в TOML" check_codex_agents
+check "AGENTS.md: объяснено, откуда в Codex берётся \$ARGUMENTS скиллов плагина" grep -qF '`$ARGUMENTS` в тексте скилла Codex не подставляет' "$PROJECT_DIR/AGENTS.md"
+check ".codex/agents/: агенты базы и профилей в TOML, правила проекта — AGENTS.md" check_codex_agents
 check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 
 echo "▶ Повторный запуск с профилем vue-nuxt"

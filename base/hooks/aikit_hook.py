@@ -22,6 +22,7 @@ Events:
 
 With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
 a folder with .aikit/ above the session cwd. Other projects of the user are left alone.
+With --deny-json (Codex hooks on Windows) PreToolUse blocks with permissionDecision: deny and exit 0.
 
 The hook never breaks the session: any internal error lets the action through.
 Standard library only, Python 3.9+.
@@ -41,6 +42,9 @@ from pathlib import Path
 
 BLOCK_EXIT_CODE = 2
 PLUGIN_FLAG = "--plugin"
+# Codex on Windows runs hooks through powershell -Command, and Windows PowerShell 5.1 turns exit code 2
+# into 1: the block would read as a failed hook. With this flag PreToolUse denies with JSON and exit 0
+DENY_JSON_FLAG = "--deny-json"
 PROFILES_FILE = Path(".aikit") / "profiles.json"
 WORKTREES_DIR = Path(".aikit") / "worktrees"
 MEMORY_DIR = Path(".aikit") / "memory"
@@ -173,6 +177,43 @@ def find_secret(text: str) -> str | None:
         if re.search(pattern, text):
             return label
     return None
+
+
+POWERSHELL_WRITE = re.compile(
+    r"(?i)(?<![\w-])(?:set-content|add-content|out-file|new-item|tee-object|sc|ac)(?![\w-])([^;|&\n()]*)"
+)
+POWERSHELL_PATH_PARAMS = ("-path", "-literalpath", "-filepath", "-pspath", "-lp", "-name")
+POWERSHELL_SWITCHES = {"-force", "-nonewline", "-append", "-noclobber", "-passthru", "-whatif", "-confirm"}
+DOTNET_WRITE = re.compile(r"(?i)\[(?:system\.)?io\.file\]::(?:write|append)all(?:text|lines|bytes)\(\s*(['\"])([^'\"]+)\1")
+POWERSHELL_TOKEN = re.compile(r"'[^']*'|\"[^\"]*\"|\S+")
+
+
+def powershell_targets(command: str) -> list[str]:
+    """Files that PowerShell write cmdlets and [IO.File]::Write* calls in the command write to."""
+    targets = [match.group(2) for match in DOTNET_WRITE.finditer(command)]
+    for match in POWERSHELL_WRITE.finditer(command):
+        tokens = POWERSHELL_TOKEN.findall(match.group(1))
+        positional_seen = False
+        index = 0
+        while index < len(tokens):
+            token = tokens[index]
+            name, _, attached = token.partition(":") if token.startswith("-") else ("", "", "")
+            name = name.lower()
+            if not name:
+                if not positional_seen:
+                    targets.append(token)
+                    positional_seen = True
+            elif any(param.startswith(name) for param in POWERSHELL_PATH_PARAMS) and len(name) > 2:
+                positional_seen = True
+                if attached:
+                    targets.append(attached)
+                elif index + 1 < len(tokens):
+                    targets.append(tokens[index + 1])
+                    index += 1
+            elif name not in POWERSHELL_SWITCHES and not attached:
+                index += 1
+            index += 1
+    return targets
 
 
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)(\w+)\1[^\n]*\n(.*?)\n\s*\2(?=\s|$|\))", re.DOTALL)
@@ -319,11 +360,12 @@ def check_shell(event: dict) -> str | None:
     command = shell_command(event)
     if not command:
         return None
-    for target in re.findall(r"(?:>>?|\btee(?:\s+-a)?)\s*([^\s;&|<>]+)", command):
-        if is_env_file(target):
+    targets = re.findall(r"(?:>>?|\btee(?:\s+-a)?)\s*([^\s;&|<>]+)", command) + powershell_targets(command)
+    for target in targets:
+        if is_env_file(target.replace("\\", "/")):
             return f"Запись в {target.strip(QUOTES)} заблокирована: .env-файлы с секретами правит только человек."
     secret = find_secret(command)
-    if secret and re.search(r">|\btee\b|\becho\b|\bprintf\b|\bgit\s+commit\b", command):
+    if secret and (re.search(r">|\btee\b|\becho\b|\bprintf\b|\bgit\s+commit\b", command) or POWERSHELL_WRITE.search(command) or DOTNET_WRITE.search(command)):
         return f"В команде {secret} — секреты не пишутся в файлы и коммиты. Используй переменную окружения."
     try:
         commands, bodies = split_commands(command)
@@ -371,10 +413,13 @@ def check_files(event: dict) -> str | None:
 
 def pre_tool_use(event: dict) -> int:
     problem = check_files(event) or check_shell(event)
-    if problem:
-        print(f"AIKit: {problem}", file=sys.stderr)
-        return BLOCK_EXIT_CODE
-    return 0
+    if not problem:
+        return 0
+    if DENY_JSON_FLAG in sys.argv[1:]:
+        emit({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": f"AIKit: {problem}"}})
+        return 0
+    print(f"AIKit: {problem}", file=sys.stderr)
+    return BLOCK_EXIT_CODE
 
 
 # ---------------------------------------------------------------------------

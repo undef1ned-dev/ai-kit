@@ -16,7 +16,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
               "timeout": 30,
               "statusMessage": "AIKit: память проекта"
             }
@@ -30,7 +30,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
               "timeout": 30,
               "statusMessage": "AIKit: проверка правил"
             }
@@ -44,7 +44,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
               "timeout": 300,
               "statusMessage": "AIKit: форматирование и линтер"
             }
@@ -57,7 +57,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
+              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
               "timeout": 600,
               "statusMessage": "AIKit: тесты"
             }

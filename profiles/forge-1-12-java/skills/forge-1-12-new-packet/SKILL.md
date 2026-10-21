@@ -9,7 +9,7 @@ orchestrates: []
 example_prompt: "/forge-1-12-new-packet set_grinder_mode"
 ---
 
-Создай сетевое сообщение по правилам `CLAUDE.md` профиля `forge-1-12-java`.
+Создай сетевое сообщение по правилам проекта (`CLAUDE.md` / `AGENTS.md`, профиль `forge-1-12-java`).
 
 $ARGUMENTS
 

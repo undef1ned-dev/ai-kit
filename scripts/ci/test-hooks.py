@@ -14,12 +14,15 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
-HOOK = Path(__file__).resolve().parents[2] / "base" / "hooks" / "aikit_hook.py"
+KIT_ROOT = Path(__file__).resolve().parents[2]
+HOOK = KIT_ROOT / "base" / "hooks" / "aikit_hook.py"
 BLOCKED = 2
 PYTHON = f'"{sys.executable}"'
 
@@ -53,6 +56,18 @@ PRE_BASH = [
     ("echo в .env", "echo X=1 >> .env", BLOCKED),
     ("echo в .env.local", "echo X=1 > config/.env.local", BLOCKED),
     ("секрет в echo", "echo AKIAABCDEFGHIJKLMNOP > key.txt", BLOCKED),
+    ("Set-Content -LiteralPath в .env.local", "Set-Content -LiteralPath .env.local -Value X=1", BLOCKED),
+    ("Set-Content позиционно в .env", "Set-Content .env 'X=1'", BLOCKED),
+    ("Add-Content -Path: в .env", "Add-Content -Path:'.\\.env' -Value X=1", BLOCKED),
+    ("Out-File в .env после конвейера", "'X=1' | Out-File -Encoding utf8 -FilePath config\\.env.local", BLOCKED),
+    ("New-Item .env со значением", "New-Item -ItemType File -Name .env -Value X=1 -Force", BLOCKED),
+    ("Tee-Object в .env", "'X=1' | Tee-Object -FilePath .env", BLOCKED),
+    ("[IO.File]::WriteAllText в .env", "[System.IO.File]::WriteAllText('.env', 'X=1')", BLOCKED),
+    ("powershell -Command с Set-Content", 'powershell.exe -NoProfile -Command "Set-Content -Path .env -Value X=1"', BLOCKED),
+    ("Set-Content в .env.example", "Set-Content -Path .env.example -Value X=", 0),
+    ("Set-Content читает .env в другой файл", "Set-Content -Path out.txt -Value (Get-Content .env)", 0),
+    ("Get-Content без записи", "Get-Content -Encoding UTF8 .env.example", 0),
+    ("секрет в Set-Content", "Set-Content -Path key.txt -Value AKIA" + "ABCDEFGHIJKLMNOP", BLOCKED),
     ("незакрытая кавычка", "echo 'oops", 0),
     ("обычная команда", "ls -la", 0),
 ]
@@ -74,6 +89,51 @@ def load_hook():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def codex_windows_commands() -> dict[str, str]:
+    """commandWindows of the Codex hooks: the adapter (.codex/hooks.json) and the core plugin."""
+    sys.path.insert(0, str(KIT_ROOT / "scripts"))
+    import hooks_config
+
+    spec = importlib.util.spec_from_file_location("aikit_build_plugins", KIT_ROOT / "scripts" / "build-plugins.py")
+    plugins = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(plugins)
+    return {"адаптер": hooks_config.CODEX_COMMAND_WINDOWS, "плагин": plugins.CODEX_HOOK_COMMAND_WINDOWS}
+
+
+def python_shim(folder: Path) -> None:
+    """`python` ahead on PATH that runs this interpreter: on a developer machine `python` may be Python 2."""
+    posix = folder / "python"
+    posix.write_bytes(f'#!/bin/sh\nexec "{Path(sys.executable).as_posix()}" "$@"\n'.encode("utf-8"))
+    posix.chmod(0o755)
+    (folder / "python.cmd").write_bytes(f'@"{sys.executable}" %*\r\n'.encode("utf-8"))
+
+
+def hook_shells(command: str) -> list[tuple[str, list[str] | str]]:
+    """The shells Codex runs a hook command in: cmd.exe /C or the session PowerShell on Windows, sh elsewhere."""
+    if os.name != "nt":
+        return [("sh", ["/bin/sh", "-c", command])]
+    shells: list[tuple[str, list[str] | str]] = [("cmd.exe", command)]
+    powershell = shutil.which("powershell") or shutil.which("pwsh")
+    if powershell:
+        shells.append(("PowerShell", [powershell, "-NoProfile", "-Command", command]))
+    return shells
+
+
+def run_in_shell(shell_command: list[str] | str, cwd: Path, event: dict, env: dict[str, str]) -> tuple[int, str]:
+    result = subprocess.run(
+        shell_command, shell=isinstance(shell_command, str), cwd=cwd, env=env,
+        input=json.dumps(event).encode("utf-8"), capture_output=True, timeout=60,
+    )
+    return result.returncode, result.stdout.decode("utf-8", errors="replace").strip()
+
+
+def denied_by_json(code: int, stdout: str) -> bool:
+    """PreToolUse block that survives powershell -Command: exit 0 and permissionDecision deny."""
+    if code != 0 or not stdout:
+        return False
+    return json.loads(stdout).get("hookSpecificOutput", {}).get("permissionDecision") == "deny"
 
 
 class Project:
@@ -216,6 +276,26 @@ def main() -> int:
                 [sys.executable, str(HOOK), "--plugin"], input=json.dumps(event).encode("utf-8"), capture_output=True, cwd=outsider
             )
             expect("в проекте без .aikit/ хук ничего не проверяет", result.returncode == 0 and not result.stdout.strip())
+        code, output, _ = project.run(commit_event, flags=("--deny-json",))
+        expect("--deny-json: блокировка через permissionDecision deny и код 0", code == 0 and output.get("hookSpecificOutput", {}).get("permissionDecision") == "deny", str(output))
+
+        print("▶ Команды хуков Codex для Windows (commandWindows) из подпапки проекта")
+        installed = project.root / ".aikit" / "hooks" / "aikit_hook.py"
+        installed.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(HOOK, installed)
+        subfolder = project.root / "sub"
+        env_patch = {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Add File: .env\n+A=1\n*** End Patch"}}
+        with tempfile.TemporaryDirectory() as shim, tempfile.TemporaryDirectory() as other:
+            python_shim(Path(shim))
+            env = {**os.environ, "PATH": f"{shim}{os.pathsep}{os.environ.get('PATH', '')}", "PLUGIN_ROOT": str(KIT_ROOT)}
+            env.pop("CLAUDE_PROJECT_DIR", None)
+            for kind, command in codex_windows_commands().items():
+                for shell, shell_command in hook_shells(command):
+                    event = {"hook_event_name": "PreToolUse", "session_id": "win", "cwd": str(subfolder), **env_patch}
+                    code, stdout = run_in_shell(shell_command, subfolder, event, env)
+                    expect(f"{kind}, {shell}: из подпапки запись .env заблокирована (deny в JSON)", denied_by_json(code, stdout), f"код {code}, {stdout}")
+                    code, stdout = run_in_shell(shell_command, Path(other), {**event, "cwd": other}, env)
+                    expect(f"{kind}, {shell}: вне проекта действие пропущено", code == 0 and not stdout, f"код {code}, {stdout}")
 
         print("▶ Устойчивость")
         code, _, _ = project.run({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": None})

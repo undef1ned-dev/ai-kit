@@ -56,6 +56,7 @@ RULES_INTRO = {
     "codex": [
         "Скиллы, хуки и MCP-серверы AIKit приходят из плагинов маркетплейса `aikit`, агенты — в `.codex/agents/`.",
         "Правила ниже написаны в синтаксисе Claude Code: `/name` — это скилл `name` (в Codex — `$name`, срабатывает и по описанию).",
+        "`$ARGUMENTS` в тексте скилла Codex не подставляет: на его месте — задача из запроса пользователя (текст после `$name`).",
         "Контракты профилей — в `.aikit/profiles.json`, командная память — в `.aikit/memory/`.",
     ],
 }
@@ -182,6 +183,8 @@ def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], p
         for agent in sorted((source / "agents").glob("*.md")):
             shutil.copyfile(agent, agents_dir / agent.name)
             kit_files.add(f".codex/agents/{agent.name}")
+    # The same text conversion as the adapter install: paths of the runtime, rules in AGENTS.md
+    installer.rewrite_local_script_commands(workspace, {"runtime": "codex"}, kit_files)
     rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace, kit_files)]
     agent_models.apply("codex", workspace)
     return rendered

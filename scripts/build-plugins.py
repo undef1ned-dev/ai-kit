@@ -47,7 +47,14 @@ HOOK_SCRIPT = "base/hooks/aikit_hook.py"
 PLUGIN_FLAG = "--plugin"
 CLAUDE_HOOK_COMMAND = f'python3 "${{CLAUDE_PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
 CODEX_HOOK_COMMAND = f'python3 "${{PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
-CODEX_HOOK_COMMAND_WINDOWS = f'python "${{PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
+# Codex passes PLUGIN_ROOT only as an environment variable, and on Windows the hook shell (powershell
+# -Command or cmd.exe) does not expand ${PLUGIN_ROOT}: a python -c launcher reads it without shell syntax.
+# PowerShell 5.1 turns exit code 2 into 1, so the hook blocks with JSON (--deny-json in aikit_hook.py)
+CODEX_HOOK_COMMAND_WINDOWS = (
+    "python -c \"import os,runpy,sys;"
+    f"h=os.path.join(os.environ['PLUGIN_ROOT'],*'{HOOK_SCRIPT}'.split('/'));"
+    f"sys.argv=[h,'{PLUGIN_FLAG}','{hooks_config.DENY_JSON_FLAG}'];runpy.run_path(h,run_name='__main__')\""
+)
 CORE_DESCRIPTION = (
     "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, "
     "хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта."

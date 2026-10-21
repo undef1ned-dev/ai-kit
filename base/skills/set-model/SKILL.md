@@ -19,7 +19,8 @@ $ARGUMENTS
 Корень кита — первое, что существует:
 - `${CLAUDE_PLUGIN_ROOT}` в Claude Code с установкой плагинами;
 - `.aikit-config/` в проекте (установка `attach.sh` или адаптером);
-- в Codex с установкой плагинами — папка на три уровня выше этого `SKILL.md` (`<корень>/base/skills/set-model/SKILL.md`).
+- в Codex с установкой плагинами — папка на три уровня выше этого `SKILL.md` (`<корень>/base/skills/set-model/SKILL.md`);
+- `.aikit/` в проекте, где есть `.aikit/scripts/agent_models.py`, — установка адаптером Codex или OpenCode без исходников кита в проекте: адаптер кладёт туда скрипт, `adapters/models.json`, а агентов кита — в `.aikit/agents/`.
 
 В корне должны быть `scripts/agent_models.py` и `adapters/models.json`. Дальше этот путь — `<корень>`.
 
@@ -31,7 +32,7 @@ $ARGUMENTS
 
 ## 3. С аргументами — запиши переопределение
 
-1. Проверь агента: он есть среди агентов кита (`<корень>/base/agents`, `<корень>/profiles/*/agents`, `<корень>/packs/*/agents`). Опечатка — предложи похожие имена.
+1. Проверь агента: он есть среди агентов кита (`<корень>/base/agents`, `<корень>/profiles/*/agents`, `<корень>/packs/*/agents`, а с корнем `.aikit/` — `.aikit/agents`). Опечатка — предложи похожие имена.
 2. Проверь модель:
    - уровень (`opus`, `sonnet`, `haiku`) — подходит для любого runtime;
    - конкретная модель — нужен runtime (`--runtime` или текущий). Модели Claude — алиас или id (`claude-opus-5-5`), Codex — id модели OpenAI, OpenCode — `provider/model`. Сомневаешься, что модель существует, — сверься с источниками из `adapters/models.json` и скажи пользователю.

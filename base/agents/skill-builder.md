@@ -87,6 +87,8 @@ example_prompt: "/{имя} {пример}"
 ---
 ```
 
+С `disable-model-invocation: true` положи рядом `<слой>/skills/<имя>/agents/openai.yaml` — тот же запрет автовызова для Codex (формат — ниже, в «Проект, Codex»): плагин и адаптер Codex читают его из папки скилла.
+
 **Проект, Claude Code** — `skills/<имя>/SKILL.md` в `.claude/`:
 
 ```
@@ -110,7 +112,7 @@ policy:
 ## Шаг 4 — Следующие шаги
 
 **Кит:**
-1. Скилл `base` — строка в `docs/guide/commands.md` (без неё проверка документации упадёт) и, если он нужен в панели, — группа в `GROUPS` в `deck/catalog.js`. Скилл профиля — строка в разделе «Доступные скиллы» его `CLAUDE.md`.
+1. Скилл `base` — строка в `docs/guide/commands.md` (без неё проверка документации упадёт) и, если он нужен в панели, — группа в `GROUPS` в `deck/catalog.js`. Скилл профиля — строка в разделе «Доступные скиллы» его `profiles/<профиль>/CLAUDE.md`.
 2. `python3 scripts/build-plugins.py`, `python3 scripts/generate-docs.py`, затем `bash scripts/ci/run-all.sh` — всё зелёное.
 3. Скилл меняет поведение, которое проверяют эвалы, — предложить `/run-evals changed --quick` (тратит лимиты).
 

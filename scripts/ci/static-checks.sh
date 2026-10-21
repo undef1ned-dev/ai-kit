@@ -183,6 +183,28 @@ for error in errors:
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
+echo "▶ Скиллы только по явному вызову: рядом с disable-model-invocation — agents/openai.yaml для Codex"
+"$PYTHON_BIN" -c '
+import pathlib, re, sys
+# Codex reads the same skill folder from the plugin and from the adapter install, so the policy lives in the source
+patterns = ("base/skills/*/SKILL.md", "base/plugin-skills/*/SKILL.md", "profiles/*/skills/*/SKILL.md", "packs/*/skills/*/SKILL.md")
+errors = []
+for path in sorted(p for pattern in patterns for p in pathlib.Path(".").glob(pattern)):
+    head = path.read_text(encoding="utf-8").partition("\n---\n")[0]
+    explicit = bool(re.search(r"(?m)^disable-model-invocation:\s*true\s*$", head))
+    policy = path.parent / "agents" / "openai.yaml"
+    has_policy = policy.is_file() and bool(re.search(r"(?m)^\s*allow_implicit_invocation:\s*false\s*$", policy.read_text(encoding="utf-8")))
+    if explicit and not has_policy:
+        errors.append(f"{path.parent.as_posix()}: disable-model-invocation: true, но нет agents/openai.yaml с allow_implicit_invocation: false")
+    if has_policy and not explicit:
+        errors.append(f"{path.parent.as_posix()}: agents/openai.yaml запрещает автовызов в Codex, а в SKILL.md нет disable-model-invocation: true")
+for error in errors:
+    print(f"  ✗ {error}")
+if not errors:
+    print("  ✓ политика явного вызова одинакова в Claude Code и Codex")
+sys.exit(1 if errors else 0)
+' || FAILURES=$((FAILURES + 1))
+
 echo "▶ CLAUDE.md в корне — копия base/CLAUDE.md"
 "$PYTHON_BIN" -c '
 import pathlib, sys
