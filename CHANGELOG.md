@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.4.0] - 2026-10-21
+
+### Added
+- models: уровень Codex у архитектора forge-1-12-java снижен до medium (#36)
+
 ## [0.3.4] - 2026-10-21
 
 ### Changed
