@@ -56,7 +56,7 @@ PAGES = [
 
 PROFILE_ROLES = ("architect", "coder", "tester", "reviewer")
 ROLE_LABELS = {"architect": "архитектор", "coder": "кодер", "tester": "тестировщик", "reviewer": "ревьюер"}
-PROFILE_COLORS = {"vue-nuxt": "#00a876"}
+PROFILE_COLORS = {"vue-nuxt": "#00a876", "forge-1-12-java": "#b45309"}
 DEFAULT_PROFILE_COLOR = "#64748b"
 BASE_COLOR = "#4f46e5"
 PACK_COLOR = "#d97706"

@@ -12,6 +12,7 @@ Usage:
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import subprocess
 import sys
@@ -66,6 +67,13 @@ PRE_FILES = [
     ("apply_patch с ключом", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: src/a.py\n@@\n+key = 'sk-ant-" + "b" * 30 + "'\n*** End Patch"}}, BLOCKED),
     ("apply_patch обычный", {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Update File: src/a.py\n@@\n+x = 1\n*** End Patch"}}, 0),
 ]
+
+
+def load_hook():
+    spec = importlib.util.spec_from_file_location("aikit_hook", HOOK)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 class Project:
@@ -145,6 +153,20 @@ def main() -> int:
         project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(component)}})
         _, output, _ = project.run({"hook_event_name": "Stop"})
         expect("нет инструмента тестов — напоминание вместо блокировки", "decision" not in output and "systemMessage" in output, str(output))
+
+        # Gradle and Maven wrappers: ./gradlew in bash, gradlew.bat in cmd.exe (the hook shell on Windows)
+        wrapper = web / "gradlew"
+        wrapper.write_bytes(b'#!/bin/sh\necho WRAPPER-FAIL "$@"\nexit 1\n')
+        wrapper.chmod(0o755)
+        (web / "gradlew.bat").write_bytes(b"@echo off\r\necho WRAPPER-FAIL %*\r\nexit /b 1\r\n")
+        project.set_profile({"test": "./gradlew test"})
+        project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(component)}})
+        _, output, _ = project.run({"hook_event_name": "Stop"})
+        expect("./gradlew запускается и на Windows (gradlew.bat)", "WRAPPER-FAIL test" in output.get("reason", ""), str(output))
+        hook = load_hook()
+        expect("./gradlew с .bat рядом → .\\gradlew", hook.windows_wrappers("./gradlew build && ./gradlew test", web) == ".\\gradlew build && .\\gradlew test")
+        expect("./скрипт без .bat/.cmd не меняется", hook.windows_wrappers("./run.sh --fast", web) == "./run.sh --fast")
+        expect("пути внутри аргументов не меняются", hook.windows_wrappers("python3 x.py ./gradlew-notes", web) == "python3 x.py ./gradlew-notes")
 
         for index in range(8):
             path = web / "components" / f"Item{index}.vue"

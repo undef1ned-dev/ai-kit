@@ -1,0 +1,16 @@
+{
+  "name": "forge-1-12-java",
+  "description": "Профиль AIKit Forge 1.12.2 Java (Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "keywords": [
+    "aikit",
+    "forge-1-12-java"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AIKit: Forge 1.12.2 Java",
+    "shortDescription": "Профиль AIKit Forge 1.12.2 Java (Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

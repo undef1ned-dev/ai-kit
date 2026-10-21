@@ -15,7 +15,7 @@ AIKit — переиспользуемый набор AI-агентов и ск�
 /aikit:setup frontend-team
 ```
 
-Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`) и пак (`devops`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
+Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`, `forge-1-12-java`) и пак (`devops`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
 
 В Codex: `codex plugin marketplace add undef1ned-dev/ai-kit`, `codex plugin add aikit@aikit` и плагины профилей, затем скилл `$setup`. Агентов плагины Codex не поставляют — `$setup` пишет их в `.codex/agents/`.
 

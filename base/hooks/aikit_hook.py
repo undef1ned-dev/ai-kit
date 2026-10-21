@@ -77,6 +77,9 @@ CO_AUTHORSHIP_PROBLEM = (
 BRANCH_TYPES = "feat|feature|fix|bugfix|hotfix|release|chore|docs|refactor|test|ci|build|perf|style|ai|claude|codex|copilot|cursor|opencode"
 BRANCH_PART = r"[a-z0-9]+(?:[.-][a-z0-9]+)*"
 BRANCH_NAME = re.compile(rf"^(?:main|master|develop|(?:{BRANCH_TYPES})/{BRANCH_PART}(?:/{BRANCH_PART})*)$")
+# ./gradlew, ./mvnw at the start of a command or after ; & | ( — wrappers ship a .bat or .cmd twin for Windows
+WRAPPER_PATTERN = re.compile(r"(^|[\s;&|(])\./([\w.-]+)(?=$|[\s;&|)])")
+WINDOWS_WRAPPER_SUFFIXES = (".bat", ".cmd", ".exe")
 TOOL_MISSING_MARKERS = (
     "command not found",
     "not recognized as an internal or external command",
@@ -423,10 +426,22 @@ def decode_output(data: bytes) -> str:
         return data.decode("oem" if os.name == "nt" else "latin-1", errors="replace")
 
 
+def windows_wrappers(command: str, root: Path) -> str:
+    """cmd.exe does not run ./gradlew or ./mvnw: point it at the gradlew.bat / mvnw.cmd next to the script."""
+    def replace(match: re.Match) -> str:
+        name = match.group(2)
+        if any((root / f"{name}{suffix}").is_file() for suffix in WINDOWS_WRAPPER_SUFFIXES):
+            return f"{match.group(1)}.\\{name}"
+        return match.group(0)
+    return WRAPPER_PATTERN.sub(replace, command)
+
+
 def run_command(template: str, root: Path, files: list[str], timeout: int) -> tuple[int, str] | None:
     """Exit code and output of a profile command; None when its tool is not installed or it timed out."""
     quote = (lambda item: f'"{item}"') if os.name == "nt" else shlex.quote
     command = template.replace("{files}", " ".join(quote(item) for item in files))
+    if os.name == "nt":
+        command = windows_wrappers(command, root)
     # npx must not download a tool the project does not have: that is slow and the tool has no config here
     env = {**os.environ, "npm_config_yes": "false"}
     try:

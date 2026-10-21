@@ -50,7 +50,7 @@
 
 | Команда | Что делает | Агенты |
 |---|---|---|
-| `/security-check` | Аудит безопасности: OWASP Top 10, секреты в коде и конфигах, авторизация, инъекции | `security-auditor` |
+| `/security-check` | Аудит безопасности: OWASP Top 10, секреты в коде и конфигах, авторизация, инъекции | `security-auditor` и security-специалист профиля (`specialists.security`), если он есть |
 | `/coverage-check` | Запускает тесты с покрытием, находит критичные модули без тестов и предлагает тест-кейсы | quality-специалист профиля (`specialists.quality`) |
 | `/tech-debt` | Аудит технического долга: большие модули, дублирование, нарушения слоёв, TODO; backlog P1/P2/P3 | quality-специалист профиля (`specialists.quality`) |
 | `/write-ui-texts` | Пишет или проверяет тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг | `ux-writer` |
@@ -88,6 +88,7 @@
 | Где | Скиллы |
 |---|---|
 | `vue-nuxt` | `/new-page`, `/new-component`, `/new-composable`, `/new-store`, `/new-middleware`, `/new-plugin`, `/new-server-route`, `/add-tests`, `/design-review` |
+| `forge-1-12-java` | `/forge-1-12-new-block`, `/forge-1-12-new-item`, `/forge-1-12-new-tile-entity`, `/forge-1-12-new-packet`, `/forge-1-12-new-config`, `/forge-1-12-new-command`, `/forge-1-12-add-tests`, `/forge-1-12-mod-docs`, `/forge-1-12-setup-checkstyle` |
 | пак `devops` | `/dockerize`, `/setup-ci` |
 
 Описание каждого — в [каталоге](../site/catalog.html).
