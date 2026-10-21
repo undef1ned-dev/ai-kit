@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.3.1] - 2026-10-21
+
+### Changed
+- skills: правило .cmd для npx и npm распространено на команды профиля
+
 ## [0.3.0] - 2026-10-21
 
 ### Added
