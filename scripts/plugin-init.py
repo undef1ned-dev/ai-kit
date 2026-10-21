@@ -19,6 +19,7 @@ State of the previous run is kept in .aikit/plugin-init.json: agents it wrote an
 Usage:
     python3 scripts/plugin-init.py --runtime claude --profiles vue-nuxt [--packs devops] [--commit ask|auto] [--workspace .]
     python3 scripts/plugin-init.py --runtime codex --preset frontend-team
+    python3 scripts/plugin-init.py --runtime codex --refresh-agents    # only .codex/agents/*.toml, set of the previous run
 """
 
 from __future__ import annotations
@@ -199,6 +200,22 @@ def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], p
     return rendered
 
 
+def refresh_agents(workspace: Path) -> int:
+    """Rewrite .codex/agents/ from the kit with the profiles and packs of the previous run; nothing else is touched."""
+    state_path = workspace / STATE_FILE
+    state = read_json(state_path)
+    if "codex" not in merge_runtimes(state, "") or not state.get("profiles"):
+        print("Проект не подключён к AIKit в Codex: сначала запусти $aikit:setup", file=sys.stderr)
+        return 1
+    profiles = [name for name in state["profiles"] if (ROOT / "profiles" / name / "profile.manifest.json").exists()]
+    packs = [name for name in state.get("packs", []) if (ROOT / "packs" / name / "pack.json").exists()]
+    previous = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
+    codex_agents = write_codex_agents(workspace, profiles, packs, previous)
+    write_json(state_path, {**state, "codex_agents": codex_agents})
+    print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), профили {', '.join(profiles)}")
+    return 0
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Connect a project to AIKit installed as plugins")
     parser.add_argument("--runtime", choices=RUNTIMES, required=True)
@@ -206,6 +223,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preset", help="preset name from presets/")
     parser.add_argument("--packs", default="", help='extra packs: "devops"')
     parser.add_argument("--commit", choices=project_settings.COMMIT_MODES, help="ask for the commit message or commit by the rules")
+    parser.add_argument("--refresh-agents", action="store_true", help="only rewrite .codex/agents/ for the set of the previous run")
     parser.add_argument("--workspace", default=".")
     return parser.parse_args()
 
@@ -216,6 +234,10 @@ def main() -> int:
             stream.reconfigure(encoding="utf-8")
     args = parse_args()
     workspace = Path(args.workspace).resolve()
+    if args.refresh_agents:
+        if args.runtime != "codex":
+            raise SystemExit("--refresh-agents нужен только Codex: агенты Claude Code приходят из плагинов")
+        return refresh_agents(workspace)
     profiles, packs = resolve_selection(args)
     state_path = workspace / STATE_FILE
     state = read_json(state_path)
