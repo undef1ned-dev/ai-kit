@@ -270,6 +270,9 @@ def check_update_notice(project: Project, expect) -> None:
 
 
 def main() -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     failures: list[str] = []
 
     def expect(name: str, condition: bool, details: str = "") -> None:
