@@ -8,7 +8,7 @@
       "haiku": {"model": "haiku"}
     },
     "codex": {
-      "opus": {"model": "gpt-6-astra", "model_reasoning_effort": "high"},
+      "opus": {"model": "gpt-6.1-sol", "model_reasoning_effort": "high"},
       "sonnet": {"model": "gpt-6.1-sol", "model_reasoning_effort": "medium"},
       "haiku": {"model": "gpt-6-luna", "model_reasoning_effort": "low"}
     },

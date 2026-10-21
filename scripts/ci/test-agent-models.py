@@ -53,9 +53,9 @@ def main() -> int:
     check("неизвестный уровень — модель не задаётся", agent_models.resolve("x", "inherit", "codex", {}) == {})
 
     toml = 'name = "a"\ndescription = "d"\nmodel = "old"\ndeveloper_instructions = """\ntext\n"""\n'
-    updated = agent_models.set_toml_fields(toml, {"model": "gpt-6-astra", "model_reasoning_effort": "high"})
+    updated = agent_models.set_toml_fields(toml, {"model": "gpt-6.1-sol", "model_reasoning_effort": "high"})
     check("TOML Codex: модель после description, старая убрана",
-          updated.startswith('name = "a"\ndescription = "d"\nmodel = "gpt-6-astra"\nmodel_reasoning_effort = "high"\ndeveloper_instructions'), updated)
+          updated.startswith('name = "a"\ndescription = "d"\nmodel = "gpt-6.1-sol"\nmodel_reasoning_effort = "high"\ndeveloper_instructions'), updated)
     markdown = "---\nname: a\nmodel: sonnet\n---\nbody model: x\n"
     check("frontmatter: модель заменена только в шапке",
           agent_models.set_frontmatter_model(markdown, "haiku") == "---\nname: a\nmodel: haiku\n---\nbody model: x\n")
