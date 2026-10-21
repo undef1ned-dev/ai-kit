@@ -16,7 +16,7 @@
 | Путь | Что это |
 |---|---|
 | `base/` | Ядро: `CLAUDE.md` (базовые правила), `agents/`, `skills/<name>/SKILL.md`, `hooks/` (скрипт хуков и плагин OpenCode), `settings.json`, `mcp.json`, `PRODUCT.md` (шаблон), `memory/` (шаблон памяти) |
-| `base/plugin-skills/` | Скиллы только для плагина ядра: `setup` подключает проект (`/aikit:setup`) |
+| `base/plugin-skills/` | Скиллы только для плагина ядра: `setup` подключает проект (`/aikit:setup`), `update-agents` обновляет агентов Codex после обновления плагинов (`plugin-init.py --refresh-agents`) |
 | `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `CLAUDE.md`, `agents/`, `skills/`, `settings.json`, `mcp.json`; `.claude-plugin/` и `.codex-plugin/` — манифесты плагина (генерируются) |
 | `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json`, манифесты плагина |
 | `.claude-plugin/`, `.codex-plugin/` в корне | Маркетплейс `aikit` (`marketplace.json`, его читают и Claude Code, и Codex) и манифесты плагина ядра: корень плагина `aikit` — весь репозиторий. Генерируются `scripts/build-plugins.py` |
@@ -257,7 +257,7 @@ bash scripts/ci/run-all.sh
 | `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро (`base/`) не называет агентов профилей и паков; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны и `version` в них равна `VERSION`; степень версии по сообщениям коммитов (`scripts/ci/test-bump-version.py`); сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); модели агентов (`scripts/ci/test-agent-models.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS; MCP из текста агента разрешён в его `tools`; пути кита в обратных кавычках (`docs/…`, `scripts/…`, `base/…`, `profiles/…`, `packs/…`, `templates/…`, `adapters/…`, `deck/…`) в агентах, скиллах и шаблоне профиля существуют; `depends_on` и `orchestrates` указывают на существующих агентов; агенты и скиллы профилей не зовут `npm`, `npx`, `pnpm`, `yarn` — команды из `.aikit/profiles.json`; агент или скилл с `git commit` ссылается на скилл `git-commit` (режим `ask` или `auto`); скилл с `disable-model-invocation: true` несёт `agents/openai.yaml` для Codex; у копий скиллов разработки кита в `.claude/skills/` и `.agents/skills/` одинаковые `name` и `description` |
 | `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
 | `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
-| `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей |
+| `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей, `--refresh-agents` |
 | `scripts/ci/smoke-new-profile.sh` | Профиль из шаблона ставится без правок ядра, вместе с пайплайном, в монорепо |
 | `claude plugin test` | Мод AIKit Deck: кнопки, поле аргумента, режимы, справка, субагенты, память. Только локально, если установлен Claude Code |
 

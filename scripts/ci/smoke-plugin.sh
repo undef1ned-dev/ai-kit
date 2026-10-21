@@ -119,6 +119,15 @@ init --runtime codex --profiles vue-nuxt
 check "смена набора: агенты Codex убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-coder.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
 check "смена набора: свой агент команды не тронут" check_local_agent
 
+echo "▶ plugin-init.py --runtime codex --refresh-agents"
+printf '{"agents": {"vue-coder": {"codex": "opus"}}}\n' > "$PROJECT_DIR/.aikit/models.json"
+rm -f "$PROJECT_DIR/.codex/agents/vue-coder.toml"
+init --runtime codex --refresh-agents >/dev/null
+check "refresh-agents: агент пересобран с моделью из .aikit/models.json" grep -q '^model_reasoning_effort = "high"' "$PROJECT_DIR/.codex/agents/vue-coder.toml"
+check "refresh-agents: набор профилей прежний, паки смены набора не вернулись" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-reviewer.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
+check "refresh-agents: свой агент команды не тронут" check_local_agent
+check "refresh-agents: для Claude Code отказ" bash -c "! '$PYTHON_BIN' '$KIT_ROOT/scripts/plugin-init.py' --workspace '$PROJECT_DIR' --runtime claude --refresh-agents >/dev/null 2>&1"
+
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"
   exit 1
