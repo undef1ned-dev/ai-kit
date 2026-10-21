@@ -3,6 +3,7 @@ name: {{PREFIX}}-architect
 description: {{LABEL}} архитектор. Проектирует структуру фичи до написания кода. Используй перед новой фичей, эндпоинтом или изменением модели данных.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: high
 version: "1.0.0"
 profile: "{{PROFILE}}"
 tags: ["{{PREFIX}}", "{{ROLE}}", "architecture"]

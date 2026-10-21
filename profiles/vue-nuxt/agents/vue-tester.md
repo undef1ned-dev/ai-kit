@@ -3,6 +3,7 @@ name: vue-tester
 description: Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT. Проверку в запущенном приложении делает /check-feature.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "frontend", "testing"]

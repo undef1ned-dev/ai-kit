@@ -9,6 +9,7 @@ Usage: python3 scripts/ci/test-agent-models.py
 from __future__ import annotations
 
 import json
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -17,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import agent_models  # noqa: E402
 
 FAILURES: list[str] = []
+FRONTMATTER_EFFORT = re.compile(r"^effort:\s*(\S+)\s*$", re.M)
 
 
 def check(name: str, condition: bool, detail: str = "") -> None:
@@ -38,6 +40,18 @@ def main() -> int:
     gaps = [f"{runtime}/{tier}" for runtime in agent_models.RUNTIMES for tier in tiers
             if not kit.get("runtimes", {}).get(runtime, {}).get(tier, {}).get("model")]
     check("adapters/models.json: модель для каждого runtime и уровня", not gaps, ", ".join(gaps))
+    # Claude Code: effort in the agent's frontmatter overrides the session level — architects high, the rest medium.
+    # Like the tier check, only agents that name a model tier are held to it
+    efforts = {}
+    for pattern in (*agent_models.AGENT_SOURCES, "templates/profile/agents"):
+        for path in sorted(agent_models.ROOT.glob(f"{pattern}/*.md")):
+            head = path.read_text(encoding="utf-8").split("\n---", 1)[0]
+            if not agent_models.FRONTMATTER_MODEL.search(head):
+                continue
+            match = FRONTMATTER_EFFORT.search(head)
+            efforts[path.relative_to(agent_models.ROOT).as_posix()] = match.group(1) if match else None
+    wrong = {name: level for name, level in efforts.items() if level != ("high" if name.endswith("architect.md") else "medium")}
+    check("effort агентов кита: архитекторы high, остальные medium", bool(efforts) and not wrong, str(wrong))
 
     opus = kit["runtimes"]["codex"]["opus"]
     check("уровень агента берётся из frontmatter", agent_models.resolve("vue-architect", "opus", "codex", {}) == opus)
@@ -66,12 +80,13 @@ def main() -> int:
         workspace = Path(tmp)
         agents = workspace / ".claude" / "agents"
         agents.mkdir(parents=True)
-        (agents / "vue-coder.md").write_text("---\nname: vue-coder\nmodel: sonnet\n---\n", encoding="utf-8")
+        (agents / "vue-coder.md").write_text("---\nname: vue-coder\nmodel: sonnet\neffort: medium\n---\n", encoding="utf-8")
         (agents / "team-own.md").write_text("---\nname: team-own\nmodel: sonnet\n---\n", encoding="utf-8")
         (workspace / ".aikit").mkdir()
         (workspace / ".aikit" / "models.json").write_text(json.dumps({"agents": {"vue-coder": "haiku", "team-own": "opus"}}), encoding="utf-8")
         agent_models.apply("claude", workspace)
         check("apply: агент кита получил модель проекта", "model: haiku" in (agents / "vue-coder.md").read_text(encoding="utf-8"))
+        check("apply: effort агента сохранён", "\neffort: medium\n" in (agents / "vue-coder.md").read_text(encoding="utf-8"))
         check("apply: свой агент команды не тронут", "model: sonnet" in (agents / "team-own.md").read_text(encoding="utf-8"))
 
     if FAILURES:

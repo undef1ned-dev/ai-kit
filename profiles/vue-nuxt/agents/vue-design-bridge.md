@@ -3,6 +3,7 @@ name: vue-design-bridge
 description: Мост между дизайном и Vue/Nuxt-кодом. Проверяет соответствие UI kit, дизайн-токенам и Figma-макету, раскладывает макет на компоненты для реализации. Используй, когда задача идёт от макета Figma или нужна сверка UI с дизайн-системой.
 tools: Read, Grep, Glob, Bash, mcp__figma__*, mcp__plugin_vue-nuxt_figma__*
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "design", "figma", "design-system", "uikit"]

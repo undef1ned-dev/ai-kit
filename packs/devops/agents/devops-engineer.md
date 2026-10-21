@@ -3,6 +3,7 @@ name: devops-engineer
 description: DevOps инженер. Упаковывает проект в Docker и настраивает CI/CD (GitHub Actions или GitLab CI) под стек и команды профиля из .aikit/profiles.json. Используй когда нужно настроить контейнеризацию, пайплайн или деплой.
 tools: Read, Grep, Glob, Write, Bash
 model: sonnet
+effort: medium
 version: "2.0.0"
 profile: "pack:devops"
 tags: ["devops", "docker", "ci-cd", "deployment"]

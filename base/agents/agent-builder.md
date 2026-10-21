@@ -3,6 +3,7 @@ name: agent-builder
 description: Генерирует файл нового агента по готовым ответам интервью /create-agent — в репозитории кита агента кита, в проекте локального агента для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в AGENT_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом агенте собраны.
 tools: Read, Glob, Grep
 model: sonnet
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["meta", "tooling", "agents"]

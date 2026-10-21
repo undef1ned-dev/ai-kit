@@ -3,6 +3,7 @@ name: {{PREFIX}}-tester
 description: {{LABEL}} QA. Пишет тесты по CODER_RESULT и запускает их командой test профиля.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "{{PROFILE}}"
 tags: ["{{PREFIX}}", "{{ROLE}}", "testing"]

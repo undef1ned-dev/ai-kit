@@ -3,6 +3,7 @@ name: skill-builder
 description: Генерирует новый скилл <name>/SKILL.md по готовым ответам интервью /create-skill — в репозитории кита скилл кита, в проекте локальный скилл для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в SKILL_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом скилле собраны.
 tools: Read, Glob, Grep
 model: sonnet
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["meta", "tooling", "skills"]

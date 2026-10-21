@@ -3,6 +3,7 @@ name: memory-optimizer
 description: Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. Запускай через /optimize-memory, когда /memory-status показывает предупреждение.
 tools: Read, Write, Grep, Glob, Bash
 model: sonnet
+effort: medium
 version: "3.0.0"
 profile: "base"
 tags: ["meta", "memory", "optimization"]

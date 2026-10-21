@@ -3,6 +3,7 @@ name: security-auditor
 description: Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.
 tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: opus
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["security", "audit", "owasp"]

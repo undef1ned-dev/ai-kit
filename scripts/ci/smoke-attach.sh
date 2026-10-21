@@ -219,6 +219,8 @@ fi
 check ".claude/settings.json корректен после обновления" check_settings
 check "агенты на месте после обновления" test "$(count_files .claude/agents '*.md')" -gt 0
 check "модель агента из .aikit/models.json применена после обновления" grep -q "^model: haiku$" .claude/agents/vue-coder.md
+check "effort агента сохранён после смены модели" grep -q "^effort: medium$" .claude/agents/vue-coder.md
+check "effort архитектора — high" grep -q "^effort: high$" .claude/agents/vue-architect.md
 check "скиллы корректны после обновления" check_skills
 check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
 check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md

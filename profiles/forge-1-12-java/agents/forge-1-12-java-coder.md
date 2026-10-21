@@ -3,6 +3,7 @@ name: forge-1-12-java-coder
 description: Java-разработчик мода Minecraft 1.12.2 на Forge. Реализует классы по ARCHITECT_PLAN — регистрация через RegistryEvent, разделение клиента и сервера, безопасные пакеты, защитное чтение NBT, ООП без god-классов. Используй после плана архитектора профиля или для точечной правки Java-кода мода.
 tools: Read, Grep, Glob, Write, Edit, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "forge-1-12-java"
 tags: ["forge-1-12-java", "minecraft", "forge", "java", "mod", "implementation"]

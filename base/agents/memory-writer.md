@@ -3,6 +3,7 @@ name: memory-writer
 description: Фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. Git не трогает — сохранение выбирает и делает скилл. Используй через /capture-memory, когда записи собраны и подтверждены пользователем.
 tools: Read, Write, Grep, Glob, Bash
 model: sonnet
+effort: medium
 version: "3.0.0"
 profile: "base"
 tags: ["meta", "memory", "documentation"]

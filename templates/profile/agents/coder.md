@@ -3,6 +3,7 @@ name: {{PREFIX}}-coder
 description: {{LABEL}} разработчик. Реализует файлы по ARCHITECT_PLAN. Используй после получения плана от архитектора профиля.
 tools: Read, Grep, Glob, Write, Edit, Bash
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "{{PROFILE}}"
 tags: ["{{PREFIX}}", "{{ROLE}}", "implementation"]
