@@ -65,6 +65,13 @@ def main() -> int:
           agent_models.resolve("vue-tester", "sonnet", "opencode", project) == kit["runtimes"]["opencode"]["sonnet"])
     check("проект меняет модель уровня", agent_models.resolve("vue-coder", "sonnet", "opencode", project) == {"model": "openrouter/test-opus"})
     check("неизвестный уровень — модель не задаётся", agent_models.resolve("x", "inherit", "codex", {}) == {})
+    architect = {**opus, "model_reasoning_effort": "medium"}
+    check("настройка кита для агента: Codex medium вместо high у forge-1-12-java-architect",
+          agent_models.resolve("forge-1-12-java-architect", "opus", "codex", {}) == architect)
+    check("настройка кита для агента не задевает Claude Code",
+          agent_models.resolve("forge-1-12-java-architect", "opus", "claude", {}) == kit["runtimes"]["claude"]["opus"])
+    check("переопределение проекта сильнее настройки кита",
+          agent_models.resolve("forge-1-12-java-architect", "opus", "codex", {"agents": {"forge-1-12-java-architect": "opus"}}) == opus)
 
     toml = 'name = "a"\ndescription = "d"\nmodel = "old"\ndeveloper_instructions = """\ntext\n"""\n'
     updated = agent_models.set_toml_fields(toml, {"model": "gpt-6.1-sol", "model_reasoning_effort": "high"})

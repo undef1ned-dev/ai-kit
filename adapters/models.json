@@ -18,6 +18,9 @@
       "haiku": {"model": "anthropic/claude-haiku-5-5"}
     }
   },
+  "agents": {
+    "forge-1-12-java-architect": {"codex": {"model_reasoning_effort": "medium"}}
+  },
   "sources": {
     "claude": "https://code.claude.com/docs/en/sub-agents",
     "codex": "https://learn.chatgpt.com/docs/models",

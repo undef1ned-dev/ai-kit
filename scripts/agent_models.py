@@ -3,7 +3,9 @@
 Models of AIKit agents in every runtime.
 
 An agent's frontmatter names a tier: `model: opus | sonnet | haiku`. adapters/models.json maps each tier
-to a model per runtime (Claude Code aliases, Codex and OpenCode model ids). A project overrides it in
+to a model per runtime (Claude Code aliases, Codex and OpenCode model ids); its "agents" section adjusts single
+fields of one agent on top of the tier ("forge-1-12-java-architect": {"codex": {"model_reasoning_effort": "medium"}}).
+A project overrides all of it in
 .aikit/models.json, which /set-model writes:
 
     {
@@ -74,6 +76,11 @@ def tier_fields(runtime: str, tier: str, project: dict) -> dict[str, str]:
     return dict(kit_models().get("runtimes", {}).get(runtime, {}).get(tier, {}))
 
 
+def kit_agent_fields(agent: str, runtime: str) -> dict[str, str]:
+    """Fields the kit sets for one agent on top of its tier, e.g. a lower Codex reasoning effort."""
+    return dict(kit_models().get("agents", {}).get(agent, {}).get(runtime, {}))
+
+
 def resolve(agent: str, tier: str | None, runtime: str, project: dict) -> dict[str, str]:
     """The fields that set the agent's model in this runtime; empty when nothing is known."""
     choice = project.get("agents", {}).get(agent)
@@ -84,7 +91,7 @@ def resolve(agent: str, tier: str | None, runtime: str, project: dict) -> dict[s
             return tier_fields(runtime, choice, project)
         return {"model": choice}
     if tier in tiers():
-        return tier_fields(runtime, tier, project)
+        return {**tier_fields(runtime, tier, project), **kit_agent_fields(agent, runtime)}
     return {}
 
 
