@@ -45,7 +45,16 @@ EVENTS = {
 CLAUDE_COMMAND = 'python3 "$CLAUDE_PROJECT_DIR/.aikit/hooks/aikit_hook.py"'
 # Codex runs hooks in the session folder; the git root finds the project from a subfolder
 CODEX_COMMAND = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.aikit/hooks/aikit_hook.py"'
-CODEX_COMMAND_WINDOWS = "python .aikit/hooks/aikit_hook.py"
+# On Windows Codex runs the hook in the session shell (powershell -Command) or cmd.exe, where $(...) and
+# ${VAR} mean different things or nothing. A python -c launcher has no shell syntax: it looks for the script
+# from the session cwd up (the git root of the project included) and passes on if there is none.
+# PowerShell 5.1 turns exit code 2 into 1, so the hook blocks with JSON (--deny-json in aikit_hook.py)
+DENY_JSON_FLAG = "--deny-json"
+CODEX_COMMAND_WINDOWS = (
+    'python -c "import pathlib,runpy,sys;d=pathlib.Path.cwd();'
+    f"h=[p/'{HOOK_TARGET.as_posix()}' for p in (d,*d.parents) if (p/'{HOOK_TARGET.as_posix()}').is_file()];"
+    f"h or sys.exit(0);sys.argv=[str(h[0]),'{DENY_JSON_FLAG}'];runpy.run_path(sys.argv[0],run_name='__main__')\""
+)
 
 
 def read_json(path: Path) -> dict | None:

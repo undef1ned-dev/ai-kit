@@ -9,7 +9,7 @@ orchestrates: []
 example_prompt: "/forge-1-12-new-tile-entity grinder --tickable --inventory"
 ---
 
-Создай TileEntity по правилам `CLAUDE.md` профиля `forge-1-12-java`.
+Создай TileEntity по правилам проекта (`CLAUDE.md` / `AGENTS.md`, профиль `forge-1-12-java`).
 
 $ARGUMENTS
 

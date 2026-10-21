@@ -209,6 +209,16 @@ assert result.returncode == 2, f"ветка не по формату не заб
 PY
 }
 
+# Codex и OpenCode читают правила проекта из AGENTS.md: агенты кита не отправляют в CLAUDE.md
+check_agents_rules_file() {
+  ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR/.$ADAPTER"/agents/* | grep -qv 'AGENTS\.md'
+}
+
+# /set-model без исходников кита в проекте: скрипт моделей и models.json лежат в .aikit/ и видят агентов кита
+check_set_model_resources() {
+  (cd "$PROJECT_DIR" && "$PYTHON_BIN" .aikit/scripts/agent_models.py show --runtime "$ADAPTER" --workspace .) | grep -q '^memory-writer: model='
+}
+
 # Свои файлы на месте и не изменены: .md не превращён в TOML, пути в тексте не подменены
 check_local_files() {
   [[ "$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")" == "$LOCAL_SUMS" ]]
@@ -232,6 +242,8 @@ check_runtime_files() {
       check "агенты OpenCode с description, mode: subagent и model$stage" check_opencode_agents
       ;;
   esac
+  check "агенты кита ссылаются на правила в AGENTS.md, не в CLAUDE.md$stage" check_agents_rules_file
+  check "/set-model работает без исходников кита (.aikit/scripts/agent_models.py)$stage" check_set_model_resources
   check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp
   check "хуки AIKit в родном формате runtime, хук пользователя сохранён$stage" check_hooks
   check "в домашнюю папку ничего не записано$stage" test -z "$(ls -A "$FAKE_HOME")"

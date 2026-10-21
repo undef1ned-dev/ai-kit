@@ -9,7 +9,7 @@ orchestrates: []
 example_prompt: "/forge-1-12-new-block copper_ore"
 ---
 
-Создай новый блок мода по правилам `CLAUDE.md` профиля `forge-1-12-java`.
+Создай новый блок мода по правилам проекта (`CLAUDE.md` / `AGENTS.md`, профиль `forge-1-12-java`).
 
 $ARGUMENTS
 

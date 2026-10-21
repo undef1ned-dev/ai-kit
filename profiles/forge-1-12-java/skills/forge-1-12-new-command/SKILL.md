@@ -9,7 +9,7 @@ orchestrates: []
 example_prompt: "/forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов"
 ---
 
-Создай серверную команду по правилам `CLAUDE.md` профиля `forge-1-12-java`.
+Создай серверную команду по правилам проекта (`CLAUDE.md` / `AGENTS.md`, профиль `forge-1-12-java`).
 
 $ARGUMENTS
 

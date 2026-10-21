@@ -9,7 +9,7 @@ orchestrates: []
 example_prompt: "/forge-1-12-new-item copper_ingot"
 ---
 
-Создай новый предмет мода по правилам `CLAUDE.md` профиля `forge-1-12-java`.
+Создай новый предмет мода по правилам проекта (`CLAUDE.md` / `AGENTS.md`, профиль `forge-1-12-java`).
 
 $ARGUMENTS
 

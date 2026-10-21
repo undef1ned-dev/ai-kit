@@ -36,7 +36,8 @@ ROOT = Path(__file__).resolve().parent.parent
 KIT_MODELS = ROOT / "adapters" / "models.json"
 PROJECT_MODELS = Path(".aikit") / "models.json"
 RUNTIMES = ("claude", "codex", "opencode")
-AGENT_SOURCES = ("base/agents", "profiles/*/agents", "packs/*/agents")
+# agents — an adapter install ships this script in .aikit/scripts/ next to the kit agents in .aikit/agents/
+AGENT_SOURCES = ("base/agents", "profiles/*/agents", "packs/*/agents", "agents")
 FRONTMATTER_MODEL = re.compile(r"^model:\s*(\S+)\s*$", re.M)
 
 

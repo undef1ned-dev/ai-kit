@@ -366,9 +366,17 @@ def python3_shim() -> Path | None:
     return folder
 
 
+def claude_executable() -> str:
+    """
+    The resolved path: an npm install on Windows puts claude.cmd on PATH, and CreateProcess runs
+    only .exe for a bare "claude" (WinError 2). Same for codex in run_codex.
+    """
+    return shutil.which("claude") or "claude"
+
+
 def claude_command(args: argparse.Namespace, output_dir: Path) -> list[str]:
     command = [
-        "claude", "plugin", "eval", ".",
+        claude_executable(), "plugin", "eval", ".",
         "--scaffold", "--trust-plugin", "--no-publish",
         "--model", args.model, "--judge-model", args.judge_model,
         "--threshold", str(args.threshold), "--max-cost-usd", str(args.max_cost_usd),
@@ -393,7 +401,7 @@ def subscription_limits() -> dict[str, float] | None:
     `claude -p` request. None with API-key auth or when the event is missing.
     """
     command = [
-        "claude", "-p", LIMITS_PROBE_PROMPT, "--model", DEFAULT_JUDGE_MODEL,
+        claude_executable(), "-p", LIMITS_PROBE_PROMPT, "--model", DEFAULT_JUDGE_MODEL,
         "--output-format", "stream-json", "--verbose", "--max-turns", "1", "--tools", "",
     ]
     with tempfile.TemporaryDirectory(prefix="aikit-evals-limits-") as folder:
@@ -559,10 +567,12 @@ def run_codex_case(case: dict, codex_bin: list[str], args: argparse.Namespace) -
     workspace = Path(tempfile.mkdtemp(prefix=f"aikit-eval-{case['name']}-"))
     last_message = workspace.parent / f"{workspace.name}-last-message.txt"
     record: dict = {"name": case["name"], "group": case["group"], "graders": [], "error": None}
+    stage = "подготовка проекта не удалась"
     try:
         prepare_codex_workspace(case, workspace)
         before = workspace_files(workspace)
         command = codex_command(codex_bin, args, workspace, last_message, codex_prompt(case["prompt"]))
+        stage = f"не удалось запустить {codex_bin[0]}"
         try:
             completed = subprocess.run(command, capture_output=True, timeout=case["timeout"])
             trace = completed.stdout.decode("utf-8", errors="replace")
@@ -571,6 +581,7 @@ def run_codex_case(case: dict, codex_bin: list[str], args: argparse.Namespace) -
         except subprocess.TimeoutExpired as expired:
             trace = (expired.stdout or b"").decode("utf-8", errors="replace")
             record["error"] = f"timed out after {case['timeout']}s"
+        stage = "оценка ответа не удалась"
         reply = last_message.read_text(encoding="utf-8", errors="replace") if last_message.exists() else ""
         created = sorted(workspace_files(workspace) - before)
         scored = []
@@ -581,7 +592,7 @@ def run_codex_case(case: dict, codex_bin: list[str], args: argparse.Namespace) -
                 scored.append((grader, passed))
         record["score"] = weighted_score(scored)
     except (OSError, subprocess.SubprocessError) as error:
-        record["error"] = f"подготовка проекта не удалась: {error}"
+        record["error"] = f"{stage}: {error}"
         record["score"] = 0.0
     finally:
         if args.keep_temp:
@@ -594,9 +605,11 @@ def run_codex_case(case: dict, codex_bin: list[str], args: argparse.Namespace) -
 
 def run_codex(cases: list[dict], args: argparse.Namespace, run_dir: Path) -> tuple[int, list[dict]]:
     codex_bin = shlex.split(args.codex_bin, posix=os.name != "nt")
-    if not shutil.which(codex_bin[0]):
+    resolved = shutil.which(codex_bin[0])
+    if not resolved:
         print(f"✗ {codex_bin[0]} не найден в PATH — поставь Codex CLI", file=sys.stderr)
         return 1, []
+    codex_bin = [resolved, *codex_bin[1:]]
     runs = 1 if args.quick else (args.runs or 1)
     records = []
     for case in cases:

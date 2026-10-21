@@ -22,6 +22,7 @@ Events:
 
 With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
 a folder with .aikit/ above the session cwd. Other projects of the user are left alone.
+With --deny-json (Codex hooks on Windows) PreToolUse blocks with permissionDecision: deny and exit 0.
 
 The hook never breaks the session: any internal error lets the action through.
 Standard library only, Python 3.9+.
@@ -41,6 +42,9 @@ from pathlib import Path
 
 BLOCK_EXIT_CODE = 2
 PLUGIN_FLAG = "--plugin"
+# Codex on Windows runs hooks through powershell -Command, and Windows PowerShell 5.1 turns exit code 2
+# into 1: the block would read as a failed hook. With this flag PreToolUse denies with JSON and exit 0
+DENY_JSON_FLAG = "--deny-json"
 PROFILES_FILE = Path(".aikit") / "profiles.json"
 WORKTREES_DIR = Path(".aikit") / "worktrees"
 MEMORY_DIR = Path(".aikit") / "memory"
@@ -409,10 +413,13 @@ def check_files(event: dict) -> str | None:
 
 def pre_tool_use(event: dict) -> int:
     problem = check_files(event) or check_shell(event)
-    if problem:
-        print(f"AIKit: {problem}", file=sys.stderr)
-        return BLOCK_EXIT_CODE
-    return 0
+    if not problem:
+        return 0
+    if DENY_JSON_FLAG in sys.argv[1:]:
+        emit({"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": f"AIKit: {problem}"}})
+        return 0
+    print(f"AIKit: {problem}", file=sys.stderr)
+    return BLOCK_EXIT_CODE
 
 
 # ---------------------------------------------------------------------------
