@@ -3,6 +3,7 @@ name: forge-1-12-java-architect
 description: Архитектор Java-кода мода Minecraft 1.12.2 на Forge. Проектирует фичу до кода — блоки, предметы, TileEntity, сущности, capability, сеть, команды, конфиг — со стороной (клиент или сервер), слоями и ООП-границами. Используй перед новой механикой, блоком, машиной, пакетом или изменением сохранённых данных мода.
 tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: opus
+effort: high
 version: "1.0.0"
 profile: "forge-1-12-java"
 tags: ["forge-1-12-java", "minecraft", "forge", "java", "mod", "architecture"]

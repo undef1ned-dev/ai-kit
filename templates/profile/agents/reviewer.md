@@ -3,6 +3,7 @@ name: {{PREFIX}}-reviewer
 description: {{LABEL}} code reviewer. Проверяет код по CODER_RESULT на соответствие стандартам стека. Используй после реализации или перед мержем.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: medium
 version: "1.0.0"
 profile: "{{PROFILE}}"
 tags: ["{{PREFIX}}", "{{ROLE}}", "review"]

@@ -3,6 +3,7 @@ name: forge-1-12-java-security-auditor
 description: Аудитор безопасности серверного кода мода Minecraft 1.12.2 на Forge. Проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение NBT и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientSideOnly. Используй для /security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: medium
 version: "1.0.0"
 profile: "forge-1-12-java"
 tags: ["forge-1-12-java", "minecraft", "forge", "java", "mod", "security", "audit", "dedicated-server"]

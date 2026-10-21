@@ -76,6 +76,8 @@ check_codex_agents() {
       grep -q '^developer_instructions = """' "$PROJECT_DIR/.codex/agents/$(basename "$agent" .md).toml" || return 1
     done
   done
+  # effort is a Claude Code field: Codex gets model_reasoning_effort from adapters/models.json instead
+  ! grep -qE '^effort' "$PROJECT_DIR"/.codex/agents/*.toml || return 1
   # Codex reads the project rules from AGENTS.md: no agent sends it to CLAUDE.md
   ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR"/.codex/agents/*.toml | grep -qv 'AGENTS\.md'
 }

@@ -15,7 +15,8 @@ to a model per runtime (Claude Code aliases, Codex and OpenCode model ids). A pr
     }
 
 `apply` writes the resolved model into the agent files a runtime reads:
-    claude   — .claude/agents/*.md (attach.sh); agents from the plugin get the model from the rule in CLAUDE.md
+    claude   — .claude/agents/*.md (attach.sh); agents from the plugin get the model from the rule in CLAUDE.md;
+               only `model:` changes, `effort:` of the agent stays as the kit set it
     codex    — .codex/agents/*.toml: model, model_reasoning_effort
     opencode — .opencode/agents/*.md: model
 

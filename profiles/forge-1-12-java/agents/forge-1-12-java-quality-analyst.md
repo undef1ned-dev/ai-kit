@@ -3,6 +3,7 @@ name: forge-1-12-java-quality-analyst
 description: Аналитик качества Java-кода мода Minecraft 1.12.2 на Forge. Оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества мода.
 tools: Read, Grep, Glob, Bash
 model: sonnet
+effort: medium
 version: "1.0.0"
 profile: "forge-1-12-java"
 tags: ["forge-1-12-java", "minecraft", "forge", "java", "mod", "quality", "tech-debt"]

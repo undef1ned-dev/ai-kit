@@ -3,6 +3,7 @@ name: vue-reviewer
 description: Vue/Nuxt code reviewer. Ревьюит Vue/Nuxt-код — файл, компонент или изменения ветки, в цепочке агентов — по CODER_RESULT: SSR и hydration, загрузку данных Nuxt, API компонентов, Pinia и безопасность. Используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить Vue/Nuxt-код, в том числе перед мержем, и после реализации.
 tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: opus
+effort: medium
 version: "1.1.0"
 profile: "vue-nuxt"
 tags: ["vue", "nuxt", "frontend", "review"]

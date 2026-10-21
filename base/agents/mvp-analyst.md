@@ -3,6 +3,7 @@ name: mvp-analyst
 description: MVP-аналитик уровня зрелого продукта. Принимает описание идеи и формирует структурированный анализ в docs/mvp/. Учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. Читает PRODUCT.md для контекста продукта. Используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.
 tools: Read, Grep, Glob, Write, Bash
 model: sonnet
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["product", "analysis", "mvp"]

@@ -3,6 +3,7 @@ name: cross-project-analyst
 description: Кросс-проектный аналитик. Анализирует, как изменение API или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать. Используй через /cross-check, когда меняется API или контракт данных между сторонами.
 tools: Read, Grep, Glob, Bash, mcp__context7__*, mcp__plugin_aikit_context7__*
 model: sonnet
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["analysis", "cross-platform", "api"]

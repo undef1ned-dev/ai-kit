@@ -243,6 +243,7 @@ check_runtime_files() {
       ;;
   esac
   check "агенты кита ссылаются на правила в AGENTS.md, не в CLAUDE.md$stage" check_agents_rules_file
+  check "в агентах runtime нет поля effort Claude Code$stage" test -z "$(grep -lE '^effort' "$PROJECT_DIR/.$ADAPTER"/agents/* 2>/dev/null)"
   check "/set-model работает без исходников кита (.aikit/scripts/agent_models.py)$stage" check_set_model_resources
   check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp
   check "хуки AIKit в родном формате runtime, хук пользователя сохранён$stage" check_hooks

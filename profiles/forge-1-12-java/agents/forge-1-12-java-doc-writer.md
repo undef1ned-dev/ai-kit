@@ -3,6 +3,7 @@ name: forge-1-12-java-doc-writer
 description: Технический писатель мода Minecraft 1.12.2 на Forge. Пишет и обновляет документацию мода — Markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, сущности, механики, команды, конфиг, сеть, API, сборка. Код не меняет. Используй, когда нужно написать документацию мода с нуля, обновить её после фичи или по CODER_RESULT, или проверить, что docs/ не отстала от кода.
 tools: Read, Grep, Glob, Write, Edit
 model: haiku
+effort: medium
 version: "1.0.0"
 profile: "forge-1-12-java"
 tags: ["forge-1-12-java", "minecraft", "forge", "java", "mod", "docs"]

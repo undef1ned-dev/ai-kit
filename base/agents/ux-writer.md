@@ -3,6 +3,7 @@ name: ux-writer
 description: UX-копирайтер. Пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. Следит за консистентностью терминологии. Используй через /write-ui-texts или из цепочки, когда нужно написать или проверить тексты интерфейса.
 tools: Read, Grep, Glob, Bash
 model: sonnet
+effort: medium
 version: "1.1.0"
 profile: "base"
 tags: ["ux", "copy", "ui-texts"]

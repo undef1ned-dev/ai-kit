@@ -3,6 +3,7 @@ name: tech-planner
 description: Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй через /implement-mvp после /analyze-mvp, перед архитекторами профилей.
 tools: Read, Grep, Glob, Bash
 model: opus
+effort: medium
 version: "2.0.0"
 profile: "base"
 tags: ["planning", "architecture", "cross-platform"]
