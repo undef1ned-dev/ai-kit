@@ -24,6 +24,10 @@ Events:
                    from main into it. Off with AIKIT_NO_UPDATE_CHECK=1 or "update_check": false in
                    .aikit/settings.json.
 
+Every run leaves a mark in the temp folder (run-*.json: event, Python, last error; no file contents), and
+a launcher that finds no Python 3.9+ leaves launch-error.txt. `--status` prints what the marks say about
+the project of the cwd: /aikit:setup uses it to tell hooks that run from hooks that are only enabled.
+
 With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
 a folder with .aikit/ above the session cwd. Other projects of the user are left alone.
 With --deny-json (Codex hooks on Windows) PreToolUse blocks with permissionDecision: deny and exit 0.
@@ -67,6 +71,7 @@ LARGE_TASK_FILES = 8
 # Update notice of the plugin: the root of the core plugin is two folders above this script
 PLUGIN_ROOT = Path(__file__).resolve().parents[2]
 REFRESH_UPDATE_FLAG = "--refresh-update-cache"
+STATUS_FLAG = "--status"
 UPDATE_URL = "https://raw.githubusercontent.com/undef1ned-dev/ai-kit/main/VERSION"
 UPDATE_URL_ENV = "AIKIT_UPDATE_URL"
 UPDATE_CACHE_ENV = "AIKIT_UPDATE_CACHE"
@@ -115,6 +120,62 @@ TOOL_MISSING_MARKERS = (
 )
 FILE_TOOLS = {"Write", "Edit", "MultiEdit", "NotebookEdit"}
 PATCH_TOOLS = {"apply_patch"}
+
+
+# ---------------------------------------------------------------------------
+# Run marks: proof that Codex or Claude Code really ran the hook, for /aikit:setup
+
+LAUNCH_ERROR_FILE = "launch-error.txt"
+ERROR_MESSAGE_LIMIT = 300
+
+
+def marks_dir() -> Path:
+    return Path(tempfile.gettempdir()) / "aikit-hooks"
+
+
+def run_mark_path(project: Path) -> Path:
+    return marks_dir() / f"run-{hashlib.sha1(str(project).encode('utf-8')).hexdigest()[:16]}.json"
+
+
+def record_run(project: Path, event_name: str, error: str | None = None) -> None:
+    """Note that the hook ran: event, time, interpreter and the last internal error. Never raises."""
+    try:
+        path = run_mark_path(project)
+        try:
+            mark = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            mark = {}
+        stamp = now_utc().isoformat(timespec="seconds")
+        mark["runtime"] = "codex" if runs_in_codex() else "claude"
+        mark["python"] = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
+        mark["executable"] = sys.executable
+        mark.setdefault("events", {})[event_name] = stamp
+        if error:
+            mark["last_error"] = {"event": event_name, "at": stamp, "message": error[:ERROR_MESSAGE_LIMIT]}
+        elif mark.get("last_error", {}).get("event") == event_name:
+            del mark["last_error"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(mark, ensure_ascii=False), encoding="utf-8")
+        (marks_dir() / LAUNCH_ERROR_FILE).unlink(missing_ok=True)
+    except Exception:  # noqa: BLE001 — a mark must never break the hook
+        pass
+
+
+def hook_status(project: Path) -> dict:
+    """What the marks say: ok, internal-error, launcher-error or no-mark."""
+    launch_error = marks_dir() / LAUNCH_ERROR_FILE
+    try:
+        mark = json.loads(run_mark_path(project).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        mark = {}
+    if launch_error.is_file():
+        text = launch_error.read_text(encoding="utf-8", errors="replace").strip()
+        return {"state": "launcher-error", "details": text[:ERROR_MESSAGE_LIMIT], **mark}
+    if not mark:
+        return {"state": "no-mark"}
+    if mark.get("last_error"):
+        return {"state": "internal-error", **mark}
+    return {"state": "ok", **mark}
 
 
 # ---------------------------------------------------------------------------
@@ -831,15 +892,25 @@ def main() -> int:
             stream.reconfigure(encoding="utf-8")
     if REFRESH_UPDATE_FLAG in sys.argv[1:]:
         return refresh_update_cache()
+    if STATUS_FLAG in sys.argv[1:]:
+        emit(hook_status(project_dir({})))
+        return 0
+    event_name, project = "", None
     try:
         raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
         event = json.loads(raw) if raw.strip() else {}
-        if PLUGIN_FLAG in sys.argv[1:] and not (project_dir(event) / ".aikit").is_dir():
+        event_name = str(event.get("hook_event_name", ""))
+        project = project_dir(event)
+        if PLUGIN_FLAG in sys.argv[1:] and not (project / ".aikit").is_dir():
             return 0
-        handler = HANDLERS.get(str(event.get("hook_event_name", "")))
-        return handler(event) if handler else 0
+        handler = HANDLERS.get(event_name)
+        code = handler(event) if handler else 0
+        record_run(project, event_name)
+        return code
     except Exception as error:  # noqa: BLE001 — a broken hook must not block the agent
         print(f"AIKit hook: внутренняя ошибка, действие не проверено: {error}", file=sys.stderr)
+        if project is not None:
+            record_run(project, event_name or "unknown", f"{type(error).__name__}: {error}")
         return 0
 
 
