@@ -17,7 +17,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
+              "commandWindows": "python -c \"import base64;exec(base64.b64decode('aW1wb3J0IG9zLCBzdWJwcm9jZXNzLCBzeXMKaCA9IG9zLnBhdGguam9pbihvcy5lbnZpcm9uWydQTFVHSU5fUk9PVCddLCAqWydiYXNlJywgJ2hvb2tzJywgJ2Fpa2l0X2hvb2sucHknXSkKaWYgbm90IGg6CiAgICBzeXMuZXhpdCgwKQphcmdzID0gWyctLXBsdWdpbicsICctLWRlbnktanNvbiddCmlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KToKICAgIGltcG9ydCBydW5weQogICAgc3lzLmFyZ3YgPSBbaF0gKyBhcmdzCiAgICBydW5weS5ydW5fcGF0aChoLCBydW5fbmFtZT0nX19tYWluX18nKQplbHNlOgogICAgY2hlY2sgPSAnaW1wb3J0IHN5cztzeXMuZXhpdCgwIGlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KSBlbHNlIDEpJwogICAgZGF0YSA9IGdldGF0dHIoc3lzLnN0ZGluLCAnYnVmZmVyJywgc3lzLnN0ZGluKS5yZWFkKCkKICAgIGZvciBweSBpbiAoWydweScsICctMyddLCBbJ3B5dGhvbjMnXSk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBpZiBzdWJwcm9jZXNzLmNhbGwocHkgKyBbJy1jJywgY2hlY2tdKSAhPSAwOgogICAgICAgICAgICAgICAgY29udGludWUKICAgICAgICAgICAgcnVuID0gc3VicHJvY2Vzcy5Qb3BlbihweSArIFtoXSArIGFyZ3MsIHN0ZGluPXN1YnByb2Nlc3MuUElQRSkKICAgICAgICBleGNlcHQgT1NFcnJvcjoKICAgICAgICAgICAgY29udGludWUKICAgICAgICBydW4uY29tbXVuaWNhdGUoZGF0YSkKICAgICAgICBzeXMuZXhpdChydW4ucmV0dXJuY29kZSkKICAgIHN5cy5zdGRlcnIud3JpdGUoJ0FJS2l0OiBuZWVkIFB5dGhvbiAzLjkrIGZvciBob29rcywgZm91bmQgJyArIHN5cy52ZXJzaW9uLnNwbGl0KClbMF0gKyAnXG4nKQo='))\"",
               "timeout": 30,
               "statusMessage": "AIKit: память проекта"
             }
@@ -31,7 +31,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
+              "commandWindows": "python -c \"import base64;exec(base64.b64decode('aW1wb3J0IG9zLCBzdWJwcm9jZXNzLCBzeXMKaCA9IG9zLnBhdGguam9pbihvcy5lbnZpcm9uWydQTFVHSU5fUk9PVCddLCAqWydiYXNlJywgJ2hvb2tzJywgJ2Fpa2l0X2hvb2sucHknXSkKaWYgbm90IGg6CiAgICBzeXMuZXhpdCgwKQphcmdzID0gWyctLXBsdWdpbicsICctLWRlbnktanNvbiddCmlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KToKICAgIGltcG9ydCBydW5weQogICAgc3lzLmFyZ3YgPSBbaF0gKyBhcmdzCiAgICBydW5weS5ydW5fcGF0aChoLCBydW5fbmFtZT0nX19tYWluX18nKQplbHNlOgogICAgY2hlY2sgPSAnaW1wb3J0IHN5cztzeXMuZXhpdCgwIGlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KSBlbHNlIDEpJwogICAgZGF0YSA9IGdldGF0dHIoc3lzLnN0ZGluLCAnYnVmZmVyJywgc3lzLnN0ZGluKS5yZWFkKCkKICAgIGZvciBweSBpbiAoWydweScsICctMyddLCBbJ3B5dGhvbjMnXSk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBpZiBzdWJwcm9jZXNzLmNhbGwocHkgKyBbJy1jJywgY2hlY2tdKSAhPSAwOgogICAgICAgICAgICAgICAgY29udGludWUKICAgICAgICAgICAgcnVuID0gc3VicHJvY2Vzcy5Qb3BlbihweSArIFtoXSArIGFyZ3MsIHN0ZGluPXN1YnByb2Nlc3MuUElQRSkKICAgICAgICBleGNlcHQgT1NFcnJvcjoKICAgICAgICAgICAgY29udGludWUKICAgICAgICBydW4uY29tbXVuaWNhdGUoZGF0YSkKICAgICAgICBzeXMuZXhpdChydW4ucmV0dXJuY29kZSkKICAgIHN5cy5zdGRlcnIud3JpdGUoJ0FJS2l0OiBuZWVkIFB5dGhvbiAzLjkrIGZvciBob29rcywgZm91bmQgJyArIHN5cy52ZXJzaW9uLnNwbGl0KClbMF0gKyAnXG4nKQo='))\"",
               "timeout": 30,
               "statusMessage": "AIKit: проверка правил"
             }
@@ -45,7 +45,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
+              "commandWindows": "python -c \"import base64;exec(base64.b64decode('aW1wb3J0IG9zLCBzdWJwcm9jZXNzLCBzeXMKaCA9IG9zLnBhdGguam9pbihvcy5lbnZpcm9uWydQTFVHSU5fUk9PVCddLCAqWydiYXNlJywgJ2hvb2tzJywgJ2Fpa2l0X2hvb2sucHknXSkKaWYgbm90IGg6CiAgICBzeXMuZXhpdCgwKQphcmdzID0gWyctLXBsdWdpbicsICctLWRlbnktanNvbiddCmlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KToKICAgIGltcG9ydCBydW5weQogICAgc3lzLmFyZ3YgPSBbaF0gKyBhcmdzCiAgICBydW5weS5ydW5fcGF0aChoLCBydW5fbmFtZT0nX19tYWluX18nKQplbHNlOgogICAgY2hlY2sgPSAnaW1wb3J0IHN5cztzeXMuZXhpdCgwIGlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KSBlbHNlIDEpJwogICAgZGF0YSA9IGdldGF0dHIoc3lzLnN0ZGluLCAnYnVmZmVyJywgc3lzLnN0ZGluKS5yZWFkKCkKICAgIGZvciBweSBpbiAoWydweScsICctMyddLCBbJ3B5dGhvbjMnXSk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBpZiBzdWJwcm9jZXNzLmNhbGwocHkgKyBbJy1jJywgY2hlY2tdKSAhPSAwOgogICAgICAgICAgICAgICAgY29udGludWUKICAgICAgICAgICAgcnVuID0gc3VicHJvY2Vzcy5Qb3BlbihweSArIFtoXSArIGFyZ3MsIHN0ZGluPXN1YnByb2Nlc3MuUElQRSkKICAgICAgICBleGNlcHQgT1NFcnJvcjoKICAgICAgICAgICAgY29udGludWUKICAgICAgICBydW4uY29tbXVuaWNhdGUoZGF0YSkKICAgICAgICBzeXMuZXhpdChydW4ucmV0dXJuY29kZSkKICAgIHN5cy5zdGRlcnIud3JpdGUoJ0FJS2l0OiBuZWVkIFB5dGhvbiAzLjkrIGZvciBob29rcywgZm91bmQgJyArIHN5cy52ZXJzaW9uLnNwbGl0KClbMF0gKyAnXG4nKQo='))\"",
               "timeout": 300,
               "statusMessage": "AIKit: форматирование и линтер"
             }
@@ -58,7 +58,7 @@
             {
               "type": "command",
               "command": "python3 \"${PLUGIN_ROOT}/base/hooks/aikit_hook.py\" --plugin",
-              "commandWindows": "python -c \"import os,runpy,sys;h=os.path.join(os.environ['PLUGIN_ROOT'],*'base/hooks/aikit_hook.py'.split('/'));sys.argv=[h,'--plugin','--deny-json'];runpy.run_path(h,run_name='__main__')\"",
+              "commandWindows": "python -c \"import base64;exec(base64.b64decode('aW1wb3J0IG9zLCBzdWJwcm9jZXNzLCBzeXMKaCA9IG9zLnBhdGguam9pbihvcy5lbnZpcm9uWydQTFVHSU5fUk9PVCddLCAqWydiYXNlJywgJ2hvb2tzJywgJ2Fpa2l0X2hvb2sucHknXSkKaWYgbm90IGg6CiAgICBzeXMuZXhpdCgwKQphcmdzID0gWyctLXBsdWdpbicsICctLWRlbnktanNvbiddCmlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KToKICAgIGltcG9ydCBydW5weQogICAgc3lzLmFyZ3YgPSBbaF0gKyBhcmdzCiAgICBydW5weS5ydW5fcGF0aChoLCBydW5fbmFtZT0nX19tYWluX18nKQplbHNlOgogICAgY2hlY2sgPSAnaW1wb3J0IHN5cztzeXMuZXhpdCgwIGlmIHN5cy52ZXJzaW9uX2luZm9bOjJdID49ICgzLCA5KSBlbHNlIDEpJwogICAgZGF0YSA9IGdldGF0dHIoc3lzLnN0ZGluLCAnYnVmZmVyJywgc3lzLnN0ZGluKS5yZWFkKCkKICAgIGZvciBweSBpbiAoWydweScsICctMyddLCBbJ3B5dGhvbjMnXSk6CiAgICAgICAgdHJ5OgogICAgICAgICAgICBpZiBzdWJwcm9jZXNzLmNhbGwocHkgKyBbJy1jJywgY2hlY2tdKSAhPSAwOgogICAgICAgICAgICAgICAgY29udGludWUKICAgICAgICAgICAgcnVuID0gc3VicHJvY2Vzcy5Qb3BlbihweSArIFtoXSArIGFyZ3MsIHN0ZGluPXN1YnByb2Nlc3MuUElQRSkKICAgICAgICBleGNlcHQgT1NFcnJvcjoKICAgICAgICAgICAgY29udGludWUKICAgICAgICBydW4uY29tbXVuaWNhdGUoZGF0YSkKICAgICAgICBzeXMuZXhpdChydW4ucmV0dXJuY29kZSkKICAgIHN5cy5zdGRlcnIud3JpdGUoJ0FJS2l0OiBuZWVkIFB5dGhvbiAzLjkrIGZvciBob29rcywgZm91bmQgJyArIHN5cy52ZXJzaW9uLnNwbGl0KClbMF0gKyAnXG4nKQo='))\"",
               "timeout": 600,
               "statusMessage": "AIKit: тесты"
             }

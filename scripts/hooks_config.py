@@ -20,6 +20,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import shutil
 import sys
@@ -46,15 +47,59 @@ CLAUDE_COMMAND = 'python3 "$CLAUDE_PROJECT_DIR/.aikit/hooks/aikit_hook.py"'
 # Codex runs hooks in the session folder; the git root finds the project from a subfolder
 CODEX_COMMAND = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.aikit/hooks/aikit_hook.py"'
 # On Windows Codex runs the hook in the session shell (powershell -Command) or cmd.exe, where $(...) and
-# ${VAR} mean different things or nothing. A python -c launcher has no shell syntax: it looks for the script
-# from the session cwd up (the git root of the project included) and passes on if there is none.
+# ${VAR} mean different things or nothing. The launcher is a python -c one-liner without shell syntax; its
+# program is base64, so quotes and special characters never meet the shell.
 # PowerShell 5.1 turns exit code 2 into 1, so the hook blocks with JSON (--deny-json in aikit_hook.py)
 DENY_JSON_FLAG = "--deny-json"
-CODEX_COMMAND_WINDOWS = (
-    'python -c "import pathlib,runpy,sys;d=pathlib.Path.cwd();'
-    f"h=[p/'{HOOK_TARGET.as_posix()}' for p in (d,*d.parents) if (p/'{HOOK_TARGET.as_posix()}').is_file()];"
-    f"h or sys.exit(0);sys.argv=[str(h[0]),'{DENY_JSON_FLAG}'];runpy.run_path(sys.argv[0],run_name='__main__')\""
-)
+MIN_PYTHON = (3, 9)
+# Python 2 and 3 must both parse it: "python" on PATH can be Python 2 or an older Python 3
+WINDOWS_LAUNCHER_BODY = """import os, subprocess, sys
+{find}
+if not h:
+    sys.exit(0)
+args = {args!r}
+if sys.version_info[:2] >= {minimum!r}:
+    import runpy
+    sys.argv = [h] + args
+    runpy.run_path(h, run_name='__main__')
+else:
+    check = 'import sys;sys.exit(0 if sys.version_info[:2] >= {minimum!r} else 1)'
+    data = getattr(sys.stdin, 'buffer', sys.stdin).read()
+    for py in (['py', '-3'], ['python3']):
+        try:
+            if subprocess.call(py + ['-c', check]) != 0:
+                continue
+            run = subprocess.Popen(py + [h] + args, stdin=subprocess.PIPE)
+        except OSError:
+            continue
+        run.communicate(data)
+        sys.exit(run.returncode)
+    sys.stderr.write('AIKit: need Python {minimum_text}+ for hooks, found ' + sys.version.split()[0] + '\\n')
+"""
+# Looks for the script from the session cwd up (the git root of the project included)
+ADAPTER_FIND = """h = None
+d = os.getcwd()
+while True:
+    c = os.path.join(d, {target!r})
+    if os.path.isfile(c):
+        h = c
+        break
+    n = os.path.dirname(d)
+    if n == d:
+        break
+    d = n"""
+
+
+def windows_launcher(find: str, args: list[str], minimum: tuple[int, int] = MIN_PYTHON) -> str:
+    """Hook command for Windows: runs the script with the first Python 3.9+ it can find."""
+    body = WINDOWS_LAUNCHER_BODY.format(
+        find=find, args=args, minimum=minimum, minimum_text=".".join(map(str, minimum)),
+    )
+    encoded = base64.b64encode(body.encode("utf-8")).decode("ascii")
+    return "python -c \"import base64;exec(base64.b64decode('" + encoded + "'))\""
+
+
+CODEX_COMMAND_WINDOWS = windows_launcher(ADAPTER_FIND.format(target=HOOK_TARGET.as_posix()), [DENY_JSON_FLAG])
 
 
 def read_json(path: Path) -> dict | None:

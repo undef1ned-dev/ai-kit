@@ -131,6 +131,45 @@ def run_in_shell(shell_command: list[str] | str, cwd: Path, event: dict, env: di
     return result.returncode, result.stdout.decode("utf-8", errors="replace").strip()
 
 
+def old_python_shim(folder: Path) -> None:
+    """`python` that reports version 2.7 and runs the -c program of the launcher, and `python3` that is this interpreter."""
+    fake = folder / "fake_python.py"
+    fake.write_text(
+        "import sys\nsys.version_info = (2, 7, 18, 'final', 0)\nsys.version = '2.7.18'\n"
+        "assert sys.argv[1] == '-c'\nexec(sys.argv[2])\n",
+        encoding="utf-8",
+    )
+    (folder / "python").write_bytes(f'#!/bin/sh\nexec "{Path(sys.executable).as_posix()}" "{fake.as_posix()}" "$@"\n'.encode("utf-8"))
+    (folder / "python").chmod(0o755)
+    (folder / "python3").write_bytes(f'#!/bin/sh\nexec "{Path(sys.executable).as_posix()}" "$@"\n'.encode("utf-8"))
+    (folder / "python3").chmod(0o755)
+
+
+def check_old_python(project, expect) -> None:
+    """The launcher hands the event to a suitable Python 3.9+ when `python` is old, and never breaks the action."""
+    sys.path.insert(0, str(KIT_ROOT / "scripts"))
+    import hooks_config
+
+    event = {"hook_event_name": "PreToolUse", "session_id": "old", "cwd": str(project.root), "tool_name": "apply_patch",
+             "tool_input": {"command": "*** Begin Patch\n*** Add File: .env\n+A=1\n*** End Patch"}}
+    find = hooks_config.ADAPTER_FIND.format(target=hooks_config.HOOK_TARGET.as_posix())
+    unreachable = hooks_config.windows_launcher(find, [hooks_config.DENY_JSON_FLAG], minimum=(99, 0))
+    with tempfile.TemporaryDirectory() as shim:
+        python_shim(Path(shim))
+        env = {**os.environ, "PATH": f"{shim}{os.pathsep}{os.environ.get('PATH', '')}"}
+        for shell, shell_command in hook_shells(unreachable):
+            code, stdout = run_in_shell(shell_command, project.root, event, env)
+            expect(f"{shell}: нет подходящего Python — действие не блокируется", code == 0 and not stdout, f"код {code}, {stdout}")
+    if os.name == "nt":
+        return
+    with tempfile.TemporaryDirectory() as shim:
+        old_python_shim(Path(shim))
+        env = {**os.environ, "PATH": f"{shim}{os.pathsep}{os.environ.get('PATH', '')}"}
+        for shell, shell_command in hook_shells(hooks_config.CODEX_COMMAND_WINDOWS):
+            code, stdout = run_in_shell(shell_command, project.root, event, env)
+            expect(f"{shell}: python 2.7 передаёт событие Python 3 (deny в JSON)", denied_by_json(code, stdout), f"код {code}, {stdout}")
+
+
 def denied_by_json(code: int, stdout: str) -> bool:
     """PreToolUse block that survives powershell -Command: exit 0 and permissionDecision deny."""
     if code != 0 or not stdout:
@@ -413,6 +452,9 @@ def main() -> int:
                     expect(f"{kind}, {shell}: из подпапки запись .env заблокирована (deny в JSON)", denied_by_json(code, stdout), f"код {code}, {stdout}")
                     code, stdout = run_in_shell(shell_command, Path(other), {**event, "cwd": other}, env)
                     expect(f"{kind}, {shell}: вне проекта действие пропущено", code == 0 and not stdout, f"код {code}, {stdout}")
+
+        print("▶ Лаунчер Windows: python на PATH старый или неподходящий")
+        check_old_python(project, expect)
 
         print("▶ Устойчивость")
         code, _, _ = project.run({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": None})

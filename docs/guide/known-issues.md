@@ -149,9 +149,9 @@ export PYTHONIOENCODING=utf-8
 
 ### Codex на Windows ищет python
 
-**Что происходит.** На Windows Codex запускает хуки командой `python -c …` (`commandWindows`), а не `python3`. Если `python` — это Python 2 или заглушка Microsoft Store, хуки не сработают (действия при этом не блокируются).
+**Что происходит.** На Windows Codex запускает хуки командой `python -c …` (`commandWindows`), а не `python3`. Лаунчер переживает Python 2 и старый Python 3 первым в PATH: он передаёт событие `py -3` или `python3` версии 3.9+. Если `python` — заглушка Microsoft Store, которая завершается с ошибкой, лаунчер не стартует вовсе: хуки не сработают, а действия не блокируются.
 
-**Как обойти.** Сделай так, чтобы `python --version` показывал Python 3.9 или новее.
+**Как обойти.** Сделай так, чтобы `python --version` показывал Python 3.9 или новее, или выключи заглушки `python.exe` и `python3.exe` в «Параметры → Приложения → Псевдонимы выполнения приложений».
 
 ### /implement-feature не проверен на живом проекте
 
