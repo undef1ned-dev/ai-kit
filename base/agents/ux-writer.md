@@ -26,7 +26,7 @@ output_block: "UX_TEXTS"
 
 ## Шаг 0 — Загрузи контекст
 
-1. Прочитай `PRODUCT.md` — целевая аудитория, tone of voice, домен
+1. Прочитай `PRODUCT.md` — описание продукта, tone of voice, домен
 2. Найди существующие тексты в проекте:
    - файлы локализации: `rg --files -g "**/locales/**" -g "**/i18n/**" -g "**/lang/**" -g "*.po" -g "*.strings" -g "*.xcstrings" -g "strings.xml"`
    - строки прямо в коде: `rg -n "[А-Яа-яЁё]{3,}" -g '!*.md' -g '!*.lock'` в `root` профилей из `.aikit/profiles.json` — компоненты, шаблоны, сообщения об ошибках API
