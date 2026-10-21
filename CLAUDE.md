@@ -77,6 +77,11 @@ build(deps): обновлены зависимости
 ### Модели агентов
 - Если в `.aikit/models.json` для агента задана модель, в Claude Code передавай её параметром `model` при запуске агента: значение — уровень (`opus`, `sonnet`, `haiku`) или объект по runtime, тогда бери поле `claude`. Нет записи — модель из описания агента
 
+### Windows
+- Windows PowerShell 5.1 читает файлы без BOM в кодировке системы, и русский текст превращается в мусор: читай текстовые файлы инструментом чтения файлов runtime или `Get-Content -Raw -Encoding UTF8 <файл>`
+- Вывод в файл через `>` в Windows PowerShell 5.1 пишется в UTF-16: если файл читает другой инструмент (патч для `git apply` и т. п.), пусть его пишет сама команда (`git diff --output=<файл>`)
+- Команда падает с «running scripts is disabled on this system» (ExecutionPolicy запрещает `npx.ps1`, `npm.ps1`) — вызови `.cmd`-вариант той же команды (`npx.cmd vitest run`, `npm.cmd install`) или выполни её в Git Bash. ExecutionPolicy системы не меняй
+
 ---
 
 ## Развитие агентной системы

@@ -152,7 +152,7 @@ WORKDIR = `.aikit/worktrees/<имя>`. Каждому агенту назови 
 2. Спроси пользователя, переносить ли изменения в рабочую папку проекта. Не переносит — оставь worktree и скажи, где он лежит.
 3. Перенос:
    - `git -C <WORKDIR> add -A`;
-   - `git -C <WORKDIR> diff --cached --binary > .aikit/worktrees/<имя>.patch`;
+   - `git -C <WORKDIR> diff --cached --binary --output=../<имя>.patch` — файл пишет сам Git, путь считается от WORKDIR, патч ляжет в `.aikit/worktrees/<имя>.patch`. Не перенаправляй вывод через `>`: Windows PowerShell 5.1 запишет патч в UTF-16, и `git apply` его не прочитает;
    - в корне проекта `git apply .aikit/worktrees/<имя>.patch`. Если не применяется из-за незакоммиченных правок пользователя — `git apply --3way` и покажи конфликты.
 4. Спроси, удалить ли worktree и ветку. Да — `git worktree remove --force <WORKDIR>`, `git branch -D ai/<имя>` и удали `.patch`.
 
