@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.3.3] - 2026-10-21
+
+### Fixed
+- plugins: runtime в plugin-init.json хранится списком и не затирается повторным запуском (#34)
+
 ## [0.3.2] - 2026-10-21
 
 ### Changed
