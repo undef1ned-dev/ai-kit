@@ -4,6 +4,7 @@ Team settings of a project connected to AIKit: .aikit/settings.json, kept in git
 
     {"commit": "ask"}   — the git-commit skill offers 2-3 messages and waits for the user's choice (default)
     {"commit": "auto"}  — the skill picks the message by the same rules and commits without asking
+    {"update_check": false} — the plugin hook does not tell about a newer AIKit (read by base/hooks/aikit_hook.py)
 
 Installers write the choice made during setup; the AIKit Deck toggles it. Keys this script does not know stay.
 

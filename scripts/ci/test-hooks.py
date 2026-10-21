@@ -12,6 +12,7 @@ Usage:
 
 from __future__ import annotations
 
+import datetime
 import importlib.util
 import json
 import os
@@ -19,6 +20,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 KIT_ROOT = Path(__file__).resolve().parents[2]
@@ -158,6 +160,115 @@ class Project:
         (self.root / ".aikit" / "profiles.json").write_text(json.dumps({"profiles": {"vue-nuxt": profile}}), encoding="utf-8")
 
 
+REFRESH_WAIT_SECONDS = 15
+STALE_CHECKED_AT = "2020-01-01T00:00:00+00:00"
+# Nothing listens on the discard port: an instant "offline" without real network
+OFFLINE_URL = "http://127.0.0.1:9/VERSION"
+
+
+def check_update_notice(project: Project, expect) -> None:
+    """The hook of an installed plugin (its root holds VERSION) against a cache and a local "remote" VERSION."""
+    with tempfile.TemporaryDirectory() as temp:
+        temp_dir = Path(temp)
+        plugin_hook = temp_dir / "plugin" / "base" / "hooks" / "aikit_hook.py"
+        plugin_hook.parent.mkdir(parents=True)
+        shutil.copyfile(HOOK, plugin_hook)
+        (temp_dir / "plugin" / "VERSION").write_bytes(b"0.2.0\n")
+        remote = temp_dir / "remote-VERSION"
+        cache = temp_dir / "cache" / "update-check.json"
+        base_env = {key: value for key, value in os.environ.items() if key not in {
+            "CLAUDE_PLUGIN_ROOT", "PLUGIN_ROOT", "AIKIT_NO_UPDATE_CHECK", "CLAUDE_PROJECT_DIR",
+        }}
+        base_env.update({"AIKIT_UPDATE_URL": remote.as_uri(), "AIKIT_UPDATE_CACHE": str(cache), "CLAUDE_PLUGIN_ROOT": str(temp_dir / "plugin")})
+
+        def session(cwd: Path = project.root, **env: str) -> dict:
+            event = {"hook_event_name": "SessionStart", "source": "startup", "session_id": "upd", "cwd": str(cwd)}
+            result = subprocess.run(
+                [sys.executable, str(plugin_hook), "--plugin"], input=json.dumps(event).encode("utf-8"),
+                capture_output=True, cwd=cwd, env={**base_env, **env}, timeout=30,
+            )
+            stdout = result.stdout.decode("utf-8").strip()
+            return json.loads(stdout) if stdout else {}
+
+        def write_cache(**fields: str) -> None:
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_bytes(json.dumps(fields).encode("utf-8"))
+
+        def read_cache() -> dict:
+            return json.loads(cache.read_text(encoding="utf-8")) if cache.is_file() else {}
+
+        def wait_for_cache(condition) -> bool:
+            deadline = time.monotonic() + REFRESH_WAIT_SECONDS
+            while time.monotonic() < deadline:
+                try:
+                    if condition(read_cache()):
+                        return True
+                except (OSError, json.JSONDecodeError):
+                    pass
+                time.sleep(0.2)
+            return False
+
+        fresh = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
+        remote.write_bytes(b"0.3.0\n")
+        output = session()
+        expect("нет кэша — сообщения нет, старт не ждёт сети", "systemMessage" not in output, str(output))
+        expect("нет кэша — версия забрана в фоне", wait_for_cache(lambda data: data.get("remote_version") == "0.3.0"), str(read_cache()))
+
+        write_cache(checked_at=fresh, remote_version="0.3.0")
+        output = session()
+        message = output.get("systemMessage", "")
+        expect("есть обновление — systemMessage с версиями и командами", "0.3.0" in message and "у вас 0.2.0" in message and "codex plugin marketplace upgrade" in message, str(output))
+        context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
+        expect("уведомление не попадает в контекст модели Claude", "0.3.0" not in context, context)
+        expect("версия отмечена как показанная", read_cache().get("notified_version") == "0.3.0", str(read_cache()))
+        output = session()
+        expect("по той же версии второй раз не уведомляет", "systemMessage" not in output, str(output))
+
+        write_cache(checked_at=fresh, remote_version="0.2.0")
+        expect("версия в main та же — сообщения нет", "systemMessage" not in session())
+        write_cache(checked_at=fresh, remote_version="0.1.9")
+        expect("в main версия старее — сообщения нет", "systemMessage" not in session())
+
+        write_cache(checked_at=STALE_CHECKED_AT, remote_version="0.2.0", notified_version="0.3.0")
+        remote.write_bytes(b"0.4.0\n")
+        output = session()
+        expect("кэш устарел — сессия читает старое значение", "systemMessage" not in output, str(output))
+        expect("кэш устарел — обновлён в фоне", wait_for_cache(lambda data: data.get("remote_version") == "0.4.0" and data.get("checked_at") != STALE_CHECKED_AT), str(read_cache()))
+        expect("после обновления кэша — уведомление о новой версии", "0.4.0" in session().get("systemMessage", ""))
+
+        write_cache(checked_at=STALE_CHECKED_AT, remote_version="0.4.0", notified_version="0.4.0")
+        result = subprocess.run(
+            [sys.executable, str(plugin_hook), "--refresh-update-cache"], capture_output=True,
+            env={**base_env, "AIKIT_UPDATE_URL": OFFLINE_URL}, timeout=30,
+        )
+        data = read_cache()
+        expect(
+            "офлайн — молча, прошлое значение остаётся, проверка отложена на сутки",
+            result.returncode == 0 and not result.stdout and not result.stderr
+            and data.get("remote_version") == "0.4.0" and data.get("checked_at") != STALE_CHECKED_AT,
+            f"{result.returncode} {result.stderr!r} {data}",
+        )
+
+        write_cache(checked_at=fresh, remote_version="0.5.0")
+        expect("AIKIT_NO_UPDATE_CHECK=1 — без уведомления", "systemMessage" not in session(AIKIT_NO_UPDATE_CHECK="1"))
+        settings = project.root / ".aikit" / "settings.json"
+        settings.write_bytes(b'{"commit": "ask", "update_check": false}\n')
+        expect("update_check: false в .aikit/settings.json — без уведомления", "systemMessage" not in session())
+        settings.unlink()
+        expect("cache не тронут при отключённой проверке", read_cache().get("notified_version") is None, str(read_cache()))
+
+        codex_output = session(CLAUDE_PLUGIN_ROOT="", PLUGIN_ROOT=str(temp_dir / "plugin"))
+        context = codex_output.get("hookSpecificOutput", {}).get("additionalContext", "")
+        expect("Codex — запасной путь: просьба передать уведомление в additionalContext", "0.5.0" in codex_output.get("systemMessage", "") and "0.5.0" in context, str(codex_output))
+
+        write_cache(checked_at=fresh, remote_version="0.6.0")
+        with tempfile.TemporaryDirectory() as other:
+            expect("проект без .aikit/ — хук молчит", session(cwd=Path(other)) == {})
+        expect("без .aikit/ версия не отмечена", read_cache().get("notified_version") is None, str(read_cache()))
+        code, output, _ = project.run({"hook_event_name": "SessionStart", "source": "startup"})
+        expect("хук установщика (без --plugin) обновления не проверяет", "systemMessage" not in output, str(output))
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -278,6 +389,9 @@ def main() -> int:
             expect("в проекте без .aikit/ хук ничего не проверяет", result.returncode == 0 and not result.stdout.strip())
         code, output, _ = project.run(commit_event, flags=("--deny-json",))
         expect("--deny-json: блокировка через permissionDecision deny и код 0", code == 0 and output.get("hookSpecificOutput", {}).get("permissionDecision") == "deny", str(output))
+
+        print("▶ Уведомление об обновлении (SessionStart плагина)")
+        check_update_notice(project, expect)
 
         print("▶ Команды хуков Codex для Windows (commandWindows) из подпапки проекта")
         installed = project.root / ".aikit" / "hooks" / "aikit_hook.py"

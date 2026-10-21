@@ -36,7 +36,7 @@
 | `docs/roadmap.md` | План развития — что делаем и в каком порядке |
 | `docs/runtime-support.md` | Матрица возможностей по runtime |
 | `docs/research/` | Исследования, на которых основан roadmap |
-| `.github/workflows/` | CI на PR (`ci.yml`), релиз по тегу (`release.yml`), публикация сайта на GitHub Pages (`pages.yml`) |
+| `.github/workflows/` | CI на PR (`ci.yml`), рост версии после слияния в `main` (`version.yml`), релиз по тегу (`release.yml`), публикация сайта на GitHub Pages (`pages.yml`) |
 | `CLAUDE.md` в корне | Правила для работы в этом репозитории — **копия** `base/CLAUDE.md`, без правил профилей: кит не привязан к стеку. Правь `base/CLAUDE.md` и обнови копию: расхождение ловит статическая проверка |
 
 ## Скрипты
@@ -50,16 +50,17 @@
 | `scripts/profile_contract.py` | Собирает `.aikit/profiles.json`: контракты, поиск `root`, сохранение правок проекта |
 | `scripts/mcp_config.py` | Пишет MCP-серверы в `.mcp.json`, `.codex/config.toml`, `opencode.json` |
 | `scripts/hooks_config.py` | Копирует `base/hooks/aikit_hook.py` в `.aikit/hooks/` и подключает его: `hooks` в `.claude/settings.json`, `.codex/hooks.json`, плагин OpenCode |
-| `scripts/build-plugins.py` | Собирает маркетплейс и манифесты плагинов Claude Code и Codex из `base/`, `profiles/`, `packs/`; `--check` — проверка в CI |
+| `scripts/build-plugins.py` | Собирает маркетплейс и манифесты плагинов Claude Code и Codex из `base/`, `profiles/`, `packs/`, `version` — из `VERSION`; `--check` — проверка в CI |
 | `scripts/plugin-init.py` | Подключает проект к киту, установленному плагинами: блок правил, `.aikit/profiles.json`, память, настройки Claude Code или агенты Codex. Его вызывает скилл `/aikit:setup` |
 | `scripts/new-profile.py` | Создаёт профиль из шаблона и пересобирает плагины ([Как добавить стек](adding-a-stack.md)) |
 | `scripts/run-evals.py` | Прогоняет эвалы в Claude Code, Codex или в обоих; `--check` — проверка кейсов без вызовов модели |
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/preset_utils.py` | Разбор пресетов |
-| `scripts/project_settings.py` | Настройки команды в `.aikit/settings.json`: режим коммитов `ask` или `auto`; пишут установщики, переключает AIKit Deck |
+| `scripts/project_settings.py` | Настройки команды в `.aikit/settings.json`: режим коммитов `ask` или `auto`; пишут установщики, переключает AIKit Deck. Ключ `update_check: false` (выключить уведомление о новой версии) читает хук |
 | `scripts/agent_models.py` | Модели агентов: уровень из frontmatter и `adapters/models.json` → модель runtime, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
+| `scripts/bump-version.py` | Следующая версия по Conventional Commits после прошлого релиза и секция `CHANGELOG.md`; `--write` — записать ([Версии и релиз](#версии-и-релиз)) |
 
 ## Как добавить…
 
@@ -93,6 +94,8 @@
 
 Логика всех хуков — в `base/hooks/aikit_hook.py`: один обработчик на событие (`PreToolUse`, `PostToolUse`, `Stop`, `SessionStart`), вход — JSON в формате Claude Code и Codex. Плагин `base/hooks/opencode-plugin.js` переводит события OpenCode в тот же формат. Новое событие — запись в `EVENTS` в `scripts/hooks_config.py` и обработчик в скрипте. Скрипт без зависимостей, Python 3.9+. Каждое правило — сценарий в `scripts/ci/test-hooks.py`.
 
+Хук не ходит в сеть на старте сессии. Уведомление о новой версии (только `--plugin`) читает кэш, а раз в сутки запускает себя отсоединённым процессом с `--refresh-update-cache` — тот забирает `VERSION` из `main`. В тестах адрес и кэш подменяются переменными `AIKIT_UPDATE_URL` (подходит `file://`) и `AIKIT_UPDATE_CACHE`.
+
 Команды хуков Codex для Windows (`commandWindows` в `hooks_config.py` и `build-plugins.py`) — без синтаксиса shell. Codex запускает их через `powershell -NoProfile -Command` (shell сессии) или `cmd.exe /C`: `${VAR}` и `$(...)` там не работают, переменные плагина (`PLUGIN_ROOT`) приходят только через окружение, а Windows PowerShell 5.1 превращает код выхода 2 в 1. Поэтому команда — лаунчер `python -c`, а блокирует хук JSON-ответом (`--deny-json`). `test-hooks.py` прогоняет обе команды из подпапки проекта в cmd.exe и PowerShell (на Linux — в `sh`).
 
 ### Панель AIKit Deck
@@ -122,7 +125,29 @@
 
   Изменения в `base/` подхватываются после перезапуска сессии. Профиль или пак добавляются ещё одним флагом: `--plugin-dir profiles/vue-nuxt`.
 - Проверить установку так, как её видит пользователь, — локальный маркетплейс: `/plugin marketplace add ./` и `/plugin install aikit@aikit`.
-- `claude plugin validate .` проверяет маркетплейс и манифесты по схеме Claude Code. Предупреждения про `CLAUDE.md` в корне плагина и отсутствие `version` ожидаемы: версия не задана намеренно, чтобы плагины обновлялись с каждым коммитом в `main`.
+- `claude plugin validate .` проверяет маркетплейс и манифесты по схеме Claude Code. Предупреждение про `CLAUDE.md` в корне плагина ожидаемо.
+- В каждом манифесте и записи маркетплейса есть `version` — копия файла `VERSION`. Claude Code и Codex обновляют установленный плагин, только когда она меняется, поэтому версия растёт с каждым релизом (см. [Версии и релиз](#версии-и-релиз)). `build-plugins.py --check` падает, если `version` в манифесте не равна `VERSION`.
+
+## Версии и релиз
+
+Версия кита — файл `VERSION` (semver). **Руками её не правят**: после слияния в `main` workflow `.github/workflows/version.yml` запускает `scripts/bump-version.py`, и тот без модели, по Conventional Commits, выбирает степень:
+
+| Коммиты слияния | Версия |
+|---|---|
+| есть `!` после типа (`feat!:`, `refactor(profiles)!:`) или футер `BREAKING CHANGE:` | major |
+| есть `feat` | minor |
+| остальное: `fix`, `perf`, `refactor`, `docs`, `chore`, `build`, `ci`, `test`, `style`, сообщения не по формату | patch |
+
+Считаются только коммиты, которые меняют то, что приходит в плагинах: `base/`, `profiles/`, `packs/`, `presets/`, `templates/`, `adapters/`, `hooks/`, `deck/`, `scripts/`, манифесты `.claude-plugin/` и `.codex-plugin/` — кроме `scripts/ci/` и `deck/tests/` (список — `PLUGIN_PATHS` в скрипте, тот же — в `paths:` workflow). Слияние только документации, эвалов или CI версию не меняет: иначе пользователи получали бы уведомление об обновлении без изменений. Merge-коммиты и прошлые релизы пропускаются; диапазон начинается с последнего коммита, который менял `VERSION`, поэтому упавший запуск догонит следующий.
+
+Дальше workflow пишет `VERSION` и секцию `CHANGELOG.md` (feat — Added, несовместимое и прочее — Changed, fix — Fixed; `[Unreleased]` для ручных заметок не трогается), пересобирает манифесты и сайт и коммитит от `github-actions[bot]` `chore(release): vX.Y.Z` — без соавторства. Этот коммит не запускает ни новый bump, ни CI. Модель нигде не вызывается.
+
+Ruleset `main` требует зелёный CI, поэтому коммит бота попадает в `main` одним из двух путей:
+
+- задан секрет `RELEASE_DEPLOY_KEY` — пуш прямо в `main` deploy-ключом с правом записи, которому ruleset разрешает обход (bypass list → Deploy keys);
+- секрета нет — ветка `release/vX.Y.Z`, PR с auto-merge и запуск CI на ней через `workflow_dispatch` (пуши и PR от `GITHUB_TOKEN` сами workflow не запускают). Нужна галочка Settings → Actions → «Allow GitHub Actions to create and approve pull requests». Каждый релиз тратит полный прогон CI.
+
+Посмотреть, что посчитает скрипт, не меняя файлов: `python3 scripts/bump-version.py`. Теги и GitHub Release по-прежнему ставятся вручную (`release.yml` по тегу `v*`).
 
 ## Эвалы
 
@@ -215,7 +240,7 @@ bash scripts/ci/run-all.sh
 
 | Проверка | Что ловит |
 |---|---|
-| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро (`base/`) не называет агентов профилей и паков; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны; сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); модели агентов (`scripts/ci/test-agent-models.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS; MCP из текста агента разрешён в его `tools`; пути кита в обратных кавычках (`docs/…`, `scripts/…`, `base/…`, `profiles/…`, `packs/…`, `templates/…`, `adapters/…`, `deck/…`) в агентах, скиллах и шаблоне профиля существуют; `depends_on` и `orchestrates` указывают на существующих агентов; агенты и скиллы профилей не зовут `npm`, `npx`, `pnpm`, `yarn` — команды из `.aikit/profiles.json`; агент или скилл с `git commit` ссылается на скилл `git-commit` (режим `ask` или `auto`); скилл с `disable-model-invocation: true` несёт `agents/openai.yaml` для Codex; у копий скиллов разработки кита в `.claude/skills/` и `.agents/skills/` одинаковые `name` и `description` |
+| `scripts/ci/static-checks.sh` | Синтаксис `*.sh`, `*.py`, `*.json`; каталог видит все скиллы; контракты профилей полные и ссылаются на существующих агентов (роли, специалисты, пайплайны); ядро (`base/`) не называет агентов профилей и паков; имена агентов и скиллов уникальны; сайт документации собран из актуальных исходников и без битых ссылок; манифесты плагинов актуальны и `version` в них равна `VERSION`; степень версии по сообщениям коммитов (`scripts/ci/test-bump-version.py`); сценарии хуков (`scripts/ci/test-hooks.py`); кейсы эвалов и раннер на подставном `codex` (`scripts/ci/test-run-evals.py`); модели агентов (`scripts/ci/test-agent-models.py`); мод AIKit Deck: модуль на месте, группы ссылаются на существующие скиллы, синтаксис JS; MCP из текста агента разрешён в его `tools`; пути кита в обратных кавычках (`docs/…`, `scripts/…`, `base/…`, `profiles/…`, `packs/…`, `templates/…`, `adapters/…`, `deck/…`) в агентах, скиллах и шаблоне профиля существуют; `depends_on` и `orchestrates` указывают на существующих агентов; агенты и скиллы профилей не зовут `npm`, `npx`, `pnpm`, `yarn` — команды из `.aikit/profiles.json`; агент или скилл с `git commit` ссылается на скилл `git-commit` (режим `ask` или `auto`); скилл с `disable-model-invocation: true` несёт `agents/openai.yaml` для Codex; у копий скиллов разработки кита в `.claude/skills/` и `.agents/skills/` одинаковые `name` и `description` |
 | `scripts/ci/smoke-attach.sh <preset>` | `attach.sh` и `update.sh --auto` на пустом проекте, хуки подключены и не задваиваются |
 | `scripts/ci/smoke-adapter.sh <codex\|opencode> <preset>` | Установка и обновление адаптера; файлы, которые реально читает runtime, хуки |
 | `scripts/ci/smoke-plugin.sh <preset>` | Подключение проекта к плагинам (`plugin-init.py`) для Claude Code и Codex: блок правил один и сохраняет текст команды, настройки и плагины, агенты Codex, смена профилей |
