@@ -18,6 +18,9 @@ Output (committed, both runtimes read it straight from the repository):
 Codex plugins carry skills, hooks and MCP servers but no agents: the init skill writes
 .codex/agents/*.toml into the project.
 
+Every manifest and marketplace entry carries "version" from the root VERSION file: Claude Code and Codex
+update an installed plugin when this number changes. VERSION is bumped by scripts/bump-version.py on merge.
+
 Usage:
     python3 scripts/build-plugins.py            # write the manifests
     python3 scripts/build-plugins.py --check    # exit 1 if a manifest is out of date or points to a missing file
@@ -32,6 +35,7 @@ from pathlib import Path
 
 import hooks_config
 import mcp_config
+from release_utils import is_semver
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -60,6 +64,11 @@ CORE_DESCRIPTION = (
     "хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта."
 )
 CATEGORY = "development"
+VERSION_FILE = ROOT / "VERSION"
+
+
+def kit_version() -> str:
+    return VERSION_FILE.read_text(encoding="utf-8").strip() if VERSION_FILE.exists() else ""
 
 
 def read_json(path: Path) -> dict:
@@ -132,6 +141,7 @@ def claude_manifest(spec: dict) -> dict:
     source_dir = ROOT / spec["dir"]
     manifest: dict = {
         "name": spec["name"],
+        "version": kit_version(),
         "description": spec["description"],
         "author": OWNER,
         "homepage": REPO_URL,
@@ -153,6 +163,7 @@ def codex_manifest(spec: dict) -> dict:
     source_dir = ROOT / spec["dir"]
     manifest: dict = {
         "name": spec["name"],
+        "version": kit_version(),
         "description": spec["description"],
         "keywords": keywords(spec),
     }
@@ -184,6 +195,7 @@ def marketplace(specs: list[dict]) -> dict:
             {
                 "name": spec["name"],
                 "source": relative_source(spec["dir"]),
+                "version": kit_version(),
                 "description": spec["description"],
                 "category": CATEGORY,
             }
@@ -222,6 +234,28 @@ def broken_references() -> list[str]:
             problems.append(f"{spec['name']}: нет папки агентов")
     if not (ROOT / HOOK_SCRIPT).exists():
         problems.append(f"нет скрипта хуков {HOOK_SCRIPT}")
+    if not is_semver(kit_version()):
+        problems.append(f"в VERSION не semver X.Y.Z: «{kit_version()}»")
+    return problems
+
+
+def version_mismatches(files: dict[Path, str]) -> list[str]:
+    """Manifests whose "version" differs from VERSION: plugins would not update, or update to the wrong number."""
+    problems = []
+    for path in files:
+        if not path.exists():
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            continue
+        entries = data.get("plugins", []) if path.name == MARKETPLACE_FILE.name else [data]
+        for entry in entries:
+            if isinstance(entry, dict) and entry.get("version") != kit_version():
+                name = entry.get("name", "?")
+                problems.append(
+                    f"{path.relative_to(ROOT).as_posix()}: версия {name} «{entry.get('version', '')}» не равна VERSION «{kit_version()}»"
+                )
     return problems
 
 
@@ -233,6 +267,7 @@ def main() -> int:
     problems = broken_references()
     files = expected_files()
     if args.check:
+        problems += version_mismatches(files)
         stale = [path for path, content in files.items() if not path.exists() or path.read_text(encoding="utf-8") != content]
         problems += [f"устарел {path.relative_to(ROOT).as_posix()} — запусти python3 scripts/build-plugins.py" for path in stale]
     else:

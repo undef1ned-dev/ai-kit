@@ -15,7 +15,8 @@
 #   7. Имена агентов и скиллов уникальны во всём ките — любые профили и паки ставятся вместе без переименований
 #   8. Сайт документации docs/site/ собран из актуальных исходников, ссылки и якоря не битые, все скиллы есть в docs/guide/commands.md
 #   9. Сценарии хуков base/hooks/aikit_hook.py: что блокируется и что пропускается, линтер, тесты, контекст сессии
-#  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы
+#  10. Манифесты плагинов и маркетплейса собраны из актуальных исходников и указывают на существующие файлы, version в них равна VERSION;
+#      bump версии по Conventional Commits (scripts/ci/test-bump-version.py)
 #  11. Модели агентов: у каждого агента уровень из adapters/models.json, модели всех runtime, переопределения проекта (.aikit/models.json)
 #  12. Эвалы evals/ разбираются, а раннер scripts/run-evals.py оценивает их без вызовов модели (подставной codex)
 #  13. Мод AIKit Deck: hooks/hooks.json указывает на существующий модуль, группы панели — на существующие скиллы, синтаксис JS.
@@ -218,7 +219,10 @@ echo "▶ Документация: docs/site/ собран из docs/guide/ и 
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
 
 echo "▶ Плагины: манифесты Claude Code и Codex собраны из исходников кита"
-"$PYTHON_BIN" scripts/build-plugins.py --check && echo "  ✓ маркетплейс и плагины актуальны" || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/build-plugins.py --check && echo "  ✓ маркетплейс и плагины актуальны, версия в манифестах равна VERSION" || FAILURES=$((FAILURES + 1))
+
+echo "▶ Версия: bump по Conventional Commits (scripts/bump-version.py)"
+"$PYTHON_BIN" scripts/ci/test-bump-version.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Хуки: сценарии base/hooks/aikit_hook.py"
 "$PYTHON_BIN" scripts/ci/test-hooks.py || FAILURES=$((FAILURES + 1))

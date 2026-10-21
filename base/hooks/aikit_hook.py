@@ -18,7 +18,11 @@ Events:
     Stop         — once code changed, runs the profile's test command; failed tests keep the agent
                    working (decision: block). After a large task suggests /capture-memory,
                    if the project keeps team memory (.aikit/memory/).
-    SessionStart — adds .aikit/memory/INDEX.md and PRODUCT.md to the session context.
+    SessionStart — adds .aikit/memory/INDEX.md and PRODUCT.md to the session context. In the plugin
+                   (--plugin) also tells the user once per version that a newer AIKit is out: the hook
+                   only reads a cache; once a day a detached `--refresh-update-cache` run fetches VERSION
+                   from main into it. Off with AIKIT_NO_UPDATE_CHECK=1 or "update_check": false in
+                   .aikit/settings.json.
 
 With --plugin (hooks shipped in the AIKit plugin) the hook only acts in projects connected to the kit:
 a folder with .aikit/ above the session cwd. Other projects of the user are left alone.
@@ -30,6 +34,7 @@ Standard library only, Python 3.9+.
 
 from __future__ import annotations
 
+import datetime
 import hashlib
 import json
 import os
@@ -38,6 +43,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import urllib.request
 from pathlib import Path
 
 BLOCK_EXIT_CODE = 2
@@ -57,6 +63,19 @@ FORMAT_TIMEOUT_SECONDS = 60
 LINT_TIMEOUT_SECONDS = 90
 TEST_TIMEOUT_SECONDS = 480
 LARGE_TASK_FILES = 8
+
+# Update notice of the plugin: the root of the core plugin is two folders above this script
+PLUGIN_ROOT = Path(__file__).resolve().parents[2]
+REFRESH_UPDATE_FLAG = "--refresh-update-cache"
+UPDATE_URL = "https://raw.githubusercontent.com/undef1ned-dev/ai-kit/main/VERSION"
+UPDATE_URL_ENV = "AIKIT_UPDATE_URL"
+UPDATE_CACHE_ENV = "AIKIT_UPDATE_CACHE"
+NO_UPDATE_CHECK_ENV = "AIKIT_NO_UPDATE_CHECK"
+UPDATE_CHECK_INTERVAL = datetime.timedelta(days=1)
+UPDATE_TIMEOUT_SECONDS = 3
+UPDATE_RESPONSE_LIMIT = 64
+SETTINGS_FILE = Path(".aikit") / "settings.json"
+SEMVER = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
 ENV_TEMPLATE_SUFFIXES = {"example", "sample", "template", "dist", "defaults"}
 SECRET_PATTERNS = {
@@ -638,8 +657,142 @@ def has_memory_entries(text: str) -> bool:
     return any(line.lstrip().startswith(("-", "|", "*")) for line in text.splitlines())
 
 
+def version_key(value: object) -> tuple[int, int, int] | None:
+    match = SEMVER.match(value.strip()) if isinstance(value, str) else None
+    return (int(match.group(1)), int(match.group(2)), int(match.group(3))) if match else None
+
+
+def local_version() -> str:
+    """Version of the installed plugin: VERSION at its root, else "version" of its Claude Code manifest."""
+    try:
+        return (PLUGIN_ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    except OSError:
+        pass
+    try:
+        manifest = json.loads((PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    version = manifest.get("version") if isinstance(manifest, dict) else None
+    return version if isinstance(version, str) else ""
+
+
+def update_cache_path() -> Path:
+    if os.environ.get(UPDATE_CACHE_ENV):
+        return Path(os.environ[UPDATE_CACHE_ENV])
+    if os.name == "nt" and os.environ.get("LOCALAPPDATA"):
+        base = Path(os.environ["LOCALAPPDATA"])
+    else:
+        base = Path(os.environ.get("XDG_CACHE_HOME") or Path.home() / ".cache")
+    return base / "aikit" / "update-check.json"
+
+
+def read_update_cache() -> dict:
+    try:
+        data = json.loads(update_cache_path().read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def write_update_cache(data: dict) -> None:
+    path = update_cache_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+    temporary.write_bytes((json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+    os.replace(temporary, path)
+
+
+def now_utc() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
+def cache_is_fresh(cache: dict) -> bool:
+    try:
+        checked = datetime.datetime.fromisoformat(str(cache.get("checked_at")))
+    except ValueError:
+        return False
+    return checked.tzinfo is not None and now_utc() - checked < UPDATE_CHECK_INTERVAL
+
+
+def refresh_update_cache() -> int:
+    """Detached run: fetch VERSION from main into the cache. Offline or any error — keep the old value quietly."""
+    cache = read_update_cache()
+    try:
+        url = os.environ.get(UPDATE_URL_ENV) or UPDATE_URL
+        with urllib.request.urlopen(url, timeout=UPDATE_TIMEOUT_SECONDS) as response:
+            remote = response.read(UPDATE_RESPONSE_LIMIT).decode("utf-8", errors="replace").strip()
+        if version_key(remote):
+            cache["remote_version"] = remote
+    except Exception:  # noqa: BLE001 — offline, proxy, timeout: no notice and no noise
+        pass
+    cache["checked_at"] = now_utc().isoformat(timespec="seconds")
+    try:
+        write_update_cache(cache)
+    except OSError:
+        pass
+    return 0
+
+
+def start_update_refresh() -> None:
+    """Fetch in a detached process: the session start never waits for the network."""
+    options: dict = {"stdin": subprocess.DEVNULL, "stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "close_fds": True}
+    if os.name == "nt":
+        options["creationflags"] = getattr(subprocess, "DETACHED_PROCESS", 0) | getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+    else:
+        options["start_new_session"] = True
+    try:
+        subprocess.Popen([sys.executable, str(Path(__file__).resolve()), REFRESH_UPDATE_FLAG], **options)
+    except OSError:
+        pass
+
+
+def update_check_enabled(project: Path) -> bool:
+    if os.environ.get(NO_UPDATE_CHECK_ENV, "").strip().lower() in {"1", "true", "yes"}:
+        return False
+    try:
+        settings = json.loads((project / SETTINGS_FILE).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return True
+    return not (isinstance(settings, dict) and settings.get("update_check") is False)
+
+
+def update_notice(project: Path) -> str | None:
+    """Once per version per machine: main has a newer AIKit than the installed plugin."""
+    if not update_check_enabled(project):
+        return None
+    local = local_version()
+    local_key = version_key(local)
+    if not local_key:
+        return None
+    cache = read_update_cache()
+    if not cache_is_fresh(cache):
+        start_update_refresh()
+    remote = cache.get("remote_version")
+    remote_key = version_key(remote)
+    if not remote_key or remote_key <= local_key or cache.get("notified_version") == remote:
+        return None
+    try:
+        write_update_cache({**cache, "notified_version": remote})
+    except OSError:
+        return None
+    return (
+        f"AIKit: доступна версия {remote} (у вас {local}). "
+        "Claude: /plugin marketplace update aikit, затем /plugin update aikit@aikit (так же — плагины профилей и паков) "
+        "и перезапуск сессии; Codex: codex plugin marketplace upgrade"
+    )
+
+
+def runs_in_codex() -> bool:
+    """Codex gives plugin hooks PLUGIN_ROOT, Claude Code gives CLAUDE_PLUGIN_ROOT."""
+    return bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT")
+
+
 def session_start(event: dict) -> int:
     project = project_dir(event)
+    output: dict = {}
+    notice = update_notice(project) if PLUGIN_FLAG in sys.argv[1:] else None
+    if notice:
+        output["systemMessage"] = notice
     parts = []
     index = read_context_file(project / MEMORY_INDEX, MEMORY_INDEX.as_posix())
     if index and has_memory_entries(index):
@@ -647,9 +800,13 @@ def session_start(event: dict) -> int:
     product = read_context_file(project / PRODUCT_FILE, PRODUCT_FILE.as_posix())
     if product and PRODUCT_TEMPLATE_MARKER not in product:
         parts.append(product)
+    if notice and runs_in_codex():
+        # Codex may not show systemMessage of SessionStart: the agent passes the notice on
+        parts.append(f"Передай пользователю в первом ответе одной строкой: {notice}")
     if parts:
         context = "Контекст проекта от AIKit (память команды и описание продукта):\n\n" + "\n\n".join(parts)
-        emit({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": context}})
+        output["hookSpecificOutput"] = {"hookEventName": "SessionStart", "additionalContext": context}
+    emit(output)
     return 0
 
 
@@ -672,6 +829,8 @@ def main() -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
+    if REFRESH_UPDATE_FLAG in sys.argv[1:]:
+        return refresh_update_cache()
     try:
         raw = sys.stdin.buffer.read().decode("utf-8", errors="replace")
         event = json.loads(raw) if raw.strip() else {}
