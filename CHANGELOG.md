@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.3.4] - 2026-10-21
+
+### Changed
+- agents: снижен расход токенов агентов, задан effort
+
 ## [0.3.3] - 2026-10-21
 
 ### Fixed
