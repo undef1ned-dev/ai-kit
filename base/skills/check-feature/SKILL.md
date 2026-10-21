@@ -18,6 +18,8 @@ example_prompt: "/check-feature фильтр по статусу на стран
 
 Прочитай `.aikit/profiles.json` и выбери профиль, к которому относится фича (по путям изменённых файлов, `role` и `stack`). Нужна команда `run` профиля и его папка `root`.
 
+На Windows в PowerShell команда профиля с `npx` или `npm` может упасть из-за ExecutionPolicy (`npx.ps1`): вызови `npx.cmd`/`npm.cmd` или выполни в Git Bash, ExecutionPolicy не меняй.
+
 - Нет команды `run` — скажи, что запуск не настроен (её можно добавить в `commands` в `.aikit/profiles.json`), и остановись.
 - Проверяешь изменения из worktree (`/implement-feature --worktree`) — запускай в `<worktree>/<root>`, иначе в `root` проекта.
 

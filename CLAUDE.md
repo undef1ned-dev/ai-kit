@@ -80,7 +80,7 @@ build(deps): обновлены зависимости
 ### Windows
 - Windows PowerShell 5.1 читает файлы без BOM в кодировке системы, и русский текст превращается в мусор: читай текстовые файлы инструментом чтения файлов runtime или `Get-Content -Raw -Encoding UTF8 <файл>`
 - Вывод в файл через `>` в Windows PowerShell 5.1 пишется в UTF-16: если файл читает другой инструмент (патч для `git apply` и т. п.), пусть его пишет сама команда (`git diff --output=<файл>`)
-- Команда падает с «running scripts is disabled on this system» (ExecutionPolicy запрещает `npx.ps1`, `npm.ps1`) — вызови `.cmd`-вариант той же команды (`npx.cmd vitest run`, `npm.cmd install`) или выполни её в Git Bash. ExecutionPolicy системы не меняй
+- Команда падает с «running scripts is disabled on this system» (ExecutionPolicy запрещает `npx.ps1`, `npm.ps1`) — вызови `.cmd`-вариант той же команды (`npx.cmd vitest run`, `npm.cmd install`) или выполни её в Git Bash. Это касается и команд профиля из `.aikit/profiles.json` (`npx eslint …`): в файле они записаны для всех систем, `.cmd` подставляешь ты при запуске. ExecutionPolicy системы не меняй
 
 ---
 
