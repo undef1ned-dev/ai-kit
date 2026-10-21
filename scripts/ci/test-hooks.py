@@ -160,6 +160,10 @@ def check_old_python(project, expect) -> None:
         for shell, shell_command in hook_shells(unreachable):
             code, stdout = run_in_shell(shell_command, project.root, event, env)
             expect(f"{shell}: нет подходящего Python — действие не блокируется", code == 0 and not stdout, f"код {code}, {stdout}")
+        status = hook_status(project.root)
+        expect("--status: лаунчер без Python 3.9+ оставляет launcher-error", status["state"] == "launcher-error", str(status))
+        project.run({"hook_event_name": "SessionStart"})
+        expect("--status: запуск хука снимает launcher-error", hook_status(project.root)["state"] == "ok")
     if os.name == "nt":
         return
     with tempfile.TemporaryDirectory() as shim:
@@ -168,6 +172,28 @@ def check_old_python(project, expect) -> None:
         for shell, shell_command in hook_shells(hooks_config.CODEX_COMMAND_WINDOWS):
             code, stdout = run_in_shell(shell_command, project.root, event, env)
             expect(f"{shell}: python 2.7 передаёт событие Python 3 (deny в JSON)", denied_by_json(code, stdout), f"код {code}, {stdout}")
+
+
+def hook_status(root: Path) -> dict:
+    result = subprocess.run([sys.executable, str(HOOK), "--status"], capture_output=True, cwd=root)
+    return json.loads(result.stdout.decode("utf-8"))
+
+
+def check_run_marks(expect) -> None:
+    """Every hook run leaves a mark that /aikit:setup reads through --status."""
+    with tempfile.TemporaryDirectory() as temp:
+        fresh = Project(Path(temp))
+        expect("--status: до первого запуска отметки нет", hook_status(fresh.root)["state"] == "no-mark")
+        fresh.run({"hook_event_name": "SessionStart"})
+        status = hook_status(fresh.root)
+        expect("--status: после SessionStart хуки работают", status["state"] == "ok" and "SessionStart" in status["events"], str(status))
+        expect("--status: записан интерпретатор", bool(status.get("python")) and bool(status.get("executable")), str(status))
+        fresh.run({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": "SECRET_TOOL_INPUT"})
+        status = hook_status(fresh.root)
+        expect("--status: внутренняя ошибка хука видна", status["state"] == "internal-error" and status["last_error"]["event"] == "PreToolUse", str(status))
+        expect("--status: в ошибке нет содержимого события", "SECRET_TOOL_INPUT" not in json.dumps(status.get("last_error", {})))
+        fresh.run({"hook_event_name": "PreToolUse", "tool_name": "Bash", "tool_input": {"command": "ls"}})
+        expect("--status: успешный запуск снимает ошибку", hook_status(fresh.root)["state"] == "ok")
 
 
 def denied_by_json(code: int, stdout: str) -> bool:
@@ -312,6 +338,11 @@ def main() -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
+    # run marks and launcher notes go to the temp folder: keep them away from the real one
+    isolated_temp = tempfile.mkdtemp(prefix="aikit-test-temp-")
+    for name in ("TEMP", "TMP", "TMPDIR"):
+        os.environ[name] = isolated_temp
+    tempfile.tempdir = isolated_temp
     failures: list[str] = []
 
     def expect(name: str, condition: bool, details: str = "") -> None:
@@ -452,6 +483,9 @@ def main() -> int:
                     expect(f"{kind}, {shell}: из подпапки запись .env заблокирована (deny в JSON)", denied_by_json(code, stdout), f"код {code}, {stdout}")
                     code, stdout = run_in_shell(shell_command, Path(other), {**event, "cwd": other}, env)
                     expect(f"{kind}, {shell}: вне проекта действие пропущено", code == 0 and not stdout, f"код {code}, {stdout}")
+
+        print("▶ Отметки запусков хуков (--status)")
+        check_run_marks(expect)
 
         print("▶ Лаунчер Windows: python на PATH старый или неподходящий")
         check_old_python(project, expect)

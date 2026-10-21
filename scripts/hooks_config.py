@@ -75,6 +75,16 @@ else:
         run.communicate(data)
         sys.exit(run.returncode)
     sys.stderr.write('AIKit: need Python {minimum_text}+ for hooks, found ' + sys.version.split()[0] + '\\n')
+    try:
+        import tempfile, time
+        folder = os.path.join(tempfile.gettempdir(), 'aikit-hooks')
+        if not os.path.isdir(folder):
+            os.makedirs(folder)
+        note = open(os.path.join(folder, 'launch-error.txt'), 'w')
+        note.write('no Python {minimum_text}+ for hooks: python on PATH is ' + sys.version.split()[0] + ' (' + sys.executable + '), py -3 and python3 did not fit; ' + time.strftime('%Y-%m-%d %H:%M:%S'))
+        note.close()
+    except Exception:
+        pass
 """
 # Looks for the script from the session cwd up (the git root of the project included)
 ADAPTER_FIND = """h = None
