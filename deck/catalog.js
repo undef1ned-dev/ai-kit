@@ -191,15 +191,22 @@ export function summary(description) {
 // the update of its plugin, made here from the profile name, so a new profile has it with no data of its own
 export const MARKETPLACE = 'aikit'
 export const ACTION_TAIL_LINES = 6
-const WINDOWS_SCRIPTS = { gradlew: 'gradlew.bat' }
+const WINDOWS_SCRIPTS = new Map([['gradlew', 'gradlew.bat']])
 // cmd.exe reads these in arguments as its own syntax; an action never needs them
 const CMD_SPECIAL = /[&|<>^%"]/
+const LOCAL_PROGRAM = /^\.[\\/]/
+// The order the scopes of one plugin are updated in
+const UPDATE_SCOPES = ['user', 'project', 'local']
 
-export function pluginUpdateSteps(plugin) {
-  return [
-    ['claude', 'plugin', 'marketplace', 'update', MARKETPLACE],
-    ['claude', 'plugin', 'update', `${plugin}@${MARKETPLACE}`],
-  ]
+// The marketplace first, then the plugin in each scope it is installed in for this project;
+// no scopes known (no install records) — one update without --scope, as `claude plugin update` picks it
+export function pluginUpdateSteps(plugin, scopes = []) {
+  const target = `${plugin}@${MARKETPLACE}`
+  const updates =
+    scopes.length > 0
+      ? [...new Set(scopes)].map(scope => ['claude', 'plugin', 'update', target, '--scope', scope])
+      : [['claude', 'plugin', 'update', target]]
+  return [['claude', 'plugin', 'marketplace', 'update', MARKETPLACE], ...updates]
 }
 
 // <config>/plugins/cache/<marketplace>/<plugin>/<version> → <config>/plugins, where installed_plugins.json lives.
@@ -226,13 +233,34 @@ export function installedVersion(installed, plugin, projectPaths) {
   return typeof record?.version === 'string' && record.version ? record.version : null
 }
 
+// The install records of <plugin>@aikit an update has to refresh for this project: the user one and the project
+// and local ones of this project's folder. `claude plugin update` without --scope refreshes one of them, while the
+// session may load another. Managed records belong to the administrator, other projects' records stay as they are
+export function updateRecords(installed, plugin, projectPaths) {
+  const records = installed?.plugins?.[`${plugin}@${MARKETPLACE}`]
+  if (!Array.isArray(records)) return []
+  const isForProject = record =>
+    record?.scope === 'user' ||
+    ((record?.scope === 'project' || record?.scope === 'local') && projectPaths.some(path => path && samePath(record.projectPath, path)))
+  return records.filter(isForProject).sort((a, b) => UPDATE_SCOPES.indexOf(a.scope) - UPDATE_SCOPES.indexOf(b.scope))
+}
+
+// The newest version among the records; none — null
+export function newestVersion(records) {
+  const versions = records.map(record => record?.version).filter(version => typeof version === 'string' && version)
+  return versions.length > 0 ? versions.reduce((newest, version) => (isAtLeast(version, newest) ? version : newest)) : null
+}
+
 export const RESTART_HINT = 'изменения подхватятся после перезапуска сессии'
 
-// The toast after a plugin update: the versions before and after when both are known, the error's last line otherwise
+// The toast after a plugin update: the versions before and after when both are known, the error's last line otherwise.
+// A failed step names its scope: the steps before it may have updated other scopes, the update as a whole did not pass
 export function updateToast(title, job, before, after) {
   if (job.status !== 'done') {
     const last = outputLines(job.tail).pop()
-    return `${title} не обновлён: ${jobStatus(job)}` + (last ? ` — ${last}` : '')
+    const argv = Array.isArray(job.failedStep) ? job.failedStep : []
+    const scope = argv.includes('--scope') ? argv[argv.indexOf('--scope') + 1] : ''
+    return `${title} не обновлён${scope ? ` (scope ${scope})` : ''}: ${jobStatus(job)}` + (last ? ` — ${last}` : '')
   }
   if (before && after && before === after) return `${title}: уже последняя версия ${after}`
   const change = before && after ? `: ${before} → ${after}` : after ? ` до ${after}` : ''
@@ -266,13 +294,17 @@ export function isWindowsPath(path) {
 }
 
 // The argv the host runs. On Windows a .bat or an npm .cmd starts only through cmd.exe, so every action goes
-// through `cmd /d /c`, which also finds claude.exe or claude.cmd by PATHEXT; ./gradlew becomes gradlew.bat
+// through `cmd /d /c`. A program of the profile's folder (./gradlew, .\run.cmd, a bare name of WINDOWS_SCRIPTS)
+// gets an explicit .\ path, ./gradlew as .\gradlew.bat: the host sets NoDefaultCurrentDirectoryInExePath, and then
+// cmd.exe does not look in the current folder. Any other program (claude, git) is found by PATH and PATHEXT as is
 export function hostArgv(argv, isWindows) {
   if (!isWindows) return { argv: [...argv] }
   const [program, ...rest] = argv
-  const name = program.replace(/^\.[\\/]/, '')
   if (argv.some(item => CMD_SPECIAL.test(item))) return { error: `символы ${CMD_SPECIAL.source} в команде не запускаются через cmd.exe` }
-  return { argv: ['cmd', '/d', '/c', WINDOWS_SCRIPTS[name] ?? name, ...rest] }
+  const name = program.replace(LOCAL_PROGRAM, '')
+  const isLocal = LOCAL_PROGRAM.test(program) || WINDOWS_SCRIPTS.has(program) || [...WINDOWS_SCRIPTS.values()].includes(program)
+  const local = '.\\' + (WINDOWS_SCRIPTS.get(name) ?? name).replace(/\//g, '\\')
+  return { argv: ['cmd', '/d', '/c', isLocal ? local : program, ...rest] }
 }
 
 const ANSI = /\x1b\[[0-9;?]*[A-Za-z]/g
