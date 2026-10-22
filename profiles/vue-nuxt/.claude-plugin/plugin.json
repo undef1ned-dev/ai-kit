@@ -1,6 +1,6 @@
 {
   "name": "vue-nuxt",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
   "author": {
     "name": "undef1ned-dev"

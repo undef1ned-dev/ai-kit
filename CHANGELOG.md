@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.7.0] - 2026-10-22
+
+### Added
+- deck: блок «Действия проекта» и кнопки обновления кита и профиля
+
 ## [0.6.0] - 2026-10-22
 
 ### Added
