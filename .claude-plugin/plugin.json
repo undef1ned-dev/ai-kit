@@ -1,6 +1,6 @@
 {
   "name": "aikit",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
   "author": {
     "name": "undef1ned-dev"

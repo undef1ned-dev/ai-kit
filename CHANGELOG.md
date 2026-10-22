@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.8.0] - 2026-10-22
+
+### Added
+- deck: версии кита и профилей в шапке, результат обновления тостом
+
 ## [0.7.0] - 2026-10-22
 
 ### Added
