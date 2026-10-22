@@ -118,6 +118,10 @@ test('argument hints become toggles and a field', () => {
     flags: ['--tdd', '--worktree'],
     field: { placeholder: 'задача', isRequired: true },
   })
+  expect(parseArgumentHint('[--no-test] [--no-review] <описание бага>')).toEqual({
+    flags: ['--no-test', '--no-review'],
+    field: { placeholder: 'описание бага', isRequired: true },
+  })
   expect(parseArgumentHint('[путь]')).toEqual({ flags: [], field: { placeholder: 'путь', isRequired: false } })
   expect(parseArgumentHint('<файл и ссылка на макет>').field?.placeholder).toBe('файл и ссылка на макет')
   expect(parseArgumentHint(undefined)).toEqual({ flags: [], field: null })
