@@ -32,6 +32,33 @@
     "build": "./gradlew build",
     "run": "./gradlew runClient"
   },
+  "actions": {
+    "compileJava": {
+      "label": "Компиляция",
+      "argv": ["./gradlew", "compileJava"],
+      "description": "Компиляция мода; первый запуск долгий: ForgeGradle качает Minecraft и маппинги"
+    },
+    "test": {
+      "label": "Тесты",
+      "argv": ["./gradlew", "test"],
+      "description": "Unit-тесты JUnit 4"
+    },
+    "build": {
+      "label": "Сборка",
+      "argv": ["./gradlew", "build"],
+      "description": "Сборка мода: jar в build/libs/"
+    },
+    "runClient": {
+      "label": "Клиент",
+      "argv": ["./gradlew", "runClient"],
+      "description": "Клиент Minecraft с модом, рабочая папка run/"
+    },
+    "runServer": {
+      "label": "Сервер",
+      "argv": ["./gradlew", "runServer"],
+      "description": "Выделенный сервер с модом, рабочая папка run/"
+    }
+  },
   "code_extensions": [
     ".java"
   ],

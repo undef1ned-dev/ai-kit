@@ -227,6 +227,7 @@
   </div>
   <h3>Команды проекта</h3>
   <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>./gradlew compileJava</code></td></tr><tr><td><code>lint</code></td><td><code>./gradlew compileJava check -x test</code></td></tr><tr><td><code>test</code></td><td><code>./gradlew test</code></td></tr><tr><td><code>build</code></td><td><code>./gradlew build</code></td></tr><tr><td><code>run</code></td><td><code>./gradlew runClient</code></td></tr></tbody></table></div>
+  <h3>Действия в AIKit Deck</h3><div class="table-wrap"><table><thead><tr><th>Кнопка</th><th>Команда</th><th>Что делает</th></tr></thead><tbody><tr><td>Компиляция</td><td><code>./gradlew compileJava</code></td><td>Компиляция мода; первый запуск долгий: ForgeGradle качает Minecraft и маппинги</td></tr><tr><td>Тесты</td><td><code>./gradlew test</code></td><td>Unit-тесты JUnit 4</td></tr><tr><td>Сборка</td><td><code>./gradlew build</code></td><td>Сборка мода: jar в build/libs/</td></tr><tr><td>Клиент</td><td><code>./gradlew runClient</code></td><td>Клиент Minecraft с модом, рабочая папка run/</td></tr><tr><td>Сервер</td><td><code>./gradlew runServer</code></td><td>Выделенный сервер с модом, рабочая папка run/</td></tr></tbody></table></div>
   <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>forge-1-12-java-quality-analyst</strong><span>нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)</span></div><div class="mini-card"><strong>forge-1-12-java-security-auditor</strong><span>аудит безопасности (/security-check) или фича добавляет либо меняет сетевые пакеты, контейнеры и инвентари, команды, права или сохранённые данные игроков</span></div></div>
   <h3>Пайплайны</h3><div class="mini-grid"><div class="mini-card"><strong>docs</strong><span class="mono">forge-1-12-java-doc-writer</span><span>нужна только документация мода — написать или обновить .md в docs/ проекта без изменения кода</span></div></div>
 </div>
@@ -343,6 +344,7 @@
   </div>
   <h3>Команды проекта</h3>
   <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody><tr><td><code>install</code></td><td><code>npm install</code></td></tr><tr><td><code>lint</code></td><td><code>npx eslint {files}</code></td></tr><tr><td><code>format</code></td><td><code>npx prettier --write {files}</code></td></tr><tr><td><code>test</code></td><td><code>npx vitest run</code></td></tr><tr><td><code>build</code></td><td><code>npx nuxt build</code></td></tr><tr><td><code>run</code></td><td><code>npx nuxt dev</code></td></tr></tbody></table></div>
+
   <h3>Специалисты</h3><div class="mini-grid"><div class="mini-card"><strong>vue-design-bridge</strong><span>задача идёт от макета Figma или нужна сверка с UI kit и дизайн-токенами</span></div><div class="mini-card"><strong>vue-quality-analyst</strong><span>нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)</span></div></div>
 
 </div>

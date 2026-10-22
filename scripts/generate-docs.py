@@ -565,6 +565,10 @@ def render_contract(manifest: dict) -> str:
         f"<tr><td><code>{h(name)}</code></td><td><code>{h(command)}</code></td></tr>"
         for name, command in manifest.get("commands", {}).items()
     )
+    actions = "".join(
+        f'<tr><td>{h(action.get("label", name))}</td><td><code>{h(" ".join(action.get("argv", [])))}</code></td><td>{h(action.get("description", ""))}</td></tr>'
+        for name, action in manifest.get("actions", {}).items()
+    )
     specialists = "".join(
         f'<div class="mini-card"><strong>{h(spec.get("agent", ""))}</strong><span>{h(spec.get("when", ""))}</span></div>'
         for spec in manifest.get("specialists", {}).values()
@@ -585,6 +589,7 @@ def render_contract(manifest: dict) -> str:
   </div>
   <h3>Команды проекта</h3>
   <div class="table-wrap"><table><thead><tr><th>Команда</th><th>По умолчанию</th></tr></thead><tbody>{commands}</tbody></table></div>
+  {f'<h3>Действия в AIKit Deck</h3><div class="table-wrap"><table><thead><tr><th>Кнопка</th><th>Команда</th><th>Что делает</th></tr></thead><tbody>{actions}</tbody></table></div>' if actions else ""}
   {f'<h3>Специалисты</h3><div class="mini-grid">{specialists}</div>' if specialists else ""}
   {f'<h3>Пайплайны</h3><div class="mini-grid">{pipelines}</div>' if pipelines else ""}
 </div>'''
