@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.8.1] - 2026-10-22
+
+### Fixed
+- deck: запуск Gradle на Windows, обновление по всем scope и кнопка открытия деки
+
 ## [0.8.0] - 2026-10-22
 
 ### Added
