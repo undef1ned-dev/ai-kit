@@ -101,7 +101,7 @@ sys.exit(1 if missing or empty else 0)
 
 echo "▶ Контракт профиля: обязательные поля, агенты по ролям существуют, известные команды"
 "$PYTHON_BIN" -c '
-import json, pathlib, sys
+import json, pathlib, re, sys
 ROLES = {"architect", "coder", "tester", "reviewer"}
 COMMANDS = {"install", "lint", "format", "test", "build", "run"}
 REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "root_markers", "path_signals"}
@@ -137,6 +137,15 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
     unknown = set(data["commands"]) - COMMANDS
     if unknown or "test" not in data["commands"]:
         errors.append(f"{manifest}: команды {sorted(unknown)} неизвестны или нет test")
+    # Deck buttons: run by argv without a shell, so no shell syntax and no {files}
+    for name, action in data.get("actions", {}).items():
+        argv = action.get("argv") if isinstance(action, dict) else None
+        if not isinstance(argv, list) or not argv or any(not isinstance(item, str) or not item.strip() for item in argv):
+            errors.append(f"{manifest}: действие {name}: argv — непустой список строк")
+        elif any(re.search(r"[&|<>^%\"{}]", item) for item in argv):
+            errors.append(f"{manifest}: действие {name}: в argv синтаксис shell или подстановка — действия запускаются без shell")
+        if not isinstance(action, dict) or not str(action.get("label", "")).strip():
+            errors.append(f"{manifest}: действие {name} без label")
     if not data["path_signals"]:
         errors.append(f"{manifest}: пустые path_signals")
     if not data["root_markers"]:

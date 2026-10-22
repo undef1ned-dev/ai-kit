@@ -114,6 +114,8 @@ if edited:
     first = contracts[expected[0]]["commands"]
     assert first.get("test") == "custom-test", "правка команды test затёрта"
     assert "run" not in first, "удалённая командой run вернулась"
+    actions = contracts[expected[0]].get("actions", {})
+    assert actions.get("team-dev", {}).get("argv") == ["custom-dev"], "своё действие панели затёрто"
 PY
 }
 
@@ -137,15 +139,17 @@ assert result.returncode == 2, f"коммит не по формату не за
 PY
 }
 
-# Команда проекта правит контракт: своя команда test, без run
+# Команда проекта правит контракт: своя команда test, без run, своё действие панели
 edit_profile_contract() {
   "$PYTHON_BIN" - "$PROJECT_DIR/.aikit/profiles.json" <<'PY'
 import json, pathlib, sys
 path = pathlib.Path(sys.argv[1])
 data = json.loads(path.read_text(encoding="utf-8"))
-commands = next(iter(data["profiles"].values()))["commands"]
+contract = next(iter(data["profiles"].values()))
+commands = contract["commands"]
 commands["test"] = "custom-test"
 commands.pop("run", None)
+contract.setdefault("actions", {})["team-dev"] = {"label": "Dev", "argv": ["custom-dev"]}
 path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 PY
 }

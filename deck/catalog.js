@@ -66,6 +66,13 @@ export function isHidden(frontmatter) {
   return frontmatter['user-invocable'] === 'false'
 }
 
+// Skills that exist for Codex alone: the deck is a Claude Code mod, where their button is of no use
+const CODEX_ONLY_SKILLS = new Set(['update-agents'])
+
+export function isCodexOnly(name) {
+  return CODEX_ONLY_SKILLS.has(name)
+}
+
 // Base skills by group, then one group per profile and per pack, then the project's own skills
 // from .claude/skills/. A project skill named in GROUPS (improve-aikit in the kit repository) joins that group;
 // a project copy of a kit skill (left from an attach.sh install) is skipped
@@ -177,6 +184,80 @@ export function summary(description) {
   const text = String(description ?? '').trim()
   const cut = text.search(/[.:;]\s|[.:;]$/)
   return cut > 0 ? text.slice(0, cut) : text
+}
+
+// Project actions: buttons that run a program on the machine without the model.
+// A profile's own come from "actions" in its contract ({ label, argv, description }); every profile also gets
+// the update of its plugin, made here from the profile name, so a new profile has it with no data of its own
+export const MARKETPLACE = 'aikit'
+export const ACTION_TAIL_LINES = 6
+const WINDOWS_SCRIPTS = { gradlew: 'gradlew.bat' }
+// cmd.exe reads these in arguments as its own syntax; an action never needs them
+const CMD_SPECIAL = /[&|<>^%"]/
+
+export function pluginUpdateSteps(plugin) {
+  return [
+    ['claude', 'plugin', 'marketplace', 'update', MARKETPLACE],
+    ['claude', 'plugin', 'update', `${plugin}@${MARKETPLACE}`],
+  ]
+}
+
+export function profileActions(profile, contractActions) {
+  const own = Object.entries(contractActions && typeof contractActions === 'object' ? contractActions : {})
+    .filter(([, action]) => Array.isArray(action?.argv) && action.argv.length > 0 && action.argv.every(item => typeof item === 'string' && item !== ''))
+    .map(([id, action]) => ({
+      id,
+      label: typeof action.label === 'string' && action.label ? action.label : id,
+      description: typeof action.description === 'string' ? action.description : '',
+      steps: [action.argv],
+      cwd: profile.root,
+    }))
+  const steps = pluginUpdateSteps(profile.name)
+  return [
+    ...own,
+    { id: 'update-plugin', label: 'Обновить профиль', description: `плагин ${profile.name}@${MARKETPLACE}`, steps, cwd: '.', isUpdate: true },
+  ]
+}
+
+// What the button shows: the command as written in the contract
+export function actionLine(steps) {
+  return steps.map(argv => argv.join(' ')).join(' && ')
+}
+
+export function isWindowsPath(path) {
+  return /^[A-Za-z]:[\\/]/.test(String(path ?? '')) || String(path ?? '').startsWith('\\\\')
+}
+
+// The argv the host runs. On Windows a .bat or an npm .cmd starts only through cmd.exe, so every action goes
+// through `cmd /d /c`, which also finds claude.exe or claude.cmd by PATHEXT; ./gradlew becomes gradlew.bat
+export function hostArgv(argv, isWindows) {
+  if (!isWindows) return { argv: [...argv] }
+  const [program, ...rest] = argv
+  const name = program.replace(/^\.[\\/]/, '')
+  if (argv.some(item => CMD_SPECIAL.test(item))) return { error: `символы ${CMD_SPECIAL.source} в команде не запускаются через cmd.exe` }
+  return { argv: ['cmd', '/d', '/c', WINDOWS_SCRIPTS[name] ?? name, ...rest] }
+}
+
+const ANSI = /\x1b\[[0-9;?]*[A-Za-z]/g
+
+// The last lines of a running command: output comes in pieces, a line may span two of them
+export function appendOutput(tail, text, limit = ACTION_TAIL_LINES) {
+  const pieces = (tail.partial + String(text).replace(ANSI, '')).split(/\r\n|\n|\r/)
+  const partial = pieces.pop() ?? ''
+  const lines = [...tail.lines, ...pieces.filter(line => line.trim() !== '')].slice(-limit)
+  return { lines, partial }
+}
+
+export function outputLines(tail, limit = ACTION_TAIL_LINES) {
+  return [...tail.lines, ...(tail.partial.trim() ? [tail.partial] : [])].slice(-limit)
+}
+
+export function jobStatus(job) {
+  if (!job) return ''
+  if (job.status === 'running') return 'работает'
+  if (job.status === 'stopped') return 'остановлено'
+  if (job.status === 'error') return 'не запустилось'
+  return `завершено, код ${job.code}`
 }
 
 // "2.1.299" ≥ "2.1.296": release numbers compared part by part

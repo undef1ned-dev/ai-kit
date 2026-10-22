@@ -9,7 +9,7 @@ Each profile gets "root": the project folder it lives in, found by the profile's
 ("frontend" for a Nuxt app in frontend/, "." for a single-stack repository). Commands run there
 and path_signals are relative to it.
 
-The team may edit "commands" and "root" in .aikit/profiles.json (another package manager, extra flags,
+The team may edit "commands", "actions" and "root" in .aikit/profiles.json (another package manager, extra flags,
 a removed command, a different folder). Kit values from the previous run are kept in
 .aikit/profiles.kit-defaults.json: a value still equal to the old kit value follows the kit,
 a changed or removed one stays as the team left it. Every other field is owned by the kit and refreshed on each run.
@@ -31,8 +31,9 @@ DEFAULTS_FILE = Path(".aikit") / "profiles.kit-defaults.json"
 ABOUT = (
     "Контракты профилей AIKit: агенты по ролям, специалисты, команды, папка профиля. "
     "root — папка профиля в проекте: команды запускаются в ней, path_signals считаются от неё. "
-    "commands и root можно менять под проект — обновление кита их не затрёт; остальные поля обновляются из кита. "
-    "{files} в команде — изменённые файлы относительно root."
+    "commands, actions и root можно менять под проект — обновление кита их не затрёт; остальные поля обновляются из кита. "
+    "{files} в команде — изменённые файлы относительно root. "
+    "actions — кнопки панели AIKit Deck: label и argv (программа и аргументы, без shell), запуск в root."
 )
 SKIPPED_DIRS = {"node_modules", "venv", "__pycache__", "dist", "build", "coverage"}
 ROOT_SEARCH_DEPTH = 2
@@ -60,8 +61,8 @@ def load_contract(profile: str) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def merge_commands(kit: dict[str, str], previous_kit: dict[str, str] | None, current: dict[str, str] | None) -> dict[str, str]:
-    """Kit commands with the team's edits on top. previous_kit is None when the kit never wrote this profile."""
+def merge_commands(kit: dict, previous_kit: dict | None, current: dict | None) -> dict:
+    """Kit commands (or actions) with the team's edits on top. previous_kit is None when the kit never wrote this profile."""
     if current is None:
         return dict(kit)
     if previous_kit is None:
@@ -70,7 +71,7 @@ def merge_commands(kit: dict[str, str], previous_kit: dict[str, str] | None, cur
             **{name: current.get(name, command) for name, command in kit.items()},
             **{name: command for name, command in current.items() if name not in kit},
         }
-    merged: dict[str, str] = {}
+    merged: dict = {}
     for name in [*kit, *(name for name in current if name not in kit)]:
         if name in current:
             follows_kit = name in previous_kit and current[name] == previous_kit[name]
@@ -113,13 +114,13 @@ def merge_root(kit: str, previous_kit: str | None, current: str | None) -> str:
     return current
 
 
-def previous_kit_values(record: object) -> tuple[dict[str, str] | None, str | None]:
-    """Commands and root from a kit-defaults record; early records held only the commands."""
+def previous_kit_values(record: object) -> tuple[dict | None, str | None, dict | None]:
+    """Commands, root and actions from a kit-defaults record; early records held only the commands."""
     if not isinstance(record, dict):
-        return None, None
+        return None, None, None
     if "commands" in record:
-        return record.get("commands"), record.get("root")
-    return record, None
+        return record.get("commands"), record.get("root"), record.get("actions")
+    return record, None, None
 
 
 def install(workspace: Path, profiles: list[str]) -> list[str]:
@@ -139,7 +140,7 @@ def install(workspace: Path, profiles: list[str]) -> list[str]:
         contract = load_contract(profile)
         kit_commands = contract.get("commands", {})
         kit_root = detect_root(workspace, contract.get("root_markers", []))
-        previous_commands, previous_root = previous_kit_values(previous_defaults.get(profile))
+        previous_commands, previous_root, previous_actions = previous_kit_values(previous_defaults.get(profile))
         current = current_profiles.get(profile, {})
         current = current if isinstance(current, dict) else {}
         contract["root"] = merge_root(kit_root, previous_root, current.get("root") if isinstance(current.get("root"), str) else None)
@@ -148,8 +149,15 @@ def install(workspace: Path, profiles: list[str]) -> list[str]:
             previous_commands,
             current.get("commands") if isinstance(current.get("commands"), dict) else None,
         )
+        kit_actions = contract.get("actions", {})
+        current_actions = current.get("actions") if isinstance(current.get("actions"), dict) else None
+        actions = merge_commands(kit_actions, previous_actions, current_actions)
+        if actions:
+            contract["actions"] = actions
+        else:
+            contract.pop("actions", None)
         contracts[profile] = contract
-        kit_defaults[profile] = {"commands": kit_commands, "root": kit_root}
+        kit_defaults[profile] = {"commands": kit_commands, "root": kit_root, "actions": kit_actions}
 
     write_json(profiles_path, {"about": ABOUT, "profiles": contracts})
     write_json(defaults_path, kit_defaults)

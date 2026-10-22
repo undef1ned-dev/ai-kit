@@ -1,20 +1,30 @@
 // AIKit Deck: a pane with buttons for the kit's commands, a command reference and the session's subagents,
 // plus a line under the prompt when the team memory needs /optimize-memory.
 // Everything here is local: files, the command list and the subagent list. The deck never calls a model;
-// a command it starts spends usage exactly as the same command typed by hand.
+// a command it starts spends usage exactly as the same command typed by hand. Project actions and plugin updates
+// run programs on the machine by argv, without a shell and without the model.
 
 import {
+  actionLine,
   addHistory,
   agentRows,
+  appendOutput,
   buildGroups,
   clockTime,
   commandLine,
+  hostArgv,
   isAtLeast,
+  isCodexOnly,
   isHidden,
   isRunning,
+  isWindowsPath,
+  jobStatus,
   MEMORY_INDEX_LIMIT,
   memorySummary,
+  outputLines,
   parseFrontmatter,
+  pluginUpdateSteps,
+  profileActions,
   resolveCommandName,
   skillEntry,
   summary,
@@ -44,6 +54,9 @@ const CARD_MIN_WIDTH = 24
 const CARD_TWO_COLUMNS = 56
 const CARD_THREE_COLUMNS = 90
 const DEFAULT_COLUMNS = 60
+const KIT_JOB = 'kit'
+const OUTPUT_REDRAW_MS = 250
+const RESTART_HINT = 'изменения подхватятся после перезапуска сессии'
 
 let project = null
 // Where the team settings live: a connected project, or a folder with .aikit/settings.json alone (the kit repository)
@@ -67,6 +80,10 @@ let isPaneOpen = false
 let memory = memorySummary(null)
 let isRich = false
 let wasOpenedHere = false
+let isWindows = false
+// Running and finished project actions and plugin updates by key; lastJob is the action whose output the deck shows
+const jobs = new Map()
+let lastJob = null
 
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
@@ -100,7 +117,9 @@ const asSettings = value => (value && typeof value === 'object' && !Array.isArra
 // The project root is the nearest folder with .aikit/profiles.json, from the session root up;
 // on the way the nearest .aikit/settings.json becomes the team settings
 async function findProject($) {
-  sessionRoot = String(await $.session.root()).replace(/\\/g, '/')
+  const rawRoot = String(await $.session.root())
+  isWindows = isWindowsPath(rawRoot)
+  sessionRoot = rawRoot.replace(/\\/g, '/')
   team = null
   let dir = sessionRoot
   for (let depth = 0; dir && depth < PROJECT_SEARCH_DEPTH; depth += 1) {
@@ -112,11 +131,10 @@ async function findProject($) {
       if (!team) team = { root: dir, settings: {} }
       return {
         root: dir,
-        profiles: Object.entries(contracts.profiles).map(([name, contract]) => ({
-          name,
-          label: contract?.label ?? name,
-          root: typeof contract?.root === 'string' ? contract.root : '.',
-        })),
+        profiles: Object.entries(contracts.profiles).map(([name, contract]) => {
+          const profile = { name, label: contract?.label ?? name, root: typeof contract?.root === 'string' ? contract.root : '.' }
+          return { ...profile, actions: profileActions(profile, contract?.actions) }
+        }),
         packs: Array.isArray(init?.packs) ? init.packs.filter(name => typeof name === 'string') : [],
       }
     }
@@ -146,7 +164,8 @@ async function readSkills($, dir, owner) {
     if (item.kind !== 'dir') continue
     try {
       const frontmatter = parseFrontmatter(await $.fs.read(joinPath(dir, item.name, 'SKILL.md')))
-      if (!isHidden(frontmatter)) entries.push(skillEntry(frontmatter.name || item.name, owner, frontmatter))
+      const name = frontmatter.name || item.name
+      if (!isHidden(frontmatter) && !isCodexOnly(name)) entries.push(skillEntry(name, owner, frontmatter))
     } catch {
       // A folder without SKILL.md is not a skill
     }
@@ -291,6 +310,90 @@ function memoryText(ui) {
   return memory.needsOptimize ? caption(text + ' — пора /optimize-memory', { dimColor: false, color: 'warning' }) : caption(text)
 }
 
+// Runs the steps one after another through $.process.spawn, keeping the status and the last lines of output.
+// The loop over a stream is the child's life: Stop ends it, and the engine kills the child
+async function runJob($, key, label, steps, cwd) {
+  if (jobs.get(key)?.status === 'running') {
+    $.ui.toast(`${label}: уже работает`)
+    return null
+  }
+  const job = { label, line: actionLine(steps), status: 'running', code: null, tail: { lines: [], partial: '' }, stream: null, isStopped: false }
+  jobs.set(key, job)
+  if (key !== KIT_JOB) lastJob = key
+  redraw($)
+  let drawnAt = 0
+  for (const argv of steps) {
+    const prepared = hostArgv(argv, isWindows)
+    if (prepared.error) {
+      job.status = 'error'
+      job.tail = appendOutput(job.tail, prepared.error + '\n')
+      break
+    }
+    try {
+      const stream = $.process.spawn({ argv: prepared.argv, cwd })
+      job.stream = stream
+      let step = await stream.next()
+      while (step.done !== true && !job.isStopped) {
+        job.tail = appendOutput(job.tail, step.value.text)
+        const now = await $.clock.now()
+        if (now - drawnAt >= OUTPUT_REDRAW_MS) {
+          drawnAt = now
+          redraw($)
+        }
+        step = await stream.next()
+      }
+      if (job.isStopped) break
+      job.code = step.value?.code ?? null
+    } catch (error) {
+      if (job.isStopped) break
+      job.status = 'error'
+      job.tail = appendOutput(job.tail, `${argv[0]}: ${error?.message ?? error}\n`)
+      break
+    }
+    if (job.code !== 0) break
+  }
+  job.stream = null
+  if (job.isStopped) job.status = 'stopped'
+  else if (job.status === 'running') job.status = job.code === 0 ? 'done' : 'failed'
+  redraw($)
+  return job
+}
+
+async function stopJob($, key) {
+  const job = jobs.get(key)
+  if (!job || job.status !== 'running') return
+  job.isStopped = true
+  redraw($)
+  try {
+    await job.stream?.return?.()
+  } catch {
+    // The child is gone already
+  }
+}
+
+async function runAction($, profile, action) {
+  const key = `${profile.name}:${action.id}`
+  const root = project?.root ?? sessionRoot
+  const job = await runJob($, key, action.label, action.steps, action.cwd === '.' ? root : joinPath(root, action.cwd))
+  if (!job || !action.isUpdate) return
+  $.ui.toast(job.status === 'done' ? `Профиль ${profile.name} обновлён — ${RESTART_HINT}` : `Обновление ${profile.name}: ${jobStatus(job)}`)
+}
+
+async function updateKit($) {
+  const job = await runJob($, KIT_JOB, 'Обновление кита', pluginUpdateSteps($.plugin.name), project?.root ?? sessionRoot)
+  if (job) $.ui.toast(job.status === 'done' ? `Кит обновлён — ${RESTART_HINT}` : `Обновление кита: ${jobStatus(job)}`)
+}
+
+function kitUpdateStatus(ui) {
+  const job = jobs.get(KIT_JOB)
+  const { caption } = look(ui)
+  if (!job) return []
+  if (job.status === 'running') return [caption('обновление…', { key: 'kit-status' })]
+  if (job.status === 'done') return [caption(`кит обновлён — ${RESTART_HINT}`, { key: 'kit-status', dimColor: false, color: 'success' })]
+  const last = outputLines(job.tail).pop()
+  return [caption(`обновление: ${jobStatus(job)}` + (last ? ` — ${last}` : ''), { key: 'kit-status', dimColor: false, color: 'error', wrap: 'truncate-end' })]
+}
+
 function header($, ui, surface) {
   const { Box, Button } = ui
   const { title, caption, variant } = look(ui)
@@ -319,6 +422,13 @@ function header($, ui, surface) {
           tabButton('commands', 'Команды', '1'),
           tabButton('docs', 'Справка', '2'),
           Box({ flexGrow: 1, children: [] }),
+          ...kitUpdateStatus(ui),
+          Button({
+            key: 'update-kit',
+            label: jobs.get(KIT_JOB)?.status === 'running' ? 'Обновление…' : 'Обновить кит',
+            dimColor: true,
+            onPress: () => void updateKit($),
+          }),
           ...(team ? [commitToggle($, ui, surface)] : []),
           Button({
             key: 'mode',
@@ -490,6 +600,70 @@ function commandCard($, ui, entry, width) {
   ])
 }
 
+function actionCard($, ui, profile, action, width) {
+  const { Box, Button, Text } = ui
+  const { label, caption } = look(ui)
+  const key = `${profile.name}:${action.id}`
+  const job = jobs.get(key)
+  const isActive = job?.status === 'running'
+  const mark = !job ? null : isActive ? ['●', 'warning'] : job.status === 'done' ? ['✓', 'success'] : ['✗', 'error']
+  return card(ui, { key: 'action-card-' + key, width, rowGap: 0 }, [
+    Box({
+      flexDirection: 'row',
+      columnGap: 1,
+      children: [
+        Button({ key: 'action-' + key, plain: true, onPress: () => void runAction($, profile, action), children: [label(action.label)] }),
+        Box({ flexGrow: 1, children: [] }),
+        ...(isActive ? [Button({ key: 'stop-' + key, label: 'Стоп', role: 'dismiss', dimColor: true, onPress: () => void stopJob($, key) })] : []),
+      ],
+    }),
+    caption(actionLine(action.steps), { wrap: 'truncate-end' }),
+    ...(mark ? [Text({ key: 'action-status-' + key, color: mark[1], wrap: 'truncate-end', children: [`${mark[0]} ${jobStatus(job)}`] })] : []),
+  ])
+}
+
+// Buttons of the connected profiles: their own actions and the update of their plugin, then the last run's output
+function actionsSection($, ui, width) {
+  const { Box, Text } = ui
+  const { heading, caption } = look(ui)
+  const job = lastJob ? jobs.get(lastJob) : null
+  const lines = job ? outputLines(job.tail) : []
+  return Box({
+    key: 'actions',
+    flexDirection: 'column',
+    rowGap: 1,
+    children: [
+      Box({
+        flexDirection: 'row',
+        columnGap: 2,
+        alignItems: 'flex-end',
+        children: [heading('Действия проекта'), caption('без модели: команда запускается на этой машине')],
+      }),
+      ...project.profiles.map(profile =>
+        Box({
+          key: 'actions-' + profile.name,
+          flexDirection: 'column',
+          rowGap: 0,
+          children: [
+            caption(`Профиль ${profile.name}` + (profile.root === '.' ? '' : ` · ${profile.root}/`)),
+            Box({ flexDirection: 'row', flexWrap: 'wrap', columnGap: CARD_GAP, rowGap: 1, children: profile.actions.map(action => actionCard($, ui, profile, action, width)) }),
+          ],
+        }),
+      ),
+      ...(job
+        ? [
+            card(ui, { key: 'action-output', rowGap: 0 }, [
+              caption(`${job.label} · ${job.line} · ${jobStatus(job)}`, { wrap: 'truncate-end' }),
+              ...(lines.length > 0
+                ? lines.map((line, index) => Text({ key: 'output-' + index, wrap: 'truncate-end', children: [line] }))
+                : [caption('вывода пока нет')]),
+            ]),
+          ]
+        : []),
+    ],
+  })
+}
+
 function commandsTab($, ui, columns, surface) {
   const { Box, Button } = ui
   const { heading, caption } = look(ui)
@@ -500,6 +674,7 @@ function commandsTab($, ui, columns, surface) {
     children: [
       ...(project ? [] : [notConnected($, ui)]),
       ...(selected ? [argumentPanel($, ui, surface)] : []),
+      ...(project ? [actionsSection($, ui, width)] : []),
       ...groups.map(group =>
         Box({
           key: 'group-' + group.id,

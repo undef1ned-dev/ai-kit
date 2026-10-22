@@ -1,14 +1,36 @@
 import { expect, mock, test } from 'claude-code/testing'
 
-import { agentRows, isAtLeast, memorySummary, parseArgumentHint, parseFrontmatter, resolveCommandName, shortModel, summary, trackTiming } from '../catalog.js'
+import {
+  actionLine,
+  agentRows,
+  appendOutput,
+  hostArgv,
+  isAtLeast,
+  isWindowsPath,
+  memorySummary,
+  outputLines,
+  parseArgumentHint,
+  parseFrontmatter,
+  profileActions,
+  resolveCommandName,
+  shortModel,
+  summary,
+  trackTiming,
+} from '../catalog.js'
 
 const PROJECT = '/work/shop'
 const PROFILES = JSON.stringify({ profiles: { 'vue-nuxt': { label: 'Vue Nuxt', root: 'web' } } })
+const JAVA_ACTIONS = {
+  compileJava: { label: 'Компиляция', argv: ['./gradlew', 'compileJava'], description: 'Компиляция мода' },
+  runClient: { label: 'Клиент', argv: ['./gradlew', 'runClient'] },
+}
+const JAVA_PROFILES = JSON.stringify({ profiles: { 'forge-1-12-java': { label: 'Forge', root: '.', actions: JAVA_ACTIONS } } })
 const SKILLS: Record<string, string> = {
   'base/skills/implement-feature': 'argument-hint: "[--tdd] [--worktree] <задача>"\nexample_prompt: "/implement-feature страница заказов"',
   'base/skills/memory-status': 'example_prompt: "/memory-status"',
   'base/skills/git-commit': 'user-invocable: false',
   'base/plugin-skills/setup': 'argument-hint: "[профили или пресет]"',
+  'base/plugin-skills/update-agents': 'example_prompt: "$aikit:update-agents"',
   'profiles/vue-nuxt/skills/new-page': 'argument-hint: "<маршрут>"',
   // The project's own skills: the kit repository's improve-aikit and run-evals, a leftover copy of a kit skill
   '.claude/skills/improve-aikit': 'argument-hint: "<что изменить в ките>"',
@@ -59,6 +81,7 @@ type Kit = {
   isPlaced?: boolean
   opened?: boolean[]
   stored?: Record<string, unknown>
+  profiles?: string
 }
 
 function stubKit(on, kit: Kit) {
@@ -85,7 +108,7 @@ function stubKit(on, kit: Kit) {
     return { value: dirs.map(dir => ({ name: dir.split('/').pop(), kind: 'dir', size: 0, isLink: false })) }
   })
   on('fs.read', ($, e) => {
-    if (slash(e.path).endsWith('.aikit/profiles.json')) return kit.isConnected === false ? { deny: 'missing' } : { value: PROFILES }
+    if (slash(e.path).endsWith('.aikit/profiles.json')) return kit.isConnected === false ? { deny: 'missing' } : { value: kit.profiles ?? PROFILES }
     if (slash(e.path).endsWith('.aikit/plugin-init.json')) return { deny: 'missing' }
     if (slash(e.path).endsWith('.aikit/settings.json')) return kit.settings === undefined ? { deny: 'missing' } : { value: kit.settings }
     if (slash(e.path).endsWith('.aikit/memory/INDEX.md')) {
@@ -150,7 +173,7 @@ test('running subagents come first and finished ones keep their time', () => {
   ])
 })
 
-test('the pane shows base and profile commands, hides convention skills', async ($, on) => {
+test('the pane shows base and profile commands, hides convention and Codex-only skills', async ($, on) => {
   stubKit(on, {})
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
@@ -158,6 +181,7 @@ test('the pane shows base and profile commands, hides convention skills', async 
   expect(await ui.find({ key: 'cmd-aikit-setup' })).toBeDefined()
   expect(await ui.find({ key: 'cmd-vue-nuxt-new-page' })).toBeDefined()
   expect(await ui.find({ key: 'cmd-aikit-git-commit' })).toBeUndefined()
+  expect(await ui.find({ key: 'cmd-aikit-update-agents' })).toBeUndefined()
   expect(await ui.find({ type: 'Text', text: 'Профиль vue-nuxt · web/' })).toBeDefined()
 })
 
@@ -390,4 +414,137 @@ test('a subagent row shows the model its requests went to', async ($, on) => {
   while (step.done !== true) step = await stream.next()
   expect(step.value.answer).toBe('ok')
   expect(await ui.find({ type: 'Text', text: 'haiku-4-5' })).toBeDefined()
+})
+
+type Spawned = { argv: readonly string[]; cwd?: string }
+
+// A stand-in for the host: each spawn prints its argv and exits with the code the test gives
+function stubSpawn(on, spawned: Spawned[], code = 0) {
+  on('process.spawn', async function* ($, e) {
+    spawned.push({ argv: e.argv, cwd: e.cwd })
+    yield { stream: 'stdout', text: `> ${e.argv.join(' ')}\nBUILD ` }
+    yield { stream: 'stdout', text: 'SUCCESSFUL\n' }
+    return { value: { code, signal: null } }
+  })
+}
+
+const WAIT_ATTEMPTS = 50
+const WAIT_STEP_MS = 10
+
+// Actions run in the background of a press: wait until the pane shows what the test expects
+async function waitFor(ui, query) {
+  for (let attempt = 0; attempt < WAIT_ATTEMPTS; attempt += 1) {
+    const found = await ui.find(query)
+    if (found) return found
+    await new Promise(resolve => setTimeout(resolve, WAIT_STEP_MS))
+  }
+  return undefined
+}
+
+test('profile actions come from the contract, the plugin update is added to every profile', () => {
+  const actions = profileActions({ name: 'forge-1-12-java', root: 'mod' }, { ...JAVA_ACTIONS, broken: { label: 'Нет argv' }, empty: { argv: [] } })
+  expect(actions.map(action => action.id)).toEqual(['compileJava', 'runClient', 'update-plugin'])
+  expect(actions[0]).toEqual({ id: 'compileJava', label: 'Компиляция', description: 'Компиляция мода', steps: [['./gradlew', 'compileJava']], cwd: 'mod' })
+  expect(actions[2].steps).toEqual([
+    ['claude', 'plugin', 'marketplace', 'update', 'aikit'],
+    ['claude', 'plugin', 'update', 'forge-1-12-java@aikit'],
+  ])
+  expect(profileActions({ name: 'vue-nuxt', root: 'web' }, undefined).map(action => action.id)).toEqual(['update-plugin'])
+  expect(actionLine(actions[2].steps)).toBe('claude plugin marketplace update aikit && claude plugin update forge-1-12-java@aikit')
+})
+
+test('on Windows an action runs through cmd.exe, ./gradlew as gradlew.bat', () => {
+  expect(hostArgv(['./gradlew', 'compileJava'], false)).toEqual({ argv: ['./gradlew', 'compileJava'] })
+  expect(hostArgv(['./gradlew', 'compileJava'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'gradlew.bat', 'compileJava'] })
+  expect(hostArgv(['gradlew', 'test'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'gradlew.bat', 'test'] })
+  expect(hostArgv(['claude', 'plugin', 'update', 'aikit@aikit'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'claude', 'plugin', 'update', 'aikit@aikit'] })
+  expect(hostArgv(['./gradlew', 'test & del x'], true).error).toBeDefined()
+  expect(isWindowsPath('E:\\Minecraft\\mod')).toBe(true)
+  expect(isWindowsPath('C:/work')).toBe(true)
+  expect(isWindowsPath('/work/shop')).toBe(false)
+})
+
+test('the output keeps the last lines, a line split between pieces is joined', () => {
+  let tail = appendOutput({ lines: [], partial: '' }, 'a\nb', 3)
+  tail = appendOutput(tail, 'c\r\n\u001b[32md\u001b[0m\n\ne\nf', 3)
+  expect(tail).toEqual({ lines: ['bc', 'd', 'e'], partial: 'f' })
+  expect(outputLines(tail, 3)).toEqual(['d', 'e', 'f'])
+})
+
+test('a project action runs by argv without the model and shows its status and output', async ($, on) => {
+  const spawned: Spawned[] = []
+  stubKit(on, { profiles: JAVA_PROFILES })
+  stubSpawn(on, spawned)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'Действия проекта' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: './gradlew compileJava' })).toBeDefined()
+  await ui.press({ key: 'action-forge-1-12-java:compileJava' })
+  expect(await waitFor(ui, { type: 'Text', text: '✓ завершено, код 0' })).toBeDefined()
+  expect(spawned).toEqual([{ argv: ['./gradlew', 'compileJava'], cwd: PROJECT }])
+  expect(await ui.find({ type: 'Text', text: 'BUILD SUCCESSFUL' })).toBeDefined()
+})
+
+test('a failing action shows its exit code', async ($, on) => {
+  stubKit(on, { profiles: JAVA_PROFILES })
+  stubSpawn(on, [], 1)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'action-forge-1-12-java:compileJava' })
+  expect(await waitFor(ui, { type: 'Text', text: '✗ завершено, код 1' })).toBeDefined()
+})
+
+test('a running action is not started twice and Stop ends it', async ($, on) => {
+  const spawned: Spawned[] = []
+  let release = () => {}
+  const held = new Promise<void>(resolve => (release = resolve))
+  stubKit(on, { profiles: JAVA_PROFILES })
+  on('process.spawn', async function* ($, e) {
+    spawned.push({ argv: e.argv, cwd: e.cwd })
+    yield { stream: 'stdout', text: 'Minecraft started\n' }
+    await held
+    return { value: { code: 0, signal: null } }
+  })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'action-forge-1-12-java:runClient' })
+  expect(await waitFor(ui, { key: 'stop-forge-1-12-java:runClient' })).toBeDefined()
+  await ui.press({ key: 'action-forge-1-12-java:runClient' })
+  expect(spawned.length).toBe(1)
+  await ui.press({ key: 'stop-forge-1-12-java:runClient' })
+  release()
+  expect(await waitFor(ui, { type: 'Text', text: '✗ остановлено' })).toBeDefined()
+  expect(await ui.find({ key: 'stop-forge-1-12-java:runClient' })).toBeUndefined()
+})
+
+test('a profile without its own actions has the plugin update alone', async ($, on) => {
+  const spawned: Spawned[] = []
+  stubKit(on, {})
+  stubSpawn(on, spawned)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ key: 'action-vue-nuxt:update-plugin' })).toBeDefined()
+  expect(await ui.find({ key: 'action-vue-nuxt:compileJava' })).toBeUndefined()
+  await ui.press({ key: 'action-vue-nuxt:update-plugin' })
+  expect(await waitFor(ui, { type: 'Text', text: '✓ завершено, код 0' })).toBeDefined()
+  expect(spawned.map(item => item.argv.join(' '))).toEqual(['claude plugin marketplace update aikit', 'claude plugin update vue-nuxt@aikit'])
+})
+
+test('the header button updates the marketplace and the core plugin, then asks for a restart', async ($, on) => {
+  const spawned: Spawned[] = []
+  stubKit(on, { isConnected: false, settings: JSON.stringify({ commit: 'auto' }) })
+  stubSpawn(on, spawned)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'update-kit' })
+  expect(await waitFor(ui, { type: 'Text', text: /перезапуска сессии/ })).toBeDefined()
+  expect(spawned.map(item => item.argv.join(' '))).toEqual(['claude plugin marketplace update aikit', 'claude plugin update aikit@aikit'])
+})
+
+test('a project without AIKit has no project actions', async ($, on) => {
+  stubKit(on, { isConnected: false })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'Действия проекта' })).toBeUndefined()
+  expect(await ui.find({ key: 'update-kit' })).toBeDefined()
 })
