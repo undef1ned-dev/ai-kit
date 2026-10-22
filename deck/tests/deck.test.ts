@@ -9,15 +9,18 @@ import {
   isAtLeast,
   isWindowsPath,
   memorySummary,
+  newestVersion,
   outputLines,
   parseArgumentHint,
   parseFrontmatter,
   pluginsDir,
+  pluginUpdateSteps,
   profileActions,
   resolveCommandName,
   shortModel,
   summary,
   trackTiming,
+  updateRecords,
   updateToast,
 } from '../catalog.js'
 
@@ -62,6 +65,15 @@ const FOOTER = {
   viewport: { columns: 120, rows: 40 },
   props: { modes: ['focus'] },
 } as const
+const BAND = {
+  plugin: 'aikit',
+  component: 'AbovePrompt',
+  requestId: 'above-prompt',
+  viewport: { columns: 120, rows: 40 },
+  props: { hasSurvey: false, isWorking: false, maxRows: 10, bodyColumns: 118, scroll: { offset: 0, bodyRows: 10 }, view: {} },
+} as const
+// What the engine answers an open the deck makes itself in a terminal narrower than its threshold
+const UNASKED_REASON = 'unasked below 144 columns (120 now): placed when the person opens it, or when the terminal is widened to 144 columns'
 
 // The engine hands paths in the platform's spelling
 const slash = (path: string) => path.replace(/\\/g, '/')
@@ -87,20 +99,35 @@ type Kit = {
   profiles?: string
   toasts?: string[]
   kitVersion?: string
+  root?: string
+  logs?: { text: string; to?: string }[]
+  // What the band holds beneath the deck: the engine's own node by default, another mod's tree when given
+  bandKey?: string
 }
+
+// The node core hands next(e) for a site it draws itself
+const ENGINE_TREE = { type: 'engine', ref: 0 }
 
 function stubKit(on, kit: Kit) {
   mock.clock(on, { now: 60_000 })
   mock.store(on, kit.stored ?? {})
-  on('session.start', () => ({ cwd: PROJECT }))
-  on('session.root', () => ({ value: PROJECT }))
+  on('session.start', () => ({ cwd: kit.root ?? PROJECT }))
+  on('session.root', () => ({ value: kit.root ?? PROJECT }))
   on('command.register', () => ({ value: undefined }))
   on('command.list', () => ({ value: COMMANDS }))
   on('session.version', () => ({ value: { version: kit.engine ?? '2.1.296', base: kit.engine ?? '2.1.296' } }))
   on('agent.list', () => ({ value: kit.agents ?? [] }))
   on('ui.open', ($, e) => {
     kit.opened?.push(Boolean(e.focus))
-    return { value: { isPlaced: kit.isPlaced ?? true } }
+    // The person's open (focus) is placed at any width
+    return { value: kit.isPlaced === false && !e.focus ? { isPlaced: false, reason: UNASKED_REASON } : { isPlaced: true } }
+  })
+  on('ui.render', { component: 'AbovePrompt' }, ($, e) =>
+    kit.bandKey ? $.ui.resolve(e).Box({ key: kit.bandKey, children: [] }) : ENGINE_TREE,
+  )
+  on('ui.log', ($, e) => {
+    kit.logs?.push({ text: e.text, to: e.to })
+    return { value: undefined }
   })
   on('ui.toast', ($, e) => {
     kit.toasts?.push(e.text)
@@ -389,6 +416,47 @@ test('a folder where the deck was opened before gets it at session start', async
   expect(kit.opened).toEqual([false])
 })
 
+test('a deck left unplaced at session start logs why and offers a button in the band above the prompt; the press opens it', async ($, on) => {
+  const kit: Kit = { isPlaced: false, opened: [], logs: [] }
+  stubKit(on, kit)
+  await start($)
+  expect(kit.logs).toEqual([{ text: `AIKit Deck: панель ждёт размещения — ${UNASKED_REASON}`, to: 'debug' }])
+  const band = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await band.find({ type: 'Text', text: 'AIKit Deck' })).toBeDefined()
+  await band.press({ key: 'band-open-deck' })
+  expect(kit.opened).toEqual([false, true])
+  expect(await band.find({ key: 'band-open-deck' })).toBeUndefined()
+})
+
+test('the band stays empty while the deck is open', async ($, on) => {
+  stubKit(on, {})
+  await start($)
+  const band = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  expect(await band.find({ key: 'band-open-deck' })).toBeUndefined()
+})
+
+test('a survey in the band keeps it', async ($, on) => {
+  stubKit(on, { isPlaced: false })
+  await start($)
+  const band = await $.ui.mount({ ...BAND, props: { ...BAND.props, hasSurvey: true }, surface: 'terminal' })
+  expect(await band.find({ key: 'band-open-deck' })).toBeUndefined()
+})
+
+test('another mod holding the band keeps it', async ($, on) => {
+  stubKit(on, { isPlaced: false, bandKey: 'other-band' })
+  await start($)
+  const band = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await band.find({ key: 'other-band' })).toBeDefined()
+  expect(await band.find({ key: 'band-open-deck' })).toBeUndefined()
+})
+
+test('a project without AIKit that never used the deck has no band button', async ($, on) => {
+  stubKit(on, { isConnected: false, isPlaced: false })
+  await start($)
+  const band = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect(await band.find({ key: 'band-open-deck' })).toBeUndefined()
+})
+
 test('a project without AIKit that never used the deck does not get it at session start', async ($, on) => {
   const kit: Kit = { isConnected: false, opened: [] }
   stubKit(on, kit)
@@ -462,11 +530,16 @@ test('profile actions come from the contract, the plugin update is added to ever
   expect(actionLine(actions[2].steps)).toBe('claude plugin marketplace update aikit && claude plugin update forge-1-12-java@aikit')
 })
 
-test('on Windows an action runs through cmd.exe, ./gradlew as gradlew.bat', () => {
+test('on Windows an action runs through cmd.exe: a program of the profile folder by an explicit .\\ path, others by PATH', () => {
   expect(hostArgv(['./gradlew', 'compileJava'], false)).toEqual({ argv: ['./gradlew', 'compileJava'] })
-  expect(hostArgv(['./gradlew', 'compileJava'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'gradlew.bat', 'compileJava'] })
-  expect(hostArgv(['gradlew', 'test'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'gradlew.bat', 'test'] })
+  // With NoDefaultCurrentDirectoryInExePath cmd.exe finds a bare gradlew.bat nowhere, .\gradlew.bat runs
+  expect(hostArgv(['./gradlew', 'compileJava'], true)).toEqual({ argv: ['cmd', '/d', '/c', '.\\gradlew.bat', 'compileJava'] })
+  expect(hostArgv(['.\\gradlew', 'build'], true)).toEqual({ argv: ['cmd', '/d', '/c', '.\\gradlew.bat', 'build'] })
+  expect(hostArgv(['gradlew', 'test'], true)).toEqual({ argv: ['cmd', '/d', '/c', '.\\gradlew.bat', 'test'] })
+  expect(hostArgv(['gradlew.bat', 'test'], true)).toEqual({ argv: ['cmd', '/d', '/c', '.\\gradlew.bat', 'test'] })
+  expect(hostArgv(['./scripts/run.cmd', 'dev'], true)).toEqual({ argv: ['cmd', '/d', '/c', '.\\scripts\\run.cmd', 'dev'] })
   expect(hostArgv(['claude', 'plugin', 'update', 'aikit@aikit'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'claude', 'plugin', 'update', 'aikit@aikit'] })
+  expect(hostArgv(['git', 'status'], true)).toEqual({ argv: ['cmd', '/d', '/c', 'git', 'status'] })
   expect(hostArgv(['./gradlew', 'test & del x'], true).error).toBeDefined()
   expect(isWindowsPath('E:\\Minecraft\\mod')).toBe(true)
   expect(isWindowsPath('C:/work')).toBe(true)
@@ -492,6 +565,17 @@ test('a project action runs by argv without the model and shows its status and o
   expect(await waitFor(ui, { type: 'Text', text: '✓ завершено, код 0' })).toBeDefined()
   expect(spawned).toEqual([{ argv: ['./gradlew', 'compileJava'], cwd: PROJECT }])
   expect(await ui.find({ type: 'Text', text: 'BUILD SUCCESSFUL' })).toBeDefined()
+})
+
+test('on Windows a Gradle action starts as .\\gradlew.bat through cmd.exe in the profile folder', async ($, on) => {
+  const spawned: Spawned[] = []
+  stubKit(on, { profiles: JAVA_PROFILES, root: 'E:\\Minecraft\\mod' })
+  stubSpawn(on, spawned)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'action-forge-1-12-java:compileJava' })
+  expect(await waitFor(ui, { type: 'Text', text: '✓ завершено, код 0' })).toBeDefined()
+  expect(spawned).toEqual([{ argv: ['cmd', '/d', '/c', '.\\gradlew.bat', 'compileJava'], cwd: 'E:/Minecraft/mod' }])
 })
 
 test('a failing action shows its exit code', async ($, on) => {
@@ -595,6 +679,23 @@ test('a failed kit update is a toast with the code and the last line of output',
   expect(await ui.find({ type: 'Text', text: /завершено, код 1/ })).toBeUndefined()
 })
 
+test('a kit update whose plugin step fails after the marketplace one is not reported as updated', async ($, on) => {
+  const spawned: Spawned[] = []
+  const kit: Kit = { toasts: [], kitVersion: '0.7.0' }
+  stubKit(on, kit)
+  on('process.spawn', async function* ($, e) {
+    spawned.push({ argv: e.argv, cwd: e.cwd })
+    const isMarketplace = e.argv.includes('marketplace')
+    yield { stream: 'stderr', text: isMarketplace ? 'Marketplace updated\n' : 'error: plugin not found\n' }
+    return { value: { code: isMarketplace ? 0 : 1, signal: null } }
+  })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'update-kit' })
+  expect(await waitForToast(kit.toasts ?? [])).toEqual(['Кит не обновлён: завершено, код 1 — error: plugin not found'])
+  expect(spawned.length).toBe(2)
+})
+
 test('the header shows the version of the kit the session runs; without a manifest just its name', async ($, on) => {
   stubKit(on, { kitVersion: '0.7.0' })
   await start($)
@@ -651,6 +752,67 @@ test('the update toast tells the versions, an update with nothing new and an err
   expect(updateToast('Кит', done, '0.7.0', '0.7.0')).toBe('Кит: уже последняя версия 0.7.0')
   expect(updateToast('Кит', done, null, '0.7.0')).toBe('Кит обновлён до 0.7.0 — изменения подхватятся после перезапуска сессии')
   expect(updateToast('Кит', failed, '0.6.0', null)).toBe('Кит не обновлён: завершено, код 1 — error: plugin not found')
+})
+
+// As in a live installed_plugins.json: the kit in the user scope and in the project scope of this project,
+// the profile in this project and in another one, a managed record of the administrator
+const LIVE_PROJECT = 'E:\\Minecraft\\eoc-mappet-utils'
+const LIVE_INSTALLED = {
+  version: 2,
+  plugins: {
+    'aikit@aikit': [
+      { scope: 'project', projectPath: LIVE_PROJECT, version: '0.8.0' },
+      { scope: 'managed', version: '0.5.0' },
+      { scope: 'user', installPath: 'C:\\Users\\dev\\.claude\\plugins\\cache\\aikit\\aikit\\0.7.0', version: '0.7.0' },
+      { scope: 'local', projectPath: 'E:\\Minecraft\\other', version: '0.6.0' },
+    ],
+    'forge-1-12-java@aikit': [
+      { scope: 'project', projectPath: 'E:\\Minecraft\\other', version: '0.6.0' },
+      { scope: 'project', projectPath: LIVE_PROJECT, version: '0.8.0' },
+    ],
+  },
+}
+
+test('an update refreshes the user record and this project records; managed and other projects stay', () => {
+  const paths = ['E:/Minecraft/eoc-mappet-utils', 'E:/Minecraft/eoc-mappet-utils']
+  expect(updateRecords(LIVE_INSTALLED, 'aikit', paths).map(record => [record.scope, record.version])).toEqual([
+    ['user', '0.7.0'],
+    ['project', '0.8.0'],
+  ])
+  expect(updateRecords(LIVE_INSTALLED, 'forge-1-12-java', paths).map(record => record.scope)).toEqual(['project'])
+  expect(updateRecords(LIVE_INSTALLED, 'forge-1-12-java', ['e:/minecraft/EOC-MAPPET-UTILS/']).map(record => record.version)).toEqual(['0.8.0'])
+  expect(updateRecords(LIVE_INSTALLED, 'aikit', ['E:/Minecraft/third']).map(record => record.scope)).toEqual(['user'])
+  expect(updateRecords(LIVE_INSTALLED, 'vue-nuxt', paths)).toEqual([])
+  expect(updateRecords(null, 'aikit', paths)).toEqual([])
+  expect(newestVersion(updateRecords(LIVE_INSTALLED, 'aikit', paths))).toBe('0.8.0')
+  expect(newestVersion([{ version: '0.10.0' }, { version: '0.9.1' }])).toBe('0.10.0')
+  expect(newestVersion([])).toBe(null)
+})
+
+test('the update steps run the marketplace, then the plugin in every scope; no records — one step without --scope', () => {
+  expect(pluginUpdateSteps('aikit', ['user', 'project'])).toEqual([
+    ['claude', 'plugin', 'marketplace', 'update', 'aikit'],
+    ['claude', 'plugin', 'update', 'aikit@aikit', '--scope', 'user'],
+    ['claude', 'plugin', 'update', 'aikit@aikit', '--scope', 'project'],
+  ])
+  expect(pluginUpdateSteps('forge-1-12-java', ['project', 'project'])).toEqual([
+    ['claude', 'plugin', 'marketplace', 'update', 'aikit'],
+    ['claude', 'plugin', 'update', 'forge-1-12-java@aikit', '--scope', 'project'],
+  ])
+  expect(pluginUpdateSteps('aikit')).toEqual([
+    ['claude', 'plugin', 'marketplace', 'update', 'aikit'],
+    ['claude', 'plugin', 'update', 'aikit@aikit'],
+  ])
+})
+
+test('a scope that failed after others is named in the toast, and the update is not reported as done', () => {
+  const partial = {
+    status: 'failed',
+    code: 1,
+    failedStep: ['claude', 'plugin', 'update', 'aikit@aikit', '--scope', 'project'],
+    tail: { lines: ['✔ Plugin "aikit@aikit" updated', 'error: permission denied'], partial: '' },
+  }
+  expect(updateToast('Кит', partial, '0.7.0', null)).toBe('Кит не обновлён (scope project): завершено, код 1 — error: permission denied')
 })
 
 test('a project without AIKit has no project actions', async ($, on) => {

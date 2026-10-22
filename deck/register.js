@@ -22,6 +22,7 @@ import {
   jobStatus,
   MEMORY_INDEX_LIMIT,
   memorySummary,
+  newestVersion,
   outputLines,
   parseFrontmatter,
   pluginsDir,
@@ -31,6 +32,7 @@ import {
   skillEntry,
   summary,
   trackTiming,
+  updateRecords,
   updateToast,
 } from './catalog.js'
 
@@ -82,6 +84,8 @@ let flags = new Set()
 let fieldError = ''
 let docsFilter = ''
 let isPaneOpen = false
+// Why the engine left the pane unplaced at its own open (session start): too narrow a terminal, no surface yet
+let paneWait = null
 let memory = memorySummary(null)
 let isRich = false
 let wasOpenedHere = false
@@ -348,7 +352,7 @@ async function runJob($, key, label, steps, cwd, isUpdate = false) {
     $.ui.toast(`${label}: уже работает`)
     return null
   }
-  const job = { label, line: actionLine(steps), status: 'running', code: null, tail: { lines: [], partial: '' }, stream: null, isStopped: false }
+  const job = { label, line: actionLine(steps), status: 'running', code: null, tail: { lines: [], partial: '' }, stream: null, isStopped: false, failedStep: null }
   jobs.set(key, job)
   if (!isUpdate) lastJob = key
   redraw($)
@@ -357,6 +361,7 @@ async function runJob($, key, label, steps, cwd, isUpdate = false) {
     const prepared = hostArgv(argv, isWindows)
     if (prepared.error) {
       job.status = 'error'
+      job.failedStep = argv
       job.tail = appendOutput(job.tail, prepared.error + '\n')
       break
     }
@@ -378,10 +383,14 @@ async function runJob($, key, label, steps, cwd, isUpdate = false) {
     } catch (error) {
       if (job.isStopped) break
       job.status = 'error'
+      job.failedStep = argv
       job.tail = appendOutput(job.tail, `${argv[0]}: ${error?.message ?? error}\n`)
       break
     }
-    if (job.code !== 0) break
+    if (job.code !== 0) {
+      job.failedStep = argv
+      break
+    }
   }
   job.stream = null
   if (job.isStopped) job.status = 'stopped'
@@ -402,22 +411,33 @@ async function stopJob($, key) {
   }
 }
 
-// The update's result goes to a toast: the version before is the one this session runs,
-// the version after is what the install record says once `claude plugin update` is done
+// An update refreshes every install record of the plugin for this project (user, project, local), read at the press
+async function updateSteps($, plugin) {
+  const scopes = updateRecords(await installedPlugins($), plugin, projectPaths()).map(record => record.scope)
+  return pluginUpdateSteps(plugin, scopes)
+}
+
+// The update's result goes to a toast: the version before is the one this session runs, the version after is
+// the newest of the updated install records once every `claude plugin update` is done
 async function reportUpdate($, title, job, plugin, before) {
-  const after = job.status === 'done' ? installedVersion(await installedPlugins($), plugin, projectPaths()) : null
+  let after = null
+  if (job.status === 'done') {
+    const installed = await installedPlugins($)
+    after = newestVersion(updateRecords(installed, plugin, projectPaths())) ?? installedVersion(installed, plugin, projectPaths())
+  }
   $.ui.toast(updateToast(title, job, before, after), { timeoutMs: UPDATE_TOAST_MS })
 }
 
 async function runAction($, profile, action) {
   const key = `${profile.name}:${action.id}`
   const root = project?.root ?? sessionRoot
-  const job = await runJob($, key, action.label, action.steps, action.cwd === '.' ? root : joinPath(root, action.cwd), action.isUpdate)
+  const steps = action.isUpdate ? await updateSteps($, profile.name) : action.steps
+  const job = await runJob($, key, action.label, steps, action.cwd === '.' ? root : joinPath(root, action.cwd), action.isUpdate)
   if (job && action.isUpdate) await reportUpdate($, `Профиль ${profile.name}`, job, profile.name, pluginVersions.get(profile.name) ?? null)
 }
 
 async function updateKit($) {
-  const job = await runJob($, KIT_JOB, 'Обновление кита', pluginUpdateSteps($.plugin.name), project?.root ?? sessionRoot, true)
+  const job = await runJob($, KIT_JOB, 'Обновление кита', await updateSteps($, $.plugin.name), project?.root ?? sessionRoot, true)
   if (job) await reportUpdate($, 'Кит', job, $.plugin.name, kitVersion)
 }
 
@@ -801,10 +821,25 @@ function docsTab($, ui) {
   })
 }
 
+// An open the deck makes itself waits unplaced in a narrow terminal (the engine's rule); an open by the person
+// (the command, a button) is placed at any width. The reason of a wait goes to the debug log, nothing is thrown
 async function openPane($, focus) {
   const pane = { id: PANE, title: 'AIKit Deck', closeOnEscape: true }
-  const opened = await $.ui.open(focus ? { ...pane, focus: true } : pane)
+  let opened = null
+  try {
+    opened = await $.ui.open(focus ? { ...pane, focus: true } : pane)
+  } catch (error) {
+    opened = { isPlaced: false, reason: String(error?.message ?? error) }
+  }
   isPaneOpen = Boolean(opened?.isPlaced) || focus
+  paneWait = opened?.isPlaced === false ? opened.reason ?? 'unplaced' : null
+  if (paneWait && !focus) {
+    try {
+      await $.ui.log(`AIKit Deck: панель ждёт размещения — ${paneWait}`, { to: 'debug' })
+    } catch {
+      // The debug log is optional
+    }
+  }
   redraw($)
   if (focus && !wasOpenedHere) {
     wasOpenedHere = true
@@ -824,6 +859,23 @@ function footerWithButton($, ui, modes) {
     ],
   })
 }
+
+// The band above the prompt is drawn from the session's start, before the first message, unlike the footer:
+// while the deck is not placed, one line with a button that opens it — the person's press places it at any width
+function bandWithButton($, ui) {
+  return ui.Box({
+    flexDirection: 'row',
+    columnGap: 2,
+    alignItems: 'center',
+    children: [
+      look(ui).label('AIKit Deck'),
+      ui.Button({ key: 'band-open-deck', label: 'Открыть', onPress: () => openPane($, true) }),
+    ],
+  })
+}
+
+// Whatever the engine draws by itself: no plugin below has a tree for the site
+const isEngineTree = tree => tree === undefined || tree === null || tree?.type === 'engine'
 
 export function register(on) {
   on('session.start', async ($, e, next) => {
@@ -920,6 +972,13 @@ export function register(on) {
   on('ui.render', { component: 'SessionMode' }, ($, e, next) => {
     if (isPaneOpen || !(project || wasOpenedHere)) return next(e)
     return footerWithButton($, $.ui.resolve(e), e.props.modes)
+  }).catch(passThrough)
+
+  // The band holds one tree at a time: a survey or another mod's tree there stays, the deck draws only into an empty band
+  on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
+    if (isPaneOpen || e.props?.hasSurvey || !(project || team || wasOpenedHere)) return next(e)
+    const drawn = await next(e)
+    return isEngineTree(drawn) ? bandWithButton($, $.ui.resolve(e)) : drawn
   }).catch(passThrough)
 
   on('ui.render', { component: 'Pane' }, async ($, e, next) => {
