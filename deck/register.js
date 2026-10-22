@@ -13,6 +13,7 @@ import {
   clockTime,
   commandLine,
   hostArgv,
+  installedVersion,
   isAtLeast,
   isCodexOnly,
   isHidden,
@@ -23,12 +24,14 @@ import {
   memorySummary,
   outputLines,
   parseFrontmatter,
+  pluginsDir,
   pluginUpdateSteps,
   profileActions,
   resolveCommandName,
   skillEntry,
   summary,
   trackTiming,
+  updateToast,
 } from './catalog.js'
 
 const PANE = 'aikit-deck'
@@ -56,7 +59,9 @@ const CARD_THREE_COLUMNS = 90
 const DEFAULT_COLUMNS = 60
 const KIT_JOB = 'kit'
 const OUTPUT_REDRAW_MS = 250
-const RESTART_HINT = 'изменения подхватятся после перезапуска сессии'
+const UPDATE_TOAST_MS = 8000
+const PLUGIN_MANIFEST = '.claude-plugin/plugin.json'
+const INSTALLED_PLUGINS = 'installed_plugins.json'
 
 let project = null
 // Where the team settings live: a connected project, or a folder with .aikit/settings.json alone (the kit repository)
@@ -84,6 +89,10 @@ let isWindows = false
 // Running and finished project actions and plugin updates by key; lastJob is the action whose output the deck shows
 const jobs = new Map()
 let lastJob = null
+// Versions the session runs, read at its start: the core plugin's manifest and the install records of the
+// profile and pack plugins. After an update they stay until the session restarts, as the plugins themselves do
+let kitVersion = null
+const pluginVersions = new Map()
 
 const redraw = $ => $.ui.invalidate('ui.render')
 // A failing deck hook never holds up the event it watches
@@ -202,6 +211,27 @@ async function loadCatalog($) {
   wasOpenedHere = Boolean(await $.store.get(openedKey()))
 }
 
+const projectPaths = () => [project?.root, sessionRoot]
+
+// The install records of every plugin; the core plugin outside the cache (--plugin-dir) has none to read
+async function installedPlugins($) {
+  const dir = pluginsDir($.plugin.root)
+  return dir ? readJson($, joinPath(dir, INSTALLED_PLUGINS)) : null
+}
+
+async function readVersions($) {
+  const manifest = await readJson($, joinPath(await kitRoot($), PLUGIN_MANIFEST))
+  kitVersion = typeof manifest?.version === 'string' && manifest.version ? manifest.version : null
+  const installed = await installedPlugins($)
+  pluginVersions.clear()
+  for (const name of [...(project?.profiles ?? []).map(profile => profile.name), ...(project?.packs ?? [])]) {
+    const version = installedVersion(installed, name, projectPaths())
+    if (version) pluginVersions.set(name, version)
+  }
+}
+
+const withVersion = name => (pluginVersions.has(name) ? `${name} ${pluginVersions.get(name)}` : name)
+
 async function refreshMemory($) {
   let index = null
   if (project) {
@@ -311,15 +341,16 @@ function memoryText(ui) {
 }
 
 // Runs the steps one after another through $.process.spawn, keeping the status and the last lines of output.
-// The loop over a stream is the child's life: Stop ends it, and the engine kills the child
-async function runJob($, key, label, steps, cwd) {
+// The loop over a stream is the child's life: Stop ends it, and the engine kills the child.
+// A plugin update reports in a toast, so its output does not take the deck's output block
+async function runJob($, key, label, steps, cwd, isUpdate = false) {
   if (jobs.get(key)?.status === 'running') {
     $.ui.toast(`${label}: уже работает`)
     return null
   }
   const job = { label, line: actionLine(steps), status: 'running', code: null, tail: { lines: [], partial: '' }, stream: null, isStopped: false }
   jobs.set(key, job)
-  if (key !== KIT_JOB) lastJob = key
+  if (!isUpdate) lastJob = key
   redraw($)
   let drawnAt = 0
   for (const argv of steps) {
@@ -371,34 +402,30 @@ async function stopJob($, key) {
   }
 }
 
+// The update's result goes to a toast: the version before is the one this session runs,
+// the version after is what the install record says once `claude plugin update` is done
+async function reportUpdate($, title, job, plugin, before) {
+  const after = job.status === 'done' ? installedVersion(await installedPlugins($), plugin, projectPaths()) : null
+  $.ui.toast(updateToast(title, job, before, after), { timeoutMs: UPDATE_TOAST_MS })
+}
+
 async function runAction($, profile, action) {
   const key = `${profile.name}:${action.id}`
   const root = project?.root ?? sessionRoot
-  const job = await runJob($, key, action.label, action.steps, action.cwd === '.' ? root : joinPath(root, action.cwd))
-  if (!job || !action.isUpdate) return
-  $.ui.toast(job.status === 'done' ? `Профиль ${profile.name} обновлён — ${RESTART_HINT}` : `Обновление ${profile.name}: ${jobStatus(job)}`)
+  const job = await runJob($, key, action.label, action.steps, action.cwd === '.' ? root : joinPath(root, action.cwd), action.isUpdate)
+  if (job && action.isUpdate) await reportUpdate($, `Профиль ${profile.name}`, job, profile.name, pluginVersions.get(profile.name) ?? null)
 }
 
 async function updateKit($) {
-  const job = await runJob($, KIT_JOB, 'Обновление кита', pluginUpdateSteps($.plugin.name), project?.root ?? sessionRoot)
-  if (job) $.ui.toast(job.status === 'done' ? `Кит обновлён — ${RESTART_HINT}` : `Обновление кита: ${jobStatus(job)}`)
-}
-
-function kitUpdateStatus(ui) {
-  const job = jobs.get(KIT_JOB)
-  const { caption } = look(ui)
-  if (!job) return []
-  if (job.status === 'running') return [caption('обновление…', { key: 'kit-status' })]
-  if (job.status === 'done') return [caption(`кит обновлён — ${RESTART_HINT}`, { key: 'kit-status', dimColor: false, color: 'success' })]
-  const last = outputLines(job.tail).pop()
-  return [caption(`обновление: ${jobStatus(job)}` + (last ? ` — ${last}` : ''), { key: 'kit-status', dimColor: false, color: 'error', wrap: 'truncate-end' })]
+  const job = await runJob($, KIT_JOB, 'Обновление кита', pluginUpdateSteps($.plugin.name), project?.root ?? sessionRoot, true)
+  if (job) await reportUpdate($, 'Кит', job, $.plugin.name, kitVersion)
 }
 
 function header($, ui, surface) {
   const { Box, Button } = ui
   const { title, caption, variant } = look(ui)
   const scope = project
-    ? [...project.profiles.map(profile => profile.name + (profile.root === '.' ? '' : ` (${profile.root}/)`)), ...project.packs].join(' · ')
+    ? [...project.profiles.map(profile => withVersion(profile.name) + (profile.root === '.' ? '' : ` (${profile.root}/)`)), ...project.packs.map(withVersion)].join(' · ')
     : 'проект не подключён'
   const tabButton = (id, label, hotkey) =>
     Button({ key: 'tab-' + id, label, hotkey, ...variant(tab === id), dimColor: tab !== id, onPress: () => ((tab = id), redraw($)) })
@@ -415,6 +442,20 @@ function header($, ui, surface) {
       }),
       Box({
         flexDirection: 'row',
+        columnGap: 2,
+        alignItems: 'center',
+        children: [
+          caption(kitVersion ? `кит ${$.plugin.name} ${kitVersion}` : `кит ${$.plugin.name}`, { key: 'kit-version' }),
+          Button({
+            key: 'update-kit',
+            label: jobs.get(KIT_JOB)?.status === 'running' ? 'Обновление…' : 'Обновить кит',
+            dimColor: true,
+            onPress: () => void updateKit($),
+          }),
+        ],
+      }),
+      Box({
+        flexDirection: 'row',
         columnGap: 1,
         flexWrap: 'wrap',
         alignItems: 'center',
@@ -422,13 +463,6 @@ function header($, ui, surface) {
           tabButton('commands', 'Команды', '1'),
           tabButton('docs', 'Справка', '2'),
           Box({ flexGrow: 1, children: [] }),
-          ...kitUpdateStatus(ui),
-          Button({
-            key: 'update-kit',
-            label: jobs.get(KIT_JOB)?.status === 'running' ? 'Обновление…' : 'Обновить кит',
-            dimColor: true,
-            onPress: () => void updateKit($),
-          }),
           ...(team ? [commitToggle($, ui, surface)] : []),
           Button({
             key: 'mode',
@@ -606,7 +640,9 @@ function actionCard($, ui, profile, action, width) {
   const key = `${profile.name}:${action.id}`
   const job = jobs.get(key)
   const isActive = job?.status === 'running'
-  const mark = !job ? null : isActive ? ['●', 'warning'] : job.status === 'done' ? ['✓', 'success'] : ['✗', 'error']
+  // A plugin update tells its result in a toast; its card shows only that it is running, and has no Stop
+  const isShown = Boolean(job) && (isActive || !action.isUpdate)
+  const mark = !isShown ? null : isActive ? ['●', 'warning'] : job.status === 'done' ? ['✓', 'success'] : ['✗', 'error']
   return card(ui, { key: 'action-card-' + key, width, rowGap: 0 }, [
     Box({
       flexDirection: 'row',
@@ -614,7 +650,7 @@ function actionCard($, ui, profile, action, width) {
       children: [
         Button({ key: 'action-' + key, plain: true, onPress: () => void runAction($, profile, action), children: [label(action.label)] }),
         Box({ flexGrow: 1, children: [] }),
-        ...(isActive ? [Button({ key: 'stop-' + key, label: 'Стоп', role: 'dismiss', dimColor: true, onPress: () => void stopJob($, key) })] : []),
+        ...(isActive && !action.isUpdate ? [Button({ key: 'stop-' + key, label: 'Стоп', role: 'dismiss', dimColor: true, onPress: () => void stopJob($, key) })] : []),
       ],
     }),
     caption(actionLine(action.steps), { wrap: 'truncate-end' }),
@@ -799,6 +835,7 @@ export function register(on) {
       isRich = false
     }
     await loadCatalog($)
+    await readVersions($)
     await refreshMemory($)
     await refreshAgents($)
     $.clock.every(AGENT_POLL_MS, async () => {

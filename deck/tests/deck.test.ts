@@ -5,17 +5,20 @@ import {
   agentRows,
   appendOutput,
   hostArgv,
+  installedVersion,
   isAtLeast,
   isWindowsPath,
   memorySummary,
   outputLines,
   parseArgumentHint,
   parseFrontmatter,
+  pluginsDir,
   profileActions,
   resolveCommandName,
   shortModel,
   summary,
   trackTiming,
+  updateToast,
 } from '../catalog.js'
 
 const PROJECT = '/work/shop'
@@ -82,6 +85,8 @@ type Kit = {
   opened?: boolean[]
   stored?: Record<string, unknown>
   profiles?: string
+  toasts?: string[]
+  kitVersion?: string
 }
 
 function stubKit(on, kit: Kit) {
@@ -97,7 +102,10 @@ function stubKit(on, kit: Kit) {
     kit.opened?.push(Boolean(e.focus))
     return { value: { isPlaced: kit.isPlaced ?? true } }
   })
-  on('ui.toast', () => ({ value: undefined }))
+  on('ui.toast', ($, e) => {
+    kit.toasts?.push(e.text)
+    return { value: undefined }
+  })
   on('ui.status', ($, e) => {
     kit.statuses?.push(e.text)
     return { value: undefined }
@@ -110,6 +118,7 @@ function stubKit(on, kit: Kit) {
   on('fs.read', ($, e) => {
     if (slash(e.path).endsWith('.aikit/profiles.json')) return kit.isConnected === false ? { deny: 'missing' } : { value: kit.profiles ?? PROFILES }
     if (slash(e.path).endsWith('.aikit/plugin-init.json')) return { deny: 'missing' }
+    if (slash(e.path).endsWith('.claude-plugin/plugin.json')) return kit.kitVersion ? { value: JSON.stringify({ name: 'aikit', version: kit.kitVersion }) } : { deny: 'missing' }
     if (slash(e.path).endsWith('.aikit/settings.json')) return kit.settings === undefined ? { deny: 'missing' } : { value: kit.settings }
     if (slash(e.path).endsWith('.aikit/memory/INDEX.md')) {
       if (kit.memoryLines === undefined) return { deny: 'missing' }
@@ -517,28 +526,131 @@ test('a running action is not started twice and Stop ends it', async ($, on) => 
   expect(await ui.find({ key: 'stop-forge-1-12-java:runClient' })).toBeUndefined()
 })
 
-test('a profile without its own actions has the plugin update alone', async ($, on) => {
+// Toasts come from work a press leaves running: wait until one arrives
+async function waitForToast(toasts: string[]) {
+  for (let attempt = 0; attempt < WAIT_ATTEMPTS && toasts.length === 0; attempt += 1) {
+    await new Promise(resolve => setTimeout(resolve, WAIT_STEP_MS))
+  }
+  return toasts
+}
+
+test('a profile without its own actions has the plugin update alone; its result is a toast, not the output block', async ($, on) => {
   const spawned: Spawned[] = []
-  stubKit(on, {})
+  const kit: Kit = { toasts: [] }
+  stubKit(on, kit)
   stubSpawn(on, spawned)
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await ui.find({ key: 'action-vue-nuxt:update-plugin' })).toBeDefined()
   expect(await ui.find({ key: 'action-vue-nuxt:compileJava' })).toBeUndefined()
   await ui.press({ key: 'action-vue-nuxt:update-plugin' })
-  expect(await waitFor(ui, { type: 'Text', text: '✓ завершено, код 0' })).toBeDefined()
+  expect(await waitForToast(kit.toasts ?? [])).toEqual(['Профиль vue-nuxt обновлён — изменения подхватятся после перезапуска сессии'])
   expect(spawned.map(item => item.argv.join(' '))).toEqual(['claude plugin marketplace update aikit', 'claude plugin update vue-nuxt@aikit'])
+  expect(await ui.find({ key: 'action-output' })).toBeUndefined()
+  expect(await ui.find({ key: 'action-status-vue-nuxt:update-plugin' })).toBeUndefined()
+  expect(await ui.find({ type: 'Text', text: 'BUILD SUCCESSFUL' })).toBeUndefined()
 })
 
-test('the header button updates the marketplace and the core plugin, then asks for a restart', async ($, on) => {
+test('a running plugin update shows that it works, without Stop', async ($, on) => {
+  let release = () => {}
+  const held = new Promise<void>(resolve => (release = resolve))
+  const kit: Kit = { toasts: [] }
+  stubKit(on, kit)
+  on('process.spawn', async function* () {
+    yield { stream: 'stdout', text: 'Updating marketplace\n' }
+    await held
+    return { value: { code: 0, signal: null } }
+  })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  void ui.press({ key: 'action-vue-nuxt:update-plugin' })
+  expect(await waitFor(ui, { type: 'Text', text: '● работает' })).toBeDefined()
+  expect(await ui.find({ key: 'stop-vue-nuxt:update-plugin' })).toBeUndefined()
+  release()
+  expect((await waitForToast(kit.toasts ?? [])).length).toBe(1)
+})
+
+test('the header button on its own row updates the marketplace and the core plugin, the toast asks for a restart', async ($, on) => {
   const spawned: Spawned[] = []
-  stubKit(on, { isConnected: false, settings: JSON.stringify({ commit: 'auto' }) })
+  const kit: Kit = { isConnected: false, settings: JSON.stringify({ commit: 'auto' }), toasts: [] }
+  stubKit(on, kit)
   stubSpawn(on, spawned)
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   await ui.press({ key: 'update-kit' })
-  expect(await waitFor(ui, { type: 'Text', text: /перезапуска сессии/ })).toBeDefined()
+  expect(await waitForToast(kit.toasts ?? [])).toEqual(['Кит обновлён — изменения подхватятся после перезапуска сессии'])
   expect(spawned.map(item => item.argv.join(' '))).toEqual(['claude plugin marketplace update aikit', 'claude plugin update aikit@aikit'])
+  expect(await ui.find({ type: 'Text', text: /перезапуска сессии/ })).toBeUndefined()
+  expect(await ui.find({ key: 'action-output' })).toBeUndefined()
+})
+
+test('a failed kit update is a toast with the code and the last line of output', async ($, on) => {
+  const kit: Kit = { toasts: [] }
+  stubKit(on, kit)
+  stubSpawn(on, [], 1)
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  await ui.press({ key: 'update-kit' })
+  expect(await waitForToast(kit.toasts ?? [])).toEqual(['Кит не обновлён: завершено, код 1 — BUILD SUCCESSFUL'])
+  expect(await ui.find({ type: 'Text', text: /завершено, код 1/ })).toBeUndefined()
+})
+
+test('the header shows the version of the kit the session runs; without a manifest just its name', async ($, on) => {
+  stubKit(on, { kitVersion: '0.7.0' })
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'кит aikit 0.7.0' })).toBeDefined()
+  // Loaded with --plugin-dir, as here, the core plugin has no install record: profiles show without a version
+  expect(await ui.find({ type: 'Text', text: 'vue-nuxt (web/)' })).toBeDefined()
+})
+
+test('without a kit manifest the header names the kit alone', async ($, on) => {
+  stubKit(on, {})
+  await start($)
+  const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
+  expect(await ui.find({ type: 'Text', text: 'кит aikit' })).toBeDefined()
+})
+
+const INSTALLED = {
+  version: 2,
+  plugins: {
+    'aikit@aikit': [
+      { scope: 'user', installPath: 'C:\\Users\\dev\\.claude\\plugins\\cache\\aikit\\aikit\\0.7.0', version: '0.7.0' },
+      { scope: 'project', projectPath: 'E:\\Minecraft\\mod', version: '0.6.0' },
+    ],
+    'forge-1-12-java@aikit': [
+      { scope: 'project', projectPath: 'E:\\Minecraft\\other', version: '0.5.0' },
+      { scope: 'project', projectPath: 'E:\\Minecraft\\mod', version: '0.7.0' },
+    ],
+    'vue-nuxt@aikit': [{ scope: 'local', projectPath: '/work/shop', version: '0.6.0' }, { scope: 'user', version: '0.7.0' }],
+  },
+}
+
+test('the install record of this project wins over the user one; another project and no record give nothing', () => {
+  expect(installedVersion(INSTALLED, 'forge-1-12-java', ['E:/Minecraft/mod'])).toBe('0.7.0')
+  expect(installedVersion(INSTALLED, 'forge-1-12-java', ['e:/minecraft/MOD/'])).toBe('0.7.0')
+  expect(installedVersion(INSTALLED, 'forge-1-12-java', ['E:/Minecraft/third'])).toBe(null)
+  expect(installedVersion(INSTALLED, 'aikit', ['E:/Minecraft/mod'])).toBe('0.6.0')
+  expect(installedVersion(INSTALLED, 'aikit', ['E:/Minecraft/third'])).toBe('0.7.0')
+  expect(installedVersion(INSTALLED, 'vue-nuxt', [null, '/work/shop'])).toBe('0.6.0')
+  expect(installedVersion(INSTALLED, 'vue-nuxt', ['/work/Shop'])).toBe('0.7.0')
+  expect(installedVersion(INSTALLED, 'tma', ['/work/shop'])).toBe(null)
+  expect(installedVersion(null, 'aikit', ['/work/shop'])).toBe(null)
+})
+
+test('the install records sit beside the plugin cache; a plugin outside the cache has none', () => {
+  expect(pluginsDir('C:\\Users\\dev\\.claude\\plugins\\cache\\aikit\\aikit\\0.7.0')).toBe('C:/Users/dev/.claude/plugins')
+  expect(pluginsDir('/home/dev/.config/claude/plugins/cache/aikit/aikit/0.7.0')).toBe('/home/dev/.config/claude/plugins')
+  expect(pluginsDir('D:\\dev\\ai-kit')).toBe(null)
+})
+
+test('the update toast tells the versions, an update with nothing new and an error', () => {
+  const done = { status: 'done', code: 0, tail: { lines: [], partial: '' } }
+  const failed = { status: 'failed', code: 1, tail: { lines: ['error: plugin not found'], partial: '' } }
+  expect(updateToast('Профиль forge-1-12-java', done, '0.6.0', '0.7.0')).toBe('Профиль forge-1-12-java обновлён: 0.6.0 → 0.7.0 — изменения подхватятся после перезапуска сессии')
+  expect(updateToast('Кит', done, '0.7.0', '0.7.0')).toBe('Кит: уже последняя версия 0.7.0')
+  expect(updateToast('Кит', done, null, '0.7.0')).toBe('Кит обновлён до 0.7.0 — изменения подхватятся после перезапуска сессии')
+  expect(updateToast('Кит', failed, '0.6.0', null)).toBe('Кит не обновлён: завершено, код 1 — error: plugin not found')
 })
 
 test('a project without AIKit has no project actions', async ($, on) => {

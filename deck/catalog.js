@@ -202,6 +202,43 @@ export function pluginUpdateSteps(plugin) {
   ]
 }
 
+// <config>/plugins/cache/<marketplace>/<plugin>/<version> → <config>/plugins, where installed_plugins.json lives.
+// A plugin loaded with --plugin-dir is outside the cache: then there is no install record to read
+export function pluginsDir(pluginRoot) {
+  const path = String(pluginRoot ?? '').replace(/\\/g, '/')
+  const cut = path.toLowerCase().lastIndexOf('/plugins/cache/')
+  return cut >= 0 ? path.slice(0, cut + '/plugins'.length) : null
+}
+
+const samePath = (a, b) => {
+  const clean = path => String(path ?? '').replace(/\\/g, '/').replace(/\/+$/, '')
+  return isWindowsPath(a) ? clean(a).toLowerCase() === clean(b).toLowerCase() : clean(a) === clean(b)
+}
+
+// The version installed_plugins.json records for <plugin>@aikit in this project: a record for the project's folder
+// (local, then project scope) wins over the user one, as the settings scopes do. No record — null
+export function installedVersion(installed, plugin, projectPaths) {
+  const records = installed?.plugins?.[`${plugin}@${MARKETPLACE}`]
+  if (!Array.isArray(records)) return null
+  const forProject = scope =>
+    records.find(record => record?.scope === scope && projectPaths.some(path => path && samePath(record.projectPath, path)))
+  const record = forProject('local') ?? forProject('project') ?? records.find(record => record?.scope === 'user')
+  return typeof record?.version === 'string' && record.version ? record.version : null
+}
+
+export const RESTART_HINT = 'изменения подхватятся после перезапуска сессии'
+
+// The toast after a plugin update: the versions before and after when both are known, the error's last line otherwise
+export function updateToast(title, job, before, after) {
+  if (job.status !== 'done') {
+    const last = outputLines(job.tail).pop()
+    return `${title} не обновлён: ${jobStatus(job)}` + (last ? ` — ${last}` : '')
+  }
+  if (before && after && before === after) return `${title}: уже последняя версия ${after}`
+  const change = before && after ? `: ${before} → ${after}` : after ? ` до ${after}` : ''
+  return `${title} обновлён${change} — ${RESTART_HINT}`
+}
+
 export function profileActions(profile, contractActions) {
   const own = Object.entries(contractActions && typeof contractActions === 'object' ? contractActions : {})
     .filter(([, action]) => Array.isArray(action?.argv) && action.argv.length > 0 && action.argv.every(item => typeof item === 'string' && item !== ''))
