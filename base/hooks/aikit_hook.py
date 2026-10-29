@@ -149,6 +149,15 @@ def record_run(project: Path, event_name: str, error: str | None = None) -> None
         mark["runtime"] = "codex" if runs_in_codex() else "claude"
         mark["python"] = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
         mark["executable"] = sys.executable
+        runtimes = mark.setdefault("runtimes", {})
+        runtime_mark = runtimes.setdefault(mark["runtime"], {})
+        runtime_mark["python"] = mark["python"]
+        runtime_mark["executable"] = sys.executable
+        runtime_mark.setdefault("events", {})[event_name] = stamp
+        if error:
+            runtime_mark["last_error"] = {"event": event_name, "at": stamp, "message": error[:ERROR_MESSAGE_LIMIT]}
+        elif runtime_mark.get("last_error", {}).get("event") == event_name:
+            runtime_mark.pop("last_error", None)
         mark.setdefault("events", {})[event_name] = stamp
         if error:
             mark["last_error"] = {"event": event_name, "at": stamp, "message": error[:ERROR_MESSAGE_LIMIT]}

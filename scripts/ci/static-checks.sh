@@ -243,6 +243,9 @@ echo "▶ Модели агентов: уровни, adapters/models.json, пе�
 echo "▶ Codex: единое обновление плагинов и агентов (без сети и модели)"
 "$PYTHON_BIN" scripts/ci/test-update-codex-plugins.py || FAILURES=$((FAILURES + 1))
 
+echo "▶ Codex: диагностика конфигурации и истории хуков (без сети и модели)"
+"$PYTHON_BIN" scripts/ci/test-codex-doctor.py || FAILURES=$((FAILURES + 1))
+
 echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
 "$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))
 

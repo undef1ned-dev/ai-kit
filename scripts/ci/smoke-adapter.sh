@@ -234,6 +234,7 @@ check_runtime_files() {
   case "$ADAPTER" in
     codex)
       check "скилл capture-memory не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/capture-memory/agents/openai.yaml"
+      check "диагностика Codex поставляется с адаптером$stage" test -f "$PROJECT_DIR/.aikit/scripts/codex-doctor.py"
       check "агенты Codex — валидный TOML$stage" check_codex_agents
       check "нет markdown-дублей агентов кита в .codex/agents$stage" test -z "$(find "$PROJECT_DIR/.codex/agents" -type f -name '*.md' ! -name my-local.md)"
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"

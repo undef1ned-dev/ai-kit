@@ -33,7 +33,7 @@ NATIVE_SKILLS_DIR = Path(".agents") / "skills"
 NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
 NATIVE_ARGUMENTS_PLACEHOLDER = "(задача из запроса пользователя)"
 OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
-MODEL_RESOURCES = (Path("scripts") / "agent_models.py", Path("adapters") / "models.json")
+MODEL_RESOURCES = (Path("scripts") / "agent_models.py", Path("adapters") / "models.json", Path("scripts") / "codex-doctor.py")
 
 
 def parse_args() -> argparse.Namespace:
