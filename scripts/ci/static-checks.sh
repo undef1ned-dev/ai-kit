@@ -215,14 +215,11 @@ if not errors:
 sys.exit(1 if errors else 0)
 ' || FAILURES=$((FAILURES + 1))
 
-echo "▶ CLAUDE.md в корне — копия base/CLAUDE.md"
-"$PYTHON_BIN" -c '
-import pathlib, sys
-expected = pathlib.Path("base/CLAUDE.md").read_text(encoding="utf-8")
-if pathlib.Path("CLAUDE.md").read_text(encoding="utf-8") != expected:
-    print("  ✗ CLAUDE.md отстал от источников: скопируй в него base/CLAUDE.md (раздел «Карта репозитория» в docs/guide/developing-aikit.md)")
-    sys.exit(1)
-' || FAILURES=$((FAILURES + 1))
+echo "▶ Правила: общие источники и независимые инструкции runtime"
+"$PYTHON_BIN" scripts/rules.py --repository --check || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/ci/test-rules.py || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/ci/test-codex-content.py || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/ci/test-runtime-settings.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))
@@ -244,6 +241,12 @@ fi
 
 echo "▶ Модели агентов: уровни, adapters/models.json, переопределения проекта"
 "$PYTHON_BIN" scripts/ci/test-agent-models.py || FAILURES=$((FAILURES + 1))
+
+echo "▶ Codex: единое обновление плагинов и агентов (без сети и модели)"
+"$PYTHON_BIN" scripts/ci/test-update-codex-plugins.py || FAILURES=$((FAILURES + 1))
+
+echo "▶ Codex: диагностика конфигурации и истории хуков (без сети и модели)"
+"$PYTHON_BIN" scripts/ci/test-codex-doctor.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
 "$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))

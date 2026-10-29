@@ -1,0 +1,84 @@
+{
+  "agents": {
+    "vue-architect": {
+      "output_block": "ARCHITECT_PLAN",
+      "example_prompt": "Спроектируй экран уведомлений в Nuxt"
+    },
+    "vue-coder": {
+      "output_block": "CODER_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN"
+      ],
+      "depends_on": [
+        "vue-architect"
+      ],
+      "example_prompt": "Реализуй план из ARCHITECT_PLAN"
+    },
+    "vue-design-bridge": {
+      "output_block": "DESIGN_REVIEW",
+      "example_prompt": "Проверь страницы профиля на соответствие UI kit и Figma"
+    },
+    "vue-quality-analyst": {
+      "output_block": "QUALITY_REPORT",
+      "example_prompt": "Проанализируй качество кода в components/checkout/"
+    },
+    "vue-reviewer": {
+      "output_block": "REVIEW_RESULT",
+      "context_blocks": [
+        "CODER_RESULT"
+      ],
+      "depends_on": [
+        "vue-coder"
+      ],
+      "example_prompt": "Проверь код по CODER_RESULT"
+    },
+    "vue-tester": {
+      "output_block": "TESTER_RESULT",
+      "context_blocks": [
+        "CODER_RESULT"
+      ],
+      "depends_on": [
+        "vue-coder"
+      ],
+      "example_prompt": "Напиши тесты по CODER_RESULT"
+    }
+  },
+  "skills": {
+    "add-tests": {
+      "argument-hint": "<файлы для тестов>",
+      "example_prompt": "$add-tests pages/account/index.vue и stores/auth.ts"
+    },
+    "design-review": {
+      "argument-hint": "<файл и ссылка на макет>",
+      "example_prompt": "$design-review pages/account/index.vue и https://www.figma.com/file/..."
+    },
+    "new-component": {
+      "argument-hint": "<ИмяКомпонента>",
+      "example_prompt": "$new-component NotificationsPanel"
+    },
+    "new-composable": {
+      "argument-hint": "<useName>",
+      "example_prompt": "$new-composable useNotificationsFilters"
+    },
+    "new-middleware": {
+      "argument-hint": "<имя>",
+      "example_prompt": "$new-middleware auth"
+    },
+    "new-page": {
+      "argument-hint": "<маршрут>",
+      "example_prompt": "$new-page account/notifications"
+    },
+    "new-plugin": {
+      "argument-hint": "<имя>",
+      "example_prompt": "$new-plugin analytics.client"
+    },
+    "new-server-route": {
+      "argument-hint": "<путь.метод>",
+      "example_prompt": "$new-server-route notifications/index.get"
+    },
+    "new-store": {
+      "argument-hint": "<имя>",
+      "example_prompt": "$new-store notifications"
+    }
+  }
+}

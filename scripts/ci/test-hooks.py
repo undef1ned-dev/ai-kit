@@ -469,7 +469,9 @@ def main() -> int:
         print("▶ Команды хуков Codex для Windows (commandWindows) из подпапки проекта")
         installed = project.root / ".aikit" / "hooks" / "aikit_hook.py"
         installed.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(HOOK, installed)
+        sys.path.insert(0, str(KIT_ROOT / "scripts"))
+        import hooks_config
+        hooks_config.install("codex", project.root)
         subfolder = project.root / "sub"
         env_patch = {"tool_name": "apply_patch", "tool_input": {"command": "*** Begin Patch\n*** Add File: .env\n+A=1\n*** End Patch"}}
         with tempfile.TemporaryDirectory() as shim, tempfile.TemporaryDirectory() as other:

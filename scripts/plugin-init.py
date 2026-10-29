@@ -33,10 +33,13 @@ import sys
 from pathlib import Path
 
 import agent_models
+import codex_content
 import memory_paths
 import preset_utils
 import profile_contract
 import project_settings
+import rules
+import runtime_settings
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -45,22 +48,7 @@ MARKETPLACE_REPO = "undef1ned-dev/ai-kit"
 STATE_FILE = Path(".aikit") / "plugin-init.json"
 LEGACY_ATTACH_MARKER = Path(".claude") / ".config-version"
 RUNTIMES = ("claude", "codex")
-RULES_FILES = {"claude": "CLAUDE.md", "codex": "AGENTS.md"}
-RULES_INTRO = {
-    "claude": [
-        "Агенты, скиллы, хуки и MCP-серверы AIKit приходят из плагинов маркетплейса `aikit`.",
-        "Скилл `/name` из правил ниже вызывается как `/name` или с именем плагина: `/aikit:name`, `/<профиль>:name`.",
-        "Агента плагина запускай только с именем плагина: базовые — `aikit:<агент>` (`aikit:memory-writer`),",
-        "агенты профиля или пака — `<профиль|пак>:<агент>` (`vue-coder` из `.aikit/profiles.json` → `vue-nuxt:vue-coder`).",
-        "Контракты профилей — в `.aikit/profiles.json`, командная память — в `.aikit/memory/`.",
-    ],
-    "codex": [
-        "Скиллы, хуки и MCP-серверы AIKit приходят из плагинов маркетплейса `aikit`, агенты — в `.codex/agents/`.",
-        "Правила ниже написаны в синтаксисе Claude Code: `/name` — это скилл `name` (в Codex — `$name`, срабатывает и по описанию).",
-        "`$ARGUMENTS` в тексте скилла Codex не подставляет: на его месте — задача из запроса пользователя (текст после `$name`).",
-        "Контракты профилей — в `.aikit/profiles.json`, командная память — в `.aikit/memory/`.",
-    ],
-}
+RULES_FILES = rules.RULES_FILES
 
 
 def load_script(file_name: str, module_name: str):
@@ -120,14 +108,7 @@ def resolve_selection(args: argparse.Namespace) -> tuple[list[str], list[str]]:
 
 
 def render_rules_block(runtime: str, profiles: list[str]) -> str:
-    chunks = [installer.AGENTS_MD_BEGIN, "# AIKit — правила проекта", "", *RULES_INTRO[runtime], ""]
-    chunks.append((ROOT / "base" / "CLAUDE.md").read_text(encoding="utf-8").strip())
-    for name in profiles:
-        rules = ROOT / "profiles" / name / "CLAUDE.md"
-        if rules.exists():
-            chunks += ["", "---", "", rules.read_text(encoding="utf-8").strip()]
-    chunks.append(installer.AGENTS_MD_END)
-    return "\n".join(chunks) + "\n"
+    return rules.render_block(runtime, profiles)
 
 
 def merge_rules(workspace: Path, runtime: str, profiles: list[str]) -> str:
@@ -184,18 +165,13 @@ def merge_claude_settings(workspace: Path, profiles: list[str], packs: list[str]
 
 def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], previous: list[str]) -> list[str]:
     agents_dir = workspace / ".codex" / "agents"
-    for name in previous:
+    sources = codex_content.layers(profiles, packs)
+    available = codex_content.agents(sources)
+    codex_content.catalog(sources)
+    for name in set(previous) - available.keys():
         (agents_dir / f"{name}.toml").unlink(missing_ok=True)
-    sources = [ROOT / "base", *(ROOT / "profiles" / name for name in profiles), *(ROOT / "packs" / name for name in packs)]
-    agents_dir.mkdir(parents=True, exist_ok=True)
-    kit_files: set[str] = set()
-    for source in sources:
-        for agent in sorted((source / "agents").glob("*.md")):
-            shutil.copyfile(agent, agents_dir / agent.name)
-            kit_files.add(f".codex/agents/{agent.name}")
-    # The same text conversion as the adapter install: paths of the runtime, rules in AGENTS.md
-    installer.rewrite_local_script_commands(workspace, {"runtime": "codex"}, kit_files)
-    rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace, kit_files)]
+    rendered = codex_content.install_agents(sources, agents_dir)
+    codex_content.write_catalog(sources, workspace / ".aikit/agent-catalog.json")
     agent_models.apply("codex", workspace)
     return rendered
 
@@ -211,7 +187,8 @@ def refresh_agents(workspace: Path) -> int:
     packs = [name for name in state.get("packs", []) if (ROOT / "packs" / name / "pack.json").exists()]
     previous = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
     codex_agents = write_codex_agents(workspace, profiles, packs, previous)
-    write_json(state_path, {**state, "codex_agents": codex_agents})
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    write_json(state_path, {**state, "codex_agents": codex_agents, "codex_agents_version": version})
     print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), профили {', '.join(profiles)}")
     return 0
 
@@ -252,9 +229,13 @@ def main() -> int:
         plugins = merge_claude_settings(workspace, profiles, packs)
         print(f".claude/settings.json: права кита, плагины {', '.join(f'{name}@{MARKETPLACE_NAME}' for name in plugins)}")
     else:
+        runtime_settings.install_codex(workspace)
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
-    write_json(state_path, {"runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents})
+    next_state = {**state, "runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents}
+    if args.runtime == "codex":
+        next_state["codex_agents_version"] = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    write_json(state_path, next_state)
     if (workspace / LEGACY_ATTACH_MARKER).exists():
         print(
             "! Проект раньше подключали через attach.sh: агенты и скиллы в .claude/ дублируют плагины. "

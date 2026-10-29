@@ -57,6 +57,8 @@ case "$ADAPTER" in
 esac
 LOCAL_SUMS="$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")"
 
+AGENT_PATTERN="*.md"
+[[ "$ADAPTER" == codex ]] && AGENT_PATTERN="*.toml"
 FAILURES=0
 pass() { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
@@ -79,7 +81,7 @@ check_agents_md() {
   local file="$PROJECT_DIR/AGENTS.md"
   [[ "$(grep -c '<!-- BEGIN AIKIT' "$file")" == 1 && "$(grep -c '<!-- END AIKIT -->' "$file")" == 1 ]] || return 1
   grep -qF "$USER_RULES_LINE" "$file" || return 1
-  grep -qF "$(head -1 "$KIT_ROOT/base/CLAUDE.md")" "$file"
+  grep -qF "$(head -1 "$KIT_ROOT/base/RULES.md")" "$file"
 }
 
 # .agents/skills/<name>/SKILL.md: frontmatter с name (совпадает с папкой) и description — требование Codex и OpenCode
@@ -234,6 +236,7 @@ check_runtime_files() {
   case "$ADAPTER" in
     codex)
       check "скилл capture-memory не вызывается автоматически (agents/openai.yaml)$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/capture-memory/agents/openai.yaml"
+      check "диагностика Codex поставляется с адаптером$stage" test -f "$PROJECT_DIR/.aikit/scripts/codex-doctor.py"
       check "агенты Codex — валидный TOML$stage" check_codex_agents
       check "нет markdown-дублей агентов кита в .codex/agents$stage" test -z "$(find "$PROJECT_DIR/.codex/agents" -type f -name '*.md' ! -name my-local.md)"
       check "нет устаревших .codex/commands и .codex/skills$stage" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
@@ -258,7 +261,7 @@ echo "▶ install-adapter-package.py"
 INSTALL_LOG="$WORK_DIR/$ADAPTER-$PRESET-install.log"
 run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG"; echo "✗ Установка завершилась с ошибкой"; exit 1; }
 
-check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
+check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" "$AGENT_PATTERN")" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
 check "инструкция runtime .$ADAPTER/AIKIT.md из шаблона адаптера" test -s "$PROJECT_DIR/.$ADAPTER/AIKIT.md"
 check "файла разработки кита CONTINUE_AIKIT_MAINTAINER.md нет" test ! -e "$PROJECT_DIR/.$ADAPTER/CONTINUE_AIKIT_MAINTAINER.md" -a ! -e "$PROJECT_DIR/CONTINUE_AIKIT_MAINTAINER.md"
@@ -281,7 +284,7 @@ else
   cat "$UPDATE_LOG"
   fail "обновление завершилось с ошибкой"
 fi
-check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
+check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" "$AGENT_PATTERN")" -gt 0
 check "устаревшие .codex/commands и .codex/skills убраны" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
 check "устаревший протокол .aikit/runtime-operating-protocol.md убран" test ! -e "$PROJECT_DIR/.aikit/runtime-operating-protocol.md"
 check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited

@@ -55,6 +55,12 @@ bash .aikit-config/scripts/attach.sh vue-nuxt+<backend-профиль>
 
 ## Обновить подключённый кит
 
+Готовность Codex можно проверить без изменения настроек: `$aikit:setup --check` или, при установке адаптером, `python3 .aikit/scripts/codex-doctor.py --workspace .` (Python 3.11+). Проверяются конфигурация и история хуков; одобрение и состояние соединений не объявляются подтверждёнными без данных.
+
+В Codex при установке плагинами — `$aikit:update-agents --with-plugins` (Python 3.11+): обновляет маркетплейс `aikit`, проверяет версии и пересобирает агентов из свежего источника; затем нужна новая сессия. Без флага скилл только пересобирает агентов. Правила, контракты, память и свои агенты сохраняются.
+
+При установке через submodule:
+
 ```bash
 bash .aikit-config/scripts/update.sh
 ```
@@ -68,6 +74,12 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 
 Вместо `codex` — `opencode`.
 
+## Правила и runtime
+
+Общие правила команды — `base/RULES.md`, требования стека — `profiles/<name>/RULES.md`. Codex, Claude Code и OpenCode имеют собственные инструкции в `adapters/<runtime>/rules.md`. Установщики собирают их через `scripts/rules.py`, без перевода правил Claude в Codex.
+
+Агенты и скиллы Codex также имеют самостоятельные источники: `<слой>/codex/agents/*.toml`, `codex/skills/` и `codex/catalog.json`. Модель и effort заданы в нативном TOML; уровни принимаются для совместимости настроек проекта. Плагин и адаптер используют эти источники без чтения промптов Claude. Поддержка Claude сохранена в прежних `agents/` и `skills/`; OpenCode пока использует их конвертацию. Codex использует отдельную оболочку хуков и opt-in шаблон разрешений; активные sandbox/approval/trust команды сохраняются.
+
 ## Разрабатывать этот репозиторий
 
 Для развития самого кита используй `/improve-aikit` — скилл и агент `aikit-maintainer` есть только в этом репозитории, пользователям они не ставятся. Агенты и скиллы кита в этот репозиторий не копируются — запускай Claude Code с плагином из рабочей копии:
@@ -75,6 +87,8 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 ```bash
 claude --plugin-dir .
 ```
+
+Корневые `AGENTS.md` и `CLAUDE.md` собираются командой `python3 scripts/rules.py --repository`; правь их источники. Codex использует локальные `.agents/skills/improve-aikit/` и `.codex/agents/aikit-maintainer.toml`, Claude — свои файлы в `.claude/`.
 
 Все проверки CI локально: `bash scripts/ci/run-all.sh`. Подробно — [Разработка AIKit](docs/guide/developing-aikit.md).
 

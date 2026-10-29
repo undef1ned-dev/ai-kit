@@ -6,7 +6,7 @@
     "aikit",
     "devops"
   ],
-  "skills": "./skills/",
+  "skills": "./codex/skills/",
   "interface": {
     "displayName": "AIKit: Pack: DevOps",
     "shortDescription": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",

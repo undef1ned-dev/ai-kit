@@ -16,6 +16,7 @@ model: opus
    - профиль, контракт, пак — `docs/guide/adding-a-stack.md`, `profile.manifest.json` профиля, `templates/profile/`;
    - установка — `scripts/attach.sh`, `scripts/update.sh`, `scripts/lib/`, `scripts/install-adapter-package.py`, `scripts/plugin-init.py`;
    - плагины — `scripts/build-plugins.py`, `.claude-plugin/`;
+   - правила проекта — `base/RULES.md`, `profiles/<профиль>/RULES.md`, `adapters/claude/rules.md`, `scripts/rules.py`;
    - модели агентов — `adapters/models.json`, `scripts/agent_models.py`;
    - AIKit Deck — `deck/`, раздел «Панель AIKit Deck» в `docs/guide/commands.md`;
    - эвалы — раздел «Эвалы» в `developing-aikit.md`, `evals/`.

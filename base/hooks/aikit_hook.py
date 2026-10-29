@@ -149,6 +149,15 @@ def record_run(project: Path, event_name: str, error: str | None = None) -> None
         mark["runtime"] = "codex" if runs_in_codex() else "claude"
         mark["python"] = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
         mark["executable"] = sys.executable
+        runtimes = mark.setdefault("runtimes", {})
+        runtime_mark = runtimes.setdefault(mark["runtime"], {})
+        runtime_mark["python"] = mark["python"]
+        runtime_mark["executable"] = sys.executable
+        runtime_mark.setdefault("events", {})[event_name] = stamp
+        if error:
+            runtime_mark["last_error"] = {"event": event_name, "at": stamp, "message": error[:ERROR_MESSAGE_LIMIT]}
+        elif runtime_mark.get("last_error", {}).get("event") == event_name:
+            runtime_mark.pop("last_error", None)
         mark.setdefault("events", {})[event_name] = stamp
         if error:
             mark["last_error"] = {"event": event_name, "at": stamp, "message": error[:ERROR_MESSAGE_LIMIT]}
@@ -845,7 +854,7 @@ def update_notice(project: Path) -> str | None:
 
 def runs_in_codex() -> bool:
     """Codex gives plugin hooks PLUGIN_ROOT, Claude Code gives CLAUDE_PLUGIN_ROOT."""
-    return bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT")
+    return os.environ.get("AIKIT_HOOK_RUNTIME") == "codex" or (bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT"))
 
 
 def session_start(event: dict) -> int:

@@ -452,6 +452,9 @@ def read_entries(directory: Path, kind: str) -> list[dict]:
     for path in sorted(directory.glob(pattern)) if directory.exists() else []:
         data = parse_frontmatter(path.read_text(encoding="utf-8"))
         data.setdefault("name", path.parent.name if kind == "skill" else path.stem)
+        native = directory.parent / "codex" / directory.name / (path.parent.name + "/SKILL.md" if kind == "skill" else path.stem + ".toml")
+        if native.is_file():
+            data["_codex_file"] = native.resolve().relative_to(ROOT).as_posix()
         data["_kind"] = kind
         data["_file"] = path.resolve().relative_to(ROOT).as_posix()
         entries.append(data)
@@ -519,8 +522,8 @@ def model_chips(tier: str, agent: str = "") -> list[str]:
     if not tier:
         return []
     chips_html = [f'<span class="chip" title="Модель в Claude Code">Claude: {h(tier)}</span>']
-    models = read_json(ROOT / "adapters" / "models.json")
-    codex = {**models.get("runtimes", {}).get("codex", {}).get(tier, {}), **models.get("agents", {}).get(agent, {}).get("codex", {})}
+    from agent_models import codex_defaults
+    codex = codex_defaults().get(agent, {})
     if codex.get("model"):
         effort = f' · {codex["model_reasoning_effort"]}' if codex.get("model_reasoning_effort") else ""
         chips_html.append(f'<span class="chip" title="Модель в Codex">Codex: {h(codex["model"] + effort)}</span>')
@@ -537,6 +540,7 @@ def render_entry_card(entry: dict, section_id: str) -> str:
     if str(entry.get("disable-model-invocation", "")).lower() == "true":
         badges.append('<span class="chip chip-warn">только явный вызов</span>')
     badges += model_chips(entry.get("model", ""), name)
+    native_link = f'<a class="entry-source" href="{h(repo_link(entry["_codex_file"]))}">Codex: {h(entry["_codex_file"])}</a>' if entry.get("_codex_file") else ""
     example = entry.get("example_prompt", "")
     example_html = (
         f'<div class="entry-example"><span>{h(example)}</span>{copy_button(example)}</div>' if example else ""
@@ -546,6 +550,7 @@ def render_entry_card(entry: dict, section_id: str) -> str:
   <p>{h(entry.get("description", ""))}</p>
   {f'<div class="chips">{"".join(badges)}</div>' if badges else ""}
   {example_html}
+  {native_link}
   <a class="entry-source" href="{h(repo_link(entry["_file"]))}">{h(entry["_file"])}</a>
 </article>'''
 

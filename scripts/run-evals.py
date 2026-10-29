@@ -12,7 +12,8 @@ of the case, prepares the project with the case's setup.sh and scores the grader
 
 Codex has no eval command: this script prepares the same project with the Codex adapter installer,
 runs `codex exec` and scores the graders that do not depend on Claude Code — regex over the reply,
-the trace or a file, and file_exists. tool_used (skills, agents) and judge graders are skipped.
+the trace or a file, successful command executions, and file_exists. tool_used (skills, agents) and judge graders are skipped.
+Native prompt.codex.md and graders.codex/ are independent optional sources; absent native sources keep legacy cases working.
 
 Usage:
     python3 scripts/run-evals.py --list
@@ -59,14 +60,14 @@ SETUP_TIMEOUT_SECONDS = 120
 GRANTED_TOOLS = ["Write", "Edit"]
 GRADER_TYPES = {"regex", "tool_used", "tool_order", "file_exists", "llm", "baseline"}
 CODEX_GRADER_TYPES = {"regex", "file_exists"}
-GRADER_TARGETS = {"last_message", "trace", "files", "mock_calls"}
+GRADER_TARGETS = {"last_message", "trace", "files", "mock_calls", "commands"}
 REGEX_FLAGS = {"i": re.IGNORECASE, "m": re.MULTILINE, "s": re.DOTALL, "u": 0}
 ALL_GROUPS = "all"
 DEFAULT_CHANGED_BASE = "origin/main"
 # Changes here reach every case: the core plugin, the hook script and how the eval project is connected
 SHARED_PATHS = (
     "base/", "evals/lib/", "adapters/", "scripts/plugin-init.py", "scripts/profile_contract.py",
-    "scripts/hooks_config.py", "scripts/install-adapter-package.py", "scripts/build-adapter-package.py",
+    "scripts/hooks_config.py", "scripts/install-adapter-package.py", "scripts/build-adapter-package.py", "scripts/rules.py",
 )
 # API list-price estimate of one Claude Code run with sonnet, from the first runs of the suite.
 # On a subscription nothing is billed: runs spend the plan's usage limits.
@@ -161,6 +162,17 @@ def read_front_matter(path: Path) -> tuple[dict, str]:
     return parse_yaml(match.group(1)), match.group(2).strip()
 
 
+def read_graders(directory: Path) -> list[dict]:
+    graders = []
+    for path in sorted(directory.glob("*.md")):
+        front, body = read_front_matter(path)
+        grader = {"name": path.stem, **front}
+        if body:
+            grader.setdefault("criteria" if grader.get("type") in {"llm", "baseline"} else "pattern", body)
+        graders.append(grader)
+    return graders
+
+
 def load_case(case_dir: Path) -> dict:
     meta: dict = {}
     yaml_path = case_dir / "case.yaml"
@@ -172,13 +184,10 @@ def load_case(case_dir: Path) -> dict:
     if prompt_path.exists():
         front, prompt = read_front_matter(prompt_path)
         meta.update(front)
-    graders = []
-    for path in sorted((case_dir / "graders").glob("*.md")):
-        front, body = read_front_matter(path)
-        grader = {"name": path.stem, **front}
-        if body:
-            grader.setdefault("criteria" if grader.get("type") in {"llm", "baseline"} else "pattern", body)
-        graders.append(grader)
+    graders = read_graders(case_dir / "graders")
+    native_prompt = case_dir / "prompt.codex.md"
+    codex_task = read_front_matter(native_prompt)[1] if native_prompt.exists() else None
+    native_graders = case_dir / "graders.codex"
     group = case_dir.relative_to(EVALS_DIR).parts[0]
     return {
         "dir": case_dir,
@@ -186,6 +195,8 @@ def load_case(case_dir: Path) -> dict:
         "group": group,
         "tags": meta.get("tags") or [],
         "prompt": prompt,
+        "codex_prompt": codex_task,
+        "codex_graders": read_graders(native_graders) if native_graders.is_dir() else None,
         "timeout": int(meta.get("timeout_seconds") or DEFAULT_TIMEOUT_SECONDS),
         "plugins": meta.get("plugins") or [],
         "scaffold": (meta.get("context") or {}).get("scaffold_script"),
@@ -222,6 +233,10 @@ def setup_arguments(script: Path) -> list[str]:
 def check_case(case: dict) -> list[str]:
     where = case["dir"].relative_to(ROOT).as_posix()
     problems = []
+    if case.get("codex_prompt") is not None and not case["codex_prompt"].strip():
+        problems.append(f"{where}: пустой нативный промпт Codex")
+    if case.get("codex_graders") == []:
+        problems.append(f"{where}: graders.codex/ не содержит оценщиков")
     if not case["prompt"]:
         problems.append(f"{where}: пустой промпт")
     if not case["graders"]:
@@ -246,12 +261,14 @@ def check_case(case: dict) -> list[str]:
                     problems.append(f"{where}: {case['scaffold']} — нет профиля {profile}")
             if len(arguments) > 1 and not (EVALS_DIR / "fixtures" / arguments[1]).is_dir():
                 problems.append(f"{where}: {case['scaffold']} — нет фикстуры evals/fixtures/{arguments[1]}")
-    for grader in case["graders"]:
+    for grader in [*case["graders"], *(case.get("codex_graders") or [])]:
         label = f"{where}/graders/{grader['name']}.md"
         kind = grader.get("type")
         if kind not in GRADER_TYPES:
             problems.append(f"{label}: неизвестный type «{kind}»")
             continue
+        if grader in (case.get("codex_graders") or []) and kind not in CODEX_GRADER_TYPES:
+            problems.append(f"{label}: нативный оценщик Codex должен быть regex или file_exists")
         if kind == "regex":
             try:
                 re.compile(grader.get("pattern", ""), regex_flags(grader))
@@ -538,6 +555,48 @@ def regex_passes(grader: dict, text: str) -> bool:
     return bool(found)
 
 
+def codex_events(trace: str) -> list[dict]:
+    events = []
+    for line in trace.splitlines():
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(event, dict):
+            events.append(event)
+    return events
+
+
+def codex_error_message(event: dict) -> str:
+    error = event.get("error")
+    message = error.get("message") if isinstance(error, dict) else event.get("message") or error
+    detail = f": {str(message)[:1000]}" if message else ""
+    return f"Codex reported {event['type']}{detail}"
+
+
+def codex_completion_error(trace: str) -> str | None:
+    events = codex_events(trace)
+    failed = next((event for event in reversed(events) if event.get("type") == "turn.failed"), None)
+    if failed:
+        return codex_error_message(failed)
+    terminal = next((event for event in reversed(events) if event.get("type") in {"turn.completed", "error"}), None)
+    if terminal and terminal["type"] == "turn.completed":
+        return None
+    if terminal:
+        return codex_error_message(terminal)
+    return "Codex stream ended without turn.completed"
+
+
+def completed_commands(trace: str) -> str:
+    commands = []
+    for event in codex_events(trace):
+        item = event.get("item")
+        if event.get("type") == "item.completed" and isinstance(item, dict):
+            if item.get("type") == "command_execution" and item.get("status") == "completed" and item.get("exit_code") == 0:
+                commands.append(str(item.get("command", "")))
+    return "\n".join(commands)
+
+
 def grade_codex(grader: dict, workspace: Path, created: list[str], reply: str, trace: str) -> bool | None:
     kind = grader.get("type")
     if kind == "file_exists":
@@ -550,7 +609,7 @@ def grade_codex(grader: dict, workspace: Path, created: list[str], reply: str, t
         path = workspace / target["path"]
         text = path.read_text(encoding="utf-8", errors="replace") if path.is_file() else ""
     else:
-        text = {"last_message": reply, "trace": trace, "files": "\n".join(created)}.get(target)
+        text = {"last_message": reply, "trace": trace, "files": "\n".join(created), "commands": completed_commands(trace)}.get(target)
         if text is None:
             return None
     return regex_passes(grader, text)
@@ -571,27 +630,47 @@ def run_codex_case(case: dict, codex_bin: list[str], args: argparse.Namespace) -
     try:
         prepare_codex_workspace(case, workspace)
         before = workspace_files(workspace)
-        command = codex_command(codex_bin, args, workspace, last_message, codex_prompt(case["prompt"]))
+        command = codex_command(codex_bin, args, workspace, last_message, case["codex_prompt"] if case.get("codex_prompt") is not None else codex_prompt(case["prompt"]))
         stage = f"не удалось запустить {codex_bin[0]}"
         try:
             completed = subprocess.run(command, capture_output=True, timeout=case["timeout"])
             trace = completed.stdout.decode("utf-8", errors="replace")
             if completed.returncode != 0:
-                record["error"] = f"codex exec завершился с кодом {completed.returncode}: {completed.stderr.decode('utf-8', errors='replace')[-500:]}"
+                reason = codex_completion_error(trace)
+                stderr = completed.stderr.decode("utf-8", errors="replace")[-500:]
+                if not any(event.get("type") in {"turn.failed", "error"} for event in codex_events(trace)):
+                    reason = stderr or reason
+                reason = reason or stderr
+                record["error"] = f"codex exec завершился с кодом {completed.returncode}: {reason}"
         except subprocess.TimeoutExpired as expired:
             trace = (expired.stdout or b"").decode("utf-8", errors="replace")
             record["error"] = f"timed out after {case['timeout']}s"
+        record["error"] = record["error"] or codex_completion_error(trace)
+        record["warnings"] = [codex_error_message(event) for event in codex_events(trace) if event.get("type") == "error"]
         stage = "оценка ответа не удалась"
         reply = last_message.read_text(encoding="utf-8", errors="replace") if last_message.exists() else ""
+        if not reply.strip():
+            record["error"] = record["error"] or "Codex produced no final message"
         created = sorted(workspace_files(workspace) - before)
         scored = []
-        for grader in case["graders"]:
+        for grader in case.get("codex_graders") if case.get("codex_graders") is not None else case["graders"]:
             passed = grade_codex(grader, workspace, created, reply, trace)
             record["graders"].append({"name": grader["name"], "type": grader.get("type"), "passed": passed})
             if passed is not None:
                 scored.append((grader, passed))
-        record["score"] = weighted_score(scored)
+        record["grader_score"] = weighted_score(scored)
+        record["score"] = 0.0 if record["error"] else record["grader_score"]
+        record["status"] = "error" if record["error"] else "unscored" if record["score"] is None else "completed"
+        trace_dir = getattr(args, "codex_trace_dir", None)
+        if trace_dir:
+            trace_dir.mkdir(parents=True, exist_ok=True)
+            trace_path = trace_dir / f"{case['name']}-{getattr(args, 'codex_run_number', 1)}.jsonl"
+            trace_path.write_bytes(trace.encode("utf-8"))
+            record["trace"] = str(trace_path)
+        if not record["error"] and record["score"] is None:
+            record["error"] = "No supported Codex graders; run cannot be treated as success"
     except (OSError, subprocess.SubprocessError) as error:
+        record["status"] = "error"
         record["error"] = f"{stage}: {error}"
         record["score"] = 0.0
     finally:
@@ -612,10 +691,12 @@ def run_codex(cases: list[dict], args: argparse.Namespace, run_dir: Path) -> tup
     codex_bin = [resolved, *codex_bin[1:]]
     runs = 1 if args.quick else (args.runs or 1)
     records = []
+    args.codex_trace_dir = run_dir / "traces"
     for case in cases:
         if CLAUDE_ONLY_TAG in case["tags"]:
             continue
         for number in range(1, runs + 1):
+            args.codex_run_number = number
             record = run_codex_case(case, codex_bin, args)
             record["run"] = number
             records.append(record)
@@ -625,7 +706,7 @@ def run_codex(cases: list[dict], args: argparse.Namespace, run_dir: Path) -> tup
     output = run_dir / "codex.json"
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps({"runs": records}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    failed = any(record["error"] or (record["score"] is not None and record["score"] < args.threshold) for record in records)
+    failed = not records or any(record["error"] or (record["score"] is not None and record["score"] < args.threshold) for record in records)
     return (1 if failed else 0), records
 
 
@@ -639,7 +720,7 @@ def mean(values: list[float]) -> float | None:
 
 def comparable_claude_scores(result: dict, cases: list[dict]) -> dict[str, float]:
     """Claude Code with-arm score over the graders Codex can score too, so the columns compare the same checks."""
-    types = {case["name"]: {g["name"]: g for g in case["graders"]} for case in cases}
+    types = {case["name"]: {g["name"]: g for g in case["graders"] if case.get("codex_graders") is None or g in case["codex_graders"]} for case in cases}
     scores = {}
     for case in result.get("cases", []):
         graders = types.get(case.get("name"), {})
@@ -663,7 +744,14 @@ def print_comparison(cases: list[dict], claude: dict | None, codex: list[dict]) 
     print("\nСравнение по общим проверкам (регулярки и файлы; навыки, агенты и судья не входят)")
     print(f"{'КЕЙС':<24} {'CLAUDE CODE':>11} {'CODEX':>7}")
     for case in cases:
-        codex_runs = [r["score"] for r in codex if r["name"] == case["name"] and r["score"] is not None]
+        common = {g["name"]: g for g in case["graders"] if g.get("type") in CODEX_GRADER_TYPES and g.get("target") != "commands" and (case.get("codex_graders") is None or g in case["codex_graders"])}
+        codex_runs = []
+        for record in codex:
+            if record["name"] == case["name"]:
+                shared = [(common[g["name"]], g["passed"]) for g in record["graders"] if g["name"] in common and g["passed"] is not None]
+                score = 0.0 if record["error"] else weighted_score(shared)
+                if score is not None:
+                    codex_runs.append(score)
         left = claude_scores.get(case["name"])
         right = mean(codex_runs)
         print(f"{case['name']:<24} {'—' if left is None else f'{left:.2f}':>11} {'—' if right is None else f'{right:.2f}':>7}")

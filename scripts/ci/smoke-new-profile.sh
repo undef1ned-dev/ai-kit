@@ -24,7 +24,13 @@ pass() { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
 check() {
   local description="$1"; shift
-  if "$@" >/dev/null 2>&1; then pass "$description"; else fail "$description"; fi
+  local log="$WORK_DIR/check.log"
+  if "$@" > "$log" 2>&1; then
+    pass "$description"
+  else
+    fail "$description"
+    cat "$log"
+  fi
 }
 
 # .aikit/profiles.json: оба профиля, агенты java-spring по ролям и quality-специалист, папки найдены по маркерам
@@ -52,6 +58,12 @@ documenter.write_text(
     '---\nname: spring-api-documenter\ndescription: Описывает API в OpenAPI.\noutput_block: "API_DOCS"\n---\n\nОпиши API.\n',
     encoding="utf-8",
 )
+native = profile / "codex/agents/spring-api-documenter.toml"
+native.write_bytes(b'name = "spring-api-documenter"\ndescription = "API documentation"\nmodel = "gpt-6.1-sol"\nmodel_reasoning_effort = "medium"\ndeveloper_instructions = "Return API_DOCS with API documentation."\n')
+catalog = profile / "codex/catalog.json"
+metadata = json.loads(catalog.read_text(encoding="utf-8"))
+metadata["agents"]["spring-api-documenter"] = {"output_block": "API_DOCS"}
+catalog.write_bytes((json.dumps(metadata) + "\n").encode("utf-8"))
 manifest = profile / "profile.manifest.json"
 data = json.loads(manifest.read_text(encoding="utf-8"))
 data["pipelines"] = {"api-docs": {"when": "нужна только документация API без изменения кода", "steps": [agent, "spring-reviewer"]}}
@@ -64,6 +76,7 @@ PY
 echo "▶ Копия кита → $KIT_COPY"
 mkdir -p "$KIT_COPY"
 (cd "$KIT_ROOT" && git ls-files -co --exclude-standard -z | tr -d '\r' | while IFS= read -r -d '' file; do
+  [[ -f "$file" ]] || continue
   mkdir -p "$KIT_COPY/$(dirname "$file")" && cp "$file" "$KIT_COPY/$file"
 done)
 (cd "$KIT_COPY" && git init -q && git add -A)

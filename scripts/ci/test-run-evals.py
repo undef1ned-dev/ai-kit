@@ -18,6 +18,9 @@ import contextlib
 import importlib.util
 import io
 import os
+import json
+import subprocess
+from unittest.mock import patch
 import sys
 import tempfile
 from pathlib import Path
@@ -39,6 +42,8 @@ for name, content in json.loads(os.environ.get("FAKE_CODEX_FILES", "{}")).items(
     (workspace / name).write_text(content, encoding="utf-8")
 last_message.write_text(os.environ.get("FAKE_CODEX_REPLY", ""), encoding="utf-8")
 print(json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": prompt}}, ensure_ascii=False))
+print(json.dumps({"type": "item.completed", "item": {"type": "command_execution", "command": "cat .agents/skills/git-commit/SKILL.md", "status": "completed", "exit_code": 0}}))
+print(json.dumps({"type": "turn.completed", "usage": {"input_tokens": 1, "output_tokens": 1}}))
 '''
 
 failures = 0
@@ -119,7 +124,7 @@ def main() -> int:
         record = codex_run(runner, by_name["commit-message"], fake, "refactor: переименована функция getUser в fetchUser")
         check(record["error"] is None and record["score"] == 1.0, f"commit-message: кит поставлен, ответ оценён ({record['error'] or record['score']})")
         skipped = {g["name"] for g in record["graders"] if g["passed"] is None}
-        check(skipped == {"skill-fired"}, "tool_used: Skill в Codex не оценивается")
+        check(not skipped and any(g["name"] == "native-source-read" and g["passed"] for g in record["graders"]), "Codex: native source-read evidence, без заявления о Claude Skill tool")
 
         record = codex_run(runner, by_name["commit-message"], fake, "Refactor getUser\n\nCo-Authored-By: someone")
         check(record["score"] == 0.0, "commit-message: английское описание и соавторство — 0")
@@ -134,6 +139,53 @@ def main() -> int:
         args = argparse.Namespace(codex_model=None, keep_temp=False)
         record = runner.run_codex_case(by_name["commit-message"], [str(Path(folder) / "missing-codex")], args)
         check(str(record["error"]).startswith("не удалось запустить"), f"нет исполняемого codex — ошибка запуска, а не подготовки проекта ({record['error']})")
+
+    print("▶ Codex: ошибки и незавершённые ответы не проходят")
+    success = json.dumps({"type": "turn.completed"}) + "\n"
+    for trace in ("", json.dumps({"type": "turn.failed", "error": {"message": "failed"}}), success + json.dumps({"type": "error", "message": "failed"})):
+        check(runner.codex_completion_error(trace) is not None, "требуется успешный terminal event")
+    failure_message = "failed to load workspace requirements: invalid input parameter"
+    failed_trace = json.dumps({"type": "turn.failed", "error": {"message": failure_message}})
+    check(failure_message in runner.codex_completion_error(failed_trace), "terminal failure explains its actual cause")
+    check("explicit failure" in runner.codex_completion_error(json.dumps({"type": "error", "message": "explicit failure"})), "top-level error message retained")
+    command = {"type": "item.completed", "item": {"type": "command_execution", "command": "cat .agents/skills/git-commit/SKILL.md", "status": "completed", "exit_code": 0}}
+    check(bool(runner.completed_commands(json.dumps(command))), "successful command accepted as command evidence")
+    command["item"]["exit_code"] = 1
+    check(not runner.completed_commands(json.dumps(command)), "failed command excluded from command evidence")
+    check(not runner.completed_commands(json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "cat .agents/skills/git-commit/SKILL.md"}})), "assistant's claim is not command evidence")
+    with tempfile.TemporaryDirectory() as folder:
+        args = argparse.Namespace(codex_model=None, keep_temp=False, codex_trace_dir=Path(folder))
+        case = dict(by_name["commit-message"], codex_graders=[{"name": "always", "type": "regex", "pattern": ".*", "flags": "s"}])
+        for result in (subprocess.CompletedProcess([], 1, success.encode(), b"error"), subprocess.CompletedProcess([], 0, b"", b""), subprocess.TimeoutExpired([], 1, output=success.encode())):
+            def partial_reply(command, **kwargs):
+                Path(command[command.index("--output-last-message") + 1]).write_bytes(b"matching partial reply")
+                if isinstance(result, Exception):
+                    raise result
+                return result
+            with patch.object(runner, "prepare_codex_workspace"), patch.object(runner.subprocess, "run", side_effect=partial_reply):
+                record = runner.run_codex_case(case, ["fake-codex"], args)
+            check(record["error"] is not None and record["score"] == 0 and record["grader_score"] == 1, "CLI failure/timeout/incomplete cannot pass even when partial reply matches every grader")
+            check(Path(record["trace"]).is_file(), "raw JSONL retained outside disposable workspace")
+        with patch.object(runner, "prepare_codex_workspace"), patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, success.encode(), b"")):
+            record = runner.run_codex_case(case, ["fake-codex"], args)
+        check(record["score"] == 0 and "no final message" in record["error"], "empty final message cannot pass not_contains/.* regex")
+        with patch.object(runner, "prepare_codex_workspace"), patch.object(runner.subprocess, "run", return_value=subprocess.CompletedProcess([], 1, failed_trace.encode(), b"Figma OAuth warning: stderr noise")):
+            record = runner.run_codex_case(case, ["fake-codex"], args)
+        check(failure_message in record["error"] and "кодом 1" in record["error"] and "OAuth" not in record["error"], "CLI error keeps exit code and actual JSON terminal cause instead of unrelated stderr noise")
+        recovered = json.dumps({"type": "error", "message": "Reconnecting...403"}) + "\n" + success
+        result = subprocess.CompletedProcess([], 0, recovered.encode(), b"")
+        with patch.object(runner, "prepare_codex_workspace"), patch.object(runner.subprocess, "run", side_effect=partial_reply):
+            record = runner.run_codex_case(case, ["fake-codex"], args)
+        check(record["error"] is None and record["score"] == 1 and any("Reconnecting" in item for item in record["warnings"]), "recovered transport error followed by completed turn succeeds with warning")
+        check(runner.codex_completion_error(failed_trace + "\n" + success) is not None, "turn.failed remains a failure even if stream later contains completed")
+    check(by_name["commit-message"]["codex_prompt"].startswith("$git-commit"), "native prompt read independently")
+    check(runner.load_case(by_name["branch-name"]["dir"])["codex_graders"] is None, "legacy graders remain the fallback for existing cases")
+
+    modified = dict(by_name["commit-message"], codex_graders=[{"name": "conventional-russian", "type": "regex", "pattern": "different"}])
+    claude_report = {"cases": [{"name": "commit-message", "arms": {"with": [{"graders": [{"name": "conventional-russian", "passed": True}]}]}}]}
+    check(not runner.comparable_claude_scores(claude_report, [modified]), "different native grader definitions excluded from cross-runtime comparison")
+    check(bool(runner.check_case(dict(by_name["commit-message"], codex_prompt=""))), "empty native prompt rejected")
+    check(bool(runner.check_case(dict(by_name["commit-message"], codex_graders=[]))), "empty native grader set rejected")
 
     print("▶ Путь к Codex CLI")
     with tempfile.TemporaryDirectory() as folder:

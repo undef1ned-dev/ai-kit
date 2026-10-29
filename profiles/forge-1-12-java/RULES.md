@@ -2,7 +2,7 @@
 
 Профиль для Java-разработки модов Minecraft 1.12.2 на Forge: код мода, сборка Gradle, тесты, ревью и документация.
 Модели, текстуры, звуки и анимации в профиль не входят — их ведёт отдельный профиль ассетов или художник; код только ссылается на ресурсы по ключам и перечисляет, какие ресурсы ему нужны.
-Расширяет базовые правила команды из `base/CLAUDE.md`.
+Расширяет базовые правила команды.
 
 ---
 
@@ -14,9 +14,9 @@
 - **Маппинги MCP — из `build.gradle` проекта**, от них зависят имена методов: в MDK `snapshot_20171003-1.12` — `setUnlocalizedName`/`getUnlocalizedName`, в `stable_39` — `setTranslationKey`/`getTranslationKey`. Имена методов бери из маппингов и существующего кода проекта, не из примеров в интернете
 - **JUnit 4** + **Mockito** — unit-тесты (JUnit 5 — только если в `build.gradle` уже есть `useJUnitPlatform()`, Gradle 4.6+)
 - **Логирование** — `org.apache.logging.log4j.Logger` из `FMLPreInitializationEvent#getModLog()`
-- **Checkstyle 8.45.1** — правила профиля в `config/checkstyle/checkstyle.xml` (последняя ветка Checkstyle на Java 8); подключает `/forge-1-12-setup-checkstyle`
+- **Checkstyle 8.45.1** — правила профиля в `config/checkstyle/checkstyle.xml` (последняя ветка Checkstyle на Java 8); подключает `forge-1-12-setup-checkstyle`
 
-Команды профиля (`.aikit/profiles.json`): `install` — `./gradlew compileJava` (первая сборка готовит декомпилированный Minecraft; в ForgeGradle 2.3 исходники для IDE дополнительно даёт `./gradlew setupDecompWorkspace`, в ForgeGradle 3 задачи `setupDecompWorkspace` нет), `lint` — `./gradlew compileJava check -x test` (компиляция и, если подключён, Checkstyle — `/forge-1-12-setup-checkstyle`; без него это только компиляция), `test`, `build` (jar в `build/libs/`), `run` — `./gradlew runClient`.
+Команды профиля (`.aikit/profiles.json`): `install` — `./gradlew compileJava` (первая сборка готовит декомпилированный Minecraft; в ForgeGradle 2.3 исходники для IDE дополнительно даёт `./gradlew setupDecompWorkspace`, в ForgeGradle 3 задачи `setupDecompWorkspace` нет), `lint` — `./gradlew compileJava check -x test` (компиляция и, если подключён, Checkstyle — `forge-1-12-setup-checkstyle`; без него это только компиляция), `test`, `build` (jar в `build/libs/`), `run` — `./gradlew runClient`.
 
 ---
 
@@ -100,7 +100,7 @@ docs/                          — документация мода (forge-1-12
 - Нет `Runtime.exec`, загрузки кода и классов по сети, HTTP-запросов из мода без явной настройки в конфиге; файлы — только в папке конфига или мира, путь не собирается из ввода игрока
 - Команды и действия администратора — с `getRequiredPermissionLevel` не ниже 2
 - Секретов (токены, ключи API) в коде и конфигах в git нет
-- Аудит серверного кода — специалист `security` профиля (`forge-1-12-java-security-auditor`): его зовёт `/security-check`, а `/implement-feature` — для фич с пакетами, командами, правами и данными игроков
+- Аудит серверного кода — специалист `security` профиля (`forge-1-12-java-security-auditor`): его зовёт `security-check`, а `implement-feature` — для фич с пакетами, командами, правами и данными игроков
 
 ### Производительность
 - `ITickable#update` — не тяжелее необходимого: работа раз в N тиков (константа), ранний выход на клиенте, если логика серверная
@@ -142,7 +142,7 @@ docs/                          — документация мода (forge-1-12
 
 - **Unit (JUnit 4 + Mockito)** — `domain/`, расчёты, рецепты, проверка полей пакетов, перевод NBT в value-объекты. Это основной слой тестов: логику выносят из игровых классов именно ради него
 - **Код, которому нужен реестр** (блоки, предметы, `ItemStack`) — `Bootstrap.register()` один раз в `@BeforeClass`; таких тестов немного, они медленнее
-- **В игре** — `./gradlew runClient` (и `runServer`, чтобы проверить выделенный сервер): сценарий проверки описывает тестировщик, проходит его `/check-feature` или человек
+- **В игре** — `./gradlew runClient` (и `runServer`, чтобы проверить выделенный сервер): сценарий проверки описывает тестировщик, проходит его `check-feature` или человек
 - Тестировать поведение, а не устройство класса
 
 ```java
@@ -172,20 +172,20 @@ public class GrinderRecipesTest {
 
 ## Документация мода
 
-Документацию в `docs/` проекта ведёт агент `forge-1-12-java-doc-writer`, только на русском: обзор и оглавление, установка, блоки, предметы, сущности, команды, конфиг, сеть и API для других модов. Написать с нуля или обновить после фичи — `/forge-1-12-mod-docs`; `/implement-feature` с задачей только про документацию запускает пайплайн `docs` профиля.
+Документацию в `docs/` проекта ведёт агент `forge-1-12-java-doc-writer`, только на русском: обзор и оглавление, установка, блоки, предметы, сущности, команды, конфиг, сеть и API для других модов. Написать с нуля или обновить после фичи — `forge-1-12-mod-docs`; `implement-feature` с задачей только про документацию запускает пайплайн `docs` профиля.
 
 ---
 
 ## Доступные скиллы
 
-- `/forge-1-12-new-block` — новый блок: класс, регистрация блока и ItemBlock, ключ перевода, список нужных ресурсов
-- `/forge-1-12-new-item` — новый предмет: класс, регистрация, ключ перевода, список нужных ресурсов
-- `/forge-1-12-new-tile-entity` — TileEntity: NBT, синхронизация с клиентом, тик с троттлингом
-- `/forge-1-12-new-packet` — сетевое сообщение с серверной проверкой ввода
-- `/forge-1-12-new-config` — параметры конфига через `@Config` с диапазонами
-- `/forge-1-12-new-command` — серверная команда с уровнем прав
-- `/forge-1-12-add-tests` — unit-тесты для существующего кода мода
-- `/forge-1-12-mod-docs` — написать или обновить документацию мода в `docs/`
-- `/forge-1-12-setup-checkstyle` — подключить Checkstyle с правилами профиля к `build.gradle`
+- `forge-1-12-new-block` — новый блок: класс, регистрация блока и ItemBlock, ключ перевода, список нужных ресурсов
+- `forge-1-12-new-item` — новый предмет: класс, регистрация, ключ перевода, список нужных ресурсов
+- `forge-1-12-new-tile-entity` — TileEntity: NBT, синхронизация с клиентом, тик с троттлингом
+- `forge-1-12-new-packet` — сетевое сообщение с серверной проверкой ввода
+- `forge-1-12-new-config` — параметры конфига через `@Config` с диапазонами
+- `forge-1-12-new-command` — серверная команда с уровнем прав
+- `forge-1-12-add-tests` — unit-тесты для существующего кода мода
+- `forge-1-12-mod-docs` — написать или обновить документацию мода в `docs/`
+- `forge-1-12-setup-checkstyle` — подключить Checkstyle с правилами профиля к `build.gradle`
 
-`/security-check` вместе с общим аудитом зовёт специалиста `security` профиля — `forge-1-12-java-security-auditor`: пакеты, дюпы, права команд, доверие клиенту, потоки, NBT и работа на выделенном сервере.
+`security-check` вместе с общим аудитом зовёт специалиста `security` профиля — `forge-1-12-java-security-auditor`: пакеты, дюпы, права команд, доверие клиенту, потоки, NBT и работа на выделенном сервере.

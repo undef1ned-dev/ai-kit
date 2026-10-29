@@ -113,7 +113,7 @@ policy:
 ## Шаг 4 — Следующие шаги
 
 **Кит:**
-1. Скилл `base` — строка в `docs/guide/commands.md` (без неё проверка документации упадёт) и, если он нужен в панели, — группа в `GROUPS` в `deck/catalog.js`. Скилл профиля — строка в разделе «Доступные скиллы» его `profiles/<профиль>/CLAUDE.md`.
+1. Скилл `base` — строка в `docs/guide/commands.md` (без неё проверка документации упадёт) и, если он нужен в панели, — группа в `GROUPS` в `deck/catalog.js`. Скилл профиля — строка в разделе «Доступные скиллы» его `profiles/<профиль>/RULES.md`.
 2. `python3 scripts/build-plugins.py`, `python3 scripts/generate-docs.py`, затем `bash scripts/ci/run-all.sh` — всё зелёное.
 3. Скилл меняет поведение, которое проверяют эвалы, — предложить `/run-evals changed --quick` (тратит лимиты).
 

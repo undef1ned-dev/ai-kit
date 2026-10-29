@@ -1,7 +1,7 @@
 # Vue Nuxt Profile
 
 Профиль для frontend-разработки на Vue 3 + Nuxt 3.
-Расширяет базовые правила команды из `base/CLAUDE.md`.
+Расширяет базовые правила команды.
 
 ---
 
@@ -176,12 +176,12 @@ describe("auth store", () => {
 
 ## Доступные скиллы
 
-- `/new-page` — создать новую Nuxt page с загрузкой данных и SEO
-- `/new-component` — создать Vue-компонент с типизированными props/slots/emits
-- `/new-composable` — создать composable с корректной реактивностью и использованием VueUse
-- `/new-middleware` — создать route middleware для auth, redirect или navigation policy
-- `/new-plugin` — создать Nuxt plugin для интеграции app-level зависимостей
-- `/new-server-route` — создать Nitro server route для BFF/proxy-логики
-- `/new-store` — создать Pinia store для состояния фичи
-- `/add-tests` — написать Vitest/VTU тесты для существующего кода
-- `/design-review` — проверить реализацию на соответствие UI kit, токенам и Figma
+- `new-page` — создать новую Nuxt page с загрузкой данных и SEO
+- `new-component` — создать Vue-компонент с типизированными props/slots/emits
+- `new-composable` — создать composable с корректной реактивностью и использованием VueUse
+- `new-middleware` — создать route middleware для auth, redirect или navigation policy
+- `new-plugin` — создать Nuxt plugin для интеграции app-level зависимостей
+- `new-server-route` — создать Nitro server route для BFF/proxy-логики
+- `new-store` — создать Pinia store для состояния фичи
+- `add-tests` — написать Vitest/VTU тесты для существующего кода
+- `design-review` — проверить реализацию на соответствие UI kit, токенам и Figma

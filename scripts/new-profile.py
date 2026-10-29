@@ -54,7 +54,7 @@ def fail(message: str) -> None:
 
 
 def existing_agent_names() -> set[str]:
-    return {path.stem for path in ROOT.glob("*/agents/*.md")} | {path.stem for path in ROOT.glob("*/*/agents/*.md")}
+    return {path.stem for pattern in ("*/agents/*.md", "*/*/agents/*.md", "*/codex/agents/*.toml", "*/*/codex/agents/*.toml") for path in ROOT.glob(pattern)}
 
 
 def render(text: str, variables: dict[str, str]) -> str:
@@ -98,8 +98,13 @@ def main() -> int:
     for template, agent in [*agents.items(), (QUALITY_TEMPLATE, quality_agent)]:
         text = (TEMPLATE_DIR / "agents" / f"{template}.md").read_text(encoding="utf-8")
         (profile_dir / "agents" / f"{agent}.md").write_text(render(text, variables), encoding="utf-8", newline="\n")
-    claude_md = (TEMPLATE_DIR / "CLAUDE.md").read_text(encoding="utf-8")
-    (profile_dir / "CLAUDE.md").write_text(render(claude_md, variables), encoding="utf-8", newline="\n")
+        native = (TEMPLATE_DIR / "codex/agents" / f"{template}.toml").read_text(encoding="utf-8")
+        (profile_dir / "codex/agents").mkdir(parents=True, exist_ok=True)
+        (profile_dir / "codex/agents" / f"{agent}.toml").write_bytes(render(native, variables).encode("utf-8"))
+    catalog = {"agents": {name: {"output_block": block} for name, block in zip([*agents.values(), quality_agent], ["ARCHITECT_PLAN", "CODER_RESULT", "TESTER_RESULT", "REVIEW_RESULT", "QUALITY_REPORT"])}, "skills": {}}
+    (profile_dir / "codex/catalog.json").write_bytes((json.dumps(catalog, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+    rules = (TEMPLATE_DIR / "RULES.md").read_text(encoding="utf-8")
+    (profile_dir / "RULES.md").write_text(render(rules, variables), encoding="utf-8", newline="\n")
 
     # Claude Code asks before every unknown command; the profile allows its own tools up front
     settings = json.loads((TEMPLATE_DIR / "settings.json").read_text(encoding="utf-8"))
@@ -128,7 +133,7 @@ def main() -> int:
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "build-plugins.py")], check=True, stdout=subprocess.DEVNULL)
 
     print(f"Профиль {name} создан в profiles/{name}/, плагин {name} добавлен в .claude-plugin/marketplace.json")
-    print("  Дальше: заполни TODO в CLAUDE.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
+    print("  Дальше: заполни TODO в RULES.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
     print("  проверь bash scripts/ci/static-checks.sh,")
     print(f"  подключи к проекту: bash scripts/attach.sh {name}  (или вместе с другими: <web-профиль>+{name})")
     return 0

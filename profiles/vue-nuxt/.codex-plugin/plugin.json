@@ -6,7 +6,7 @@
     "aikit",
     "vue-nuxt"
   ],
-  "skills": "./skills/",
+  "skills": "./codex/skills/",
   "mcpServers": {
     "figma": {
       "url": "https://mcp.figma.com/mcp"
