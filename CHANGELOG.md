@@ -13,6 +13,15 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.9.0] - 2026-10-29
+
+### Added
+- codex: разделены правила runtime и исправлены критические настройки
+- codex: добавлено единое обновление плагинов и агентов
+- codex: добавлена диагностика готовности проекта
+- codex: добавлены нативные агенты и скиллы
+- codex: разделены хуки и усилены проверки прогонов
+
 ## [0.8.1] - 2026-10-22
 
 ### Fixed

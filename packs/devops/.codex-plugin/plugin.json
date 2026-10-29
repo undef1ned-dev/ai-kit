@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
   "keywords": [
     "aikit",
