@@ -1,0 +1,10 @@
+# Opt-in template only: installation does not load this definition into config.toml.
+[permissions.aikit]
+extends = ":workspace"
+
+[permissions.aikit.filesystem]
+glob_scan_max_depth = 16
+
+[permissions.aikit.filesystem.":workspace_roots"]
+"**/.env" = "deny"
+"**/.env.*" = "deny"

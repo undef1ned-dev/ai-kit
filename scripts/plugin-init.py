@@ -39,6 +39,7 @@ import preset_utils
 import profile_contract
 import project_settings
 import rules
+import runtime_settings
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -228,6 +229,7 @@ def main() -> int:
         plugins = merge_claude_settings(workspace, profiles, packs)
         print(f".claude/settings.json: права кита, плагины {', '.join(f'{name}@{MARKETPLACE_NAME}' for name in plugins)}")
     else:
+        runtime_settings.install_codex(workspace)
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
     next_state = {**state, "runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents}

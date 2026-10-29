@@ -196,6 +196,46 @@ class CodexDoctorTests(unittest.TestCase):
         self.assertEqual(len(checks), len(report["checks"]))
         self.assertNotIn("DOCTOR_SECRET_SENTINEL", json.dumps(report))
 
+    def test_permission_definition_does_not_confirm_application(self):
+        self.write(".codex/config.toml", (ROOT / "base/codex/settings.toml").read_text(encoding="utf-8"))
+        checks = self.checks()
+        self.assertEqual(checks["permissions.definition"]["status"], "ok")
+        self.assertEqual(checks["permissions.application"]["status"], "unknown")
+        self.assertIn('default_permissions="aikit"', checks["permissions.application"]["action"])
+
+    def test_permission_template_is_not_an_active_definition(self):
+        self.write(".codex/aikit-permissions.example.toml", (ROOT / "base/codex/settings.toml").read_text(encoding="utf-8"))
+        checks = self.checks()
+        self.assertEqual(checks["permissions.template"]["status"], "ok")
+        self.assertEqual(checks["permissions.definition"]["status"], "unknown")
+        self.assertEqual(checks["permissions.application"]["status"], "unknown")
+
+    def test_selected_permission_profile_remains_uncertain(self):
+        native = (ROOT / "base/codex/settings.toml").read_text(encoding="utf-8")
+        self.write(".codex/config.toml", 'default_permissions="aikit"\n' + native)
+        check = self.checks()["permissions.application"]
+        self.assertEqual(check["status"], "unknown")
+        self.assertIn("CLI", check["action"])
+        self.assertIn("managed", check["action"])
+
+    def test_legacy_sandbox_prevents_permission_success_claim(self):
+        native = (ROOT / "base/codex/settings.toml").read_text(encoding="utf-8")
+        for target in (self.home / "config.toml", self.workspace / ".codex/config.toml"):
+            with self.subTest(target=target):
+                self.write(".codex/config.toml", 'default_permissions="aikit"\n' + native)
+                previous = target.read_bytes()
+                target.write_bytes(b'sandbox_mode="read-only"\n' + previous)
+                check = self.checks()["permissions.application"]
+                self.assertEqual(check["status"], "warning")
+                self.assertIn("legacy", check["message"])
+                target.write_bytes(previous)
+
+    def test_permission_malformed_definition_does_not_leak_values(self):
+        self.write(".codex/config.toml", 'permissions="DOCTOR_SECRET_SENTINEL"')
+        checks = self.checks()
+        self.assertEqual(checks["permissions.config"]["status"], "error")
+        self.assertNotIn("DOCTOR_SECRET_SENTINEL", json.dumps(checks))
+
 
 if __name__ == "__main__":
     unittest.main()

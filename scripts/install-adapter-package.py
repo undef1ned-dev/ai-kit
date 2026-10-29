@@ -22,6 +22,7 @@ import hooks_config
 import mcp_config
 import profile_contract
 import project_settings
+import runtime_settings
 from rules import BEGIN as AGENTS_MD_BEGIN, END as AGENTS_MD_END, render_block
 from memory_paths import ensure_memory_structure
 from preset_utils import resolve_preset
@@ -491,6 +492,8 @@ def install_package(
         apply_consumer_workspace_policy(adapter, workspace)
         ensure_consumer_memory_dirs(workspace, memory_paths)
         runtime = str(adapter.get("runtime", "")).strip()
+        if runtime == "codex":
+            runtime_settings.install_codex(workspace)
         if runtime == "opencode":
             rewrite_local_script_commands(workspace, adapter, kit_files)
         if runtime in {"codex", "opencode"}:

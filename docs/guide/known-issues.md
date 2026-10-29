@@ -116,6 +116,10 @@ export PYTHONIOENCODING=utf-8
 
 **Как обойти.** Нажми «Открыть» в строке «AIKit Deck» над полем ввода (она видна с начала сессии) или введи `/deck`. Ещё можно расширить окно терминала. Почему панель ждала, видно в debug-логе Claude Code (`claude --debug`): строка «AIKit Deck: панель ждёт размещения — …».
 
+## Права Codex
+
+Шаблон permissions.aikit поставляется в `.codex/aikit-permissions.example.toml` и не загружается автоматически. В CLI 0.165.0-alpha.1.2 запись даже невыбранного профиля в активный config.toml приводила к `failed to load workspace requirements: invalid input parameter`. A/B на том же проекте подтвердил восстановление запуска после удаления только управляемого блока, поэтому установщик больше не добавляет definition в активную конфигурацию. Он запрещает чтение .env и .env.* (включая examples) в workspace roots через glob с глубиной 16. Наличие определения не доказывает защиту текущей сессии: legacy sandbox_mode, CLI и managed settings могут влиять на результат, новые файлы после старта требуют нового процесса. Проверяй разделы template, definition и application в permissions в setup --check. Установка и обновление сохраняют выбор sandbox/approval/trust команды.
+
 ## Работа агентов
 
 ### Хуки Codex не работают до одобрения

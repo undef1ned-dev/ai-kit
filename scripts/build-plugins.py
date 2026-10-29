@@ -51,10 +51,11 @@ HOOK_SCRIPT = "base/hooks/aikit_hook.py"
 # aikit_hook.py with this flag acts only in projects connected to the kit (.aikit/ above the cwd)
 PLUGIN_FLAG = "--plugin"
 CLAUDE_HOOK_COMMAND = f'python3 "${{CLAUDE_PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
-CODEX_HOOK_COMMAND = f'python3 "${{PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
+CODEX_HOOK_SCRIPT = "base/codex/hooks/aikit_hook.py"
+CODEX_HOOK_COMMAND = f'python3 "${{PLUGIN_ROOT}}/{CODEX_HOOK_SCRIPT}" {PLUGIN_FLAG}'
 # Codex passes PLUGIN_ROOT only as an environment variable, and on Windows the hook shell (powershell
 # -Command or cmd.exe) does not expand ${PLUGIN_ROOT}: the launcher of hooks_config reads it without shell syntax
-PLUGIN_FIND = f"h = os.path.join(os.environ['PLUGIN_ROOT'], *{HOOK_SCRIPT.split('/')!r})"
+PLUGIN_FIND = f"h = os.path.join(os.environ['PLUGIN_ROOT'], *{CODEX_HOOK_SCRIPT.split('/')!r})"
 CODEX_HOOK_COMMAND_WINDOWS = hooks_config.windows_launcher(PLUGIN_FIND, [PLUGIN_FLAG, hooks_config.DENY_JSON_FLAG])
 CORE_DESCRIPTION = (
     "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, "

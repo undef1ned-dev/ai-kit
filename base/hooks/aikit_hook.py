@@ -854,7 +854,7 @@ def update_notice(project: Path) -> str | None:
 
 def runs_in_codex() -> bool:
     """Codex gives plugin hooks PLUGIN_ROOT, Claude Code gives CLAUDE_PLUGIN_ROOT."""
-    return bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT")
+    return os.environ.get("AIKIT_HOOK_RUNTIME") == "codex" or (bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT"))
 
 
 def session_start(event: dict) -> int:

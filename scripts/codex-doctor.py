@@ -140,6 +140,32 @@ def diagnose(workspace: Path, *, codex_home: Path | None = None, now: dt.datetim
             trust = value.get("trust_level")
     add("trust", "ok" if trust == "trusted" else "error" if trust == "untrusted" else "unknown", "Доверие настроено в пользовательском config.toml" if trust == "trusted" else "Проект помечен недоверенным" if trust == "untrusted" else "Доверие к этому пути не подтверждено пользовательским config.toml", "Проверь доверие в новой сессии; управляемая политика и состояние активной сессии здесь не проверяются")
 
+    def check_permissions():
+        project_config = read_toml(workspace / ".codex/config.toml")
+        user_config = config or {}
+        template = read_toml(workspace / ".codex/aikit-permissions.example.toml")
+        has_template = isinstance(template.get("permissions", {}).get("aikit"), dict)
+        add("permissions.template", "ok" if has_template else "unknown", "Opt-in шаблон permissions.aikit присутствует; Codex его автоматически не загружает" if has_template else "Opt-in шаблон permissions.aikit не найден", "Повтори setup или обновление адаптера, если нужен отдельный шаблон; активный config автоматически не меняется" if not has_template else "")
+        project_profiles = project_config.get("permissions", {})
+        user_profiles = user_config.get("permissions", {})
+        profile = project_profiles.get("aikit", user_profiles.get("aikit"))
+        if not isinstance(profile, dict):
+            add("permissions.definition", "unknown", "В прочитанных активных config нет определения permissions.aikit; отдельный шаблон не считается применённым", "При необходимости вручную проверь совместимость шаблона с версией Codex и политикой команды перед переносом в config; установка этого не делает")
+        else:
+            filesystem = profile.get("filesystem", {})
+            rules = filesystem.get(":workspace_roots", {})
+            expected = profile.get("extends") == ":workspace" and all(rules.get(pattern) == "deny" for pattern in ("**/.env", "**/.env.*"))
+            add("permissions.definition", "ok" if expected else "warning", "Определение permissions.aikit присутствует; это не подтверждение применения" if expected else "permissions.aikit отличается от нативного профиля AIKit", "Проверь профиль вручную; пользовательское определение setup не перезаписывает" if not expected else "")
+        selected = project_config.get("default_permissions", user_config.get("default_permissions"))
+        legacy = any("sandbox_mode" in layer or "sandbox_workspace_write" in layer for layer in (user_config, project_config))
+        if legacy:
+            add("permissions.application", "warning", "В прочитанных файлах есть legacy sandbox settings; применение permissions.aikit не подтверждено", "Проверь активную конфигурацию Codex: legacy sandbox_mode перекрывает default_permissions. Не удаляй ограничения автоматически; согласуй переход и открой новую сессию")
+        elif selected != "aikit":
+            add("permissions.application", "unknown", "permissions.aikit не выбран в прочитанных файлах; защита чтения через этот профиль не подтверждена", 'Если нужен профиль AIKit, сначала проверь совместимость шаблона и перенеси определение вручную, затем явно выбери default_permissions="aikit". CLI, managed config и другие слои здесь не проверены')
+        else:
+            add("permissions.application", "unknown", "В файлах выбран permissions.aikit; эффективная политика и защита чтения в активной сессии не проверены", "Проверь активный профиль и ограничения Codex в новой сессии: CLI, managed config, профили и другие слои могут переопределить эти файлы. Наличие TOML не доказывает блокировку чтения")
+    inspect("permissions.config", check_permissions)
+
     codex = shutil.which("codex")
     add("codex.cli", "ok" if codex else "unknown", "Codex CLI найден" if codex else "Codex CLI не найден; эффективные плагины и MCP не проверены")
     records = None
