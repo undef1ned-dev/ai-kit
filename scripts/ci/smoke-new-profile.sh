@@ -24,7 +24,13 @@ pass() { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
 check() {
   local description="$1"; shift
-  if "$@" >/dev/null 2>&1; then pass "$description"; else fail "$description"; fi
+  local log="$WORK_DIR/check.log"
+  if "$@" > "$log" 2>&1; then
+    pass "$description"
+  else
+    fail "$description"
+    cat "$log"
+  fi
 }
 
 # .aikit/profiles.json: оба профиля, агенты java-spring по ролям и quality-специалист, папки найдены по маркерам
