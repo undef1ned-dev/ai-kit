@@ -190,7 +190,8 @@ def refresh_agents(workspace: Path) -> int:
     packs = [name for name in state.get("packs", []) if (ROOT / "packs" / name / "pack.json").exists()]
     previous = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
     codex_agents = write_codex_agents(workspace, profiles, packs, previous)
-    write_json(state_path, {**state, "codex_agents": codex_agents})
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    write_json(state_path, {**state, "codex_agents": codex_agents, "codex_agents_version": version})
     print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), профили {', '.join(profiles)}")
     return 0
 
@@ -233,7 +234,10 @@ def main() -> int:
     else:
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
-    write_json(state_path, {"runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents})
+    next_state = {**state, "runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents}
+    if args.runtime == "codex":
+        next_state["codex_agents_version"] = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    write_json(state_path, next_state)
     if (workspace / LEGACY_ATTACH_MARKER).exists():
         print(
             "! Проект раньше подключали через attach.sh: агенты и скиллы в .claude/ дублируют плагины. "

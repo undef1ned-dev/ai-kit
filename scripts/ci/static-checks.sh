@@ -240,6 +240,9 @@ fi
 echo "▶ Модели агентов: уровни, adapters/models.json, переопределения проекта"
 "$PYTHON_BIN" scripts/ci/test-agent-models.py || FAILURES=$((FAILURES + 1))
 
+echo "▶ Codex: единое обновление плагинов и агентов (без сети и модели)"
+"$PYTHON_BIN" scripts/ci/test-update-codex-plugins.py || FAILURES=$((FAILURES + 1))
+
 echo "▶ Эвалы: кейсы evals/ и раннер scripts/run-evals.py (без вызовов модели)"
 "$PYTHON_BIN" scripts/ci/test-run-evals.py || FAILURES=$((FAILURES + 1))
 
