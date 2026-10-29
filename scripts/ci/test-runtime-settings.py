@@ -10,6 +10,7 @@ import sys
 import tempfile
 import tomllib
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -98,12 +99,23 @@ class RuntimeSettingsTests(unittest.TestCase):
             self.assertEqual((workspace / ".claude/settings.json").read_bytes(), claude)
             self.assertEqual(hooks_config.claude_groups()["PreToolUse"]["hooks"][0]["command"], hooks_config.CLAUDE_COMMAND)
             self.assertNotIn("/codex/", hooks_config.CLAUDE_COMMAND)
-            data = json.loads((workspace / ".codex/hooks.json").read_text())
+            data = json.loads((workspace / ".codex/hooks.json").read_text(encoding="utf-8"))
             groups = data["hooks"]["PreToolUse"]
             self.assertEqual(len(groups), 2)
             self.assertEqual(groups[0], user["hooks"]["PreToolUse"][0])
             self.assertIn("hooks/codex/aikit_hook.py", groups[1]["hooks"][0]["command"])
             self.assertTrue((workspace / hooks_config.CODEX_HOOK_TARGET).is_file())
+
+    def test_hooks_with_windows_ansi_default_encoding(self):
+        original = Path.read_text
+
+        def read(path, *args, **kwargs):
+            if not args and kwargs.get("encoding") is None:
+                kwargs["encoding"] = "cp1252"
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "read_text", read):
+            self.test_hooks_keep_both_runtimes_and_user_groups()
 
     def test_native_entrypoint_marks_codex_without_plugin_environment(self):
         with tempfile.TemporaryDirectory() as folder:
