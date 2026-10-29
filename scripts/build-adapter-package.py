@@ -24,6 +24,7 @@ import sys
 from memory_paths import ensure_memory_structure, find_memory_source
 from preset_utils import resolve_preset
 from rules import render_rules
+import codex_content
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -251,7 +252,7 @@ def write_codex_native_surface(
     codex_root = bundle_root / ".codex"
     codex_root.mkdir(parents=True, exist_ok=True)
 
-    # Agents are converted to .codex/agents/*.toml at install time; skills go to .agents/skills (write_native_skills)
+    # Native TOML sources are copied unchanged; no Markdown conversion is performed.
     mirror_tree(agents_dir, codex_root / "agents")
 
     version_lines = [
@@ -279,9 +280,13 @@ def write_native_skills(adapter: dict, bundle_root: Path, skills_dir: Path) -> l
         name = source.name
         destination = native_root / name
         shutil.copytree(source, destination)
+        if adapter.get("runtime") == "codex":
+            written.append((NATIVE_SKILLS_DIR / name).as_posix())
+            continue
         raw, body = split_frontmatter((source / "SKILL.md").read_text(encoding="utf-8"))
         # $ARGUMENTS is substituted only by Claude Code; elsewhere the task comes from the user's message
-        body = body.replace("$ARGUMENTS", NATIVE_ARGUMENTS_PLACEHOLDER)
+        if adapter.get("runtime") == "opencode":
+            body = body.replace("$ARGUMENTS", NATIVE_ARGUMENTS_PLACEHOLDER)
         metadata = parse_frontmatter(raw)
         description = metadata.get("description", "").strip()
         # agents/openai.yaml (Codex counterpart of disable-model-invocation) comes with the skill folder:
@@ -422,27 +427,18 @@ def build_package(
     canonical_memory_dir.mkdir(parents=True, exist_ok=True)
     runtime_memory_dir.mkdir(parents=True, exist_ok=True)
 
-    # Base agents and skills
-    for md in sorted((ROOT / "base" / "agents").glob("*.md")):
-        copy_markdown(md, agents_dir / md.name)
-    for folder in skill_folders(ROOT / "base" / "skills"):
-        install_skill_folder(folder, skills_dir / folder.name)
-
-    # Profile agents and skills; names are unique across the kit (static check)
-    for profile_name in profiles:
-        profile_agents = ROOT / "profiles" / profile_name / "agents"
-        for md in sorted(profile_agents.glob("*.md")):
-            copy_markdown(md, agents_dir / md.name)
-        for folder in skill_folders(ROOT / "profiles" / profile_name / "skills"):
-            install_skill_folder(folder, skills_dir / folder.name)
-
-    # Pack agents and skills
-    for pack_name in packs:
-        pack_agents = ROOT / "packs" / pack_name / "agents"
-        for md in sorted(pack_agents.glob("*.md")):
-            copy_markdown(md, agents_dir / md.name)
-        for folder in skill_folders(ROOT / "packs" / pack_name / "skills"):
-            install_skill_folder(folder, skills_dir / folder.name)
+    sources = codex_content.layers(profiles, packs)
+    if adapter["runtime"] == "codex":
+        codex_content.install_agents(sources, agents_dir)
+        codex_content.write_catalog(sources, runtime_root / "agent-catalog.json")
+        for folder in codex_content.skills(sources):
+            shutil.copytree(folder, skills_dir / folder.name)
+    else:
+        for source in sources:
+            for md in sorted((source / "agents").glob("*.md")):
+                copy_markdown(md, agents_dir / md.name)
+            for folder in skill_folders(source / "skills"):
+                install_skill_folder(folder, skills_dir / folder.name)
 
     # /set-model in a project without the kit sources: agent_models.py finds models.json and the agents in .aikit/
     for resource in MODEL_RESOURCES:
@@ -467,6 +463,8 @@ def build_package(
         skills_dir,
         runtime_memory_dir,
     )
+    if adapter["runtime"] == "codex":
+        native_paths += [path.relative_to(bundle_root).as_posix() for path in sorted((bundle_root / ".codex/agents").glob("*.toml"))]
     native_paths += write_native_skills(adapter, bundle_root, skills_dir)
     native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
     write_runtime_entrypoints(adapter, profiles, bundle_root)
@@ -482,12 +480,12 @@ def build_package(
         "profiles": profiles,
         "packs": packs,
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "agent_count": len(list(agents_dir.glob("*.md"))),
+        "agent_count": len(list(agents_dir.glob("*.toml" if adapter["runtime"] == "codex" else "*.md"))),
         "skill_count": len(skill_folders(skills_dir)),
         "memory_path": adapter["memory_path"],
         "bundle_root": str(bundle_root.relative_to(ROOT if bundle_root.is_relative_to(ROOT) else bundle_root.parent)),
         "runtime_entrypoint_count": len(runtime_entrypoints(adapter)),
-        "codex_native_agent_count": len(list((bundle_root / ".codex" / "agents").glob("*.md"))),
+        "codex_native_agent_count": len(list((bundle_root / ".codex" / "agents").glob("*.toml"))),
         # Paths outside .aikit/ owned by this package; the installer removes them before the next install
         "native_paths": native_paths,
     }

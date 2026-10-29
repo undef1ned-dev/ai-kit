@@ -179,7 +179,7 @@ class CodexDoctorTests(unittest.TestCase):
     def test_adapter_mode_does_not_require_plugin_registration(self):
         (self.workspace / ".aikit/plugin-init.json").unlink()
         self.write(".aikit/package.manifest.json", json.dumps({"adapter_runtime": "codex", "repo_version": self.version}))
-        self.write(".aikit/agents/vue-coder.md", "Canonical source")
+        self.write(".aikit/agents/vue-coder.toml", "Canonical source")
         report = self.report()
         self.assertEqual(report["mode"], "adapter")
         checks = {item["id"]: item for item in report["checks"]}

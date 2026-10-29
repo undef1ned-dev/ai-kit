@@ -76,7 +76,9 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 
 ## Правила и runtime
 
-Общие правила команды — `base/RULES.md`, требования стека — `profiles/<name>/RULES.md`. Codex, Claude Code и OpenCode имеют собственные инструкции в `adapters/<runtime>/rules.md`. Установщики собирают их через `scripts/rules.py`, без перевода правил Claude в Codex. Это первый этап разделения: агенты, пользовательские скиллы и хуки пока поставляются по прежней схеме.
+Общие правила команды — `base/RULES.md`, требования стека — `profiles/<name>/RULES.md`. Codex, Claude Code и OpenCode имеют собственные инструкции в `adapters/<runtime>/rules.md`. Установщики собирают их через `scripts/rules.py`, без перевода правил Claude в Codex.
+
+Агенты и скиллы Codex также имеют самостоятельные источники: `<слой>/codex/agents/*.toml`, `codex/skills/` и `codex/catalog.json`. Модель и effort заданы в нативном TOML; уровни принимаются для совместимости настроек проекта. Плагин и адаптер используют эти источники без чтения промптов Claude. Поддержка Claude сохранена в прежних `agents/` и `skills/`; OpenCode пока использует их конвертацию. Настройки разрешений и оболочки хуков — следующий этап разделения.
 
 ## Разрабатывать этот репозиторий
 

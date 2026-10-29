@@ -103,6 +103,8 @@ class CodexPluginUpdateTests(unittest.TestCase):
         self.assertEqual(state["runtimes"], ["claude", "codex"])
         self.assertEqual(state["codex_agents_version"], self.version)
         self.assertEqual(state["codex_plugin_versions"], versions)
+        catalog = updater.read_json(self.workspace / updater.CATALOG_FILE)
+        self.assertEqual(set(catalog["agents"]), set(state["codex_agents"]))
         for relative, content in before.items():
             if relative not in {updater.STATE_FILE, Path(".codex/agents/vue-coder.toml"), Path(".codex/agents/retired-agent.toml")}:
                 self.assertEqual((self.workspace / relative).read_bytes(), content, relative)

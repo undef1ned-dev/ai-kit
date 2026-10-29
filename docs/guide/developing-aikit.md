@@ -4,7 +4,7 @@
 
 ## Принципы
 
-1. **Общие требования и самостоятельные инструкции runtime.** Общие правила — в `base/RULES.md` и `profiles/<name>/RULES.md`; инструкции runtime — в `adapters/<runtime>/rules.md`. Их собирает `scripts/rules.py` без перевода текста Claude в Codex. Агенты, скиллы и хуки пока используют прежнюю схему поставки; их разделение — следующие этапы roadmap.
+1. **Общие требования и самостоятельные инструкции runtime.** Общие правила — в `base/RULES.md` и `profiles/<name>/RULES.md`; инструкции runtime — в `adapters/<runtime>/rules.md`. Их собирает `scripts/rules.py` без перевода текста Claude в Codex. Агенты и скиллы Codex имеют самостоятельные источники в `<слой>/codex/`; хуки и разрешения остаются следующим этапом roadmap.
 2. **Ядро не знает стеков.** Базовые скиллы и оркестраторы не называют агентов профилей и стековые команды. Всё стековое они берут из `.aikit/profiles.json`, а он собирается из контрактов. Это проверяет статическая проверка.
 3. **Каждая задача — для всех runtime.** Задача закрыта, когда сделана для Claude Code и Codex. Для OpenCode она сделана или явно отмечена как невозможная в [docs/runtime-support.md](../runtime-support.md).
 4. **Имена уникальны во всём ките.** Нет двух агентов или двух скиллов с одним именем — поэтому любые профили и паки ставятся вместе без переименований.
@@ -16,6 +16,7 @@
 | Путь | Что это |
 |---|---|
 | `base/` | Ядро: `RULES.md` (общие правила), `agents/`, `skills/<name>/SKILL.md`, `hooks/` (скрипт хуков и плагин OpenCode), `settings.json`, `mcp.json`, `PRODUCT.md` (шаблон), `memory/` (шаблон памяти) |
+| `<слой>/codex/` | Нативные `agents/*.toml`, `skills/<name>/SKILL.md`, `plugin-skills/` и `catalog.json` Codex. Общие правила и контракты лежат вне runtime-каталогов |
 | `base/plugin-skills/` | Скиллы только для плагина ядра: `setup` подключает проект (`/aikit:setup`), `update-agents` обновляет агентов Codex после обновления плагинов (`plugin-init.py --refresh-agents`) |
 | `profiles/<name>/` | Профиль стека: `profile.manifest.json` (контракт), `RULES.md`, `agents/`, `skills/`, `settings.json`, `mcp.json`; `.claude-plugin/` и `.codex-plugin/` — манифесты плагина (генерируются) |
 | `packs/<name>/` | Пак: `pack.json`, `agents/`, `skills/`, `mcp.json`, манифесты плагина |
@@ -60,7 +61,7 @@
 | `scripts/generate-docs.py` | Собирает сайт `docs/site/` из `docs/guide/` и исходников кита |
 | `scripts/preset_utils.py` | Разбор пресетов |
 | `scripts/project_settings.py` | Настройки команды в `.aikit/settings.json`: режим коммитов `ask` или `auto`; пишут установщики, переключает AIKit Deck. Ключ `update_check: false` (выключить уведомление о новой версии) читает хук |
-| `scripts/agent_models.py` | Модели агентов: уровень из frontmatter и `adapters/models.json` → модель runtime, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
+| `scripts/agent_models.py` | Модели: Codex берёт defaults из нативного TOML; Claude/OpenCode — уровень из frontmatter и `adapters/models.json`, переопределения проекта `.aikit/models.json`; `apply` пишет модель в файлы агентов |
 | `scripts/memory_paths.py` | Структура командной памяти `.aikit/memory/` |
 | `scripts/release_utils.py`, `changelog_since.py` | Версия и changelog для релиза и `update.sh` |
 | `scripts/bump-version.py` | Следующая версия по Conventional Commits после прошлого релиза и секция `CHANGELOG.md`; `--write` — записать ([Версии и релиз](#версии-и-релиз)) |
@@ -73,13 +74,17 @@
 
 Агенты профиля работают сабагентами `/implement-feature` и `/fix-bug`, поэтому не спрашивают пользователя по ходу работы («использовать Context7?», «передать дальше?») и не запускают следующего агента: вопросы — в поле `QUESTIONS` блока, передачу ведёт оркестратор. MCP вроде Context7 агент использует сам, когда нужно, а если сервер недоступен — пропускает. Блок закрывается маркером с тем же именем: `=== ARCHITECT_PLAN ===` … `=== END ARCHITECT_PLAN ===`. Ревьюер работает параллельно с тестировщиком и TESTER_RESULT не получает — не ставь ревьюеру `depends_on` на тестировщика.
 
+Для Codex отдельно создай `<слой>/codex/agents/<name>.toml`: `name`, `description`, `developer_instructions`, реальный `model` и `model_reasoning_effort`. Модель по умолчанию не выводится из уровня Claude; уровни остаются совместимыми переопределениями проекта. Заполни `<слой>/codex/catalog.json` (output_block, context_blocks, depends_on, example_prompt). `test-codex-content.py` проверяет полноту нативного набора и независимость сборки.
+
 ### Скилл
 
 Папка `<слой>/skills/<name>/SKILL.md`. `description` пиши под автовызов: что делает и «Используй, когда…». Скилл с побочными эффектами помечай `disable-model-invocation: true` и клади рядом `agents/openai.yaml` с `policy.allow_implicit_invocation: false` — тот же запрет для Codex: плагин и адаптер Codex читают его из папки скилла, расхождение ловит статическая проверка. Можно начать с `/create-skill`. Новый скилл ядра добавь в [Команды](commands.md) — иначе проверка документации упадёт.
 
 Скилл, который спрашивает пользователя по ходу работы (интервью, выбор вариантов, согласие на удаление, способ сохранения в git), ведёт диалог сам, в основном потоке: сабагент спросить пользователя не может и историю разговора не видит. Агенту такой скилл отдаёт уже собранные ответы и нужный контекст разговора; не хватает данных — агент возвращает `QUESTIONS`, скилл спрашивает и запускает его снова, не больше одного лишнего круга. Так устроены `/create-agent`, `/create-skill`, `/analyze-mvp`, `/implement-mvp`, `/capture-memory` и `/optimize-memory`.
 
-Установщик Codex и OpenCode заменяет в текстах агентов и скиллов `.claude/agents/` и `.claude/skills/` на пути своего runtime. Если текст должен назвать именно папку Claude Code рядом с папками других runtime (как билдеры агентов и скиллов), пиши так, чтобы подстрока не совпала: «`agents/<имя>.md` в `.claude/`». В агентах Codex и OpenCode (адаптер и `/aikit:setup`) `CLAUDE.md` заменяется на `AGENTS.md` — кроме строк, где уже есть `AGENTS.md`, и путей вида `profiles/<профиль>/RULES.md`: так называй файл кита, а не правила проекта. Скиллы плагина Codex читает из исходников без замен.
+Установщик OpenCode заменяет в текстах агентов и скиллов `.claude/agents/` и `.claude/skills/` на пути своего runtime. Если текст должен назвать именно папку Claude Code рядом с папками других runtime (как билдеры агентов и скиллов), пиши так, чтобы подстрока не совпала: «`agents/<имя>.md` в `.claude/`». В агентах OpenCode `CLAUDE.md` заменяется на `AGENTS.md` — кроме строк, где уже есть `AGENTS.md`, и путей вида `profiles/<профиль>/RULES.md`: так называй файл кита, а не правила проекта. Codex: плагин читает `<слой>/codex/skills/` и `base/codex/plugin-skills/`; адаптер копирует те же навыки без замены текста. Агенты из `<слой>/codex/agents/*.toml` копируются в `.codex/agents/`, затем применяются переопределения проекта. Нет нативного источника — ошибка, отката к Markdown другого runtime нет. Метаданные выходных блоков, зависимостей и примеров — `<слой>/codex/catalog.json`, в проекте `.aikit/agent-catalog.json`. Адаптер хранит нативные defaults в `.aikit/agents/*.toml`.
+
+Для Codex создай независимую папку `<слой>/codex/skills/<name>/` и её `agents/openai.yaml` при явном вызове. Frontmatter — `name`, `description`; задача и флаги — из сообщения. Не копируй в сценарий параметры инструментов другого runtime. Роли — локальные TOML, команды — контракт профиля; параллельные агенты запускаются до ожидания. Если роль передана обычному субагенту как текст, нельзя обещать применение модели TOML. Недоступное делегирование останавливает цепочку с объяснением. Живые эвалы запускает только человек.
 
 ### Профиль
 

@@ -18,6 +18,8 @@ GLM отдельно не поддерживается: это модель, а 
 
 ## 1. Что умеет каждый runtime
 
+Codex имеет самостоятельные источники агентов и скиллов в `<слой>/codex/`. Общими остаются RULES.md, контракты, память и MCP. OpenCode пока использует прежнюю конвертацию Markdown; её нативное разделение в эту итерацию не входит.
+
 Справочник по родным механизмам. Сверено с документацией 2026-10-12, плагины — 2026-10-19.
 
 | Возможность | Claude Code | Codex | OpenCode |
@@ -41,7 +43,7 @@ GLM отдельно не поддерживается: это модель, а 
 
 ## 2. Что AIKit ставит сейчас
 
-Состояние на 2026-10-12, проверено smoke-тестами всех пресетов (`scripts/ci/run-all.sh`).
+Нативные источники Codex обновлены 2026-10-29; поставка проверяется smoke-тестами всех пресетов (`scripts/ci/run-all.sh`).
 
 | Возможность | Claude Code (`attach.sh`) | Codex | OpenCode |
 |---|---|---|---|
@@ -52,8 +54,8 @@ GLM отдельно не поддерживается: это модель, а 
 | Старые команды прежних версий кита | ✅ убираются из `.claude/commands/` при обновлении, свои команды пользователя остаются | ✅ `.codex/commands/` убирается | — |
 | Сабагенты | ✅ `.claude/agents/` | ✅ `.codex/agents/*.toml` (проект должен быть доверенным) | ✅ `.opencode/agents/*.md`, `mode: subagent` |
 | Свои агенты и скиллы проекта (`/create-agent`, `/create-skill` в проекте), обновление кита их не трогает | ✅ `.claude/agents/<имя>.md`, `.claude/skills/<имя>/` | ⚠️ `.codex/agents/<имя>.toml`, `.agents/skills/<имя>/`; не проверено вживую | ⚠️ `.opencode/agents/<имя>.md`, `.opencode/skills/<имя>/`; не проверено вживую |
-| Модели агентов: уровень в описании агента (`opus`, `sonnet`, `haiku`) → модель runtime из `adapters/models.json` | ✅ алиасы Claude Code, всегда последняя версия семейства | ✅ `model` и `model_reasoning_effort` в TOML агента; раздел `agents` в `adapters/models.json` снижает уровень отдельному агенту (архитектор `forge-1-12-java` — `medium`) | ✅ `model` агента (`provider/model`) |
-| Уровень усилий агента (effort): архитекторы `high`, остальные `medium` — не наследуют уровень сессии | ✅ поле `effort` в описании агента, работает и в плагинах, и в `.claude/agents/`; перекрывается `CLAUDE_CODE_EFFORT_LEVEL` и параметром `effort` при запуске агента | ⚠️ по уровню модели, а не по роли: `model_reasoning_effort` из `adapters/models.json` (`opus` — `high`, `sonnet` — `medium`, `haiku` — `low`) | ⚠️ не задаётся: поле `effort` в агентов OpenCode не переносится, уровень — по настройкам модели |
+| Модели агентов: уровень в описании агента (`opus`, `sonnet`, `haiku`) → модель runtime из `adapters/models.json` | ✅ алиасы Claude Code, всегда последняя версия семейства | ✅ defaults `model` и `model_reasoning_effort` из `<слой>/codex/agents/*.toml`, независимо от уровня Claude; уровни — совместимые переопределения | ✅ `model` агента (`provider/model`) |
+| Уровень усилий агента (effort): архитекторы `high`, остальные `medium` — не наследуют уровень сессии | ✅ поле `effort` в описании агента, работает и в плагинах, и в `.claude/agents/`; перекрывается `CLAUDE_CODE_EFFORT_LEVEL` и параметром `effort` при запуске агента | ✅ `model_reasoning_effort` задан явно в нативном TOML каждой роли; совместимый tier override может его заменить | ⚠️ не задаётся: поле `effort` в агентов OpenCode не переносится, уровень — по настройкам модели |
 | Своя модель агента в проекте (`/set-model`, `.aikit/models.json`) | ✅ в файле агента; при установке плагинами — параметр `model` при запуске по правилу из `CLAUDE.md` | ✅ и без исходников кита в проекте: адаптер кладёт `scripts/agent_models.py` и `adapters/models.json` в `.aikit/` | ✅ так же, как в Codex |
 | MCP-серверы | ✅ `.mcp.json` | ✅ блок AIKit в `.codex/config.toml` (проект должен быть доверенным) | ✅ раздел `mcp` в `opencode.json` |
 | MCP: один источник, версии закреплены, без секретов в файлах | ✅ `mcp.json` в base, профилях и паках | ✅ | ✅ |

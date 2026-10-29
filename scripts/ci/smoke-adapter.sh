@@ -57,6 +57,8 @@ case "$ADAPTER" in
 esac
 LOCAL_SUMS="$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")"
 
+AGENT_PATTERN="*.md"
+[[ "$ADAPTER" == codex ]] && AGENT_PATTERN="*.toml"
 FAILURES=0
 pass() { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
@@ -259,7 +261,7 @@ echo "▶ install-adapter-package.py"
 INSTALL_LOG="$WORK_DIR/$ADAPTER-$PRESET-install.log"
 run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG"; echo "✗ Установка завершилась с ошибкой"; exit 1; }
 
-check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
+check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" "$AGENT_PATTERN")" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
 check "инструкция runtime .$ADAPTER/AIKIT.md из шаблона адаптера" test -s "$PROJECT_DIR/.$ADAPTER/AIKIT.md"
 check "файла разработки кита CONTINUE_AIKIT_MAINTAINER.md нет" test ! -e "$PROJECT_DIR/.$ADAPTER/CONTINUE_AIKIT_MAINTAINER.md" -a ! -e "$PROJECT_DIR/CONTINUE_AIKIT_MAINTAINER.md"
@@ -282,7 +284,7 @@ else
   cat "$UPDATE_LOG"
   fail "обновление завершилось с ошибкой"
 fi
-check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" '*.md')" -gt 0
+check "агенты кита на месте после обновления" test "$(count_files "$PROJECT_DIR/.aikit/agents" "$AGENT_PATTERN")" -gt 0
 check "устаревшие .codex/commands и .codex/skills убраны" test ! -e "$PROJECT_DIR/.codex/commands" -a ! -e "$PROJECT_DIR/.codex/skills"
 check "устаревший протокол .aikit/runtime-operating-protocol.md убран" test ! -e "$PROJECT_DIR/.aikit/runtime-operating-protocol.md"
 check ".aikit/profiles.json после обновления: правки команд проекта сохранены" check_profile_contracts edited

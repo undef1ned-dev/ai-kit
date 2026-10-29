@@ -33,6 +33,7 @@ import json
 import sys
 from pathlib import Path
 
+import codex_content
 import hooks_config
 import mcp_config
 from release_utils import is_semver
@@ -163,10 +164,10 @@ def codex_manifest(spec: dict) -> dict:
         "description": spec["description"],
         "keywords": keywords(spec),
     }
-    if (source_dir / "skills").is_dir():
-        manifest["skills"] = "./skills/"
+    if (source_dir / "codex/skills").is_dir():
+        manifest["skills"] = "./codex/skills/"
     if spec["core"]:
-        manifest["skills"] = [f"./{folder}/" for folder in CORE_SKILL_DIRS]
+        manifest["skills"] = ["./base/codex/skills/", "./base/codex/plugin-skills/"]
         manifest["hooks"] = {"hooks": event_lists(hooks_config.codex_groups(CODEX_HOOK_COMMAND, CODEX_HOOK_COMMAND_WINDOWS))}
         source_dir = ROOT / "base"
     servers = mcp_servers(source_dir, render_codex_mcp)
@@ -226,6 +227,13 @@ def broken_references() -> list[str]:
                 for path in sorted(skill_dir.iterdir())
                 if path.is_dir() and not (path / "SKILL.md").exists()
             ]
+        try:
+            layer = ROOT / "base" if spec["core"] else folder
+            codex_content.agents([layer])
+            codex_content.catalog([layer])
+            codex_content.skills([layer], plugin=True)
+        except (OSError, ValueError) as error:
+            problems.append(str(error))
         if not spec["core"] and not (folder / "agents").is_dir():
             problems.append(f"{spec['name']}: нет папки агентов")
     if not (ROOT / HOOK_SCRIPT).exists():

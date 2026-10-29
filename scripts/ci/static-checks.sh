@@ -218,6 +218,7 @@ sys.exit(1 if errors else 0)
 echo "▶ Правила: общие источники и независимые инструкции runtime"
 "$PYTHON_BIN" scripts/rules.py --repository --check || FAILURES=$((FAILURES + 1))
 "$PYTHON_BIN" scripts/ci/test-rules.py || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/ci/test-codex-content.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Документация: docs/site/ собран из docs/guide/ и исходников кита"
 "$PYTHON_BIN" scripts/generate-docs.py --check || FAILURES=$((FAILURES + 1))

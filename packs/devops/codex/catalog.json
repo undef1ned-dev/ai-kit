@@ -1,0 +1,18 @@
+{
+  "agents": {
+    "devops-engineer": {
+      "output_block": "DEVOPS_RESULT",
+      "example_prompt": "Упакуй проект в Docker и настрой CI с тестами и сборкой образа"
+    }
+  },
+  "skills": {
+    "dockerize": {
+      "argument-hint": "[стек или особенности сборки]",
+      "example_prompt": "$dockerize"
+    },
+    "setup-ci": {
+      "argument-hint": "[CI-система или окружения]",
+      "example_prompt": "$setup-ci"
+    }
+  }
+}

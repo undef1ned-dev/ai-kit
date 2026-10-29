@@ -1,0 +1,96 @@
+{
+  "agents": {
+    "forge-1-12-java-architect": {
+      "output_block": "ARCHITECT_PLAN",
+      "example_prompt": "Спроектируй дробилку руды: блок с TileEntity, GUI и удвоение выхода"
+    },
+    "forge-1-12-java-coder": {
+      "output_block": "CODER_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN"
+      ],
+      "depends_on": [
+        "forge-1-12-java-architect"
+      ],
+      "example_prompt": "Реализуй план из ARCHITECT_PLAN"
+    },
+    "forge-1-12-java-doc-writer": {
+      "output_block": "DOCS_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "CODER_RESULT"
+      ],
+      "example_prompt": "Обнови документацию мода после добавления дробилки"
+    },
+    "forge-1-12-java-quality-analyst": {
+      "output_block": "QUALITY_REPORT",
+      "example_prompt": "Проанализируй качество кода в пакете tileentity/"
+    },
+    "forge-1-12-java-reviewer": {
+      "output_block": "REVIEW_RESULT",
+      "context_blocks": [
+        "CODER_RESULT"
+      ],
+      "depends_on": [
+        "forge-1-12-java-coder"
+      ],
+      "example_prompt": "Проверь код по CODER_RESULT"
+    },
+    "forge-1-12-java-security-auditor": {
+      "output_block": "SERVER_SECURITY_AUDIT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "CODER_RESULT"
+      ],
+      "example_prompt": "Проверь безопасность сетевого кода и команд мода перед релизом"
+    },
+    "forge-1-12-java-tester": {
+      "output_block": "TESTER_RESULT",
+      "context_blocks": [
+        "CODER_RESULT"
+      ],
+      "depends_on": [
+        "forge-1-12-java-coder"
+      ],
+      "example_prompt": "Напиши тесты по CODER_RESULT"
+    }
+  },
+  "skills": {
+    "forge-1-12-add-tests": {
+      "argument-hint": "<классы или пакет>",
+      "example_prompt": "$forge-1-12-add-tests domain/GrinderRecipes.java и network/SetModeMessage.java"
+    },
+    "forge-1-12-mod-docs": {
+      "argument-hint": "[раздел или фича] [--full] [--check]",
+      "example_prompt": "$forge-1-12-mod-docs дробилка"
+    },
+    "forge-1-12-new-block": {
+      "argument-hint": "<имя> [--tile-entity]",
+      "example_prompt": "$forge-1-12-new-block copper_ore"
+    },
+    "forge-1-12-new-command": {
+      "argument-hint": "<имя>",
+      "example_prompt": "$forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов"
+    },
+    "forge-1-12-new-config": {
+      "argument-hint": "<параметры>",
+      "example_prompt": "$forge-1-12-new-config скорость дробилки 1-100, по умолчанию 20; включить генерацию медной руды"
+    },
+    "forge-1-12-new-item": {
+      "argument-hint": "<имя>",
+      "example_prompt": "$forge-1-12-new-item copper_ingot"
+    },
+    "forge-1-12-new-packet": {
+      "argument-hint": "<имя> [--to-client]",
+      "example_prompt": "$forge-1-12-new-packet set_grinder_mode"
+    },
+    "forge-1-12-new-tile-entity": {
+      "argument-hint": "<блок> [--tickable] [--inventory]",
+      "example_prompt": "$forge-1-12-new-tile-entity grinder --tickable --inventory"
+    },
+    "forge-1-12-setup-checkstyle": {
+      "argument-hint": "[--report-only]",
+      "example_prompt": "$forge-1-12-setup-checkstyle"
+    }
+  }
+}

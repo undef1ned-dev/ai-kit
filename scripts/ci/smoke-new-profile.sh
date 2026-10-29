@@ -52,6 +52,12 @@ documenter.write_text(
     '---\nname: spring-api-documenter\ndescription: Описывает API в OpenAPI.\noutput_block: "API_DOCS"\n---\n\nОпиши API.\n',
     encoding="utf-8",
 )
+native = profile / "codex/agents/spring-api-documenter.toml"
+native.write_bytes(b'name = "spring-api-documenter"\ndescription = "API documentation"\nmodel = "gpt-6.1-sol"\nmodel_reasoning_effort = "medium"\ndeveloper_instructions = "Return API_DOCS with API documentation."\n')
+catalog = profile / "codex/catalog.json"
+metadata = json.loads(catalog.read_text(encoding="utf-8"))
+metadata["agents"]["spring-api-documenter"] = {"output_block": "API_DOCS"}
+catalog.write_bytes((json.dumps(metadata) + "\n").encode("utf-8"))
 manifest = profile / "profile.manifest.json"
 data = json.loads(manifest.read_text(encoding="utf-8"))
 data["pipelines"] = {"api-docs": {"when": "нужна только документация API без изменения кода", "steps": [agent, "spring-reviewer"]}}

@@ -18,6 +18,7 @@ from release_utils import is_semver
 MARKETPLACE = "aikit"
 STATE_FILE = Path(".aikit/plugin-init.json")
 AGENTS_DIR = Path(".codex/agents")
+CATALOG_FILE = Path(".aikit/agent-catalog.json")
 NAME = re.compile(r"^[a-z][a-z0-9-]*$")
 COMMAND_TIMEOUT = 300
 
@@ -110,6 +111,7 @@ def atomic_write(path: Path, data: bytes) -> None:
 def promote(workspace: Path, stage: Path, old_names: list[str], new_names: list[str], state: dict) -> None:
     changes = {AGENTS_DIR / f"{name}.toml": (stage / AGENTS_DIR / f"{name}.toml").read_bytes() for name in new_names}
     changes.update({AGENTS_DIR / f"{name}.toml": None for name in set(old_names) - set(new_names)})
+    changes[CATALOG_FILE] = (stage / CATALOG_FILE).read_bytes()
     changes[STATE_FILE] = (json.dumps(state, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     for name in set(new_names) - set(old_names):
         if (workspace / AGENTS_DIR / f"{name}.toml").exists():

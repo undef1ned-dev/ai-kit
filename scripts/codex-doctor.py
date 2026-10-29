@@ -158,7 +158,7 @@ def diagnose(workspace: Path, *, codex_home: Path | None = None, now: dt.datetim
     def check_agents():
         expected = {"aikit-maintainer"} if repository else set(owned_agents)
         if mode == "adapter":
-            expected.update(path.stem for path in (workspace / ".aikit/agents").glob("*.md"))
+            expected.update(path.stem for path in (workspace / ".aikit/agents").glob("*.toml"))
         for profile in contracts.get("profiles", {}).values():
             expected.update(profile.get("agents", {}).values())
             expected.update(item["agent"] for item in profile.get("specialists", {}).values())

@@ -53,54 +53,63 @@
   <p>Генерирует файл нового агента по готовым ответам интервью /create-agent — в репозитории кита агента кита, в проекте локального агента для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в AGENT_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом агенте собраны.</p>
   <div class="chips"><span class="chip chip-out">→ AGENT_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Сгенерируй агента по ответам интервью: проверка локализации, Claude Code</span><button class="copy-btn" type="button" data-copy="Сгенерируй агента по ответам интервью: проверка локализации, Claude Code">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/agent-builder.toml">Codex: base/codex/agents/agent-builder.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/agent-builder.md">base/agents/agent-builder.md</a>
 </article><article class="entry-card entry-agent" id="agent-cross-project-analyst" data-filter="cross-project-analyst кросс-проектный аналитик. анализирует, как изменение api или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать. используй через /cross-check, когда меняется api или контракт данных между сторонами.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">cross-project-analyst</span></header>
   <p>Кросс-проектный аналитик. Анализирует, как изменение API или контракта данных влияет на другую сторону — backend и его клиенты (web, мобильные приложения, другие сервисы): что обновить, ломает ли совместимость, в каком порядке выкатывать. Используй через /cross-check, когда меняется API или контракт данных между сторонами.</p>
   <div class="chips"><span class="chip chip-out">→ CROSS_PROJECT_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?</span><button class="copy-btn" type="button" data-copy="Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/cross-project-analyst.toml">Codex: base/codex/agents/cross-project-analyst.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/cross-project-analyst.md">base/agents/cross-project-analyst.md</a>
 </article><article class="entry-card entry-agent" id="agent-memory-optimizer" data-filter="memory-optimizer консолидирует командную память .aikit/memory/ — сжимает index до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. запускай через /optimize-memory, когда /memory-status показывает предупреждение.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-optimizer</span></header>
   <p>Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. Запускай через /optimize-memory, когда /memory-status показывает предупреждение.</p>
   <div class="chips"><span class="chip chip-out">→ MEMORY_OPTIMIZATION</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
 
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/memory-optimizer.toml">Codex: base/codex/agents/memory-optimizer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-optimizer.md">base/agents/memory-optimizer.md</a>
 </article><article class="entry-card entry-agent" id="agent-memory-writer" data-filter="memory-writer фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. git не трогает — сохранение выбирает и делает скилл. используй через /capture-memory, когда записи собраны и подтверждены пользователем.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">memory-writer</span></header>
   <p>Фиксирует командную память после завершённой задачи — решения, паттерны и коррекции агентов в .aikit/memory/. Git не трогает — сохранение выбирает и делает скилл. Используй через /capture-memory, когда записи собраны и подтверждены пользователем.</p>
   <div class="chips"><span class="chip chip-out">→ MEMORY_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
 
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/memory-writer.toml">Codex: base/codex/agents/memory-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-writer.md">base/agents/memory-writer.md</a>
 </article><article class="entry-card entry-agent" id="agent-mvp-analyst" data-filter="mvp-analyst mvp-аналитик уровня зрелого продукта. принимает описание идеи и формирует структурированный анализ в docs/mvp/. учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. читает product.md для контекста продукта. используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">mvp-analyst</span></header>
   <p>MVP-аналитик уровня зрелого продукта. Принимает описание идеи и формирует структурированный анализ в docs/mvp/. Учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. Читает PRODUCT.md для контекста продукта. Используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.</p>
   <div class="chips"><span class="chip chip-out">→ MVP_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй идею: добавить экспорт отчётов в PDF</span><button class="copy-btn" type="button" data-copy="Проанализируй идею: добавить экспорт отчётов в PDF">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/mvp-analyst.toml">Codex: base/codex/agents/mvp-analyst.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/mvp-analyst.md">base/agents/mvp-analyst.md</a>
 </article><article class="entry-card entry-agent" id="agent-security-auditor" data-filter="security-auditor аудитор безопасности. проверяет код на owasp top 10, секреты в коде, проблемы с авторизацией, инъекции. запускай перед релизом или после крупных изменений.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">security-auditor</span></header>
   <p>Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений.</p>
   <div class="chips"><span class="chip chip-out">→ SECURITY_AUDIT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Проверь безопасность перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность перед релизом">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/security-auditor.toml">Codex: base/codex/agents/security-auditor.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/security-auditor.md">base/agents/security-auditor.md</a>
 </article><article class="entry-card entry-agent" id="agent-skill-builder" data-filter="skill-builder генерирует новый скилл &lt;name&gt;/skill.md по готовым ответам интервью /create-skill — в репозитории кита скилл кита, в проекте локальный скилл для claude code, codex или opencode. проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в skill_file, ничего не записывая. используй, когда ответы на вопросы о новом скилле собраны.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">skill-builder</span></header>
   <p>Генерирует новый скилл &lt;name&gt;/SKILL.md по готовым ответам интервью /create-skill — в репозитории кита скилл кита, в проекте локальный скилл для Claude Code, Codex или OpenCode. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в SKILL_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом скилле собраны.</p>
   <div class="chips"><span class="chip chip-out">→ SKILL_FILE</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Сгенерируй скилл /check-l10n по ответам интервью</span><button class="copy-btn" type="button" data-copy="Сгенерируй скилл /check-l10n по ответам интервью">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/skill-builder.toml">Codex: base/codex/agents/skill-builder.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/skill-builder.md">base/agents/skill-builder.md</a>
 </article><article class="entry-card entry-agent" id="agent-tech-planner" data-filter="tech-planner технический планировщик. читает продуктовый mvp-документ и переводит его в технический план реализации по платформам. определяет api-контракт, scope каждой платформы, порядок реализации. используй через /implement-mvp после /analyze-mvp, перед архитекторами профилей.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">tech-planner</span></header>
   <p>Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй через /implement-mvp после /analyze-mvp, перед архитекторами профилей.</p>
   <div class="chips"><span class="chip chip-out">→ TECH_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Составь технический план для docs/mvp/export-pdf.md</span><button class="copy-btn" type="button" data-copy="Составь технический план для docs/mvp/export-pdf.md">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/tech-planner.toml">Codex: base/codex/agents/tech-planner.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/tech-planner.md">base/agents/tech-planner.md</a>
 </article><article class="entry-card entry-agent" id="agent-ux-writer" data-filter="ux-writer ux-копирайтер. пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. следит за консистентностью терминологии. используй через /write-ui-texts или из цепочки, когда нужно написать или проверить тексты интерфейса.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">ux-writer</span></header>
   <p>UX-копирайтер. Пишет и ревьюит тексты интерфейса — кнопки, ошибки, пустые состояния, онбординг, push-уведомления. Следит за консистентностью терминологии. Используй через /write-ui-texts или из цепочки, когда нужно написать или проверить тексты интерфейса.</p>
   <div class="chips"><span class="chip chip-out">→ UX_TEXTS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тексты для экрана онбординга</span><button class="copy-btn" type="button" data-copy="Напиши тексты для экрана онбординга">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/ux-writer.toml">Codex: base/codex/agents/ux-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/ux-writer.md">base/agents/ux-writer.md</a>
 </article></div>
   <h3>Скиллы <span class="count">18</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
@@ -108,108 +117,126 @@
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
   <div class="entry-example"><span>/analyze-mvp добавить систему реферальных ссылок</span><button class="copy-btn" type="button" data-copy="/analyze-mvp добавить систему реферальных ссылок">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/analyze-mvp/SKILL.md">Codex: base/codex/skills/analyze-mvp/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/analyze-mvp/SKILL.md">base/skills/analyze-mvp/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-capture-memory" data-filter="capture-memory зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). запускай только по явной просьбе пользователя.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/capture-memory</span></header>
   <p>Зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). Запускай только по явной просьбе пользователя.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/capture-memory после рефакторинга network слоя</span><button class="copy-btn" type="button" data-copy="/capture-memory после рефакторинга network слоя">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/capture-memory/SKILL.md">Codex: base/codex/skills/capture-memory/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/capture-memory/SKILL.md">base/skills/capture-memory/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-check-feature" data-filter="check-feature проверить фичу в работе: запустить приложение командой run из .aikit/profiles.json и пройти сценарий — в браузере для профиля с ui, запросами для api. используй после реализации фичи или фикса, когда нужно убедиться, что изменение работает в запущенном приложении, а не только в тестах.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/check-feature</span></header>
   <p>Проверить фичу в работе: запустить приложение командой run из .aikit/profiles.json и пройти сценарий — в браузере для профиля с UI, запросами для API. Используй после реализации фичи или фикса, когда нужно убедиться, что изменение работает в запущенном приложении, а не только в тестах.</p>
 
   <div class="entry-example"><span>/check-feature фильтр по статусу на странице уведомлений</span><button class="copy-btn" type="button" data-copy="/check-feature фильтр по статусу на странице уведомлений">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/check-feature/SKILL.md">Codex: base/codex/skills/check-feature/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/check-feature/SKILL.md">base/skills/check-feature/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-coverage-check" data-filter="coverage-check проверить покрытие тестами: запустить тесты с coverage, найти непокрытые критичные модули и предложить тесты для главных пробелов. используй, когда пользователь спрашивает про покрытие.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/coverage-check</span></header>
   <p>Проверить покрытие тестами: запустить тесты с coverage, найти непокрытые критичные модули и предложить тесты для главных пробелов. Используй, когда пользователь спрашивает про покрытие.</p>
 
   <div class="entry-example"><span>/coverage-check</span><button class="copy-btn" type="button" data-copy="/coverage-check">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/coverage-check/SKILL.md">Codex: base/codex/skills/coverage-check/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/coverage-check/SKILL.md">base/skills/coverage-check/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-create-agent" data-filter="create-agent создать нового агента через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента: в репозитории кита — агента кита, в проекте — локального агента только для этого проекта. используй, когда пользователь просит добавить или спроектировать агента.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/create-agent</span></header>
   <p>Создать нового агента через интервью из 6 фаз (роль, инструменты, алгоритм, правила качества, формат вывода, интеграция) и сгенерировать файл агента: в репозитории кита — агента кита, в проекте — локального агента только для этого проекта. Используй, когда пользователь просит добавить или спроектировать агента.</p>
 
   <div class="entry-example"><span>/create-agent агент для проверки локализации</span><button class="copy-btn" type="button" data-copy="/create-agent агент для проверки локализации">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/create-agent/SKILL.md">Codex: base/codex/skills/create-agent/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/create-agent/SKILL.md">base/skills/create-agent/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-create-skill" data-filter="create-skill создать новый скилл (папка &lt;name&gt;/skill.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. в репозитории кита — скилл кита, в проекте — локальный скилл только для этого проекта. используй, когда пользователь просит добавить скилл или команду.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/create-skill</span></header>
   <p>Создать новый скилл (папка &lt;name&gt;/SKILL.md) через интервью из 4 фаз: назначение, оркестрация агентов, контекст, результат. В репозитории кита — скилл кита, в проекте — локальный скилл только для этого проекта. Используй, когда пользователь просит добавить скилл или команду.</p>
 
   <div class="entry-example"><span>/create-skill /check-l10n для аудита переводов</span><button class="copy-btn" type="button" data-copy="/create-skill /check-l10n для аудита переводов">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/create-skill/SKILL.md">Codex: base/codex/skills/create-skill/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/create-skill/SKILL.md">base/skills/create-skill/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-cross-check" data-filter="cross-check проанализировать, как изменение api или контракта влияет на другую сторону (backend и клиенты), и составить список нужных правок. используй, когда меняется api, формат данных или контракт между проектами.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/cross-check</span></header>
   <p>Проанализировать, как изменение API или контракта влияет на другую сторону (backend и клиенты), и составить список нужных правок. Используй, когда меняется API, формат данных или контракт между проектами.</p>
 
   <div class="entry-example"><span>/cross-check изменился endpoint POST /api/v1/auth/login</span><button class="copy-btn" type="button" data-copy="/cross-check изменился endpoint POST /api/v1/auth/login">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/cross-check/SKILL.md">Codex: base/codex/skills/cross-check/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/cross-check/SKILL.md">base/skills/cross-check/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-fix-bug" data-filter="fix-bug исправить баг через агентов профиля: воспроизвести → тест, который ловит баг → минимальный фикс → проверка командами профиля. агентов и команды берёт из .aikit/profiles.json. флаги --no-test и --no-review — без теста на баг и без ревьюера (быстрые правки с экономией токенов). используй, когда пользователь сообщает об ошибке, падении или неверном поведении и просит его исправить.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/fix-bug</span></header>
   <p>Исправить баг через агентов профиля: воспроизвести → тест, который ловит баг → минимальный фикс → проверка командами профиля. Агентов и команды берёт из .aikit/profiles.json. Флаги --no-test и --no-review — без теста на баг и без ревьюера (быстрые правки с экономией токенов). Используй, когда пользователь сообщает об ошибке, падении или неверном поведении и просит его исправить.</p>
 
   <div class="entry-example"><span>/fix-bug при удалении последнего товара со скидкой сумма корзины не обновляется</span><button class="copy-btn" type="button" data-copy="/fix-bug при удалении последнего товара со скидкой сумма корзины не обновляется">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/fix-bug/SKILL.md">Codex: base/codex/skills/fix-bug/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/fix-bug/SKILL.md">base/skills/fix-bug/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-git-branch" data-filter="git-branch convention for naming git branches in this repository: conventional branch 1.1.0. must be followed whenever a branch is created or renamed — always, automatically, without the user having to ask. trigger whenever you are about to run `git checkout -b`, `git switch -c`, `git branch &lt;name&gt;`, `git branch -m`, create a worktree with a new branch, or when the user says «создай ветку», «новая ветка», «branch», «переименуй ветку». defines branch types, naming rules and which base branch to start from.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/git-branch</span></header>
   <p>Convention for naming git branches in this repository: Conventional Branch 1.1.0. MUST be followed whenever a branch is created or renamed — always, automatically, without the user having to ask. Trigger whenever you are about to run `git checkout -b`, `git switch -c`, `git branch &lt;name&gt;`, `git branch -m`, create a worktree with a new branch, or when the user says «создай ветку», «новая ветка», «branch», «переименуй ветку». Defines branch types, naming rules and which base branch to start from.</p>
 
 
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/git-branch/SKILL.md">Codex: base/codex/skills/git-branch/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/git-branch/SKILL.md">base/skills/git-branch/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-git-commit" data-filter="git-commit convention for writing git commit messages in this repository: conventional commits 1.0.0. must be followed for every commit created in the project — always, automatically, without the user having to ask. trigger whenever you are about to run `git commit` (including amend, squash or rewriting history), or when the user says «закоммить», «коммит», «сделай коммит», «commit», or asks to save/commit changes. also forbids any co-authorship trailers.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/git-commit</span></header>
   <p>Convention for writing git commit messages in this repository: Conventional Commits 1.0.0. MUST be followed for every commit created in the project — always, automatically, without the user having to ask. Trigger whenever you are about to run `git commit` (including amend, squash or rewriting history), or when the user says «закоммить», «коммит», «сделай коммит», «commit», or asks to save/commit changes. Also forbids any co-authorship trailers.</p>
 
 
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/git-commit/SKILL.md">Codex: base/codex/skills/git-commit/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/git-commit/SKILL.md">base/skills/git-commit/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-implement-feature" data-filter="implement-feature реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. агентов, специалистов и команды берёт из .aikit/profiles.json. флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты, --no-test и --no-review — без тестировщика и без ревьюера (быстрые правки с экономией токенов). используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету figma.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-feature</span></header>
   <p>Реализовать фичу через цепочку агентов профиля: архитектор → кодер → тестировщик и ревьюер параллельно → проверка командами и в работе. Агентов, специалистов и команды берёт из .aikit/profiles.json. Флаги: --worktree — работать в отдельном git worktree, --tdd — сначала падающие тесты, --no-test и --no-review — без тестировщика и без ревьюера (быстрые правки с экономией токенов). Используй, когда пользователь просит реализовать фичу, экран или эндпоинт целиком, в том числе по макету Figma.</p>
 
   <div class="entry-example"><span>/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read</span><button class="copy-btn" type="button" data-copy="/implement-feature --tdd страница уведомлений с фильтрами и mark-as-read">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/implement-feature/SKILL.md">Codex: base/codex/skills/implement-feature/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/implement-feature/SKILL.md">base/skills/implement-feature/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-implement-mvp" data-filter="implement-mvp перевести mvp-документ из docs/mvp/ в технический план: api-контракт, scope по платформам, порядок реализации (агент tech-planner). используй после analyze-mvp, когда идея одобрена и нужно спланировать разработку.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/implement-mvp</span></header>
   <p>Перевести MVP-документ из docs/mvp/ в технический план: API-контракт, scope по платформам, порядок реализации (агент tech-planner). Используй после analyze-mvp, когда идея одобрена и нужно спланировать разработку.</p>
 
   <div class="entry-example"><span>/implement-mvp docs/mvp/referral-system.md</span><button class="copy-btn" type="button" data-copy="/implement-mvp docs/mvp/referral-system.md">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/implement-mvp/SKILL.md">Codex: base/codex/skills/implement-mvp/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/implement-mvp/SKILL.md">base/skills/implement-mvp/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-memory-status" data-filter="memory-status показать состояние командной памяти проекта (.aikit/memory/): что накоплено, размер index, открытые memory-pr и нужна ли оптимизация. используй, когда пользователь спрашивает, что записано в памяти проекта.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/memory-status</span></header>
   <p>Показать состояние командной памяти проекта (.aikit/memory/): что накоплено, размер INDEX, открытые memory-PR и нужна ли оптимизация. Используй, когда пользователь спрашивает, что записано в памяти проекта.</p>
 
   <div class="entry-example"><span>/memory-status</span><button class="copy-btn" type="button" data-copy="/memory-status">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/memory-status/SKILL.md">Codex: base/codex/skills/memory-status/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/memory-status/SKILL.md">base/skills/memory-status/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-optimize-memory" data-filter="optimize-memory консолидировать командную память .aikit/memory/: сжать index до 60 строк, объединить дубли, убрать устаревшее, перенести решения из логов задач прежних версий. обычно нужен после предупреждения от memory-status. запускай только по явной просьбе пользователя.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/optimize-memory</span></header>
   <p>Консолидировать командную память .aikit/memory/: сжать INDEX до 60 строк, объединить дубли, убрать устаревшее, перенести решения из логов задач прежних версий. Обычно нужен после предупреждения от memory-status. Запускай только по явной просьбе пользователя.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/optimize-memory объедини дублирующиеся паттерны</span><button class="copy-btn" type="button" data-copy="/optimize-memory объедини дублирующиеся паттерны">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/optimize-memory/SKILL.md">Codex: base/codex/skills/optimize-memory/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/optimize-memory/SKILL.md">base/skills/optimize-memory/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-security-check" data-filter="security-check аудит безопасности кода: owasp top 10, секреты в коде и конфигах, авторизация, инъекции. используй перед релизом, после крупных изменений или когда пользователь просит проверить безопасность.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/security-check</span></header>
   <p>Аудит безопасности кода: OWASP Top 10, секреты в коде и конфигах, авторизация, инъекции. Используй перед релизом, после крупных изменений или когда пользователь просит проверить безопасность.</p>
 
   <div class="entry-example"><span>/security-check перед релизом 2.5.0</span><button class="copy-btn" type="button" data-copy="/security-check перед релизом 2.5.0">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/security-check/SKILL.md">Codex: base/codex/skills/security-check/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/security-check/SKILL.md">base/skills/security-check/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-set-model" data-filter="set-model сменить модель агента aikit в проекте: уровень (opus, sonnet, haiku) или конкретную модель для claude code, codex или opencode. записывает .aikit/models.json — общий для команды, хранится в git. используй, когда пользователь просит поставить агенту другую модель или показать, какие модели у агентов.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/set-model</span></header>
   <p>Сменить модель агента AIKit в проекте: уровень (opus, sonnet, haiku) или конкретную модель для Claude Code, Codex или OpenCode. Записывает .aikit/models.json — общий для команды, хранится в git. Используй, когда пользователь просит поставить агенту другую модель или показать, какие модели у агентов.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/set-model security-auditor sonnet</span><button class="copy-btn" type="button" data-copy="/set-model security-auditor sonnet">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/set-model/SKILL.md">Codex: base/codex/skills/set-model/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/set-model/SKILL.md">base/skills/set-model/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-tech-debt" data-filter="tech-debt аудит технического долга: большие модули, дублирование, нарушения архитектурных слоёв, незакрытые todo; результат — приоритизированный backlog улучшений. используй, когда пользователь просит оценить техдолг.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/tech-debt</span></header>
   <p>Аудит технического долга: большие модули, дублирование, нарушения архитектурных слоёв, незакрытые TODO; результат — приоритизированный backlog улучшений. Используй, когда пользователь просит оценить техдолг.</p>
 
   <div class="entry-example"><span>/tech-debt</span><button class="copy-btn" type="button" data-copy="/tech-debt">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/tech-debt/SKILL.md">Codex: base/codex/skills/tech-debt/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/tech-debt/SKILL.md">base/skills/tech-debt/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-write-ui-texts" data-filter="write-ui-texts написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. используй, когда задача касается текстов в ui.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/write-ui-texts</span></header>
   <p>Написать или проверить тексты интерфейса: кнопки, ошибки, пустые состояния, онбординг, push-уведомления — с единым tone of voice и терминологией. Используй, когда задача касается текстов в UI.</p>
 
   <div class="entry-example"><span>/write-ui-texts экран онбординга нового пользователя</span><button class="copy-btn" type="button" data-copy="/write-ui-texts экран онбординга нового пользователя">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/write-ui-texts/SKILL.md">Codex: base/codex/skills/write-ui-texts/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/write-ui-texts/SKILL.md">base/skills/write-ui-texts/SKILL.md</a>
 </article></div>
 </section>
@@ -236,42 +263,49 @@
   <p>Архитектор Java-кода мода Minecraft 1.12.2 на Forge. Проектирует фичу до кода — блоки, предметы, TileEntity, сущности, capability, сеть, команды, конфиг — со стороной (клиент или сервер), слоями и ООП-границами. Используй перед новой механикой, блоком, машиной, пакетом или изменением сохранённых данных мода.</p>
   <div class="chips"><span class="chip chip-out">→ ARCHITECT_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Спроектируй дробилку руды: блок с TileEntity, GUI и удвоение выхода</span><button class="copy-btn" type="button" data-copy="Спроектируй дробилку руды: блок с TileEntity, GUI и удвоение выхода">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-architect.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-architect.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-architect.md">profiles/forge-1-12-java/agents/forge-1-12-java-architect.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-coder" data-filter="forge-1-12-java-coder java-разработчик мода minecraft 1.12.2 на forge. реализует классы по architect_plan — регистрация через registryevent, разделение клиента и сервера, безопасные пакеты, защитное чтение nbt, ооп без god-классов. используй после плана архитектора профиля или для точечной правки java-кода мода.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-coder</span></header>
   <p>Java-разработчик мода Minecraft 1.12.2 на Forge. Реализует классы по ARCHITECT_PLAN — регистрация через RegistryEvent, разделение клиента и сервера, безопасные пакеты, защитное чтение NBT, ООП без god-классов. Используй после плана архитектора профиля или для точечной правки Java-кода мода.</p>
   <div class="chips"><span class="chip chip-out">→ CODER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Реализуй план из ARCHITECT_PLAN</span><button class="copy-btn" type="button" data-copy="Реализуй план из ARCHITECT_PLAN">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-coder.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-coder.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-coder.md">profiles/forge-1-12-java/agents/forge-1-12-java-coder.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-doc-writer" data-filter="forge-1-12-java-doc-writer технический писатель мода minecraft 1.12.2 на forge. пишет и обновляет документацию мода — markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, сущности, механики, команды, конфиг, сеть, api, сборка. код не меняет. используй, когда нужно написать документацию мода с нуля, обновить её после фичи или по coder_result, или проверить, что docs/ не отстала от кода.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-doc-writer</span></header>
   <p>Технический писатель мода Minecraft 1.12.2 на Forge. Пишет и обновляет документацию мода — Markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, сущности, механики, команды, конфиг, сеть, API, сборка. Код не меняет. Используй, когда нужно написать документацию мода с нуля, обновить её после фичи или по CODER_RESULT, или проверить, что docs/ не отстала от кода.</p>
   <div class="chips"><span class="chip chip-out">→ DOCS_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: haiku</span><span class="chip" title="Модель в Codex">Codex: gpt-6-luna · low</span></div>
   <div class="entry-example"><span>Обнови документацию мода после добавления дробилки</span><button class="copy-btn" type="button" data-copy="Обнови документацию мода после добавления дробилки">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-doc-writer.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-doc-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-doc-writer.md">profiles/forge-1-12-java/agents/forge-1-12-java-doc-writer.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-quality-analyst" data-filter="forge-1-12-java-quality-analyst аналитик качества java-кода мода minecraft 1.12.2 на forge. оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. используй для /coverage-check, /tech-debt или когда нужна оценка качества мода.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-quality-analyst</span></header>
   <p>Аналитик качества Java-кода мода Minecraft 1.12.2 на Forge. Оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества мода.</p>
   <div class="chips"><span class="chip chip-out">→ QUALITY_REPORT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй качество кода в пакете tileentity/</span><button class="copy-btn" type="button" data-copy="Проанализируй качество кода в пакете tileentity/">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-quality-analyst.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-quality-analyst.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-quality-analyst.md">profiles/forge-1-12-java/agents/forge-1-12-java-quality-analyst.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-reviewer" data-filter="forge-1-12-java-reviewer code reviewer java-кода мода minecraft 1.12.2 на forge. ревьюит файл, класс или изменения ветки, в цепочке агентов — по coder_result. проверяет только важное: корректность, безопасность и крэши (серверная проверка пакетов, разделение клиента и сервера, потоки, nbt), совместимость с forge 1.12.2 и java 8, нарушения архитектуры; стиль и мелочи не ревьюит. используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить java-код мода, в том числе перед мержем, и после реализации.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-reviewer</span></header>
   <p>Code reviewer Java-кода мода Minecraft 1.12.2 на Forge. Ревьюит файл, класс или изменения ветки, в цепочке агентов — по CODER_RESULT. Проверяет только важное: корректность, безопасность и крэши (серверная проверка пакетов, разделение клиента и сервера, потоки, NBT), совместимость с Forge 1.12.2 и Java 8, нарушения архитектуры; стиль и мелочи не ревьюит. Используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить Java-код мода, в том числе перед мержем, и после реализации.</p>
   <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Проверь код по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-reviewer.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-reviewer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-reviewer.md">profiles/forge-1-12-java/agents/forge-1-12-java-reviewer.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-security-auditor" data-filter="forge-1-12-java-security-auditor аудитор безопасности серверного кода мода minecraft 1.12.2 на forge. проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение nbt и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientsideonly. используй для /security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-security-auditor</span></header>
   <p>Аудитор безопасности серверного кода мода Minecraft 1.12.2 на Forge. Проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение NBT и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientSideOnly. Используй для /security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков.</p>
   <div class="chips"><span class="chip chip-out">→ SERVER_SECURITY_AUDIT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Проверь безопасность сетевого кода и команд мода перед релизом</span><button class="copy-btn" type="button" data-copy="Проверь безопасность сетевого кода и команд мода перед релизом">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-security-auditor.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-security-auditor.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-security-auditor.md">profiles/forge-1-12-java/agents/forge-1-12-java-security-auditor.md</a>
 </article><article class="entry-card entry-agent" id="agent-forge-1-12-java-tester" data-filter="forge-1-12-java-tester qa java-кода мода minecraft 1.12.2 на forge. пишет unit-тесты junit 4 и mockito по coder_result только на важное — критичная логика domain, проверки пакетов, чтение сохранённых nbt, регрессии и нетривиальные ветки — запускает их командой test профиля и, если поведение видно только в мире, коротко описывает ручной сценарий в runclient и runserver.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">forge-1-12-java-tester</span></header>
   <p>QA Java-кода мода Minecraft 1.12.2 на Forge. Пишет unit-тесты JUnit 4 и Mockito по CODER_RESULT только на важное — критичная логика domain, проверки пакетов, чтение сохранённых NBT, регрессии и нетривиальные ветки — запускает их командой test профиля и, если поведение видно только в мире, коротко описывает ручной сценарий в runClient и runServer.</p>
   <div class="chips"><span class="chip chip-out">→ TESTER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тесты по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Напиши тесты по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/agents/forge-1-12-java-tester.toml">Codex: profiles/forge-1-12-java/codex/agents/forge-1-12-java-tester.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/agents/forge-1-12-java-tester.md">profiles/forge-1-12-java/agents/forge-1-12-java-tester.md</a>
 </article></div>
   <h3>Скиллы <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-forge-1-12-add-tests" data-filter="forge-1-12-add-tests написать unit-тесты junit 4 и mockito для существующего java-кода мода forge 1.12.2: логика domain, проверки пакетов, чтение nbt, конфиг, граничные случаи. используй, когда пользователь просит покрыть тестами класс или пакет мода.">
@@ -279,54 +313,63 @@
   <p>Написать unit-тесты JUnit 4 и Mockito для существующего Java-кода мода Forge 1.12.2: логика domain, проверки пакетов, чтение NBT, конфиг, граничные случаи. Используй, когда пользователь просит покрыть тестами класс или пакет мода.</p>
 
   <div class="entry-example"><span>/forge-1-12-add-tests domain/GrinderRecipes.java и network/SetModeMessage.java</span><button class="copy-btn" type="button" data-copy="/forge-1-12-add-tests domain/GrinderRecipes.java и network/SetModeMessage.java">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-add-tests/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-add-tests/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-add-tests/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-add-tests/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-mod-docs" data-filter="forge-1-12-mod-docs написать или обновить документацию мода forge 1.12.2 — markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, механики, команды, конфиг, сеть, api, сборка. используй, когда пользователь просит документацию мода, описать фичу в docs/ или проверить, что документация не отстала от кода.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-mod-docs</span></header>
   <p>Написать или обновить документацию мода Forge 1.12.2 — Markdown-файлы в папке docs/ проекта — по коду: блоки, предметы, механики, команды, конфиг, сеть, API, сборка. Используй, когда пользователь просит документацию мода, описать фичу в docs/ или проверить, что документация не отстала от кода.</p>
 
   <div class="entry-example"><span>/forge-1-12-mod-docs дробилка</span><button class="copy-btn" type="button" data-copy="/forge-1-12-mod-docs дробилка">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-mod-docs/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-mod-docs/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-mod-docs/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-mod-docs/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-block" data-filter="forge-1-12-new-block создать новый блок мода forge 1.12.2: класс блока, регистрация блока и itemblock через registryevent, регистрация модели на клиенте, ключ перевода и список ресурсов, которые нужны блоку. используй, когда пользователь просит добавить в мод блок, руду или декоративный блок.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-block</span></header>
   <p>Создать новый блок мода Forge 1.12.2: класс блока, регистрация блока и ItemBlock через RegistryEvent, регистрация модели на клиенте, ключ перевода и список ресурсов, которые нужны блоку. Используй, когда пользователь просит добавить в мод блок, руду или декоративный блок.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-block copper_ore</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-block copper_ore">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-block/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-block/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-block/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-block/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-command" data-filter="forge-1-12-new-command создать серверную команду мода forge 1.12.2 (commandbase): уровень прав, разбор и проверка аргументов, автодополнение, ответ через ключи перевода, регистрация в fmlserverstartingevent. используй, когда моду нужна команда для игроков или администратора.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-command</span></header>
   <p>Создать серверную команду мода Forge 1.12.2 (CommandBase): уровень прав, разбор и проверка аргументов, автодополнение, ответ через ключи перевода, регистрация в FMLServerStartingEvent. Используй, когда моду нужна команда для игроков или администратора.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-command examplemod reload — перезагрузить рецепты дробилки, только для операторов">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-command/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-command/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-command/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-command/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-config" data-filter="forge-1-12-new-config добавить параметры конфига мода forge 1.12.2 через аннотацию @config: категории, комментарии, диапазоны, ключи перевода и синхронизация при изменении в gui. используй, когда поведение мода должно настраиваться игроком или администратором сервера.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-config</span></header>
   <p>Добавить параметры конфига мода Forge 1.12.2 через аннотацию @Config: категории, комментарии, диапазоны, ключи перевода и синхронизация при изменении в GUI. Используй, когда поведение мода должно настраиваться игроком или администратором сервера.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-config скорость дробилки 1-100, по умолчанию 20; включить генерацию медной руды</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-config скорость дробилки 1-100, по умолчанию 20; включить генерацию медной руды">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-config/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-config/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-config/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-config/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-item" data-filter="forge-1-12-new-item создать новый предмет мода forge 1.12.2: класс предмета, регистрация через registryevent, модель на клиенте, ключ перевода и список ресурсов. используй, когда пользователь просит добавить в мод предмет, инструмент, еду или материал.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-item</span></header>
   <p>Создать новый предмет мода Forge 1.12.2: класс предмета, регистрация через RegistryEvent, модель на клиенте, ключ перевода и список ресурсов. Используй, когда пользователь просит добавить в мод предмет, инструмент, еду или материал.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-item copper_ingot</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-item copper_ingot">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-item/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-item/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-item/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-item/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-packet" data-filter="forge-1-12-new-packet создать сетевое сообщение мода forge 1.12.2 (imessage + imessagehandler в simplenetworkwrapper) с серверной проверкой каждого поля, лимитами размеров и работой с миром в главном потоке. используй, когда клиенту нужно отправить действие на сервер или серверу — данные клиенту.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-packet</span></header>
   <p>Создать сетевое сообщение мода Forge 1.12.2 (IMessage + IMessageHandler в SimpleNetworkWrapper) с серверной проверкой каждого поля, лимитами размеров и работой с миром в главном потоке. Используй, когда клиенту нужно отправить действие на сервер или серверу — данные клиенту.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-packet set_grinder_mode</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-packet set_grinder_mode">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-packet/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-packet/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-packet/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-packet/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-new-tile-entity" data-filter="forge-1-12-new-tile-entity создать tileentity для блока мода forge 1.12.2: состояние, защитное чтение и запись nbt, синхронизация с клиентом, тик с троттлингом, инвентарь через capability. используй, когда блоку нужно хранить данные, работать как машина или иметь инвентарь.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-new-tile-entity</span></header>
   <p>Создать TileEntity для блока мода Forge 1.12.2: состояние, защитное чтение и запись NBT, синхронизация с клиентом, тик с троттлингом, инвентарь через capability. Используй, когда блоку нужно хранить данные, работать как машина или иметь инвентарь.</p>
 
   <div class="entry-example"><span>/forge-1-12-new-tile-entity grinder --tickable --inventory</span><button class="copy-btn" type="button" data-copy="/forge-1-12-new-tile-entity grinder --tickable --inventory">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-new-tile-entity/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-new-tile-entity/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-new-tile-entity/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-new-tile-entity/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-forge-1-12-setup-checkstyle" data-filter="forge-1-12-setup-checkstyle подключить checkstyle к моду forge 1.12.2: плагин checkstyle в build.gradle (gradle 4.9, forgegradle 3 или 2.3), правила профиля в config/checkstyle/checkstyle.xml — именование, неиспользуемые импорты, длина методов и файлов, порядок модификаторов, магические числа, пустые catch, system.out. используй, когда пользователь просит настроить checkstyle или линтер java-кода мода.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/forge-1-12-setup-checkstyle</span></header>
   <p>Подключить Checkstyle к моду Forge 1.12.2: плагин checkstyle в build.gradle (Gradle 4.9, ForgeGradle 3 или 2.3), правила профиля в config/checkstyle/checkstyle.xml — именование, неиспользуемые импорты, длина методов и файлов, порядок модификаторов, магические числа, пустые catch, System.out. Используй, когда пользователь просит настроить Checkstyle или линтер Java-кода мода.</p>
   <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
   <div class="entry-example"><span>/forge-1-12-setup-checkstyle</span><button class="copy-btn" type="button" data-copy="/forge-1-12-setup-checkstyle">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/codex/skills/forge-1-12-setup-checkstyle/SKILL.md">Codex: profiles/forge-1-12-java/codex/skills/forge-1-12-setup-checkstyle/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/forge-1-12-java/skills/forge-1-12-setup-checkstyle/SKILL.md">profiles/forge-1-12-java/skills/forge-1-12-setup-checkstyle/SKILL.md</a>
 </article></div>
 </section>
@@ -353,36 +396,42 @@
   <p>Vue/Nuxt архитектор. Проектирует структуру frontend-фичи до написания кода. Используй перед новой страницей, клиентским flow или сложным состоянием.</p>
   <div class="chips"><span class="chip chip-out">→ ARCHITECT_PLAN</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Спроектируй экран уведомлений в Nuxt</span><button class="copy-btn" type="button" data-copy="Спроектируй экран уведомлений в Nuxt">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-architect.toml">Codex: profiles/vue-nuxt/codex/agents/vue-architect.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-architect.md">profiles/vue-nuxt/agents/vue-architect.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-coder" data-filter="vue-coder vue/nuxt разработчик. реализует файлы по architect_plan. используй после получения плана от vue-architect.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-coder</span></header>
   <p>Vue/Nuxt разработчик. Реализует файлы по ARCHITECT_PLAN. Используй после получения плана от vue-architect.</p>
   <div class="chips"><span class="chip chip-out">→ CODER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Реализуй план из ARCHITECT_PLAN</span><button class="copy-btn" type="button" data-copy="Реализуй план из ARCHITECT_PLAN">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-coder.toml">Codex: profiles/vue-nuxt/codex/agents/vue-coder.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-coder.md">profiles/vue-nuxt/agents/vue-coder.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-design-bridge" data-filter="vue-design-bridge мост между дизайном и vue/nuxt-кодом. проверяет соответствие ui kit, дизайн-токенам и figma-макету, раскладывает макет на компоненты для реализации. используй, когда задача идёт от макета figma или нужна сверка ui с дизайн-системой.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-design-bridge</span></header>
   <p>Мост между дизайном и Vue/Nuxt-кодом. Проверяет соответствие UI kit, дизайн-токенам и Figma-макету, раскладывает макет на компоненты для реализации. Используй, когда задача идёт от макета Figma или нужна сверка UI с дизайн-системой.</p>
   <div class="chips"><span class="chip chip-out">→ DESIGN_REVIEW</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проверь страницы профиля на соответствие UI kit и Figma</span><button class="copy-btn" type="button" data-copy="Проверь страницы профиля на соответствие UI kit и Figma">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-design-bridge.toml">Codex: profiles/vue-nuxt/codex/agents/vue-design-bridge.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-design-bridge.md">profiles/vue-nuxt/agents/vue-design-bridge.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-quality-analyst" data-filter="vue-quality-analyst аналитик качества vue/nuxt-кода. оценивает покрытие тестами vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-quality-analyst</span></header>
   <p>Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. Используй для /coverage-check, /tech-debt или когда нужна оценка качества модуля.</p>
   <div class="chips"><span class="chip chip-out">→ QUALITY_REPORT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй качество кода в components/checkout/</span><button class="copy-btn" type="button" data-copy="Проанализируй качество кода в components/checkout/">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-quality-analyst.toml">Codex: profiles/vue-nuxt/codex/agents/vue-quality-analyst.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-quality-analyst.md">profiles/vue-nuxt/agents/vue-quality-analyst.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-reviewer" data-filter="vue-reviewer vue/nuxt code reviewer. ревьюит vue/nuxt-код — файл, компонент или изменения ветки, в цепочке агентов — по coder_result: ssr и hydration, загрузку данных nuxt, api компонентов, pinia и безопасность. используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить vue/nuxt-код, в том числе перед мержем, и после реализации.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-reviewer</span></header>
   <p>Vue/Nuxt code reviewer. Ревьюит Vue/Nuxt-код — файл, компонент или изменения ветки, в цепочке агентов — по CODER_RESULT: SSR и hydration, загрузку данных Nuxt, API компонентов, Pinia и безопасность. Используй проактивно и обязательно, вместо ревью своими силами: всякий раз, когда пользователь просит проверить или отревьюить Vue/Nuxt-код, в том числе перед мержем, и после реализации.</p>
   <div class="chips"><span class="chip chip-out">→ REVIEW_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: opus</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · high</span></div>
   <div class="entry-example"><span>Проверь код по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Проверь код по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-reviewer.toml">Codex: profiles/vue-nuxt/codex/agents/vue-reviewer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-reviewer.md">profiles/vue-nuxt/agents/vue-reviewer.md</a>
 </article><article class="entry-card entry-agent" id="agent-vue-tester" data-filter="vue-tester vue/nuxt qa. пишет unit и component тесты по coder_result. проверку в запущенном приложении делает /check-feature.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">vue-tester</span></header>
   <p>Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT. Проверку в запущенном приложении делает /check-feature.</p>
   <div class="chips"><span class="chip chip-out">→ TESTER_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Напиши тесты по CODER_RESULT</span><button class="copy-btn" type="button" data-copy="Напиши тесты по CODER_RESULT">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/agents/vue-tester.toml">Codex: profiles/vue-nuxt/codex/agents/vue-tester.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/agents/vue-tester.md">profiles/vue-nuxt/agents/vue-tester.md</a>
 </article></div>
   <h3>Скиллы <span class="count">9</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-add-tests" data-filter="add-tests написать vitest и component-тесты (@vue/test-utils) для существующего vue/nuxt-кода. используй, когда пользователь просит покрыть тестами компонент, composable или store.">
@@ -390,54 +439,63 @@
   <p>Написать Vitest и component-тесты (@vue/test-utils) для существующего Vue/Nuxt-кода. Используй, когда пользователь просит покрыть тестами компонент, composable или store.</p>
 
   <div class="entry-example"><span>/add-tests pages/account/index.vue и stores/auth.ts</span><button class="copy-btn" type="button" data-copy="/add-tests pages/account/index.vue и stores/auth.ts">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/add-tests/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/add-tests/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/add-tests/SKILL.md">profiles/vue-nuxt/skills/add-tests/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-design-review" data-filter="design-review проверить vue/nuxt-реализацию на соответствие ui kit, дизайн-токенам и figma-макету. используй, когда нужно сверить готовый ui с дизайном.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/design-review</span></header>
   <p>Проверить Vue/Nuxt-реализацию на соответствие UI kit, дизайн-токенам и Figma-макету. Используй, когда нужно сверить готовый UI с дизайном.</p>
 
   <div class="entry-example"><span>/design-review pages/account/index.vue и https://www.figma.com/file/...</span><button class="copy-btn" type="button" data-copy="/design-review pages/account/index.vue и https://www.figma.com/file/...">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/design-review/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/design-review/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/design-review/SKILL.md">profiles/vue-nuxt/skills/design-review/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-component" data-filter="new-component создать vue-компонент с типизированными props, emits и slots и понятным api для переиспользования. используй, когда нужен новый компонент.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-component</span></header>
   <p>Создать Vue-компонент с типизированными props, emits и slots и понятным API для переиспользования. Используй, когда нужен новый компонент.</p>
 
   <div class="entry-example"><span>/new-component NotificationsPanel</span><button class="copy-btn" type="button" data-copy="/new-component NotificationsPanel">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-component/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-component/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-component/SKILL.md">profiles/vue-nuxt/skills/new-component/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-composable" data-filter="new-composable создать composable для vue/nuxt с корректной реактивностью, явным api и переиспользованием vueuse. используй, когда логику компонента нужно вынести в composable.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-composable</span></header>
   <p>Создать composable для Vue/Nuxt с корректной реактивностью, явным API и переиспользованием VueUse. Используй, когда логику компонента нужно вынести в composable.</p>
 
   <div class="entry-example"><span>/new-composable useNotificationsFilters</span><button class="copy-btn" type="button" data-copy="/new-composable useNotificationsFilters">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-composable/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-composable/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-composable/SKILL.md">profiles/vue-nuxt/skills/new-composable/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-middleware" data-filter="new-middleware создать nuxt route middleware для auth, redirect или navigation policy. используй, когда нужна защита или перенаправление маршрутов.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-middleware</span></header>
   <p>Создать Nuxt route middleware для auth, redirect или navigation policy. Используй, когда нужна защита или перенаправление маршрутов.</p>
 
   <div class="entry-example"><span>/new-middleware auth</span><button class="copy-btn" type="button" data-copy="/new-middleware auth">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-middleware/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-middleware/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-middleware/SKILL.md">profiles/vue-nuxt/skills/new-middleware/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-page" data-filter="new-page создать nuxt-страницу с типизированной загрузкой данных, seo и состояниями loading, error, empty. используй, когда нужна новая страница или роут.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-page</span></header>
   <p>Создать Nuxt-страницу с типизированной загрузкой данных, SEO и состояниями loading, error, empty. Используй, когда нужна новая страница или роут.</p>
 
   <div class="entry-example"><span>/new-page account/notifications</span><button class="copy-btn" type="button" data-copy="/new-page account/notifications">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-page/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-page/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-page/SKILL.md">profiles/vue-nuxt/skills/new-page/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-plugin" data-filter="new-plugin создать nuxt plugin для app-level интеграции, provide/inject или инициализации зависимости. используй, когда библиотеку или сервис нужно подключить на уровне приложения.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-plugin</span></header>
   <p>Создать Nuxt plugin для app-level интеграции, provide/inject или инициализации зависимости. Используй, когда библиотеку или сервис нужно подключить на уровне приложения.</p>
 
   <div class="entry-example"><span>/new-plugin analytics.client</span><button class="copy-btn" type="button" data-copy="/new-plugin analytics.client">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-plugin/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-plugin/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-plugin/SKILL.md">profiles/vue-nuxt/skills/new-plugin/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-server-route" data-filter="new-server-route создать nitro server route для bff или proxy-логики с валидацией запроса и безопасной обработкой ответа. используй, когда нужен эндпоинт в server/api.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-server-route</span></header>
   <p>Создать Nitro server route для BFF или proxy-логики с валидацией запроса и безопасной обработкой ответа. Используй, когда нужен эндпоинт в server/api.</p>
 
   <div class="entry-example"><span>/new-server-route notifications/index.get</span><button class="copy-btn" type="button" data-copy="/new-server-route notifications/index.get">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-server-route/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-server-route/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-server-route/SKILL.md">profiles/vue-nuxt/skills/new-server-route/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-new-store" data-filter="new-store создать pinia store для состояния фичи: данные, флаги loading/error, actions. используй, когда состояние нужно разделить между страницами или компонентами.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-store</span></header>
   <p>Создать Pinia store для состояния фичи: данные, флаги loading/error, actions. Используй, когда состояние нужно разделить между страницами или компонентами.</p>
 
   <div class="entry-example"><span>/new-store notifications</span><button class="copy-btn" type="button" data-copy="/new-store notifications">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-store/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-store/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-store/SKILL.md">profiles/vue-nuxt/skills/new-store/SKILL.md</a>
 </article></div>
 </section>
@@ -449,6 +507,7 @@
   <p>DevOps инженер. Упаковывает проект в Docker и настраивает CI/CD (GitHub Actions или GitLab CI) под стек и команды профиля из .aikit/profiles.json. Используй когда нужно настроить контейнеризацию, пайплайн или деплой.</p>
   <div class="chips"><span class="chip chip-out">→ DEVOPS_RESULT</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Упакуй проект в Docker и настрой CI с тестами и сборкой образа</span><button class="copy-btn" type="button" data-copy="Упакуй проект в Docker и настрой CI с тестами и сборкой образа">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/codex/agents/devops-engineer.toml">Codex: packs/devops/codex/agents/devops-engineer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/agents/devops-engineer.md">packs/devops/agents/devops-engineer.md</a>
 </article></div>
   <h3>Скиллы <span class="count">2</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-dockerize" data-filter="dockerize создать dockerfile, docker-compose.yml и .dockerignore под стек и команды профиля проекта. используй, когда пользователь просит упаковать проект в docker.">
@@ -456,12 +515,14 @@
   <p>Создать Dockerfile, docker-compose.yml и .dockerignore под стек и команды профиля проекта. Используй, когда пользователь просит упаковать проект в Docker.</p>
 
   <div class="entry-example"><span>/dockerize</span><button class="copy-btn" type="button" data-copy="/dockerize">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/codex/skills/dockerize/SKILL.md">Codex: packs/devops/codex/skills/dockerize/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/dockerize/SKILL.md">packs/devops/skills/dockerize/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-setup-ci" data-filter="setup-ci создать или улучшить ci/cd-пайплайн (github actions или gitlab ci): проверки командами профиля, сборка docker-образа, деплой на staging и production. используй, когда пользователь просит настроить ci/cd.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/setup-ci</span></header>
   <p>Создать или улучшить CI/CD-пайплайн (GitHub Actions или GitLab CI): проверки командами профиля, сборка Docker-образа, деплой на staging и production. Используй, когда пользователь просит настроить CI/CD.</p>
 
   <div class="entry-example"><span>/setup-ci</span><button class="copy-btn" type="button" data-copy="/setup-ci">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/codex/skills/setup-ci/SKILL.md">Codex: packs/devops/codex/skills/setup-ci/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/setup-ci/SKILL.md">packs/devops/skills/setup-ci/SKILL.md</a>
 </article></div>
 </section>

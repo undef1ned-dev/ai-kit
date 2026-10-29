@@ -2,10 +2,11 @@
 """
 Models of AIKit agents in every runtime.
 
-An agent's frontmatter names a tier: `model: opus | sonnet | haiku`. adapters/models.json maps each tier
+Claude/OpenCode frontmatter names a tier: `model: opus | sonnet | haiku`. adapters/models.json maps each tier
 to a model per runtime (Claude Code aliases, Codex and OpenCode model ids); its "agents" section adjusts single
 fields of one agent on top of the tier ("forge-1-12-java-architect": {"codex": {"model_reasoning_effort": "medium"}}).
-A project overrides all of it in
+Codex defaults come directly from <layer>/codex/agents/*.toml, without reading Markdown.
+A project overrides defaults in
 .aikit/models.json, which /set-model writes:
 
     {
@@ -69,6 +70,18 @@ def kit_agent_tiers() -> dict[str, str]:
     return found
 
 
+def codex_defaults() -> dict[str, dict[str, str]]:
+    """Codex defaults come from native definitions, never Markdown model tiers."""
+    import tomllib
+
+    found = {}
+    for pattern in ("base/codex/agents/*.toml", "profiles/*/codex/agents/*.toml", "packs/*/codex/agents/*.toml", "agents/*.toml"):
+        for path in ROOT.glob(pattern):
+            data = tomllib.loads(path.read_text(encoding="utf-8"))
+            found[path.stem] = {key: data[key] for key in ("model", "model_reasoning_effort") if key in data}
+    return found
+
+
 def tier_fields(runtime: str, tier: str, project: dict) -> dict[str, str]:
     remapped = project.get("tiers", {}).get(runtime, {}).get(tier)
     if remapped:
@@ -89,7 +102,11 @@ def resolve(agent: str, tier: str | None, runtime: str, project: dict) -> dict[s
     if isinstance(choice, str) and choice:
         if choice in tiers():
             return tier_fields(runtime, choice, project)
-        return {"model": choice}
+        fields = dict(codex_defaults().get(agent, {})) if runtime == "codex" else {}
+        fields["model"] = choice
+        return fields
+    if runtime == "codex":
+        return dict(codex_defaults().get(agent, {}))
     if tier in tiers():
         return {**tier_fields(runtime, tier, project), **kit_agent_fields(agent, runtime)}
     return {}
@@ -124,7 +141,7 @@ def agent_files(runtime: str, workspace: Path) -> list[Path]:
 
 def plan(runtime: str, workspace: Path) -> list[tuple[Path, dict[str, str]]]:
     project = read_json(workspace / PROJECT_MODELS)
-    agent_tiers = kit_agent_tiers()
+    agent_tiers = {name: None for name in codex_defaults()} if runtime == "codex" else kit_agent_tiers()
     result = []
     for path in agent_files(runtime, workspace):
         # Only the kit's agents: a team's own agent in the same folder keeps its model

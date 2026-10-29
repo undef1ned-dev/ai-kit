@@ -6,8 +6,8 @@
     "aikit"
   ],
   "skills": [
-    "./base/skills/",
-    "./base/plugin-skills/"
+    "./base/codex/skills/",
+    "./base/codex/plugin-skills/"
   ],
   "hooks": {
     "hooks": {

@@ -54,13 +54,13 @@ def main() -> int:
     check("effort агентов кита: архитекторы high, остальные medium", bool(efforts) and not wrong, str(wrong))
 
     opus = kit["runtimes"]["codex"]["opus"]
-    check("уровень агента берётся из frontmatter", agent_models.resolve("vue-architect", "opus", "codex", {}) == opus)
+    check("Codex: default модели берётся из нативного TOML", agent_models.resolve("vue-architect", "opus", "codex", {}) == opus)
     project = {
         "agents": {"vue-coder": "opus", "vue-tester": {"codex": "gpt-test", "claude": "haiku"}},
         "tiers": {"opencode": {"opus": "openrouter/test-opus"}},
     }
     check("переопределение уровнем — модели этого уровня", agent_models.resolve("vue-coder", "sonnet", "codex", project) == opus)
-    check("переопределение для runtime — модель как есть", agent_models.resolve("vue-tester", "sonnet", "codex", project) == {"model": "gpt-test"})
+    check("переопределение для runtime — модель как есть", agent_models.resolve("vue-tester", "sonnet", "codex", project) == {"model": "gpt-test", "model_reasoning_effort": "medium"})
     check("runtime без переопределения — уровень агента",
           agent_models.resolve("vue-tester", "sonnet", "opencode", project) == kit["runtimes"]["opencode"]["sonnet"])
     check("проект меняет модель уровня", agent_models.resolve("vue-coder", "sonnet", "opencode", project) == {"model": "openrouter/test-opus"})

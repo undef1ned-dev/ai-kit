@@ -6,7 +6,7 @@
     "aikit",
     "forge-1-12-java"
   ],
-  "skills": "./skills/",
+  "skills": "./codex/skills/",
   "interface": {
     "displayName": "AIKit: Forge 1.12.2 Java",
     "shortDescription": "Профиль AIKit Forge 1.12.2 Java (Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",

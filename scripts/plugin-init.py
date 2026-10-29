@@ -33,6 +33,7 @@ import sys
 from pathlib import Path
 
 import agent_models
+import codex_content
 import memory_paths
 import preset_utils
 import profile_contract
@@ -163,18 +164,13 @@ def merge_claude_settings(workspace: Path, profiles: list[str], packs: list[str]
 
 def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], previous: list[str]) -> list[str]:
     agents_dir = workspace / ".codex" / "agents"
-    for name in previous:
+    sources = codex_content.layers(profiles, packs)
+    available = codex_content.agents(sources)
+    codex_content.catalog(sources)
+    for name in set(previous) - available.keys():
         (agents_dir / f"{name}.toml").unlink(missing_ok=True)
-    sources = [ROOT / "base", *(ROOT / "profiles" / name for name in profiles), *(ROOT / "packs" / name for name in packs)]
-    agents_dir.mkdir(parents=True, exist_ok=True)
-    kit_files: set[str] = set()
-    for source in sources:
-        for agent in sorted((source / "agents").glob("*.md")):
-            shutil.copyfile(agent, agents_dir / agent.name)
-            kit_files.add(f".codex/agents/{agent.name}")
-    # The same text conversion as the adapter install: paths of the runtime, rules in AGENTS.md
-    installer.rewrite_local_script_commands(workspace, {"runtime": "codex"}, kit_files)
-    rendered = [Path(item["config_path"]).stem for item in installer.render_codex_custom_agents(workspace, kit_files)]
+    rendered = codex_content.install_agents(sources, agents_dir)
+    codex_content.write_catalog(sources, workspace / ".aikit/agent-catalog.json")
     agent_models.apply("codex", workspace)
     return rendered
 

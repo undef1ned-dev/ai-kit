@@ -7,7 +7,7 @@
 | Что | Зачем | Примечание |
 |---|---|---|
 | Runtime | Claude Code, Codex или OpenCode | Подойдёт любой из трёх, можно несколько сразу |
-| Python 3.9+ | На нём работают хуки и подключение проекта | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
+| Python 3.11+ для Codex; 3.9+ для хуков | Codex читает нативные TOML через tomllib; хуки используют общий Python-обработчик | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
 | Git | Маркетплейс плагинов — этот репозиторий на GitHub | Для установщика кит подключается как git submodule |
 | Bash | Только для установщика `attach.sh` | На Windows — Git Bash (ставится вместе с Git for Windows) |
 | `jq` | Склейка `settings.json` в `attach.sh` | Необязательно: без него сработает запасной путь на Python |

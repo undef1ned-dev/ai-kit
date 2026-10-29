@@ -1,0 +1,119 @@
+{
+  "agents": {
+    "agent-builder": {
+      "output_block": "AGENT_FILE",
+      "example_prompt": "Сгенерируй агента по ответам интервью: проверка локализации, Codex"
+    },
+    "cross-project-analyst": {
+      "output_block": "CROSS_PROJECT_ANALYSIS",
+      "example_prompt": "Изменился endpoint /api/v1/profile — что нужно обновить у клиентов?"
+    },
+    "memory-optimizer": {
+      "output_block": "MEMORY_OPTIMIZATION"
+    },
+    "memory-writer": {
+      "output_block": "MEMORY_RESULT"
+    },
+    "mvp-analyst": {
+      "output_block": "MVP_ANALYSIS",
+      "example_prompt": "Проанализируй идею: добавить экспорт отчётов в PDF"
+    },
+    "security-auditor": {
+      "output_block": "SECURITY_AUDIT",
+      "example_prompt": "Проверь безопасность перед релизом"
+    },
+    "skill-builder": {
+      "output_block": "SKILL_FILE",
+      "example_prompt": "Сгенерируй скилл /check-l10n по ответам интервью"
+    },
+    "tech-planner": {
+      "output_block": "TECH_PLAN",
+      "context_blocks": [
+        "MVP_ANALYSIS"
+      ],
+      "depends_on": [
+        "mvp-analyst"
+      ],
+      "example_prompt": "Составь технический план для docs/mvp/export-pdf.md"
+    },
+    "ux-writer": {
+      "output_block": "UX_TEXTS",
+      "example_prompt": "Напиши тексты для экрана онбординга"
+    }
+  },
+  "skills": {
+    "analyze-mvp": {
+      "argument-hint": "<идея фичи>",
+      "example_prompt": "$analyze-mvp добавить систему реферальных ссылок"
+    },
+    "capture-memory": {
+      "argument-hint": "[что зафиксировать]",
+      "example_prompt": "$capture-memory после рефакторинга network слоя"
+    },
+    "check-feature": {
+      "argument-hint": "<фича или сценарий>",
+      "example_prompt": "$check-feature фильтр по статусу на странице уведомлений"
+    },
+    "coverage-check": {
+      "argument-hint": "[путь]",
+      "example_prompt": "$coverage-check"
+    },
+    "create-agent": {
+      "argument-hint": "[назначение агента]",
+      "example_prompt": "$create-agent агент для проверки локализации"
+    },
+    "create-skill": {
+      "argument-hint": "[назначение скилла]",
+      "example_prompt": "$create-skill /check-l10n для аудита переводов"
+    },
+    "cross-check": {
+      "argument-hint": "<что изменилось>",
+      "example_prompt": "$cross-check изменился endpoint POST /api/v1/auth/login"
+    },
+    "fix-bug": {
+      "argument-hint": "[--no-test] [--no-review] <описание бага>",
+      "example_prompt": "$fix-bug при удалении последнего товара со скидкой сумма корзины не обновляется"
+    },
+    "git-branch": {},
+    "git-commit": {},
+    "implement-feature": {
+      "argument-hint": "[--tdd] [--worktree] [--no-test] [--no-review] <задача>",
+      "example_prompt": "$implement-feature --tdd страница уведомлений с фильтрами и mark-as-read"
+    },
+    "implement-mvp": {
+      "argument-hint": "<путь к MVP-документу>",
+      "example_prompt": "$implement-mvp docs/mvp/referral-system.md"
+    },
+    "memory-status": {
+      "example_prompt": "$memory-status"
+    },
+    "optimize-memory": {
+      "argument-hint": "[что оптимизировать]",
+      "example_prompt": "$optimize-memory объедини дублирующиеся паттерны"
+    },
+    "security-check": {
+      "argument-hint": "[путь или повод]",
+      "example_prompt": "$security-check перед релизом 2.5.0"
+    },
+    "set-model": {
+      "argument-hint": "[агент] [id модели или совместимый уровень]",
+      "example_prompt": "$set-model security-auditor gpt-6.1-sol"
+    },
+    "tech-debt": {
+      "argument-hint": "[путь]",
+      "example_prompt": "$tech-debt"
+    },
+    "write-ui-texts": {
+      "argument-hint": "<экран или компонент>",
+      "example_prompt": "$write-ui-texts экран онбординга нового пользователя"
+    },
+    "setup": {
+      "argument-hint": "[--check] [профили или пресет]",
+      "example_prompt": "$aikit:setup vue-nuxt"
+    },
+    "update-agents": {
+      "argument-hint": "[--with-plugins]",
+      "example_prompt": "$aikit:update-agents"
+    }
+  }
+}

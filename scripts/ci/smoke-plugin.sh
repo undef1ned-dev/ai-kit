@@ -73,10 +73,10 @@ check_codex_agents() {
   [[ -z "$(find "$PROJECT_DIR/.codex/agents" -type f -name '*.md' ! -name my-local.md)" ]] || return 1
   for profile in $("$PYTHON_BIN" -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1], encoding="utf-8"))["profiles"]))' "$PRESET_FILE" | tr -d '\r'); do
     for agent in "$KIT_ROOT"/profiles/"$profile"/agents/*.md; do
-      grep -q '^developer_instructions = """' "$PROJECT_DIR/.codex/agents/$(basename "$agent" .md).toml" || return 1
+      grep -q '^developer_instructions = ' "$PROJECT_DIR/.codex/agents/$(basename "$agent" .md).toml" || return 1
     done
   done
-  # effort is a Claude Code field: Codex gets model_reasoning_effort from adapters/models.json instead
+  # effort is a Claude Code field: Codex gets model_reasoning_effort from native TOML definitions instead
   ! grep -qE '^effort' "$PROJECT_DIR"/.codex/agents/*.toml || return 1
   # Codex reads the project rules from AGENTS.md: no agent sends it to CLAUDE.md
   ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR"/.codex/agents/*.toml | grep -qv 'AGENTS\.md'
