@@ -98,8 +98,8 @@ def main() -> int:
     for template, agent in [*agents.items(), (QUALITY_TEMPLATE, quality_agent)]:
         text = (TEMPLATE_DIR / "agents" / f"{template}.md").read_text(encoding="utf-8")
         (profile_dir / "agents" / f"{agent}.md").write_text(render(text, variables), encoding="utf-8", newline="\n")
-    claude_md = (TEMPLATE_DIR / "CLAUDE.md").read_text(encoding="utf-8")
-    (profile_dir / "CLAUDE.md").write_text(render(claude_md, variables), encoding="utf-8", newline="\n")
+    rules = (TEMPLATE_DIR / "RULES.md").read_text(encoding="utf-8")
+    (profile_dir / "RULES.md").write_text(render(rules, variables), encoding="utf-8", newline="\n")
 
     # Claude Code asks before every unknown command; the profile allows its own tools up front
     settings = json.loads((TEMPLATE_DIR / "settings.json").read_text(encoding="utf-8"))
@@ -128,7 +128,7 @@ def main() -> int:
     subprocess.run([sys.executable, str(Path(__file__).resolve().parent / "build-plugins.py")], check=True, stdout=subprocess.DEVNULL)
 
     print(f"Профиль {name} создан в profiles/{name}/, плагин {name} добавлен в .claude-plugin/marketplace.json")
-    print("  Дальше: заполни TODO в CLAUDE.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
+    print("  Дальше: заполни TODO в RULES.md и агентах, пересобери сайт python3 scripts/generate-docs.py,")
     print("  проверь bash scripts/ci/static-checks.sh,")
     print(f"  подключи к проекту: bash scripts/attach.sh {name}  (или вместе с другими: <web-профиль>+{name})")
     return 0

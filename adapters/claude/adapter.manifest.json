@@ -3,7 +3,7 @@
   "runtime": "claude",
   "status": "active",
   "label": "Claude Code",
-  "description": "Primary runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/skills, .claude/settings.json and .aikit/memory.",
+  "description": "Native Claude Code runtime adapter for AIKit. Packages the current core into CLAUDE.md, .claude/agents, .claude/skills, .claude/settings.json and .aikit/memory.",
   "entrypoint_style": "slash-commands",
   "config_roots": ["CLAUDE.md", ".claude/"],
   "generated_artifacts": [
@@ -43,7 +43,7 @@
   "source_layers": ["base", "profiles", "packs", "scripts", "docs"],
   "notes": [
     "Current production adapter",
-    "Source of truth still partly uses Claude-specific naming",
-    "Compatibility baseline for future adapters"
+    "Shared project rules and independent Claude Code instructions",
+    "Project rules are composed by scripts/rules.py"
   ]
 }

@@ -23,6 +23,7 @@ import sys
 
 from memory_paths import ensure_memory_structure, find_memory_source
 from preset_utils import resolve_preset
+from rules import render_rules
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -132,39 +133,11 @@ def mirror_tree(src: Path, dst: Path) -> None:
 
 
 def write_combined_instruction(adapter: dict, profiles: list[str], destination: Path) -> None:
-    chunks: list[str] = []
-    chunks.append(f"# AIKit Runtime Package — {adapter['label']}\n")
-    chunks.append(
-        "Этот файл — runtime-neutral сводка AIKit bundle для выбранного adapter.\n"
-        "Он не заменяет production flow Claude, а описывает собранный пакет core + adapter.\n"
-    )
-    chunks.append(f"Runtime: `{adapter['runtime']}`\n")
-    chunks.append(f"Status: `{adapter['status']}`\n")
-    chunks.append(f"Profiles: `{'+'.join(profiles)}`\n")
-    chunks.append("\n---\n\n")
-    chunks.append((ROOT / "base" / "CLAUDE.md").read_text(encoding="utf-8"))
-    for profile_name in profiles:
-        profile_claude = ROOT / "profiles" / profile_name / "CLAUDE.md"
-        if profile_claude.exists():
-            chunks.append("\n\n---\n\n")
-            chunks.append(profile_claude.read_text(encoding="utf-8"))
-    destination.write_text("".join(chunks), encoding="utf-8")
+    destination.write_bytes(render_rules(adapter["runtime"], profiles).encode("utf-8"))
 
 
 def write_claude_instruction_surface(profiles: list[str], destination: Path) -> None:
-    chunks: list[str] = []
-    base_claude = ROOT / "base" / "CLAUDE.md"
-    if base_claude.exists():
-        chunks.append(base_claude.read_text(encoding="utf-8"))
-
-    for profile_name in profiles:
-        profile_claude = ROOT / "profiles" / profile_name / "CLAUDE.md"
-        if profile_claude.exists():
-            if chunks:
-                chunks.append("\n\n---\n\n")
-            chunks.append(profile_claude.read_text(encoding="utf-8"))
-
-    destination.write_text("".join(chunks).rstrip() + "\n", encoding="utf-8")
+    destination.write_bytes(render_rules("claude", profiles).encode("utf-8"))
 
 
 def merge_settings_documents(paths: list[Path]) -> dict:

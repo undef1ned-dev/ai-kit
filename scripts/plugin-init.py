@@ -37,6 +37,7 @@ import memory_paths
 import preset_utils
 import profile_contract
 import project_settings
+import rules
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -45,22 +46,7 @@ MARKETPLACE_REPO = "undef1ned-dev/ai-kit"
 STATE_FILE = Path(".aikit") / "plugin-init.json"
 LEGACY_ATTACH_MARKER = Path(".claude") / ".config-version"
 RUNTIMES = ("claude", "codex")
-RULES_FILES = {"claude": "CLAUDE.md", "codex": "AGENTS.md"}
-RULES_INTRO = {
-    "claude": [
-        "Агенты, скиллы, хуки и MCP-серверы AIKit приходят из плагинов маркетплейса `aikit`.",
-        "Скилл `/name` из правил ниже вызывается как `/name` или с именем плагина: `/aikit:name`, `/<профиль>:name`.",
-        "Агента плагина запускай только с именем плагина: базовые — `aikit:<агент>` (`aikit:memory-writer`),",
-        "агенты профиля или пака — `<профиль|пак>:<агент>` (`vue-coder` из `.aikit/profiles.json` → `vue-nuxt:vue-coder`).",
-        "Контракты профилей — в `.aikit/profiles.json`, командная память — в `.aikit/memory/`.",
-    ],
-    "codex": [
-        "Скиллы, хуки и MCP-серверы AIKit приходят из плагинов маркетплейса `aikit`, агенты — в `.codex/agents/`.",
-        "Правила ниже написаны в синтаксисе Claude Code: `/name` — это скилл `name` (в Codex — `$name`, срабатывает и по описанию).",
-        "`$ARGUMENTS` в тексте скилла Codex не подставляет: на его месте — задача из запроса пользователя (текст после `$name`).",
-        "Контракты профилей — в `.aikit/profiles.json`, командная память — в `.aikit/memory/`.",
-    ],
-}
+RULES_FILES = rules.RULES_FILES
 
 
 def load_script(file_name: str, module_name: str):
@@ -120,14 +106,7 @@ def resolve_selection(args: argparse.Namespace) -> tuple[list[str], list[str]]:
 
 
 def render_rules_block(runtime: str, profiles: list[str]) -> str:
-    chunks = [installer.AGENTS_MD_BEGIN, "# AIKit — правила проекта", "", *RULES_INTRO[runtime], ""]
-    chunks.append((ROOT / "base" / "CLAUDE.md").read_text(encoding="utf-8").strip())
-    for name in profiles:
-        rules = ROOT / "profiles" / name / "CLAUDE.md"
-        if rules.exists():
-            chunks += ["", "---", "", rules.read_text(encoding="utf-8").strip()]
-    chunks.append(installer.AGENTS_MD_END)
-    return "\n".join(chunks) + "\n"
+    return rules.render_block(runtime, profiles)
 
 
 def merge_rules(workspace: Path, runtime: str, profiles: list[str]) -> str:

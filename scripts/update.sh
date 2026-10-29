@@ -15,6 +15,7 @@ set -eo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_ROOT="$(dirname "$SCRIPT_DIR")"
+PYTHON_BIN="$(command -v python3 || command -v python)"
 PROJECT_ROOT="$(pwd)"
 VERSION_FILE="$PROJECT_ROOT/.claude/.config-version"
 ROOT_VERSION_FILE="$CONFIG_ROOT/VERSION"
@@ -187,19 +188,7 @@ TARGET_CLAUDE="$PROJECT_ROOT/CLAUDE.md"
 TMP_NEW_CLAUDE="$(mktemp /tmp/claude-new-XXXXXX.md)"
 
 # Генерируем новую версию
-{
-  BASE_CLAUDE="$CONFIG_ROOT/base/CLAUDE.md"
-  [[ -f "$BASE_CLAUDE" ]] && cat "$BASE_CLAUDE"
-  for p in $PROFILE_LIST; do
-    P_CLAUDE="$CONFIG_ROOT/profiles/$p/CLAUDE.md"
-    if [[ -f "$P_CLAUDE" ]]; then
-      echo ""
-      echo "---"
-      echo ""
-      cat "$P_CLAUDE"
-    fi
-  done
-} > "$TMP_NEW_CLAUDE"
+"$PYTHON_BIN" "$CONFIG_ROOT/scripts/rules.py" --runtime claude --profiles "$INSTALLED_PROFILES" --output "$TMP_NEW_CLAUDE"
 
 if [[ ! -f "$TARGET_CLAUDE" ]]; then
   # CLAUDE.md не существует — просто создаём

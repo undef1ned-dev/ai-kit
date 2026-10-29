@@ -64,6 +64,7 @@ PY
 echo "▶ Копия кита → $KIT_COPY"
 mkdir -p "$KIT_COPY"
 (cd "$KIT_ROOT" && git ls-files -co --exclude-standard -z | tr -d '\r' | while IFS= read -r -d '' file; do
+  [[ -f "$file" ]] || continue
   mkdir -p "$KIT_COPY/$(dirname "$file")" && cp "$file" "$KIT_COPY/$file"
 done)
 (cd "$KIT_COPY" && git init -q && git add -A)

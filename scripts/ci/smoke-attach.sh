@@ -55,7 +55,7 @@ check_agents_frontmatter() {
 check_profiles_in_claude_md() {
   local profile heading
   for profile in $("$PYTHON_BIN" -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1], encoding="utf-8"))["profiles"]))' "$PRESET_FILE" | tr -d '\r'); do
-    heading="$(head -1 "$KIT_ROOT/profiles/$profile/CLAUDE.md")"
+    heading="$(head -1 "$KIT_ROOT/profiles/$profile/RULES.md")"
     grep -qF "$heading" "$PROJECT_DIR/CLAUDE.md" || { echo "в CLAUDE.md нет профиля $profile" >&2; return 1; }
   done
 }
@@ -176,7 +176,7 @@ echo "▶ attach.sh"
 bash "$KIT_ROOT/scripts/attach.sh" --preset "$PRESET" > attach.log 2>&1 || { cat attach.log; echo "✗ attach.sh завершился с ошибкой"; exit 1; }
 
 check "CLAUDE.md создан" test -s CLAUDE.md
-check "CLAUDE.md содержит базовые правила" grep -qF "$(head -1 "$KIT_ROOT/base/CLAUDE.md")" CLAUDE.md
+check "CLAUDE.md содержит базовые правила" grep -qF "$(head -1 "$KIT_ROOT/base/RULES.md")" CLAUDE.md
 check "CLAUDE.md содержит все профили пресета" check_profiles_in_claude_md
 check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings

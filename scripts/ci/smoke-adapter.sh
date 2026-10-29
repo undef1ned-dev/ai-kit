@@ -79,7 +79,7 @@ check_agents_md() {
   local file="$PROJECT_DIR/AGENTS.md"
   [[ "$(grep -c '<!-- BEGIN AIKIT' "$file")" == 1 && "$(grep -c '<!-- END AIKIT -->' "$file")" == 1 ]] || return 1
   grep -qF "$USER_RULES_LINE" "$file" || return 1
-  grep -qF "$(head -1 "$KIT_ROOT/base/CLAUDE.md")" "$file"
+  grep -qF "$(head -1 "$KIT_ROOT/base/RULES.md")" "$file"
 }
 
 # .agents/skills/<name>/SKILL.md: frontmatter с name (совпадает с папкой) и description — требование Codex и OpenCode

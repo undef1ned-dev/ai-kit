@@ -68,6 +68,10 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 
 Вместо `codex` — `opencode`.
 
+## Правила и runtime
+
+Общие правила команды — `base/RULES.md`, требования стека — `profiles/<name>/RULES.md`. Codex, Claude Code и OpenCode имеют собственные инструкции в `adapters/<runtime>/rules.md`. Установщики собирают их через `scripts/rules.py`, без перевода правил Claude в Codex. Это первый этап разделения: агенты, пользовательские скиллы и хуки пока поставляются по прежней схеме.
+
 ## Разрабатывать этот репозиторий
 
 Для развития самого кита используй `/improve-aikit` — скилл и агент `aikit-maintainer` есть только в этом репозитории, пользователям они не ставятся. Агенты и скиллы кита в этот репозиторий не копируются — запускай Claude Code с плагином из рабочей копии:
@@ -75,6 +79,8 @@ python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-
 ```bash
 claude --plugin-dir .
 ```
+
+Корневые `AGENTS.md` и `CLAUDE.md` собираются командой `python3 scripts/rules.py --repository`; правь их источники. Codex использует локальные `.agents/skills/improve-aikit/` и `.codex/agents/aikit-maintainer.toml`, Claude — свои файлы в `.claude/`.
 
 Все проверки CI локально: `bash scripts/ci/run-all.sh`. Подробно — [Разработка AIKit](docs/guide/developing-aikit.md).
 

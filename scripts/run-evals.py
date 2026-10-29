@@ -66,7 +66,7 @@ DEFAULT_CHANGED_BASE = "origin/main"
 # Changes here reach every case: the core plugin, the hook script and how the eval project is connected
 SHARED_PATHS = (
     "base/", "evals/lib/", "adapters/", "scripts/plugin-init.py", "scripts/profile_contract.py",
-    "scripts/hooks_config.py", "scripts/install-adapter-package.py", "scripts/build-adapter-package.py",
+    "scripts/hooks_config.py", "scripts/install-adapter-package.py", "scripts/build-adapter-package.py", "scripts/rules.py",
 )
 # API list-price estimate of one Claude Code run with sonnet, from the first runs of the suite.
 # On a subscription nothing is billed: runs spend the plan's usage limits.
