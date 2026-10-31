@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [0.10.0] - 2026-10-31
+
+### Added
+- antigravity: добавлена поддержка плагинов и адаптера для Google Antigravity
+
 ## [0.9.0] - 2026-10-29
 
 ### Added
