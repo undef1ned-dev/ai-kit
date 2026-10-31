@@ -1,0 +1,11 @@
+{
+  "name": "vue-nuxt",
+  "displayName": "AIKit: Vue Nuxt",
+  "version": "0.9.0",
+  "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "author": {
+    "name": "undef1ned-dev"
+  },
+  "homepage": "https://github.com/undef1ned-dev/ai-kit",
+  "repository": "https://github.com/undef1ned-dev/ai-kit"
+}

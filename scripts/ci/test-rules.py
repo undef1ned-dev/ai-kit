@@ -70,11 +70,11 @@ class RuntimeRulesTests(unittest.TestCase):
         installer = load_script("install-adapter-package")
         builder = load_script("build-adapter-package")
         for profiles in (["vue-nuxt"], ["forge-1-12-java"], ["vue-nuxt", "forge-1-12-java"]):
-            for runtime in ("codex", "claude"):
+            for runtime in ("codex", "claude", "antigravity"):
                 with self.subTest(runtime=runtime, profiles=profiles), tempfile.TemporaryDirectory() as folder:
                     expected = rules.render_rules(runtime, profiles)
                     self.assertEqual(plugin.render_rules_block(runtime, profiles), f"{rules.BEGIN}\n{expected}{rules.END}\n")
-                    if runtime == "codex":
+                    if runtime in ("codex", "antigravity"):
                         self.assertEqual(installer.render_agents_md_block(profiles, runtime), plugin.render_rules_block(runtime, profiles))
                     output = Path(folder) / "AIKIT.md"
                     builder.write_combined_instruction({"runtime": runtime}, profiles, output)

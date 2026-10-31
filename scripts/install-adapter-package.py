@@ -385,8 +385,9 @@ def apply_consumer_workspace_policy(adapter: dict, workspace: Path) -> None:
 
     runtime = str(adapter.get("runtime", "")).strip()
     if runtime:
-        remove_path(workspace / f".{runtime}" / MAINTAINER_PROMPT_NAME)
-        strip_maintainer_entrypoints(workspace / f".{runtime}" / "entrypoints.json")
+        runtime_dir = ".agents" if runtime == "antigravity" else f".{runtime}"
+        remove_path(workspace / runtime_dir / MAINTAINER_PROMPT_NAME)
+        strip_maintainer_entrypoints(workspace / runtime_dir / "entrypoints.json")
 
     strip_maintainer_entrypoints(workspace / ".aikit" / "runtime-entrypoints.json")
     strip_consumer_manifest_fields(workspace / ".aikit" / "adapter.manifest.json")
@@ -395,7 +396,7 @@ def apply_consumer_workspace_policy(adapter: dict, workspace: Path) -> None:
 
 def point_rules_to_agents_md(text: str) -> str:
     """
-    Codex and OpenCode read the project rules from AGENTS.md. A bare CLAUDE.md becomes AGENTS.md;
+    Codex, OpenCode and Antigravity read the project rules from AGENTS.md. A bare CLAUDE.md becomes AGENTS.md;
     lines that already name AGENTS.md and paths like profiles/<name>/CLAUDE.md (a file of the kit) stay.
     """
     return "\n".join(
@@ -405,9 +406,10 @@ def point_rules_to_agents_md(text: str) -> str:
 
 def rewrite_local_script_commands(workspace: Path, adapter: dict, kit_files: set[str]) -> None:
     runtime = str(adapter.get("runtime", "")).strip()
-    if runtime != "opencode":
+    if runtime not in {"opencode", "antigravity"}:
         return
-    for agent_path in sorted((workspace / f".{runtime}" / "agents").glob("*.md")):
+    agents_dir_rel = ".agents/agents" if runtime == "antigravity" else f".{runtime}/agents"
+    for agent_path in sorted((workspace / agents_dir_rel).glob("*.md")):
         if agent_path.relative_to(workspace).as_posix() in kit_files:
             text = read_text(agent_path)
             updated = point_rules_to_agents_md(text)
@@ -415,7 +417,7 @@ def rewrite_local_script_commands(workspace: Path, adapter: dict, kit_files: set
                 write_text(agent_path, updated)
 
     replacements = {
-        ".claude/agents/": f".{runtime}/agents/",
+        ".claude/agents/": f"{agents_dir_rel}/",
         ".claude/skills/": ".agents/skills/",
         ".claude/memory/": ".aikit/memory/",
         ".claude-config/": ".aikit-config/",
@@ -424,7 +426,8 @@ def rewrite_local_script_commands(workspace: Path, adapter: dict, kit_files: set
             f"{runtime} --profile <profile> --workspace ."
         ),
     }
-    for root in (workspace / f".{runtime}", workspace / ".agents" / "skills"):
+    roots = (workspace / ".agents",) if runtime == "antigravity" else (workspace / f".{runtime}", workspace / ".agents" / "skills")
+    for root in roots:
         for markdown_path in sorted(root.rglob("*.md")):
             if markdown_path.relative_to(workspace).as_posix() in kit_files:
                 rewrite_text_file(markdown_path, replacements)
@@ -450,6 +453,13 @@ def write_install_summary(adapter: dict, workspace: Path, bundle_root: Path) -> 
                 "- Правила проекта — в `AGENTS.md`, скиллы — в `.agents/skills/` (вызов `$name` или автоматически), агенты — в `.codex/agents/*.toml`.",
                 "- Чтобы Codex загрузил агентов из `.codex/`, проект должен быть отмечен как доверенный.",
                 "- Хуки AIKit (`.codex/hooks.json`) заработают после одобрения в `/hooks`.",
+            ]
+        )
+    elif adapter.get("runtime") == "antigravity":
+        summary.extend(
+            [
+                "- Правила проекта — в `AGENTS.md`, скиллы — в `.agents/skills/` (вызов `/name` или автоматически), агенты — в `.agents/agents/*.md`.",
+                "- Хуки AIKit записаны в `.agents/hooks.json`, MCP-серверы — в `.agents/mcp_config.json`.",
             ]
         )
     summary.extend(
@@ -494,11 +504,11 @@ def install_package(
         runtime = str(adapter.get("runtime", "")).strip()
         if runtime == "codex":
             runtime_settings.install_codex(workspace)
-        if runtime == "opencode":
+        if runtime in {"opencode", "antigravity"}:
             rewrite_local_script_commands(workspace, adapter, kit_files)
-        if runtime in {"codex", "opencode"}:
+        if runtime in {"codex", "opencode", "antigravity"}:
             merge_agents_md(workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], runtime)
-        if runtime in {"codex", "opencode"}:
+        if runtime in {"codex", "opencode", "antigravity"}:
             agent_models.apply(runtime, workspace)
         if runtime in mcp_config.RUNTIMES:
             mcp_config.install(runtime, workspace, [item.strip() for item in profiles_arg.split("+") if item.strip()], packs)

@@ -82,6 +82,19 @@ check_codex_agents() {
   ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR"/.codex/agents/*.toml | grep -qv 'AGENTS\.md'
 }
 
+# Агенты Antigravity: базовые и профилей пресета в .agents/agents/*.md с subagent: true и model
+check_antigravity_agents() {
+  local profile agent
+  [[ -f "$PROJECT_DIR/.agents/agents/memory-writer.md" ]] || return 1
+  for profile in $("$PYTHON_BIN" -c 'import json,sys; print(" ".join(json.load(open(sys.argv[1], encoding="utf-8"))["profiles"]))' "$PRESET_FILE" | tr -d '\r'); do
+    for agent in "$KIT_ROOT"/profiles/"$profile"/agents/*.md; do
+      grep -q '^subagent: true' "$PROJECT_DIR/.agents/agents/$(basename "$agent")" || return 1
+    done
+  done
+  ! grep -qE '^effort' "$PROJECT_DIR"/.agents/agents/*.md || return 1
+  ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR"/.agents/agents/*.md | grep -qv 'AGENTS\.md'
+}
+
 echo "▶ Проект → $PROJECT_DIR"
 (cd "$PROJECT_DIR" && git init -q)
 printf '# Заметки команды\n' > "$PROJECT_DIR/CLAUDE.md"
@@ -127,6 +140,30 @@ check "refresh-agents: агент пересобран с моделью из .a
 check "refresh-agents: набор профилей прежний, паки смены набора не вернулись" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-reviewer.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
 check "refresh-agents: свой агент команды не тронут" check_local_agent
 check "refresh-agents: для Claude Code отказ" bash -c "! '$PYTHON_BIN' '$KIT_ROOT/scripts/plugin-init.py' --workspace '$PROJECT_DIR' --runtime claude --refresh-agents >/dev/null 2>&1"
+
+echo "▶ plugin-init.py --runtime antigravity --preset $PRESET"
+mkdir -p "$PROJECT_DIR/.agents/agents"
+printf -- '---\nname: "my-local"\ndescription: "Свой агент"\nsubagent: true\n---\nСвоя роль\n' > "$PROJECT_DIR/.agents/agents/my-local.md"
+LOCAL_AGY_SUM="$(cksum < "$PROJECT_DIR/.agents/agents/my-local.md")"
+check_local_agy_agent() { [[ "$(cksum < "$PROJECT_DIR/.agents/agents/my-local.md")" == "$LOCAL_AGY_SUM" ]]; }
+init --runtime antigravity --preset "$PRESET"
+check "свой агент команды в .agents/agents не изменён" check_local_agy_agent
+check "AGENTS.md: инструкции Antigravity и invoke_subagent" grep -qF 'инструмент `invoke_subagent`' "$PROJECT_DIR/AGENTS.md"
+check ".agents/agents/: агенты базы и профилей в Markdown с subagent: true" check_antigravity_agents
+check "plugin-init.json: runtimes хранит все три runtime" "$PYTHON_BIN" -c "import json,sys; sys.exit(json.load(open(sys.argv[1]))['runtimes'] != ['claude', 'codex', 'antigravity'])" "$PROJECT_DIR/.aikit/plugin-init.json"
+init --runtime antigravity --profiles vue-nuxt
+check "смена набора Antigravity: агенты убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.agents/agents/vue-coder.md' && ! ls '$PROJECT_DIR'/.agents/agents/devops-*.md 2>/dev/null"
+printf '{"agents": {"vue-coder": {"antigravity": "haiku"}}}\n' > "$PROJECT_DIR/.aikit/models.json"
+rm -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
+init --runtime antigravity --refresh-agents >/dev/null
+check "refresh-agents Antigravity: агент пересобран с моделью из .aikit/models.json" grep -q '^model: flash' "$PROJECT_DIR/.agents/agents/vue-coder.md"
+check "refresh-agents Antigravity: свой агент команды не тронут" check_local_agy_agent
+
+echo "▶ install-antigravity-plugins.py --workspace"
+AGY_PLUGINS_DIR="$WORK_DIR/agy-plugins-$PRESET"
+"$PYTHON_BIN" "$KIT_ROOT/scripts/install-antigravity-plugins.py" --workspace "$PROJECT_DIR" --target-dir "$AGY_PLUGINS_DIR" >/dev/null
+check "плагин ядра aikit установлен с plugin.json, hooks.json и scripts/plugin-init.py" test -f "$AGY_PLUGINS_DIR/aikit/plugin.json" -a -f "$AGY_PLUGINS_DIR/aikit/hooks.json" -a -f "$AGY_PLUGINS_DIR/aikit/scripts/plugin-init.py"
+check "плагин профиля vue-nuxt установлен со скиллами, агентами и MCP" test -f "$AGY_PLUGINS_DIR/vue-nuxt/plugin.json" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/agents/vue-coder.md" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/mcp_config.json"
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"

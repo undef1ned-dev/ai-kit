@@ -57,6 +57,7 @@ AI-ассистент из коробки — сильный разработч�
 |---|---|---|
 | **Claude Code** | основной | плагины маркетплейса `aikit` или `attach.sh` |
 | **Codex** (CLI, Desktop, IDE) | основной, наравне с Claude Code | плагины маркетплейса `aikit` или `install-adapter-package.py codex` |
+| **Antigravity** (Antigravity 2.0, IDE, CLI) | поддерживаемый | плагины (`install-antigravity-plugins.py` + `plugin-init.py --runtime antigravity`) или `install-adapter-package.py antigravity` |
 | **OpenCode** | поддерживается всё, что позволяет runtime | `install-adapter-package.py opencode` |
 
 Агенты, скиллы и правила описаны один раз, а установщик раскладывает их в родной формат каждого runtime. Что где работает и чем отличается — на странице [Поддержка runtime](../runtime-support.md).

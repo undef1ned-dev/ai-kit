@@ -29,11 +29,12 @@ import codex_content
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "VERSION"
-# Agent Skills standard location read by Codex and OpenCode (Claude Code uses .claude/skills)
+# Agent Skills standard location read by Codex, OpenCode and Antigravity (Claude Code uses .claude/skills)
 NATIVE_SKILLS_DIR = Path(".agents") / "skills"
-NATIVE_SKILL_RUNTIMES = {"codex", "opencode"}
+NATIVE_SKILL_RUNTIMES = {"codex", "opencode", "antigravity"}
 NATIVE_ARGUMENTS_PLACEHOLDER = "(задача из запроса пользователя)"
 OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
+ANTIGRAVITY_AGENTS_DIR = Path(".agents") / "agents"
 MODEL_RESOURCES = (Path("scripts") / "agent_models.py", Path("adapters") / "models.json", Path("scripts") / "codex-doctor.py")
 
 
@@ -214,7 +215,7 @@ def write_runtime_entrypoints(
         encoding="utf-8",
     )
 
-    runtime_root_name = f".{adapter['runtime']}"
+    runtime_root_name = ".agents" if adapter["runtime"] == "antigravity" else f".{adapter['runtime']}"
     for config_root in adapter.get("config_roots", []):
         root_path = bundle_root / config_root
         normalized = config_root.rstrip("/")
@@ -263,7 +264,7 @@ def write_codex_native_surface(
     (codex_root / ".config-version").write_text("\n".join(version_lines) + "\n", encoding="utf-8")
 
 
-def frontmatter_document(fields: dict[str, str], body: str) -> str:
+def frontmatter_document(fields: dict[str, object], body: str) -> str:
     lines = ["---", *(f"{key}: {json.dumps(value, ensure_ascii=False)}" for key, value in fields.items()), "---", ""]
     return "\n".join(lines) + body.lstrip("\n")
 
@@ -285,17 +286,17 @@ def write_native_skills(adapter: dict, bundle_root: Path, skills_dir: Path) -> l
             continue
         raw, body = split_frontmatter((source / "SKILL.md").read_text(encoding="utf-8"))
         # $ARGUMENTS is substituted only by Claude Code; elsewhere the task comes from the user's message
-        if adapter.get("runtime") == "opencode":
+        if adapter.get("runtime") in {"opencode", "antigravity"}:
             body = body.replace("$ARGUMENTS", NATIVE_ARGUMENTS_PLACEHOLDER)
         metadata = parse_frontmatter(raw)
         description = metadata.get("description", "").strip()
         # agents/openai.yaml (Codex counterpart of disable-model-invocation) comes with the skill folder:
         # the plugin reads the same source
         if not description:
-            raise SystemExit(f"Skill '{name}' has no description — required by Codex and OpenCode")
+            raise SystemExit(f"Skill '{name}' has no description — required by Codex, OpenCode and Antigravity")
         if description[0] in ">|":
             raise SystemExit(f"Skill '{name}': description must be a single-line string, not a YAML block scalar")
-        # Codex and OpenCode need name and description; name must match the folder (it differs for prefixed skills)
+        # Codex, OpenCode and Antigravity need name and description; name must match the folder
         (destination / "SKILL.md").write_text(
             frontmatter_document({"name": name, "description": description}, body), encoding="utf-8"
         )
@@ -320,6 +321,26 @@ def write_opencode_native_agents(adapter: dict, bundle_root: Path, agents_dir: P
             frontmatter_document({"description": description, "mode": "subagent"}, body), encoding="utf-8"
         )
         written.append((OPENCODE_AGENTS_DIR / source.name).as_posix())
+    return written
+
+
+def write_antigravity_native_agents(adapter: dict, bundle_root: Path, agents_dir: Path) -> list[str]:
+    """Write agents as Antigravity subagents in .agents/agents/*.md. Returns written paths."""
+    if adapter.get("runtime") != "antigravity":
+        return []
+
+    antigravity_agents = bundle_root / ANTIGRAVITY_AGENTS_DIR
+    antigravity_agents.mkdir(parents=True, exist_ok=True)
+    written: list[str] = []
+    for source in sorted(agents_dir.glob("*.md")):
+        raw, body = split_frontmatter(source.read_text(encoding="utf-8"))
+        metadata = parse_frontmatter(raw)
+        description = metadata.get("description", "").strip() or f"AIKit agent {source.stem}"
+        (antigravity_agents / source.name).write_text(
+            frontmatter_document({"name": source.stem, "description": description, "subagent": True}, body),
+            encoding="utf-8",
+        )
+        written.append((ANTIGRAVITY_AGENTS_DIR / source.name).as_posix())
     return written
 
 
@@ -467,6 +488,7 @@ def build_package(
         native_paths += [path.relative_to(bundle_root).as_posix() for path in sorted((bundle_root / ".codex/agents").glob("*.toml"))]
     native_paths += write_native_skills(adapter, bundle_root, skills_dir)
     native_paths += write_opencode_native_agents(adapter, bundle_root, agents_dir)
+    native_paths += write_antigravity_native_agents(adapter, bundle_root, agents_dir)
     write_runtime_entrypoints(adapter, profiles, bundle_root)
 
     (runtime_root / "adapter.manifest.json").write_text(

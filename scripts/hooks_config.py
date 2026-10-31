@@ -32,10 +32,12 @@ PLUGIN_SOURCE = ROOT / "base" / "hooks" / "opencode-plugin.js"
 HOOK_TARGET = Path(".aikit") / "hooks" / "aikit_hook.py"
 CODEX_HOOK_SOURCE = ROOT / "base/codex/hooks/aikit_hook.py"
 CODEX_HOOK_TARGET = Path(".aikit/hooks/codex/aikit_hook.py")
+ANTIGRAVITY_HOOK_SOURCE = ROOT / "base/antigravity/hooks/aikit_hook.py"
+ANTIGRAVITY_HOOK_TARGET = Path(".aikit/hooks/antigravity/aikit_hook.py")
 PLUGIN_TARGET = Path(".opencode") / "plugins" / "aikit-hooks.js"
 OPENCODE_INSTRUCTIONS = [".aikit/memory/INDEX.md", "PRODUCT.md"]
 OPENCODE_SCHEMA = "https://opencode.ai/config.json"
-RUNTIMES = ("claude", "codex", "opencode")
+RUNTIMES = ("claude", "codex", "opencode", "antigravity")
 HOOK_MARKER = "aikit_hook.py"
 
 # Independent runtime event contracts; the shared engine does not determine their wiring.
@@ -51,6 +53,13 @@ CODEX_EVENTS = {
     "PostToolUse": ("^apply_patch$", 300, "AIKit: форматирование и линтер"),
     "Stop": (None, 600, "AIKit: тесты"),
 }
+ANTIGRAVITY_EVENTS = {
+    "SessionStart": (None, 30),
+    "PreToolUse": ("run_command|write_file|edit_file", 30),
+    "PostToolUse": ("write_file|edit_file", 300),
+    "PostInvocation": (None, 30),
+    "Stop": (None, 600),
+}
 EVENTS = CODEX_EVENTS
 CLAUDE_COMMAND = 'python3 "$CLAUDE_PROJECT_DIR/.aikit/hooks/aikit_hook.py"'
 # Codex runs hooks in the session folder; the git root finds the project from a subfolder
@@ -60,6 +69,7 @@ CODEX_COMMAND = 'python3 "$(git rev-parse --show-toplevel 2>/dev/null || pwd)/.a
 # program is base64, so quotes and special characters never meet the shell.
 # PowerShell 5.1 turns exit code 2 into 1, so the hook blocks with JSON (--deny-json in aikit_hook.py)
 DENY_JSON_FLAG = "--deny-json"
+PLUGIN_FLAG = "--plugin"
 MIN_PYTHON = (3, 9)
 # Python 2 and 3 must both parse it: "python" on PATH can be Python 2 or an older Python 3
 WINDOWS_LAUNCHER_BODY = """import os, subprocess, sys
@@ -118,7 +128,15 @@ def windows_launcher(find: str, args: list[str], minimum: tuple[int, int] = MIN_
     return "python -c \"import base64;exec(base64.b64decode('" + encoded + "'))\""
 
 
+def antigravity_launcher(script_path: str, args: list[str]) -> str:
+    """Cross-platform hook command for Antigravity without inner quotes (Windows cmd /c escapes quotes)."""
+    tail = " ".join([script_path, *args])
+    return f"python {tail} || python3 {tail}"
+
+
 CODEX_COMMAND_WINDOWS = windows_launcher(ADAPTER_FIND.format(target=CODEX_HOOK_TARGET.as_posix()), [DENY_JSON_FLAG])
+ANTIGRAVITY_ADAPTER_SCRIPT = "../" + ANTIGRAVITY_HOOK_TARGET.as_posix()
+ANTIGRAVITY_PLUGIN_SCRIPT = "base/antigravity/hooks/aikit_hook.py"
 
 
 def read_json(path: Path) -> dict | None:
@@ -182,6 +200,32 @@ def codex_groups(command: str = CODEX_COMMAND, command_windows: str = CODEX_COMM
     return groups
 
 
+def antigravity_groups(script_path: str = ANTIGRAVITY_ADAPTER_SCRIPT, extra_args: list[str] | None = None) -> dict[str, list[dict]]:
+    groups: dict[str, list[dict]] = {}
+    base_args = list(extra_args or [])
+    for event, (matcher, timeout) in ANTIGRAVITY_EVENTS.items():
+        handler = {
+            "type": "command",
+            "command": antigravity_launcher(script_path, [*base_args, "--event", event]),
+            "timeout": timeout,
+        }
+        if matcher:
+            groups[event] = [{"matcher": matcher, "hooks": [handler]}]
+        else:
+            groups[event] = [handler]
+    return groups
+
+
+def install_antigravity_hooks(path: Path, script_path: str = ANTIGRAVITY_ADAPTER_SCRIPT, extra_args: list[str] | None = None) -> bool:
+    config = read_json(path)
+    if config is None:
+        print(f"! {path.name} не разобран как JSON — хуки AIKit не добавлены", file=sys.stderr)
+        return False
+    config["aikit"] = antigravity_groups(script_path, extra_args)
+    write_json(path, config)
+    return True
+
+
 def install_json_hooks(path: Path, groups: dict[str, dict]) -> bool:
     config = read_json(path)
     if config is None:
@@ -218,6 +262,11 @@ def install(runtime: str, workspace: Path) -> bool:
         native.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(CODEX_HOOK_SOURCE, native)
         return install_json_hooks(workspace / ".codex" / "hooks.json", codex_groups())
+    if runtime == "antigravity":
+        native = workspace / ANTIGRAVITY_HOOK_TARGET
+        native.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ANTIGRAVITY_HOOK_SOURCE, native)
+        return install_antigravity_hooks(workspace / ".agents" / "hooks.json")
     return install_opencode(workspace)
 
 

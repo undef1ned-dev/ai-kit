@@ -1,0 +1,20 @@
+# AIKit In {{ADAPTER_LABEL}}
+
+Этот проект подключён к AIKit (профили: `{{PROFILES}}`).
+
+## Где что лежит
+
+- `AGENTS.md` — правила проекта; блок AIKit обновляется установщиком, свой текст пиши вне блока
+- `.agents/skills/` — скиллы AIKit: вызов `/name` или автоматически по описанию задачи
+- `.agents/agents/*.md` — сабагенты AIKit (вызываются через `invoke_subagent`)
+- `.agents/mcp_config.json` — MCP-серверы AIKit
+- `.agents/hooks.json` — хуки AIKit: правила коммитов, веток и секретов, линтер после правки, тесты в конце ответа, память в начале сессии. Логика — в `.aikit/hooks/antigravity/aikit_hook.py` и `.aikit/hooks/aikit_hook.py`
+- `.aikit/profiles.json` — контракты профилей: агенты по ролям, специалисты, папка профиля `root` (команды запускаются в ней), команды `lint`/`format`/`test`/`build`/`run`; `root` и команды можно менять под проект, обновление их не затрёт
+- `{{MEMORY_PATH}}/` — память проекта, хранится в git
+- `.aikit/` — служебные файлы установки AIKit
+
+## Обновление
+
+```bash
+python3 .aikit-config/scripts/update-adapter-package.py antigravity --preset <preset> --workspace .
+```

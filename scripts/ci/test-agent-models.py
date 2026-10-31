@@ -63,6 +63,9 @@ def main() -> int:
     check("переопределение для runtime — модель как есть", agent_models.resolve("vue-tester", "sonnet", "codex", project) == {"model": "gpt-test", "model_reasoning_effort": "medium"})
     check("runtime без переопределения — уровень агента",
           agent_models.resolve("vue-tester", "sonnet", "opencode", project) == kit["runtimes"]["opencode"]["sonnet"])
+    check("Antigravity: уровни opus/sonnet → pro, haiku → flash",
+          agent_models.resolve("vue-architect", "opus", "antigravity", {}) == {"model": "pro"}
+          and agent_models.resolve("memory-writer", "haiku", "antigravity", {}) == {"model": "flash"})
     check("проект меняет модель уровня", agent_models.resolve("vue-coder", "sonnet", "opencode", project) == {"model": "openrouter/test-opus"})
     check("неизвестный уровень — модель не задаётся", agent_models.resolve("x", "inherit", "codex", {}) == {})
     architect = {**opus, "model_reasoning_effort": "medium"}

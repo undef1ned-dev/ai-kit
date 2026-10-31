@@ -36,6 +36,11 @@ case "$ADAPTER" in
     printf '{"hooks": {"PreToolUse": [{"matcher": "Bash", "hooks": [{"type": "command", "command": "my-hook"}]}]}}\n' > "$PROJECT_DIR/.codex/hooks.json"
     ;;
   opencode) printf '{"mcp": {"my-server": {"type": "local", "command": ["my-mcp"]}}}\n' > "$PROJECT_DIR/opencode.json" ;;
+  antigravity)
+    mkdir -p "$PROJECT_DIR/.agents"
+    printf '{"mcpServers": {"my-server": {"command": "my-mcp"}}}\n' > "$PROJECT_DIR/.agents/mcp_config.json"
+    printf '{"my-hook": {"PreToolUse": [{"matcher": "run_command", "hooks": [{"type": "command", "command": "my-hook"}]}]}}\n' > "$PROJECT_DIR/.agents/hooks.json"
+    ;;
 esac
 # Свои агенты и скиллы команды (их создаёт /create-agent в проекте): установка и обновление не должны их менять.
 # В тексте есть путь .claude/agents/ — установщик подменяет его только в файлах кита
@@ -54,11 +59,19 @@ case "$ADAPTER" in
     mkdir -p "$PROJECT_DIR/.opencode/agents"
     printf -- '---\ndescription: "Свой агент"\nmode: subagent\n---\nСм. .claude/agents/\n' > "$PROJECT_DIR/.opencode/agents/my-local.md"
     ;;
+  antigravity)
+    LOCAL_FILES+=(".agents/agents/my-local.md")
+    mkdir -p "$PROJECT_DIR/.agents/agents"
+    printf -- '---\nname: "my-local"\ndescription: "Свой агент"\nsubagent: true\n---\nСм. .claude/agents/\n' > "$PROJECT_DIR/.agents/agents/my-local.md"
+    ;;
 esac
 LOCAL_SUMS="$(cd "$PROJECT_DIR" && cksum "${LOCAL_FILES[@]}")"
 
 AGENT_PATTERN="*.md"
 [[ "$ADAPTER" == codex ]] && AGENT_PATTERN="*.toml"
+RUNTIME_DIR=".$ADAPTER"
+[[ "$ADAPTER" == antigravity ]] && RUNTIME_DIR=".agents"
+AGENTS_SUBDIR="$RUNTIME_DIR/agents"
 FAILURES=0
 pass() { echo "  ✓ $1"; }
 fail() { echo "  ✗ $1"; FAILURES=$((FAILURES + 1)); }
@@ -131,6 +144,9 @@ if adapter == "codex":
     path = project / ".codex" / "config.toml"
     with open(path, "rb") as f:
         servers = tomllib.load(f)["mcp_servers"]
+elif adapter == "antigravity":
+    path = project / ".agents" / "mcp_config.json"
+    servers = json.loads(path.read_text(encoding="utf-8"))["mcpServers"]
 else:
     path = project / "opencode.json"
     servers = json.loads(path.read_text(encoding="utf-8"))["mcp"]
@@ -186,6 +202,18 @@ check_opencode_agents() {
   [[ "$found" == 1 ]]
 }
 
+# Агенты Antigravity — markdown с name, description, subagent: true и model: pro|flash
+check_antigravity_agents() {
+  local f found=0
+  for f in "$PROJECT_DIR"/.agents/agents/*.md; do
+    [[ -f "$f" ]] || continue
+    [[ "$(basename "$f")" == my-local.md ]] && continue
+    found=1
+    grep -q '^name: "..*"' "$f" && grep -q '^description: "..*"' "$f" && grep -q '^subagent: true' "$f" && grep -qE '^model: (pro|flash)' "$f" || { echo "неверный агент: $f" >&2; return 1; }
+  done
+  [[ "$found" == 1 ]]
+}
+
 # Хуки: общий скрипт в .aikit/hooks, обвязка runtime, хук пользователя сохранён; скрипт блокирует ветку не по формату
 check_hooks() {
   "$PYTHON_BIN" - "$ADAPTER" "$PROJECT_DIR" <<'PY'
@@ -200,6 +228,14 @@ if adapter == "codex":
         assert len(kit) == 1, f"{event}: хуков AIKit {len(kit)} вместо 1"
         assert all(handler.get("commandWindows") for handler in kit[0]["hooks"]), f"{event}: нет commandWindows"
     assert any(handler.get("command") == "my-hook" for group in hooks["PreToolUse"] for handler in group["hooks"]), "хук пользователя удалён"
+elif adapter == "antigravity":
+    wrapper = project / ".aikit" / "hooks" / "antigravity" / "aikit_hook.py"
+    assert wrapper.is_file(), "нет .aikit/hooks/antigravity/aikit_hook.py"
+    hooks = json.loads((project / ".agents" / "hooks.json").read_text(encoding="utf-8"))
+    assert "my-hook" in hooks, "хук пользователя удалён"
+    aikit = hooks.get("aikit", {})
+    for event in ("SessionStart", "PreToolUse", "PostToolUse", "PostInvocation", "Stop"):
+        assert event in aikit and aikit[event], f"{event}: нет обработчиков AIKit"
 else:
     plugin = project / ".opencode" / "plugins" / "aikit-hooks.js"
     assert "aikit_hook.py" in plugin.read_text(encoding="utf-8"), "нет плагина хуков"
@@ -211,9 +247,9 @@ assert result.returncode == 2, f"ветка не по формату не заб
 PY
 }
 
-# Codex и OpenCode читают правила проекта из AGENTS.md: агенты кита не отправляют в CLAUDE.md
+# Codex, OpenCode и Antigravity читают правила проекта из AGENTS.md: агенты кита не отправляют в CLAUDE.md
 check_agents_rules_file() {
-  ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR/.$ADAPTER"/agents/* | grep -qv 'AGENTS\.md'
+  ! grep -hE '(^|[^/.[:alnum:]_-])CLAUDE\.md' "$PROJECT_DIR/$AGENTS_SUBDIR"/* | grep -qv 'AGENTS\.md'
 }
 
 # /set-model без исходников кита в проекте: скрипт моделей и models.json лежат в .aikit/ и видят агентов кита
@@ -244,9 +280,12 @@ check_runtime_files() {
     opencode)
       check "агенты OpenCode с description, mode: subagent и model$stage" check_opencode_agents
       ;;
+    antigravity)
+      check "агенты Antigravity с name, description, subagent: true и model$stage" check_antigravity_agents
+      ;;
   esac
   check "агенты кита ссылаются на правила в AGENTS.md, не в CLAUDE.md$stage" check_agents_rules_file
-  check "в агентах runtime нет поля effort Claude Code$stage" test -z "$(grep -lE '^effort' "$PROJECT_DIR/.$ADAPTER"/agents/* 2>/dev/null)"
+  check "в агентах runtime нет поля effort Claude Code$stage" test -z "$(grep -lE '^effort' "$PROJECT_DIR/$AGENTS_SUBDIR"/* 2>/dev/null)"
   check "/set-model работает без исходников кита (.aikit/scripts/agent_models.py)$stage" check_set_model_resources
   check "MCP-серверы в родном формате, сервер пользователя сохранён$stage" check_mcp
   check "хуки AIKit в родном формате runtime, хук пользователя сохранён$stage" check_hooks
@@ -263,8 +302,8 @@ run_installer install-adapter-package.py "$INSTALL_LOG" || { cat "$INSTALL_LOG";
 
 check "агенты кита установлены (.aikit/agents)" test "$(count_files "$PROJECT_DIR/.aikit/agents" "$AGENT_PATTERN")" -gt 0
 check "память проекта создана" test -d "$PROJECT_DIR/.aikit/memory"
-check "инструкция runtime .$ADAPTER/AIKIT.md из шаблона адаптера" test -s "$PROJECT_DIR/.$ADAPTER/AIKIT.md"
-check "файла разработки кита CONTINUE_AIKIT_MAINTAINER.md нет" test ! -e "$PROJECT_DIR/.$ADAPTER/CONTINUE_AIKIT_MAINTAINER.md" -a ! -e "$PROJECT_DIR/CONTINUE_AIKIT_MAINTAINER.md"
+check "инструкция runtime $RUNTIME_DIR/AIKIT.md из шаблона адаптера" test -s "$PROJECT_DIR/$RUNTIME_DIR/AIKIT.md"
+check "файла разработки кита CONTINUE_AIKIT_MAINTAINER.md нет" test ! -e "$PROJECT_DIR/$RUNTIME_DIR/CONTINUE_AIKIT_MAINTAINER.md" -a ! -e "$PROJECT_DIR/CONTINUE_AIKIT_MAINTAINER.md"
 check ".aikit/profiles.json: контракты профилей пресета" check_profile_contracts
 check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f '$PROJECT_DIR/.agents/skills/implement-feature/SKILL.md' && ! ls -d '$PROJECT_DIR'/.agents/skills/*-implement-feature 2>/dev/null"
 check "нет нераскрытых шаблонов {{...}}" bash -c "! grep -rlF '{{' '$PROJECT_DIR/.aikit/agents' '$PROJECT_DIR/.agents/skills' '$PROJECT_DIR/AGENTS.md'"

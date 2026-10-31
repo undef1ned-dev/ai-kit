@@ -39,7 +39,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 KIT_MODELS = ROOT / "adapters" / "models.json"
 PROJECT_MODELS = Path(".aikit") / "models.json"
-RUNTIMES = ("claude", "codex", "opencode")
+RUNTIMES = ("claude", "codex", "opencode", "antigravity")
 # agents — an adapter install ships this script in .aikit/scripts/ next to the kit agents in .aikit/agents/
 AGENT_SOURCES = ("base/agents", "profiles/*/agents", "packs/*/agents", "agents")
 FRONTMATTER_MODEL = re.compile(r"^model:\s*(\S+)\s*$", re.M)
@@ -134,7 +134,12 @@ def set_toml_fields(text: str, fields: dict[str, str]) -> str:
 
 
 def agent_files(runtime: str, workspace: Path) -> list[Path]:
-    folder = {"claude": ".claude/agents", "codex": ".codex/agents", "opencode": ".opencode/agents"}[runtime]
+    folder = {
+        "claude": ".claude/agents",
+        "codex": ".codex/agents",
+        "opencode": ".opencode/agents",
+        "antigravity": ".agents/agents",
+    }[runtime]
     suffix = ".toml" if runtime == "codex" else ".md"
     return sorted((workspace / folder).glob(f"*{suffix}"))
 
