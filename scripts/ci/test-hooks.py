@@ -334,6 +334,74 @@ def check_update_notice(project: Project, expect) -> None:
         expect("хук установщика (без --plugin) обновления не проверяет", "systemMessage" not in output, str(output))
 
 
+def check_antigravity_hooks(project: Project, expect) -> None:
+    """Scenario tests for the native Antigravity hook wrapper base/antigravity/hooks/aikit_hook.py."""
+    agy_hook = KIT_ROOT / "base" / "antigravity" / "hooks" / "aikit_hook.py"
+
+    def run_agy(payload: dict, flags: tuple[str, ...] = ()) -> tuple[int, dict]:
+        data = {
+            "workspacePaths": [str(project.root)],
+            "conversationId": "agy-conv-1",
+            **payload,
+        }
+        result = subprocess.run(
+            [sys.executable, str(agy_hook), *flags],
+            input=json.dumps(data).encode("utf-8"),
+            capture_output=True,
+            cwd=project.root,
+            timeout=30,
+        )
+        stdout = result.stdout.decode("utf-8", errors="replace").strip()
+        return result.returncode, json.loads(stdout) if stdout else {}
+
+    code, out = run_agy({"hookEventName": "SessionStart"})
+    expect("Antigravity SessionStart: injectSteps с памятью и PRODUCT.md", code == 0 and "injectSteps" in out, str(out))
+    expect("Antigravity SessionStart: отметка запуска с runtime antigravity", hook_status(project.root).get("runtime") == "antigravity", str(hook_status(project.root)))
+
+    code, out = run_agy({
+        "hookEventName": "PreToolUse",
+        "toolCall": {"toolName": "run_command", "arguments": {"CommandLine": 'git commit -m "wip"'}},
+    })
+    expect("Antigravity PreToolUse run_command: кривой коммит заблокирован (decision: deny)", code == 0 and out.get("decision") == "deny", str(out))
+
+    code, out = run_agy({
+        "hookEventName": "PreToolUse",
+        "toolCall": {"toolName": "run_command", "arguments": {"CommandLine": 'git commit -m "feat: добавлена поддержка"'}},
+    })
+    expect("Antigravity PreToolUse run_command: валидный коммит разрешён (decision: allow)", code == 0 and out.get("decision") == "allow", str(out))
+
+    code, out = run_agy({
+        "hookEventName": "PreToolUse",
+        "toolCall": {"toolName": "write_file", "arguments": {"Path": ".env", "Content": "A=1"}},
+    })
+    expect("Antigravity PreToolUse write_file: запись в .env заблокирована", code == 0 and out.get("decision") == "deny", str(out))
+
+    code, out = run_agy({
+        "hookEventName": "PreToolUse",
+        "toolCall": {"toolName": "edit_file", "arguments": {"Path": "a.ts", "Target": "x", "Replacement": "ghp_" + "a" * 36}},
+    })
+    expect("Antigravity PreToolUse edit_file: секрет в Replacement заблокирован", code == 0 and out.get("decision") == "deny", str(out))
+
+    web = project.root / "web"
+    component = web / "components" / "Cart.vue"
+    project.set_profile({"format": f"{PYTHON} fmt.py {{files}}", "lint": f"{PYTHON} lint.py {{files}}", "test": f"{PYTHON} fail.py"})
+    code, out = run_agy({
+        "hookEventName": "PostToolUse",
+        "toolCall": {"toolName": "write_file", "arguments": {"Path": str(component), "Content": "<template/>\n"}},
+    })
+    expect("Antigravity PostToolUse: возвращает {} и буферизует замечания линтера", code == 0 and out == {}, str(out))
+    code, out = run_agy({"hookEventName": "PostInvocation"})
+    ephemeral = out.get("injectSteps", [{}])[0].get("ephemeralMessage", "")
+    expect("Antigravity PostInvocation: отдаёт буферизованные замечания линтера в injectSteps", code == 0 and "no-unused-vars" in ephemeral, str(out))
+    code, out = run_agy({"hookEventName": "PostInvocation"})
+    expect("Antigravity PostInvocation: повторный вызов пуст", code == 0 and out == {}, str(out))
+
+    code, out = run_agy({"hookEventName": "Stop", "terminationReason": "COMPLETE"})
+    expect("Antigravity Stop: упавшие тесты возвращают decision: continue", code == 0 and out.get("decision") == "continue" and "test_cart" in out.get("reason", ""), str(out))
+    code, out = run_agy({"hookEventName": "Stop", "terminationReason": "COMPLETE"})
+    expect("Antigravity Stop: без новых правок возвращает decision: allow", code == 0 and out.get("decision") == "allow", str(out))
+
+
 def main() -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -488,6 +556,9 @@ def main() -> int:
 
         print("▶ Отметки запусков хуков (--status)")
         check_run_marks(expect)
+
+        print("▶ Нативные хуки Antigravity (base/antigravity/hooks/aikit_hook.py)")
+        check_antigravity_hooks(project, expect)
 
         print("▶ Лаунчер Windows: python на PATH старый или неподходящий")
         check_old_python(project, expect)

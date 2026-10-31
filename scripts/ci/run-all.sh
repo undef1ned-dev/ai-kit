@@ -32,7 +32,7 @@ run_step "static" bash "$KIT_ROOT/scripts/ci/static-checks.sh"
 for preset_file in "$KIT_ROOT"/presets/*.json; do
   preset="$(basename "$preset_file" .json)"
   run_step "attach $preset" bash "$KIT_ROOT/scripts/ci/smoke-attach.sh" "$preset" "$WORK_DIR/attach"
-  for adapter in codex opencode; do
+  for adapter in codex opencode antigravity; do
     run_step "$adapter $preset" bash "$KIT_ROOT/scripts/ci/smoke-adapter.sh" "$adapter" "$preset" "$WORK_DIR/adapters"
   done
   run_step "plugin $preset" bash "$KIT_ROOT/scripts/ci/smoke-plugin.sh" "$preset" "$WORK_DIR/plugins"

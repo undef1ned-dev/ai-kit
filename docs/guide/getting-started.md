@@ -6,7 +6,7 @@
 
 | Что | Зачем | Примечание |
 |---|---|---|
-| Runtime | Claude Code, Codex или OpenCode | Подойдёт любой из трёх, можно несколько сразу |
+| Runtime | Claude Code, Codex, Antigravity или OpenCode | Подойдёт любой, можно несколько сразу |
 | Python 3.11+ для Codex; 3.9+ для хуков | Codex читает нативные TOML через tomllib; хуки используют общий Python-обработчик | Команда `python3`; на Windows см. [Известные ошибки](known-issues.md#windows-нет-команды-python3) |
 | Git | Маркетплейс плагинов — этот репозиторий на GitHub | Для установщика кит подключается как git submodule |
 | Bash | Только для установщика `attach.sh` | На Windows — Git Bash (ставится вместе с Git for Windows) |
@@ -14,8 +14,8 @@
 
 Кит ставится двумя способами:
 
-- **плагинами** — Claude Code и Codex: агенты, скиллы, хуки и MCP приходят из маркетплейса и обновляются вместе с ним, в проект пишется только то, что принадлежит проекту;
-- **установщиком** — OpenCode и запасной путь для Claude Code и Codex: кит подключается submodule'ом и копирует всё в проект.
+- **плагинами** — Claude Code, Codex и Antigravity: агенты, скиллы, хуки и MCP приходят из плагинов, в проект пишется только то, что принадлежит проекту;
+- **установщиком** — OpenCode, Antigravity и запасной путь для Claude Code и Codex: кит подключается submodule'ом и копирует всё в проект.
 
 Выбери один способ на проект: плагины и копии установщика вместе дублируют агентов и скиллы.
 
@@ -73,6 +73,18 @@ codex plugin add vue-nuxt@aikit
 
 > [!IMPORTANT]
 > Codex применяет агентов из `.codex/` только в **доверенном** проекте, а хуки запускает после одобрения в `/hooks`. Плагины Codex в AIKit проверены по формату, но ещё не прогонялись вживую — см. [Поддержка runtime](../runtime-support.md).
+
+## Установка плагинами в Antigravity (Gemini)
+
+1. Собери и установи плагины AIKit в глобальный каталог Antigravity (`~/.gemini/config/plugins/`):
+
+```bash
+python3 scripts/install-antigravity-plugins.py --preset frontend-team
+# или все плагины репозитория
+python3 scripts/install-antigravity-plugins.py --all
+```
+
+2. Перезапусти сессию Antigravity и в корне проекта вызови скилл `/setup` (или запусти `python3 ~/.gemini/config/plugins/aikit/scripts/plugin-init.py --runtime antigravity --preset frontend-team --workspace .`). Скрипт запишет блок правил в `AGENTS.md`, контракты в `.aikit/profiles.json`, память в `.aikit/memory/` и агентов проекта в `.agents/agents/`.
 
 ## Что появится в проекте при установке плагинами
 
@@ -147,7 +159,7 @@ codex plugin add vue-nuxt@aikit
 
 Как формулировать задачи, чтобы результат был лучше, — на странице [Работа с агентами](daily-work.md).
 
-## Установка установщиком в Codex и OpenCode
+## Установка установщиком в Codex, Antigravity и OpenCode
 
 Кит подключается так же, submodule в `.aikit-config`, а ставит его установщик адаптера:
 
@@ -155,9 +167,9 @@ codex plugin add vue-nuxt@aikit
 python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace .
 ```
 
-Вместо `codex` — `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt` и `--pack devops`. `--commit auto` — коммитить без вопроса о сообщении (по умолчанию `ask`).
+Вместо `codex` — `antigravity` или `opencode`. Вместо `--preset` можно указать `--profile vue-nuxt` и `--pack devops`. `--commit auto` — коммитить без вопроса о сообщении (по умолчанию `ask`).
 
-Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml` или `opencode.json`, хуки в `.codex/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/settings.json`, `.aikit/hooks/` и `.aikit/memory/`.
+Что появится: блок AIKit в `AGENTS.md` (твой текст вне блока сохраняется), скиллы в `.agents/skills/`, агенты в `.codex/agents/`, `.agents/agents/` или `.opencode/agents/`, MCP-серверы в `.codex/config.toml`, `.agents/mcp_config.json` или `opencode.json`, хуки в `.codex/hooks.json`, `.agents/hooks.json` или плагином `.opencode/plugins/aikit-hooks.js`, те же `.aikit/profiles.json`, `.aikit/settings.json`, `.aikit/hooks/` и `.aikit/memory/`.
 
 > [!IMPORTANT]
 > Codex применяет агентов, MCP и хуки из `.codex/` только в **доверенном** проекте. Отметь проект доверенным при первом запуске Codex — иначе агенты AIKit не загрузятся. Хуки Codex запускает только после одобрения: открой `/hooks` и отметь хуки AIKit доверенными; после обновления кита, если хуки изменились, — ещё раз. Figma и Sentry в Codex авторизуются командой `codex mcp login <name>`.

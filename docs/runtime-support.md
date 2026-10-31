@@ -3,7 +3,7 @@
 Какие возможности AIKit работают в каждом AI-агенте, где отличия и чего нет.
 Обновляется в каждой задаче roadmap, которая добавляет или меняет функционал (см. принцип в [roadmap.md](roadmap.md)).
 
-Приоритет: **Claude Code** и **Codex** — основные, OpenCode — переносим всё, что позволяет runtime.
+Приоритет: **Claude Code** и **Codex** — основные, **Antigravity** и **OpenCode** — переносим всё, что позволяет runtime.
 
 GLM отдельно не поддерживается: это модель, а не агент — её можно запускать через любой из этих runtime, и кит будет работать так же, как в нём.
 
@@ -18,26 +18,26 @@ GLM отдельно не поддерживается: это модель, а 
 
 ## 1. Что умеет каждый runtime
 
-Codex имеет самостоятельные источники агентов и скиллов в `<слой>/codex/`. Общими остаются RULES.md, контракты, память и MCP. OpenCode пока использует прежнюю конвертацию Markdown; её нативное разделение в эту итерацию не входит.
+Codex имеет самостоятельные источники агентов и скиллов в `<слой>/codex/`. Общими остаются RULES.md, контракты, память и MCP. Antigravity и OpenCode используют конвертацию Markdown со своими правилами `adapters/<runtime>/rules.md` и нативными хуками.
 
-Справочник по родным механизмам. Сверено с документацией 2026-10-12, плагины — 2026-10-19.
+Справочник по родным механизмам. Сверено с документацией 2026-10-12, плагины — 2026-10-31.
 
-| Возможность | Claude Code | Codex | OpenCode |
-|---|---|---|---|
-| Правила проекта | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` (если его нет — `CLAUDE.md`) |
-| Скиллы `<name>/SKILL.md` | `.claude/skills/` | `.agents/skills/` | `.opencode/skills/`, а также `.claude/skills/` и `.agents/skills/` |
-| Вызов скилла | `/name` или автоматически по `description` | `$name`, `/skills` или автоматически по `description` | автоматически по `description` |
-| Запрет автовызова скилла | `disable-model-invocation: true` во frontmatter | `policy.allow_implicit_invocation: false` в `<skill>/agents/openai.yaml` | нет в самом скилле (только `permission` в `opencode.json`) |
-| Аргументы скилла | `$ARGUMENTS` подставляется | не подставляется — задача берётся из сообщения | не подставляется |
-| Slash-команды (старый формат) | `.claude/commands/*.md` | нет в проекте — заменены скиллами | `.opencode/commands/` |
-| Сабагенты | `.claude/agents/*.md` | `.codex/agents/*.toml` (`name`, `description`, `developer_instructions`) | `.opencode/agents/*.md` (`description`, `mode: subagent`) |
-| MCP-серверы | `.mcp.json` | `[mcp_servers.*]` в `.codex/config.toml` (только для доверенных проектов) | `"mcp"` в `opencode.json` |
-| Секреты для MCP | `${VAR}` в `.mcp.json` | `env_vars = ["VAR"]`, `bearer_token_env_var` | `{env:VAR}` |
-| Хуки | `hooks` в `.claude/settings.json` | `.codex/hooks.json` или `[hooks]` в `.codex/config.toml`; нужно одобрить через `/hooks` | JS/TS-плагин в `.opencode/plugins/` (`tool.execute.before` / `after`, `session.idle`) |
-| Запреты (permissions) | `permissions` в `.claude/settings.json` | `sandbox_mode`, `approval_policy` в `config.toml` | `permission` в `opencode.json` и у агента |
-| Плагины / marketplace | `.claude-plugin/plugin.json`, `marketplace.json`: скиллы, агенты, хуки, MCP | `.codex-plugin/plugin.json`: скиллы, хуки, MCP — **без агентов**; маркетплейс читает и `.claude-plugin/marketplace.json` | npm-плагины |
-| Имена из плагина | скилл `/плагин:имя` (и `/имя`, если не занято), агент — только `плагин:имя` | скилл `$имя` | — |
-| Свой интерфейс (панели, строка под полем ввода) | моды: `modules` в `hooks/hooks.json` плагина | нет | нет |
+| Возможность | Claude Code | Codex | Antigravity | OpenCode |
+|---|---|---|---|---|
+| Правила проекта | `CLAUDE.md` | `AGENTS.md` | `AGENTS.md` и `.agents/rules/*.md` | `AGENTS.md` (если его нет — `CLAUDE.md`) |
+| Скиллы `<name>/SKILL.md` | `.claude/skills/` | `.agents/skills/` | `.agents/skills/` и `skills/` в плагине | `.opencode/skills/`, а также `.claude/skills/` и `.agents/skills/` |
+| Вызов скилла | `/name` или автоматически по `description` | `$name`, `/skills` или автоматически по `description` | `/name` или автоматически по `description` | автоматически по `description` |
+| Запрет автовызова скилла | `disable-model-invocation: true` во frontmatter | `policy.allow_implicit_invocation: false` в `<skill>/agents/openai.yaml` | нет в самом скилле | нет в самом скилле (только `permission` в `opencode.json`) |
+| Аргументы скилла | `$ARGUMENTS` подставляется | не подставляется — задача берётся из сообщения | не подставляется — задача берётся из сообщения | не подставляется |
+| Slash-команды (старый формат) | `.claude/commands/*.md` | нет в проекте — заменены скиллами | `.agents/workflows/` (заменены скиллами) | `.opencode/commands/` |
+| Сабагенты | `.claude/agents/*.md` | `.codex/agents/*.toml` (`name`, `description`, `developer_instructions`) | `.agents/agents/*.md` (`name`, `description`, `subagent: true`, `model: pro \| flash \| inherit`) | `.opencode/agents/*.md` (`description`, `mode: subagent`) |
+| MCP-серверы | `.mcp.json` | `[mcp_servers.*]` в `.codex/config.toml` (только для доверенных проектов) | `.agents/mcp_config.json` (`"mcpServers"`) и `mcp_config.json` в плагине | `"mcp"` в `opencode.json` |
+| Секреты для MCP | `${VAR}` в `.mcp.json` | `env_vars = ["VAR"]`, `bearer_token_env_var` | `${VAR}` в `env` / `headers` | `{env:VAR}` |
+| Хуки | `hooks` в `.claude/settings.json` | `.codex/hooks.json` или `[hooks]` в `.codex/config.toml`; нужно одобрить через `/hooks` | `.agents/hooks.json` или `hooks.json` в плагине (`SessionStart`, `PreToolUse`, `PostToolUse`, `PostInvocation`, `Stop`) | JS/TS-плагин в `.opencode/plugins/` (`tool.execute.before` / `after`, `session.idle`) |
+| Запреты (permissions) | `permissions` в `.claude/settings.json` | `sandbox_mode`, `approval_policy` в `config.toml` | встроенный терминальный sandbox + `PreToolUse` хук | `permission` в `opencode.json` и у агента |
+| Плагины / marketplace | `.claude-plugin/plugin.json`, `marketplace.json`: скиллы, агенты, хуки, MCP | `.codex-plugin/plugin.json`: скиллы, хуки, MCP — **без агентов**; маркетплейс читает и `.claude-plugin/marketplace.json` | `.antigravity-plugin/plugin.json` и `~/.gemini/config/plugins/<name>/`: скиллы, агенты, хуки, MCP (`install-antigravity-plugins.py`, `agy plugin install`) | npm-плагины |
+| Имена из плагина | скилл `/плагин:имя` (и `/имя`, если не занято), агент — только `плагин:имя` | скилл `$имя` | скилл `/имя` (или `/плагин:имя`), агент `плагин:имя` (и без префикса из `.agents/agents/`) | — |
+| Свой интерфейс (панели, строка под полем ввода) | моды: `modules` в `hooks/hooks.json` плагина | нет | UI-плагины | нет |
 
 ---
 

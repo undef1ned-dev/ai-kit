@@ -53,6 +53,7 @@ PLUGIN_PATHS = (
     "scripts/",
     ".claude-plugin/",
     ".codex-plugin/",
+    ".antigravity-plugin/",
 )
 # Inside PLUGIN_PATHS, but used only to develop the kit
 NON_PLUGIN_PATHS = ("scripts/ci/", "deck/tests/")

@@ -1,10 +1,10 @@
 # AIKit
 
-AIKit — переиспользуемый набор AI-агентов и скиллов для Claude Code и Codex: профили под стек, агенты, скиллы, хуки, пресеты; ставится плагинами или установщиком, есть адаптер для OpenCode.
+AIKit — переиспользуемый набор AI-агентов и скиллов для Claude Code, Codex и Antigravity (Gemini): профили под стек, агенты, скиллы, хуки, пресеты; ставится плагинами или установщиком, есть адаптер для OpenCode.
 
 ## Подключить AIKit к проекту
 
-### Плагинами — Claude Code и Codex
+### Плагинами — Claude Code, Codex и Antigravity
 
 В Claude Code:
 
@@ -18,6 +18,8 @@ AIKit — переиспользуемый набор AI-агентов и ск�
 Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`, `forge-1-12-java`) и пак (`devops`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
 
 В Codex: `codex plugin marketplace add undef1ned-dev/ai-kit`, `codex plugin add aikit@aikit` и плагины профилей, затем скилл `$setup`. Агентов плагины Codex не поставляют — `$setup` пишет их в `.codex/agents/`.
+
+В Antigravity (Antigravity 2.0, IDE, CLI): установи плагины в `~/.gemini/config/plugins/` через `python3 scripts/install-antigravity-plugins.py --preset frontend-team` (или `--all`) и подключи проект скиллом `/setup` (`python3 scripts/plugin-init.py --runtime antigravity --preset frontend-team`). Агенты проекта записываются в `.agents/agents/`.
 
 ### Установщиком — OpenCode и запасной путь
 
@@ -65,14 +67,14 @@ bash .aikit-config/scripts/attach.sh vue-nuxt+<backend-профиль>
 bash .aikit-config/scripts/update.sh
 ```
 
-## Другие runtime: Codex, OpenCode
+## Другие runtime: Codex, OpenCode, Antigravity
 
 ```bash
 python3 .aikit-config/scripts/install-adapter-package.py codex --preset frontend-team --workspace <путь-к-проекту>
 python3 .aikit-config/scripts/update-adapter-package.py codex --preset frontend-team --workspace <путь-к-проекту>
 ```
 
-Вместо `codex` — `opencode`.
+Вместо `codex` — `opencode` или `antigravity`.
 
 ## Правила и runtime
 

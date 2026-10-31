@@ -14,12 +14,12 @@ example_prompt: "$aikit:update-agents"
 
 ## 1. Проверь, что нужно
 
-- Это скилл для Codex. В Claude Code плагины отдают агентов напрямую, обновление плагина (`/plugin update <плагин>@aikit` и перезапуск сессии) уже всё сделало, — так и скажи и остановись.
-- Нужен `.aikit/plugin-init.json` с Codex в `runtimes`: из него берутся профили и паки. Если файла нет, проект не подключён — предложи `$aikit:setup` и остановись.
+- Скилл предназначен для Codex и Antigravity. В Claude Code плагины отдают агентов напрямую, обновление плагина (`/plugin update <плагин>@aikit` и перезапуск сессии) уже всё сделало, — так и скажи и остановись.
+- Нужен `.aikit/plugin-init.json` с `codex` или `antigravity` в `runtimes`: из него берутся профили и паки. Если файла нет, проект не подключён — предложи `$aikit:setup` (в Antigravity — `/setup`) и остановись.
 
 ## 2. Найди корень плагина
 
-В Codex переменная плагина не подставляется: корень — папка на три уровня выше этого `SKILL.md` (`<корень>/base/plugin-skills/update-agents/SKILL.md`). Проверь, что там есть `scripts/plugin-init.py`. Дальше этот путь — `<корень>`.
+В Codex переменная плагина не подставляется: корень — папка на три уровня выше этого `SKILL.md` (`<корень>/base/plugin-skills/update-agents/SKILL.md`). В Antigravity корень плагина — `~/.gemini/config/plugins/aikit` (на два уровня выше `skills/update-agents/SKILL.md`). Проверь, что там есть `scripts/plugin-init.py`. Дальше этот путь — `<корень>`.
 
 Если пользователь передал `--with-plugins`, перейди к следующему разделу. Без флага: если плагин ещё не обновлён, агенты соберутся из старой версии кита. Предложи единый режим `update-agents --with-plugins` или ручное обновление `codex plugin marketplace upgrade aikit` с новой сессией; без такого запроса маркетплейс сам не обновляй.
 
@@ -40,17 +40,17 @@ python3 "<корень>/scripts/update-codex-plugins.py" --workspace .
 ## 3. Запусти обновление
 
 ```bash
-python3 "<корень>/scripts/plugin-init.py" --runtime codex --refresh-agents
+python3 "<корень>/scripts/plugin-init.py" --runtime <codex|antigravity> --refresh-agents
 ```
 
-На Windows без `python3` — `python` или `py -3`. Скрипт берёт профили и паки прошлого запуска, пересобирает агентов кита в `.codex/agents/*.toml` и применяет модели: уровни из `adapters/models.json` и переопределения проекта из `.aikit/models.json`. Свои агенты команды в `.codex/agents/`, правила в `AGENTS.md`, `.aikit/profiles.json`, память и настройки он не трогает; агенты профилей и паков, которых больше нет в ките, удаляет.
+На Windows без `python3` — `python` или `py -3`. Скрипт берёт профили и паки прошлого запуска, пересобирает агентов кита в `.codex/agents/*.toml` (Codex) или `.agents/agents/*.md` (Antigravity) и применяет модели: уровни из `adapters/models.json` и переопределения проекта из `.aikit/models.json`. Свои агенты команды, правила в `AGENTS.md`, `.aikit/profiles.json`, память и настройки он не трогает; агенты профилей и паков, которых больше нет в ките, удаляет.
 
 ## 4. Отчёт
 
 Покажи, что напечатал скрипт, и итоговые модели:
 
 ```bash
-python3 "<корень>/scripts/agent_models.py" show --runtime codex --workspace .
+python3 "<корень>/scripts/agent_models.py" show --runtime <codex|antigravity> --workspace .
 ```
 
 Если нужно сменить набор профилей или паков, обновить правила в `AGENTS.md` или контракты, — это `$aikit:setup`. Новые агенты подхватятся в новой сессии Codex; проект должен быть доверенным.

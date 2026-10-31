@@ -16,6 +16,11 @@
       "opus": {"model": "anthropic/claude-opus-5-5"},
       "sonnet": {"model": "anthropic/claude-sonnet-5-5"},
       "haiku": {"model": "anthropic/claude-haiku-5-5"}
+    },
+    "antigravity": {
+      "opus": {"model": "pro"},
+      "sonnet": {"model": "pro"},
+      "haiku": {"model": "flash"}
     }
   },
   "agents": {
@@ -24,6 +29,7 @@
   "sources": {
     "claude": "https://code.claude.com/docs/en/sub-agents",
     "codex": "https://learn.chatgpt.com/docs/models",
-    "opencode": "https://opencode.ai/docs/agents/"
+    "opencode": "https://opencode.ai/docs/agents/",
+    "antigravity": "https://antigravity.google/docs"
   }
 }

@@ -7,7 +7,7 @@ import argparse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RULES_FILES = {"claude": "CLAUDE.md", "codex": "AGENTS.md", "opencode": "AGENTS.md"}
+RULES_FILES = {"claude": "CLAUDE.md", "codex": "AGENTS.md", "opencode": "AGENTS.md", "antigravity": "AGENTS.md"}
 BEGIN = "<!-- BEGIN AIKIT — managed by AIKit installer, edits inside this block are overwritten -->"
 END = "<!-- END AIKIT -->"
 

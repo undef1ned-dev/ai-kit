@@ -146,7 +146,7 @@ def record_run(project: Path, event_name: str, error: str | None = None) -> None
         except (OSError, json.JSONDecodeError):
             mark = {}
         stamp = now_utc().isoformat(timespec="seconds")
-        mark["runtime"] = "codex" if runs_in_codex() else "claude"
+        mark["runtime"] = current_runtime()
         mark["python"] = f"{sys.version_info[0]}.{sys.version_info[1]}.{sys.version_info[2]}"
         mark["executable"] = sys.executable
         runtimes = mark.setdefault("runtimes", {})
@@ -733,17 +733,20 @@ def version_key(value: object) -> tuple[int, int, int] | None:
 
 
 def local_version() -> str:
-    """Version of the installed plugin: VERSION at its root, else "version" of its Claude Code manifest."""
+    """Version of the installed plugin: VERSION at its root, else "version" of its plugin manifest."""
     try:
         return (PLUGIN_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     except OSError:
         pass
-    try:
-        manifest = json.loads((PLUGIN_ROOT / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return ""
-    version = manifest.get("version") if isinstance(manifest, dict) else None
-    return version if isinstance(version, str) else ""
+    for rel_path in (".claude-plugin/plugin.json", ".codex-plugin/plugin.json", ".antigravity-plugin/plugin.json", "plugin.json"):
+        try:
+            manifest = json.loads((PLUGIN_ROOT / rel_path).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        version = manifest.get("version") if isinstance(manifest, dict) else None
+        if isinstance(version, str) and version.strip():
+            return version.strip()
+    return ""
 
 
 def update_cache_path() -> Path:
@@ -855,6 +858,13 @@ def update_notice(project: Path) -> str | None:
 def runs_in_codex() -> bool:
     """Codex gives plugin hooks PLUGIN_ROOT, Claude Code gives CLAUDE_PLUGIN_ROOT."""
     return os.environ.get("AIKIT_HOOK_RUNTIME") == "codex" or (bool(os.environ.get("PLUGIN_ROOT")) and not os.environ.get("CLAUDE_PLUGIN_ROOT"))
+
+
+def current_runtime() -> str:
+    runtime = os.environ.get("AIKIT_HOOK_RUNTIME", "").strip()
+    if runtime in {"claude", "codex", "opencode", "antigravity"}:
+        return runtime
+    return "codex" if runs_in_codex() else "claude"
 
 
 def session_start(event: dict) -> int:

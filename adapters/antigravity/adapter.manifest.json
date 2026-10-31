@@ -1,0 +1,75 @@
+{
+  "name": "antigravity",
+  "runtime": "antigravity",
+  "status": "active",
+  "label": "Google Antigravity (IDE / App / CLI)",
+  "description": "Production-supported runtime adapter for AIKit in Google Antigravity (Antigravity 2.0, Antigravity IDE, agy CLI). Supports both global plugins (~/.gemini/config/plugins/) and workspace adapter installation (.agents/).",
+  "entrypoint_style": "prompt-and-skill-invocation",
+  "config_roots": [
+    ".agents/",
+    ".aikit/"
+  ],
+  "install_script": "scripts/install-adapter-package.py",
+  "install_type": "workspace-sync",
+  "update_script": "scripts/update-adapter-package.py",
+  "generated_artifacts": [
+    "AGENTS.md",
+    ".agents/",
+    ".agents/skills/",
+    ".agents/agents/",
+    ".agents/hooks.json",
+    ".agents/mcp_config.json",
+    ".agents/AIKIT.md",
+    ".agents/entrypoints.json",
+    ".aikit/agents/",
+    ".aikit/profiles.json",
+    ".aikit/profiles.kit-defaults.json",
+    ".aikit/memory/",
+    ".aikit/runtime-entrypoints.json"
+  ],
+  "memory_path": ".aikit/memory",
+  "runtime_entrypoints": [
+    {
+      "name": "project-rules",
+      "path": "AGENTS.md",
+      "kind": "rules",
+      "purpose": "Project rules for Antigravity: the AIKit block (base + profile rules) is managed by the installer, user content outside it is kept."
+    },
+    {
+      "name": "antigravity-runtime-guide",
+      "path": ".agents/AIKIT.md",
+      "kind": "guide",
+      "purpose": "Runtime-specific AIKit instructions for Antigravity workspaces."
+    },
+    {
+      "name": "antigravity-native-agents",
+      "path": ".agents/agents/",
+      "kind": "agent-entry",
+      "purpose": "AIKit agents as Antigravity custom subagents (.agents/agents/*.md)."
+    },
+    {
+      "name": "antigravity-native-skills",
+      "path": ".agents/skills/",
+      "kind": "skill-entry",
+      "purpose": "AIKit skills in the Agent Skills format (<name>/SKILL.md) that Antigravity discovers in the repository."
+    },
+    {
+      "name": "packaged-agents",
+      "path": ".aikit/agents/",
+      "kind": "agent-entry",
+      "purpose": "AIKit agents packaged for the Antigravity runtime."
+    }
+  ],
+  "source_layers": [
+    "base",
+    "profiles",
+    "packs",
+    "scripts",
+    "docs"
+  ],
+  "notes": [
+    "Supports global plugins in ~/.gemini/config/plugins/ and agy plugin install",
+    "Also supports workspace install flow through scripts/install-adapter-package.py antigravity",
+    "Uses native .agents/ customization directory for skills, agents, hooks and MCP"
+  ]
+}

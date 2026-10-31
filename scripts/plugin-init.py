@@ -47,7 +47,7 @@ CORE_PLUGIN = "aikit"
 MARKETPLACE_REPO = "undef1ned-dev/ai-kit"
 STATE_FILE = Path(".aikit") / "plugin-init.json"
 LEGACY_ATTACH_MARKER = Path(".claude") / ".config-version"
-RUNTIMES = ("claude", "codex")
+RUNTIMES = ("claude", "codex", "antigravity")
 RULES_FILES = rules.RULES_FILES
 
 
@@ -62,6 +62,7 @@ def load_script(file_name: str, module_name: str):
 
 
 installer = load_script("install-adapter-package.py", "aikit_install_adapter_package")
+antigravity_installer = load_script("install-antigravity-plugins.py", "aikit_install_antigravity_plugins")
 
 
 def read_json(path: Path) -> dict:
@@ -176,18 +177,26 @@ def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], p
     return rendered
 
 
-def refresh_agents(workspace: Path) -> int:
-    """Rewrite .codex/agents/ from the kit with the profiles and packs of the previous run; nothing else is touched."""
+def refresh_agents(workspace: Path, runtime: str = "codex") -> int:
+    """Rewrite .codex/agents/ or .agents/agents/ from the kit with the profiles and packs of the previous run; nothing else is touched."""
     state_path = workspace / STATE_FILE
     state = read_json(state_path)
-    if "codex" not in merge_runtimes(state, "") or not state.get("profiles"):
-        print("Проект не подключён к AIKit в Codex: сначала запусти $aikit:setup", file=sys.stderr)
+    if runtime not in merge_runtimes(state, "") or not state.get("profiles"):
+        label = "Antigravity" if runtime == "antigravity" else "Codex"
+        cmd = "/setup" if runtime == "antigravity" else "$aikit:setup"
+        print(f"Проект не подключён к AIKit в {label}: сначала запусти {cmd}", file=sys.stderr)
         return 1
     profiles = [name for name in state["profiles"] if (ROOT / "profiles" / name / "profile.manifest.json").exists()]
     packs = [name for name in state.get("packs", []) if (ROOT / "packs" / name / "pack.json").exists()]
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+    if runtime == "antigravity":
+        previous = state.get("antigravity_agents", []) if isinstance(state.get("antigravity_agents"), list) else []
+        antigravity_agents = antigravity_installer.install_workspace_agents(workspace, profiles, packs, previous)
+        write_json(state_path, {**state, "antigravity_agents": antigravity_agents, "antigravity_agents_version": version})
+        print(f"Агенты Antigravity: .agents/agents/ ({len(antigravity_agents)} шт), профили {', '.join(profiles)}")
+        return 0
     previous = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
     codex_agents = write_codex_agents(workspace, profiles, packs, previous)
-    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     write_json(state_path, {**state, "codex_agents": codex_agents, "codex_agents_version": version})
     print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), профили {', '.join(profiles)}")
     return 0
@@ -212,9 +221,9 @@ def main() -> int:
     args = parse_args()
     workspace = Path(args.workspace).resolve()
     if args.refresh_agents:
-        if args.runtime != "codex":
-            raise SystemExit("--refresh-agents нужен только Codex: агенты Claude Code приходят из плагинов")
-        return refresh_agents(workspace)
+        if args.runtime not in {"codex", "antigravity"}:
+            raise SystemExit("--refresh-agents нужен только Codex и Antigravity: агенты Claude Code приходят из плагинов")
+        return refresh_agents(workspace, args.runtime)
     profiles, packs = resolve_selection(args)
     state_path = workspace / STATE_FILE
     state = read_json(state_path)
@@ -225,16 +234,31 @@ def main() -> int:
     print("Память: .aikit/memory/, PRODUCT.md")
     print(f"Коммиты: {project_settings.describe(project_settings.write(workspace, args.commit))}")
     codex_agents = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
+    antigravity_agents = state.get("antigravity_agents", []) if isinstance(state.get("antigravity_agents"), list) else []
     if args.runtime == "claude":
         plugins = merge_claude_settings(workspace, profiles, packs)
         print(f".claude/settings.json: права кита, плагины {', '.join(f'{name}@{MARKETPLACE_NAME}' for name in plugins)}")
-    else:
+    elif args.runtime == "codex":
         runtime_settings.install_codex(workspace)
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
-    next_state = {**state, "runtimes": merge_runtimes(state, args.runtime), "profiles": profiles, "packs": packs, "codex_agents": codex_agents}
+    elif args.runtime == "antigravity":
+        antigravity_agents = antigravity_installer.install_workspace_agents(workspace, profiles, packs, antigravity_agents)
+        print(f"Агенты Antigravity: .agents/agents/ ({len(antigravity_agents)} шт)")
+    next_state = {
+        **state,
+        "runtimes": merge_runtimes(state, args.runtime),
+        "profiles": profiles,
+        "packs": packs,
+        "codex_agents": codex_agents,
+    }
+    if antigravity_agents or args.runtime == "antigravity":
+        next_state["antigravity_agents"] = antigravity_agents
+    version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
     if args.runtime == "codex":
-        next_state["codex_agents_version"] = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        next_state["codex_agents_version"] = version
+    elif args.runtime == "antigravity":
+        next_state["antigravity_agents_version"] = version
     write_json(state_path, next_state)
     if (workspace / LEGACY_ATTACH_MARKER).exists():
         print(

@@ -46,8 +46,10 @@ REPO_URL = "https://github.com/undef1ned-dev/ai-kit"
 MARKETPLACE_FILE = Path(".claude-plugin") / "marketplace.json"
 CLAUDE_MANIFEST = Path(".claude-plugin") / "plugin.json"
 CODEX_MANIFEST = Path(".codex-plugin") / "plugin.json"
+ANTIGRAVITY_MANIFEST = Path(".antigravity-plugin") / "plugin.json"
 CORE_SKILL_DIRS = ("base/skills", "base/plugin-skills")
 HOOK_SCRIPT = "base/hooks/aikit_hook.py"
+ANTIGRAVITY_HOOK_SCRIPT = "base/antigravity/hooks/aikit_hook.py"
 # aikit_hook.py with this flag acts only in projects connected to the kit (.aikit/ above the cwd)
 PLUGIN_FLAG = "--plugin"
 CLAUDE_HOOK_COMMAND = f'python3 "${{CLAUDE_PLUGIN_ROOT}}/{HOOK_SCRIPT}" {PLUGIN_FLAG}'
@@ -184,6 +186,18 @@ def codex_manifest(spec: dict) -> dict:
     return manifest
 
 
+def antigravity_manifest(spec: dict) -> dict:
+    return {
+        "name": spec["name"],
+        "displayName": spec["label"],
+        "version": kit_version(),
+        "description": spec["description"],
+        "author": OWNER,
+        "homepage": REPO_URL,
+        "repository": REPO_URL,
+    }
+
+
 def marketplace(specs: list[dict]) -> dict:
     return {
         "name": MARKETPLACE_NAME,
@@ -209,6 +223,7 @@ def expected_files() -> dict[Path, str]:
         folder = ROOT / spec["dir"]
         files[folder / CLAUDE_MANIFEST] = render_json(claude_manifest(spec))
         files[folder / CODEX_MANIFEST] = render_json(codex_manifest(spec))
+        files[folder / ANTIGRAVITY_MANIFEST] = render_json(antigravity_manifest(spec))
     return files
 
 
@@ -239,6 +254,8 @@ def broken_references() -> list[str]:
             problems.append(f"{spec['name']}: нет папки агентов")
     if not (ROOT / HOOK_SCRIPT).exists():
         problems.append(f"нет скрипта хуков {HOOK_SCRIPT}")
+    if not (ROOT / ANTIGRAVITY_HOOK_SCRIPT).exists():
+        problems.append(f"нет скрипта хуков {ANTIGRAVITY_HOOK_SCRIPT}")
     if not is_semver(kit_version()):
         problems.append(f"в VERSION не semver X.Y.Z: «{kit_version()}»")
     return problems

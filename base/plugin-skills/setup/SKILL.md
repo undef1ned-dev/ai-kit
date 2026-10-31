@@ -15,6 +15,7 @@ example_prompt: "/aikit:setup vue-nuxt"
 
 - В Claude Code корень плагина `aikit` — `${CLAUDE_PLUGIN_ROOT}`.
 - В Codex переменная не подставляется: корень — папка на три уровня выше этого `SKILL.md` (`<корень>/base/plugin-skills/setup/SKILL.md`).
+- В Antigravity корень плагина `aikit` — папка `~/.gemini/config/plugins/aikit` (на два уровня выше установленного `skills/setup/SKILL.md`, или на три уровня выше при запуске из репозитория кита).
 
 Проверь, что там есть `scripts/plugin-init.py`. Дальше этот путь — `<корень>`.
 
@@ -67,12 +68,12 @@ Python исправен, если команда напечатала путь �
 
 ## 3. Запусти подключение
 
-Runtime — `claude` в Claude Code, `codex` в Codex.
+Runtime — `claude` в Claude Code, `codex` в Codex, `antigravity` в Antigravity.
 
 ```bash
-python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --profiles <a+b> [--packs devops] --commit <ask|auto>
+python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex|antigravity> --profiles <a+b> [--packs devops] --commit <ask|auto>
 # или готовый набор
-python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --preset <имя> --commit <ask|auto>
+python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex|antigravity> --preset <имя> --commit <ask|auto>
 ```
 
 `python3` — команда, которая прошла проверку в шаге 2б.
@@ -82,6 +83,7 @@ python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex> --prese
 Плагины профилей и паков должны быть установлены:
 - Claude Code — `/plugin install <профиль>@aikit` для каждого профиля и пака. Скрипт уже включил их в `.claude/settings.json`: участники команды получат их после доверия папке проекта.
 - Codex — `codex plugin add <профиль>@aikit`. Агенты Codex скрипт записал в `.codex/agents/`.
+- Antigravity — `python3 "<корень>/scripts/install-antigravity-plugins.py" --workspace .` (устанавливает ядро `aikit`, выбранные профили и паки в `~/.gemini/config/plugins/`). Агенты проекта скрипт записал в `.agents/agents/`.
 
 ## 5. Отчёт
 

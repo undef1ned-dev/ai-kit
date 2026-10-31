@@ -38,7 +38,7 @@ STATE_FILE = Path(".aikit") / "mcp-servers.json"
 CODEX_BLOCK_BEGIN = "# BEGIN AIKIT MCP — managed by AIKit installer, edits inside this block are overwritten"
 CODEX_BLOCK_END = "# END AIKIT MCP"
 OPENCODE_SCHEMA = "https://opencode.ai/config.json"
-RUNTIMES = ("claude", "codex", "opencode")
+RUNTIMES = ("claude", "codex", "opencode", "antigravity")
 
 
 def collect_servers(profiles: list[str], packs: list[str]) -> dict[str, dict]:
@@ -69,6 +69,15 @@ def render_opencode(server: dict) -> dict:
     rendered = {"type": "local", "command": [server["command"], *server.get("args", [])]}
     if server.get("env_vars"):
         rendered["environment"] = {var: "{env:" + var + "}" for var in server["env_vars"]}
+    return rendered
+
+
+def render_antigravity(server: dict) -> dict:
+    if "url" in server:
+        return {"url": server["url"]}
+    rendered = {"command": server["command"], "args": server.get("args", [])}
+    if server.get("env_vars"):
+        rendered["env"] = {var: "${" + var + "}" for var in server["env_vars"]}
     return rendered
 
 
@@ -171,6 +180,9 @@ def install(runtime: str, workspace: Path, profiles: list[str], packs: list[str]
     elif runtime == "opencode":
         rendered = {name: render_opencode(server) for name, server in servers.items()}
         installed = merge_json_servers(workspace / "opencode.json", "mcp", rendered, previous, {"$schema": OPENCODE_SCHEMA})
+    elif runtime == "antigravity":
+        rendered = {name: render_antigravity(server) for name, server in servers.items()}
+        installed = merge_json_servers(workspace / ".agents" / "mcp_config.json", "mcpServers", rendered, previous, {})
     else:
         installed = merge_codex(workspace, servers)
     write_state(workspace, runtime, installed)

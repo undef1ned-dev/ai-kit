@@ -29,6 +29,7 @@ on:
       - "scripts/**"
       - ".claude-plugin/**"
       - ".codex-plugin/**"
+      - ".antigravity-plugin/**"
   workflow_dispatch:
 
 permissions:
