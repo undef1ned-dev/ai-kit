@@ -106,8 +106,9 @@ class CodexPluginUpdateTests(unittest.TestCase):
         catalog = updater.read_json(self.workspace / updater.CATALOG_FILE)
         self.assertEqual(set(catalog["agents"]), set(state["codex_agents"]))
         for relative, content in before.items():
-            if relative not in {updater.STATE_FILE, Path(".codex/agents/vue-coder.toml"), Path(".codex/agents/retired-agent.toml")}:
+            if relative not in {updater.STATE_FILE, Path(".codex/agents/vue-coder.toml"), Path(".codex/agents/retired-agent.toml"), Path(".aikit/scripts/update-agents.sh")}:
                 self.assertEqual((self.workspace / relative).read_bytes(), content, relative)
+        self.assertTrue((self.workspace / ".aikit/scripts/update-agents.sh").is_file())
         coder = tomllib.loads((self.workspace / ".codex/agents/vue-coder.toml").read_text(encoding="utf-8"))
         models = updater.read_json(ROOT / "adapters/models.json")
         self.assertEqual(coder["model"], models["runtimes"]["codex"]["haiku"]["model"])
