@@ -54,7 +54,8 @@ def main() -> int:
     check("effort агентов кита: архитекторы high, остальные medium", bool(efforts) and not wrong, str(wrong))
 
     opus = kit["runtimes"]["codex"]["opus"]
-    check("Codex: default модели берётся из нативного TOML", agent_models.resolve("vue-architect", "opus", "codex", {}) == opus)
+    native_architect = {"model": "gpt-6.1-sol", "model_reasoning_effort": "medium"}
+    check("Codex: default модели берётся из нативного TOML", agent_models.resolve("vue-architect", "opus", "codex", {}) == native_architect)
     project = {
         "agents": {"vue-coder": "opus", "vue-tester": {"codex": "gpt-test", "claude": "haiku"}},
         "tiers": {"opencode": {"opus": "openrouter/test-opus"}},

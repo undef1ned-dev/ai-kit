@@ -1,6 +1,6 @@
 name = "vue-tester"
 description = "Vue/Nuxt QA. Пишет unit и component тесты по CODER_RESULT. Проверку в запущенном приложении делает $check-feature."
-model = "gpt-6.1-sol"
+model = "gpt-6.1-terra"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

@@ -1,7 +1,7 @@
 name = "tech-planner"
 description = "Технический планировщик. Читает продуктовый MVP-документ и переводит его в технический план реализации по платформам. Определяет API-контракт, scope каждой платформы, порядок реализации. Используй через $implement-mvp после $analyze-mvp, перед архитекторами профилей."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
 

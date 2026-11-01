@@ -1,6 +1,6 @@
 name = "{{PREFIX}}-tester"
 description = "{{LABEL}} QA-инженер. Используй для роли tester профиля {{PROFILE}}."
-model = "gpt-6.1-sol"
+model = "gpt-6.1-terra"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — QA-инженер проектной команды на {{STACK}}.

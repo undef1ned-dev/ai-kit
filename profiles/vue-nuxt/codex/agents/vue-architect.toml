@@ -1,7 +1,7 @@
 name = "vue-architect"
 description = "Vue/Nuxt архитектор. Проектирует структуру frontend-фичи до написания кода. Используй перед новой страницей, клиентским flow или сложным состоянием."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
 
