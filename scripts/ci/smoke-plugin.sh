@@ -173,6 +173,8 @@ check "update-agents.sh --agents-only: сам определил codex и antigr
 rm -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
 AIKIT_ROOT="$KIT_ROOT" AIKIT_ANTIGRAVITY_PLUGINS_DIR="$AGY_PLUGINS_DIR" bash "$PROJECT_DIR/.aikit/scripts/update-agents.sh" antigravity >/dev/null
 check "update-agents.sh antigravity: обновил плагины Antigravity и пересобрал агентов проекта" test -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
+"$PYTHON_BIN" "$AGY_PLUGINS_DIR/aikit/scripts/install-antigravity-plugins.py" --workspace "$PROJECT_DIR" --target-dir "$AGY_PLUGINS_DIR" >/dev/null
+check "install-antigravity-plugins.py из самого плагина aikit не удаляет хук и runtime" test -f "$AGY_PLUGINS_DIR/aikit/base/antigravity/hooks/aikit_hook.py" -a -f "$AGY_PLUGINS_DIR/aikit/scripts/plugin-init.py" -a -f "$AGY_PLUGINS_DIR/aikit/skills/setup/SKILL.md"
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"
