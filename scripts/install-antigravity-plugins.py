@@ -223,7 +223,9 @@ def copy_kit_runtime_into_core(plugin_dir: Path) -> None:
 
 def build_plugin_bundle(spec: dict, target_root: Path, manifest: dict) -> Path:
     plugin_dir = target_root / spec["name"]
-    clear_tree_contents(plugin_dir)
+    in_place = plugin_dir.resolve() == ROOT.resolve()
+    if not in_place:
+        clear_tree_contents(plugin_dir)
     plugin_dir.mkdir(parents=True, exist_ok=True)
 
     write_json(plugin_dir / "plugin.json", manifest)
@@ -260,11 +262,11 @@ def build_plugin_bundle(spec: dict, target_root: Path, manifest: dict) -> Path:
             )
 
     if spec["core"]:
+        copy_kit_runtime_into_core(plugin_dir)
         write_json(
             plugin_dir / "hooks.json",
             {"aikit": hooks_config.antigravity_groups(hooks_config.ANTIGRAVITY_PLUGIN_SCRIPT, [hooks_config.PLUGIN_FLAG])},
         )
-        copy_kit_runtime_into_core(plugin_dir)
 
     return plugin_dir
 
