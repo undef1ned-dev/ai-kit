@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.1.1] - 2026-11-01
+
+### Fixed
+- antigravity: исключено удаление runtime плагина aikit при установке из него самого
+
 ## [1.1.0] - 2026-11-01
 
 ### Added
