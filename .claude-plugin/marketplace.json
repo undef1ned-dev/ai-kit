@@ -8,28 +8,28 @@
     {
       "name": "aikit",
       "source": "./",
-      "version": "0.10.0",
+      "version": "1.0.0",
       "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
       "category": "development"
     },
     {
       "name": "forge-1-12-java",
       "source": "./profiles/forge-1-12-java",
-      "version": "0.10.0",
+      "version": "1.0.0",
       "description": "Профиль AIKit Forge 1.12.2 Java (Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
       "category": "development"
     },
     {
       "name": "vue-nuxt",
       "source": "./profiles/vue-nuxt",
-      "version": "0.10.0",
+      "version": "1.0.0",
       "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
       "category": "development"
     },
     {
       "name": "devops",
       "source": "./packs/devops",
-      "version": "0.10.0",
+      "version": "1.0.0",
       "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
       "category": "development"
     }

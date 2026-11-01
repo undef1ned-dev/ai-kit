@@ -13,6 +13,17 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.0.0] - 2026-11-01
+
+### Added
+- skills: implement-feature и improve-aikit начинают работу с обновлённой базовой ветки
+
+### Changed
+- **Несовместимо.** skills: удалён флаг --worktree из implement-feature и связанной обвязки
+- codex: тестеры переведены на gpt-6.1-terra, у всех агентов усилие medium вместо high
+- product: из шаблона PRODUCT.md убраны доменная модель и роадмап
+- profiles: отформатированы файлы правил профилей
+
 ## [0.10.0] - 2026-10-31
 
 ### Added
