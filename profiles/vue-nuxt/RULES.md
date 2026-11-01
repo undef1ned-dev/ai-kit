@@ -1,7 +1,6 @@
 # Vue Nuxt Profile
 
-Профиль для frontend-разработки на Vue 3 + Nuxt 3.
-Расширяет базовые правила команды.
+Профиль для frontend-разработки на Vue 3 + Nuxt 3. Расширяет базовые правила команды.
 
 ---
 
@@ -25,6 +24,7 @@
 ## Архитектура
 
 ### Типичная структура проекта
+
 ```text
 app.vue
 pages/
@@ -59,11 +59,13 @@ tests/
 ```
 
 ### Слои
+
 ```text
 Page → Feature Components → Composables / Store → API Client / useFetch → server/api (если нужен BFF)
 ```
 
 ### Правила распределения логики
+
 - `pages/` — композиция экрана и SEO, без тяжёлой бизнес-логики
 - `components/` — переиспользуемый UI и feature-части экрана
 - `layouts/` — app shell, общая навигация, shared wrappers, не конкретная page-логика
@@ -76,13 +78,16 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 - `server/api/` — прокси, агрегация API, скрытие токенов и BFF-логика
 
 ### Динамическая экспертиза агентов
+
 - Если задача затрагивает `pages/**/*.vue` — агент обязан включить режим page/Nuxt: SSR, `useAsyncData`, SEO, route params, hydration
 - Если задача затрагивает `components/**/*.vue` — агент обязан включить режим component API: props, emits, slots, `data-test`, переиспользуемость
-- Если задача затрагивает design review, Figma или UI kit — агент обязан включить режим design bridge: reuse существующих компонентов, tokens, states, visual consistency
+- Если задача затрагивает design review, Figma или UI kit — агент обязан включить режим design bridge: reuse существующих компонентов, tokens, states, visual
+  consistency
 - Если задача затрагивает `layouts/**/*.vue` — агент обязан включить режим layout/app shell: shared navigation, slot boundaries, global UI composition
 - Если задача затрагивает `app.vue` — агент обязан включить режим root app shell: providers, wrappers, startup behavior, hydration safety
 - Если задача затрагивает `nuxt.config.*` — агент обязан включить режим Nuxt config: modules, runtime config, aliases, SSR/build impact
-- Если задача затрагивает `composables/use*.ts` — агент обязан включить режим composable: reactivity, VueUse reuse, watch/computed hygiene, SSR-safe side effects
+- Если задача затрагивает `composables/use*.ts` — агент обязан включить режим composable: reactivity, VueUse reuse, watch/computed hygiene, SSR-safe side
+  effects
 - Если задача затрагивает `stores/*.ts` — агент обязан включить режим Pinia: ownership of state, actions, optimistic updates, persistence
 - Если задача затрагивает `middleware/**/*.ts` — агент обязан включить режим route middleware: redirect loops, auth boundaries, SSR/client navigation safety
 - Если задача затрагивает `plugins/**/*.ts` — агент обязан включить режим Nuxt plugin: runtime injection, client/server scoping, side-effect hygiene
@@ -96,6 +101,7 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 ## Правила кода
 
 ### Обязательно
+
 - Только `script setup` + TypeScript в новом Vue-коде
 - Props и emits типизированы через `defineProps` / `defineEmits`
 - Сложную UI-логику выносить в composables, не в шаблон
@@ -106,6 +112,7 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 - Переиспользуемые компоненты должны иметь понятный API: props, slots, emits
 
 ### Запрещено
+
 - Options API в новом коде
 - `any` без реальной причины
 - Хардкод API URL внутри компонентов
@@ -114,16 +121,17 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 - Прямые обращения к `window` / `document` без проверки client-only контекста
 
 ### Nuxt-специфика
+
 ```vue
 <script setup lang="ts">
-const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
+const route = useRoute();
+const router = useRouter();
+const authStore = useAuthStore();
 
 const { data, pending, error, refresh } = await useAsyncData(
   () => `profile:${route.params.id}`,
-  () => $fetch(`/api/profile/${route.params.id}`)
-)
+  () => $fetch(`/api/profile/${route.params.id}`),
+);
 </script>
 ```
 
@@ -136,14 +144,14 @@ const { data, pending, error, refresh } = await useAsyncData(
 
 ## Именование
 
-| Что | Правило | Пример |
-|-----|---------|--------|
-| Page | kebab-case по роуту | `pages/orders/[id].vue` |
-| Component | PascalCase | `OrderCard.vue`, `NotificationsPanel.vue` |
-| Composable | `use<Name>` | `useAuth.ts`, `usePropertyFilters.ts` |
-| Store | `<name>.ts` + `use<Name>Store` | `auth.ts`, `useAuthStore` |
-| Type | PascalCase | `NotificationItem`, `ProfileResponse` |
-| Server route | REST + method suffix | `server/api/orders/index.get.ts` |
+| Что          | Правило                        | Пример                                    |
+| ------------ | ------------------------------ | ----------------------------------------- |
+| Page         | kebab-case по роуту            | `pages/orders/[id].vue`                   |
+| Component    | PascalCase                     | `OrderCard.vue`, `NotificationsPanel.vue` |
+| Composable   | `use<Name>`                    | `useAuth.ts`, `usePropertyFilters.ts`     |
+| Store        | `<name>.ts` + `use<Name>Store` | `auth.ts`, `useAuthStore`                 |
+| Type         | PascalCase                     | `NotificationItem`, `ProfileResponse`     |
+| Server route | REST + method suffix           | `server/api/orders/index.get.ts`          |
 
 ---
 
@@ -153,24 +161,6 @@ const { data, pending, error, refresh } = await useAsyncData(
 - **@vue/test-utils** — props, emits, slots, conditional rendering
 - **Playwright** — happy path, формы, навигация, SSR/CSR flows
 - Тестировать поведение, а не внутреннюю реализацию
-
-```ts
-import { describe, it, expect } from "vitest"
-import { setActivePinia, createPinia } from "pinia"
-import { useAuthStore } from "~/stores/auth"
-
-describe("auth store", () => {
-  it("stores session after login", async () => {
-    setActivePinia(createPinia())
-    const store = useAuthStore()
-
-    store.setSession({ token: "token", user: { id: 1, name: "Ada" } })
-
-    expect(store.isAuthenticated).toBe(true)
-    expect(store.user?.name).toBe("Ada")
-  })
-})
-```
 
 ---
 
