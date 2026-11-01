@@ -77,7 +77,7 @@
     "git-branch": {},
     "git-commit": {},
     "implement-feature": {
-      "argument-hint": "[--tdd] [--worktree] [--no-test] [--no-review] <задача>",
+      "argument-hint": "[--tdd] [--no-test] [--no-review] <задача>",
       "example_prompt": "$implement-feature --tdd страница уведомлений с фильтрами и mark-as-read"
     },
     "implement-mvp": {

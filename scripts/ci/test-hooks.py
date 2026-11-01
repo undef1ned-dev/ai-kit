@@ -495,18 +495,6 @@ def main() -> int:
         expect("без .aikit/memory/ (репозиторий кита) /capture-memory не предлагается", "/capture-memory" not in output.get("systemMessage", ""), str(output))
         memory.with_name("memory-off").rename(memory)
 
-        print_cwd_and_fail = f'{PYTHON} -c "import os; print(os.getcwd()); raise SystemExit(1)"'
-        project.set_profile({"lint": f"{print_cwd_and_fail} {{files}}", "test": print_cwd_and_fail})
-        worktree_file = project.root / ".aikit" / "worktrees" / "feat-cart" / "web" / "components" / "Cart.vue"
-        worktree_file.parent.mkdir(parents=True)
-        worktree_file.write_text("<template/>\n", encoding="utf-8")
-        _, output, _ = project.run({"hook_event_name": "PostToolUse", "tool_name": "Write", "tool_input": {"file_path": str(worktree_file)}}, session="wt")
-        context = output.get("hookSpecificOutput", {}).get("additionalContext", "")
-        expect("файл в worktree — линтер в папке профиля внутри worktree", str(Path("feat-cart") / "web") in context, context)
-        _, output, _ = project.run({"hook_event_name": "Stop"}, session="wt")
-        reason = output.get("reason", "")
-        expect("тесты после правки в worktree запускаются в нём", ".aikit/worktrees/feat-cart/web" in reason, reason)
-
         print("▶ SessionStart: память и PRODUCT.md")
         _, output, _ = project.run({"hook_event_name": "SessionStart", "source": "startup"})
         expect("пустая память не добавляется", output == {}, str(output))

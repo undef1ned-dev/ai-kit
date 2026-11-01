@@ -32,7 +32,7 @@ const JAVA_ACTIONS = {
 }
 const JAVA_PROFILES = JSON.stringify({ profiles: { 'forge-1-12-java': { label: 'Forge', root: '.', actions: JAVA_ACTIONS } } })
 const SKILLS: Record<string, string> = {
-  'base/skills/implement-feature': 'argument-hint: "[--tdd] [--worktree] <задача>"\nexample_prompt: "/implement-feature страница заказов"',
+  'base/skills/implement-feature': 'argument-hint: "[--tdd] [--no-test] <задача>"\nexample_prompt: "/implement-feature страница заказов"',
   'base/skills/memory-status': 'example_prompt: "/memory-status"',
   'base/skills/git-commit': 'user-invocable: false',
   'base/plugin-skills/setup': 'argument-hint: "[профили или пресет]"',
@@ -173,8 +173,8 @@ async function start($) {
 }
 
 test('argument hints become toggles and a field', () => {
-  expect(parseArgumentHint('[--tdd] [--worktree] <задача>')).toEqual({
-    flags: ['--tdd', '--worktree'],
+  expect(parseArgumentHint('[--tdd] [--no-test] <задача>')).toEqual({
+    flags: ['--tdd', '--no-test'],
     field: { placeholder: 'задача', isRequired: true },
   })
   expect(parseArgumentHint('[--no-test] [--no-review] <описание бага>')).toEqual({
@@ -268,7 +268,7 @@ test('the reference tab lists commands with hints and filters them', async ($, o
   await start($)
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   await ui.press({ key: 'tab-docs' })
-  expect(await ui.find({ type: 'Text', text: '/implement-feature [--tdd] [--worktree] <задача>' })).toBeDefined()
+  expect(await ui.find({ type: 'Text', text: '/implement-feature [--tdd] [--no-test] <задача>' })).toBeDefined()
   expect(await ui.find({ type: 'Text', text: 'Пример: /implement-feature страница заказов' })).toBeDefined()
   await ui.input({ key: 'docs-filter', text: 'new-page', kind: 'change' })
   expect(await ui.find({ type: 'Text', text: '/new-page <маршрут>' })).toBeDefined()
