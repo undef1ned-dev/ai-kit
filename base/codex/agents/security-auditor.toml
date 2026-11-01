@@ -1,7 +1,7 @@
 name = "security-auditor"
 description = "Аудитор безопасности. Проверяет код на OWASP Top 10, секреты в коде, проблемы с авторизацией, инъекции. Запускай перед релизом или после крупных изменений."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
 

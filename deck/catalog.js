@@ -34,7 +34,7 @@ export function parseFrontmatter(text) {
   return fields
 }
 
-// "[--tdd] [--worktree] <задача>" → toggles for the flags, a required field named "задача".
+// "[--tdd] [--no-test] <задача>" → toggles for the flags, a required field named "задача".
 // "[путь]" → an optional field; no hint → the command runs without a field
 export function parseArgumentHint(hint) {
   const flags = []

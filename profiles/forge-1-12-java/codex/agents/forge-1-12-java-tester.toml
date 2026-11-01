@@ -1,6 +1,6 @@
 name = "forge-1-12-java-tester"
 description = "QA Java-кода мода Minecraft 1.12.2 на Forge. Пишет unit-тесты JUnit 4 и Mockito по CODER_RESULT только на важное — критичная логика domain, проверки пакетов, чтение сохранённых NBT, регрессии и нетривиальные ветки — запускает их командой test профиля и, если поведение видно только в мире, коротко описывает ручной сценарий в runClient и runServer."
-model = "gpt-6.1-sol"
+model = "gpt-6.1-terra"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

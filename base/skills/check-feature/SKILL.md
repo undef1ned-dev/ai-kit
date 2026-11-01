@@ -21,7 +21,7 @@ example_prompt: "/check-feature фильтр по статусу на стран
 На Windows в PowerShell команда профиля с `npx` или `npm` может упасть из-за ExecutionPolicy (`npx.ps1`): вызови `npx.cmd`/`npm.cmd` или выполни в Git Bash, ExecutionPolicy не меняй.
 
 - Нет команды `run` — скажи, что запуск не настроен (её можно добавить в `commands` в `.aikit/profiles.json`), и остановись.
-- Проверяешь изменения из worktree (`/implement-feature --worktree`) — запускай в `<worktree>/<root>`, иначе в `root` проекта.
+- Команду `run` запускай в папке `root` профиля.
 
 ## Шаг 1 — Сценарий
 

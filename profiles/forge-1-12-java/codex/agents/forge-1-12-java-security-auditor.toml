@@ -1,7 +1,7 @@
 name = "forge-1-12-java-security-auditor"
 description = "Аудитор безопасности серверного кода мода Minecraft 1.12.2 на Forge. Проверяет сетевые пакеты, дюпы предметов, права команд, доверие клиенту, потокобезопасность, чтение NBT и ввода, а также работу мода на выделенном сервере — утечки клиентских классов в общий код и clientSideOnly. Используй для $security-check, перед релизом мода, при новых пакетах, командах, контейнерах или данных игроков."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
 

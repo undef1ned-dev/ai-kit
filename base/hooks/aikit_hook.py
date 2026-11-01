@@ -56,7 +56,6 @@ PLUGIN_FLAG = "--plugin"
 # into 1: the block would read as a failed hook. With this flag PreToolUse denies with JSON and exit 0
 DENY_JSON_FLAG = "--deny-json"
 PROFILES_FILE = Path(".aikit") / "profiles.json"
-WORKTREES_DIR = Path(".aikit") / "worktrees"
 MEMORY_DIR = Path(".aikit") / "memory"
 MEMORY_INDEX = MEMORY_DIR / "INDEX.md"
 PRODUCT_FILE = Path("PRODUCT.md")
@@ -524,21 +523,11 @@ def load_profiles(project: Path) -> dict[str, dict]:
     return {name: spec for name, spec in profiles.items() if isinstance(spec, dict)}
 
 
-def checkout_for(path: Path, project: Path) -> Path:
-    """The checkout that holds the file: a worktree of /implement-feature --worktree or the project itself."""
-    worktrees = (project / WORKTREES_DIR).resolve()
-    try:
-        parts = path.relative_to(worktrees).parts
-    except ValueError:
-        return project
-    return worktrees / parts[0] if len(parts) > 1 else project
-
-
-def profile_for(path: Path, checkout: Path, profiles: dict[str, dict]) -> tuple[str, Path] | None:
+def profile_for(path: Path, project: Path, profiles: dict[str, dict]) -> tuple[str, Path] | None:
     """The profile whose root holds the file (the deepest root wins) and that treats it as code."""
     best: tuple[int, str, Path] | None = None
     for name, spec in profiles.items():
-        root = (checkout / str(spec.get("root") or ".")).resolve()
+        root = (project / str(spec.get("root") or ".")).resolve()
         try:
             path.relative_to(root)
         except ValueError:
@@ -613,15 +602,9 @@ def read_state(project: Path, session_id: str) -> dict:
         return {}
 
 
-def pending_profiles(state: dict, project: Path) -> list[tuple[str, str]]:
-    """Profiles with changed code and the checkout they were changed in."""
-    items = []
-    for item in state.get("pending", []):
-        if isinstance(item, str):
-            items.append((item, str(project)))
-        elif isinstance(item, list) and len(item) == 2:
-            items.append((str(item[0]), str(item[1])))
-    return items
+def pending_profiles(state: dict) -> list[str]:
+    """Profiles with changed code in this session."""
+    return [item for item in state.get("pending", []) if isinstance(item, str)]
 
 
 def write_state(project: Path, session_id: str, state: dict) -> None:
@@ -641,19 +624,18 @@ def post_tool_use(event: dict) -> int:
         return 0
     session_id = str(event.get("session_id") or "default")
     state = read_state(project, session_id)
-    pending = {tuple(item) for item in pending_profiles(state, project)}
+    pending = set(pending_profiles(state))
     touched = set(state.get("touched", []))
     reports = []
     for path, _ in written_files(event):
         if not path.is_file():
             continue
-        checkout = checkout_for(path.resolve(), project)
-        match = profile_for(path.resolve(), checkout, profiles)
+        match = profile_for(path.resolve(), project, profiles)
         if not match:
             continue
         name, root = match
         relative = path.resolve().relative_to(root).as_posix()
-        pending.add((name, str(checkout)))
+        pending.add(name)
         touched.add(path.resolve().as_posix())
         commands = profiles[name].get("commands", {})
         if commands.get("format") and "{files}" in commands["format"]:
@@ -662,7 +644,7 @@ def post_tool_use(event: dict) -> int:
             result = run_command(commands["lint"], root, [relative], LINT_TIMEOUT_SECONDS)
             if result and result[0] != 0:
                 reports.append(f"Линтер профиля {name} нашёл проблемы в {relative}:\n{tail(result[1])}")
-    write_state(project, session_id, {**state, "pending": sorted([list(item) for item in pending]), "touched": sorted(touched)})
+    write_state(project, session_id, {**state, "pending": sorted(pending), "touched": sorted(touched)})
     if reports:
         emit({"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "AIKit: " + "\n\n".join(reports)}})
     return 0
@@ -680,11 +662,11 @@ def stop(event: dict) -> int:
     output: dict = {}
     notes = []
     failures = []
-    for name, checkout in pending_profiles(state, project):
+    for name in pending_profiles(state):
         test = profiles.get(name, {}).get("commands", {}).get("test")
-        if not test or not Path(checkout).is_dir():
+        if not test:
             continue
-        root = (Path(checkout) / str(profiles[name].get("root") or ".")).resolve()
+        root = (project / str(profiles[name].get("root") or ".")).resolve()
         where = root.relative_to(project).as_posix() if root.is_relative_to(project) else str(root)
         result = run_command(test, root, [], TEST_TIMEOUT_SECONDS)
         if result is None:

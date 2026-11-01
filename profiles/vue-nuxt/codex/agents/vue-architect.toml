@@ -1,7 +1,7 @@
 name = "vue-architect"
 description = "Vue/Nuxt архитектор. Проектирует структуру frontend-фичи до написания кода. Используй перед новой страницей, клиентским flow или сложным состоянием."
 model = "gpt-6.1-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
 
@@ -42,7 +42,7 @@ developer_instructions = '''
 ## Шаг 0.1 — Загрузи контекст кодовой базы
 
 Перед проектированием прочитай:
-1. `PRODUCT.md` — доменная модель, бизнес-правила, ключевые сценарии
+1. `PRODUCT.md` — описание продукта, текущие возможности, бизнес-правила
 2. `AGENTS.md` — стек, соглашения команды
 3. `pages/`, `components/`, `composables/`, `stores/`, `server/api/`
 4. Найди похожую реализацию как образец
