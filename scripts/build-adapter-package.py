@@ -35,7 +35,12 @@ NATIVE_SKILL_RUNTIMES = {"codex", "opencode", "antigravity"}
 NATIVE_ARGUMENTS_PLACEHOLDER = "(задача из запроса пользователя)"
 OPENCODE_AGENTS_DIR = Path(".opencode") / "agents"
 ANTIGRAVITY_AGENTS_DIR = Path(".agents") / "agents"
-MODEL_RESOURCES = (Path("scripts") / "agent_models.py", Path("adapters") / "models.json", Path("scripts") / "codex-doctor.py")
+MODEL_RESOURCES = (
+    Path("scripts") / "agent_models.py",
+    Path("adapters") / "models.json",
+    Path("scripts") / "codex-doctor.py",
+    Path("scripts") / "update-agents.sh",
+)
 
 
 def parse_args() -> argparse.Namespace:

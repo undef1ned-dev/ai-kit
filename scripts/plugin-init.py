@@ -164,6 +164,18 @@ def merge_claude_settings(workspace: Path, profiles: list[str], packs: list[str]
     return plugins
 
 
+def ensure_update_script(workspace: Path) -> Path:
+    source = ROOT / "scripts" / "update-agents.sh"
+    target = workspace / ".aikit" / "scripts" / "update-agents.sh"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(source.read_text(encoding="utf-8").replace("\r\n", "\n").encode("utf-8"))
+    try:
+        target.chmod(0o755)
+    except OSError:
+        pass
+    return target
+
+
 def write_codex_agents(workspace: Path, profiles: list[str], packs: list[str], previous: list[str]) -> list[str]:
     agents_dir = workspace / ".codex" / "agents"
     sources = codex_content.layers(profiles, packs)
@@ -192,11 +204,13 @@ def refresh_agents(workspace: Path, runtime: str = "codex") -> int:
     if runtime == "antigravity":
         previous = state.get("antigravity_agents", []) if isinstance(state.get("antigravity_agents"), list) else []
         antigravity_agents = antigravity_installer.install_workspace_agents(workspace, profiles, packs, previous)
+        ensure_update_script(workspace)
         write_json(state_path, {**state, "antigravity_agents": antigravity_agents, "antigravity_agents_version": version})
         print(f"Агенты Antigravity: .agents/agents/ ({len(antigravity_agents)} шт), профили {', '.join(profiles)}")
         return 0
     previous = state.get("codex_agents", []) if isinstance(state.get("codex_agents"), list) else []
     codex_agents = write_codex_agents(workspace, profiles, packs, previous)
+    ensure_update_script(workspace)
     write_json(state_path, {**state, "codex_agents": codex_agents, "codex_agents_version": version})
     print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), профили {', '.join(profiles)}")
     return 0
@@ -241,10 +255,12 @@ def main() -> int:
     elif args.runtime == "codex":
         runtime_settings.install_codex(workspace)
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
-        print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт)")
+        ensure_update_script(workspace)
+        print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), .aikit/scripts/update-agents.sh")
     elif args.runtime == "antigravity":
         antigravity_agents = antigravity_installer.install_workspace_agents(workspace, profiles, packs, antigravity_agents)
-        print(f"Агенты Antigravity: .agents/agents/ ({len(antigravity_agents)} шт)")
+        ensure_update_script(workspace)
+        print(f"Агенты Antigravity: .agents/agents/ ({len(antigravity_agents)} шт), .aikit/scripts/update-agents.sh")
     next_state = {
         **state,
         "runtimes": merge_runtimes(state, args.runtime),

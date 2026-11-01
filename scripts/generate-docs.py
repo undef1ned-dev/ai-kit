@@ -42,7 +42,7 @@ COMMANDS_PAGE = "docs/guide/commands.md"
 PAGES = [
     ("index", "docs/guide/index.md", "Что такое AIKit", "Начало"),
     ("glossary", "docs/guide/glossary.md", "Термины", "Начало"),
-    ("getting-started", "docs/guide/getting-started.md", "Установка", "Начало"),
+    ("getting-started", "docs/guide/getting-started.md", "Установка и обновление", "Начало"),
     ("how-it-works", "docs/guide/how-it-works.md", "Как это работает", "Как устроено"),
     ("daily-work", "docs/guide/daily-work.md", "Работа с агентами", "Как устроено"),
     ("commands", "docs/guide/commands.md", "Команды", "Как устроено"),
@@ -667,7 +667,7 @@ def render_catalog(page: Page) -> str:
   <div><b>{profiles}</b><span>профили</span></div>
   <div><b>{packs}</b><span>паки</span></div>
 </div>
-<p>Термины — на странице <a href="glossary.html">Термины</a>, как подключить — в <a href="getting-started.html">Установке</a>.</p>
+<p>Термины — на странице <a href="glossary.html">Термины</a>, как подключить — в <a href="getting-started.html">Установке и обновлении</a>.</p>
 <h2 id="presets"><a class="anchor" href="#presets" aria-hidden="true">#</a>Пресеты</h2>
 <p>Пресет — готовая комбинация профилей и паков. Его ставят одной командой.</p>
 <div class="preset-grid">{"".join(preset_cards)}</div>

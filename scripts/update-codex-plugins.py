@@ -112,6 +112,9 @@ def promote(workspace: Path, stage: Path, old_names: list[str], new_names: list[
     changes = {AGENTS_DIR / f"{name}.toml": (stage / AGENTS_DIR / f"{name}.toml").read_bytes() for name in new_names}
     changes.update({AGENTS_DIR / f"{name}.toml": None for name in set(old_names) - set(new_names)})
     changes[CATALOG_FILE] = (stage / CATALOG_FILE).read_bytes()
+    script_rel = Path(".aikit/scripts/update-agents.sh")
+    if (stage / script_rel).is_file():
+        changes[script_rel] = (stage / script_rel).read_bytes()
     changes[STATE_FILE] = (json.dumps(state, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     for name in set(new_names) - set(old_names):
         if (workspace / AGENTS_DIR / f"{name}.toml").exists():

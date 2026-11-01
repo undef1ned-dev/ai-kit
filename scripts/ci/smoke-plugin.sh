@@ -122,6 +122,7 @@ check "свой агент команды в .codex/agents остался markdo
 check "AGENTS.md: блок правил базы и профилей, текст команды сохранён" check_rules AGENTS.md
 check "AGENTS.md: собственные инструкции Codex и локальные имена агентов" grep -qF 'Имена из `.aikit/profiles.json` используй без префикса плагина' "$PROJECT_DIR/AGENTS.md"
 check ".codex/agents/: агенты базы и профилей в TOML, правила проекта — AGENTS.md" check_codex_agents
+check ".aikit/scripts/update-agents.sh: скрипт обновления поставлен в проект" test -f "$PROJECT_DIR/.aikit/scripts/update-agents.sh"
 check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 check "plugin-init.json: runtimes хранит оба runtime, запуск в одном не затирает другой" "$PYTHON_BIN" -c "import json,sys; sys.exit(json.load(open(sys.argv[1]))['runtimes'] != ['claude', 'codex'])" "$PROJECT_DIR/.aikit/plugin-init.json"
 
@@ -164,6 +165,14 @@ AGY_PLUGINS_DIR="$WORK_DIR/agy-plugins-$PRESET"
 "$PYTHON_BIN" "$KIT_ROOT/scripts/install-antigravity-plugins.py" --workspace "$PROJECT_DIR" --target-dir "$AGY_PLUGINS_DIR" >/dev/null
 check "плагин ядра aikit установлен с plugin.json, hooks.json и scripts/plugin-init.py" test -f "$AGY_PLUGINS_DIR/aikit/plugin.json" -a -f "$AGY_PLUGINS_DIR/aikit/hooks.json" -a -f "$AGY_PLUGINS_DIR/aikit/scripts/plugin-init.py"
 check "плагин профиля vue-nuxt установлен со скиллами, агентами и MCP" test -f "$AGY_PLUGINS_DIR/vue-nuxt/plugin.json" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/agents/vue-coder.md" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/mcp_config.json"
+
+echo "▶ .aikit/scripts/update-agents.sh"
+rm -f "$PROJECT_DIR/.codex/agents/vue-coder.toml" "$PROJECT_DIR/.agents/agents/vue-coder.md"
+AIKIT_ROOT="$KIT_ROOT" AIKIT_ANTIGRAVITY_PLUGINS_DIR="$AGY_PLUGINS_DIR" bash "$PROJECT_DIR/.aikit/scripts/update-agents.sh" --agents-only >/dev/null
+check "update-agents.sh --agents-only: сам определил codex и antigravity и пересобрал агентов обоих runtime" test -f "$PROJECT_DIR/.codex/agents/vue-coder.toml" -a -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
+rm -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
+AIKIT_ROOT="$KIT_ROOT" AIKIT_ANTIGRAVITY_PLUGINS_DIR="$AGY_PLUGINS_DIR" bash "$PROJECT_DIR/.aikit/scripts/update-agents.sh" antigravity >/dev/null
+check "update-agents.sh antigravity: обновил плагины Antigravity и пересобрал агентов проекта" test -f "$PROJECT_DIR/.agents/agents/vue-coder.md"
 
 if [[ "$FAILURES" -gt 0 ]]; then
   echo "✗ Плагины, пресет $PRESET: ошибок — $FAILURES"
