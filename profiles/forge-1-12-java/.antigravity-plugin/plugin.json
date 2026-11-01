@@ -1,7 +1,7 @@
 {
   "name": "forge-1-12-java",
   "displayName": "AIKit: Forge 1.12.2 Java",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Профиль AIKit Forge 1.12.2 Java (Java 8, Minecraft 1.12.2, Forge 14.23.5.2860, ForgeGradle 3 (MDK) или 2.3, Gradle 4.9, JUnit 4, Mockito): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
   "author": {
     "name": "undef1ned-dev"

@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.1.0] - 2026-11-01
+
+### Added
+- scripts: добавлен скрипт обновления агентов и упрощена документация установки
+
 ## [1.0.0] - 2026-11-01
 
 ### Added
