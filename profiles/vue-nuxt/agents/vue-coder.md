@@ -121,10 +121,10 @@ context_blocks: ["ARCHITECT_PLAN"]
 - отсутствие тяжёлых side effects при старте приложения
 
 ### `server-route mode`
-Включай если затронуты `server/api/**/*.ts`.
+Включай, если затронуты Nitro-эндпоинты или связанный серверный код.
 Фокус:
-- Nitro route handler patterns
-- безопасная проксирующая логика
+- Nitro-обработчики, проверка входа и серверная авторизация
+- переиспользование серверных сервисов и доступа к данным проекта, безопасное проксирование там, где оно требуется
 - отсутствие UI-логики
 - shape и нормализация ответа
 
@@ -137,7 +137,7 @@ context_blocks: ["ARCHITECT_PLAN"]
 ## Стек
 
 - Vue 3 + `<script setup lang="ts">`
-- Nuxt 3, SSR-safe patterns
+- Nuxt 3/4, фактический `srcDir`, SSR-safe patterns
 - Pinia, VueUse, useFetch/useAsyncData
 - Vitest-ready architecture
 

@@ -23,7 +23,7 @@
       "name": "vue-nuxt",
       "source": "./profiles/vue-nuxt",
       "version": "1.1.1",
-      "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+      "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
       "category": "development"
     },
     {
@@ -31,6 +31,13 @@
       "source": "./packs/devops",
       "version": "1.1.1",
       "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
+      "category": "development"
+    },
+    {
+      "name": "nuxt-postgres",
+      "source": "./packs/nuxt-postgres",
+      "version": "1.1.1",
+      "description": "Pack: Nuxt PostgreSQL для AIKit — Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД",
       "category": "development"
     }
   ]

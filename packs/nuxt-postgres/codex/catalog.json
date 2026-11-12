@@ -1,0 +1,13 @@
+{
+  "agents": {},
+  "skills": {
+    "nuxt-prisma-migration": {
+      "argument-hint": "<изменение схемы>",
+      "example_prompt": "$nuxt-prisma-migration добавь уникальный slug для статей"
+    },
+    "nuxt-postgres-check": {
+      "argument-hint": "<эндпоинт или сценарий>",
+      "example_prompt": "$nuxt-postgres-check проверь создание статьи и конфликт slug"
+    }
+  }
+}

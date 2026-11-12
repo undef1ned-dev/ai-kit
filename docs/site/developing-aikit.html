@@ -44,6 +44,7 @@
 <p><code>python3 scripts/new-profile.py …</code> и дальше по <a href="adding-a-stack.html">Как добавить стек</a>.</p>
 <h3 id="пак"><a class="anchor" href="#пак" aria-hidden="true">#</a>Пак</h3>
 <p>Папка <code>packs/&lt;name&gt;/</code> с <code>pack.json</code>: <code>name</code>, <code>label</code>, <code>description</code>, <code>agents</code>, <code>skills</code> и, если пак подходит не ко всем стекам, <code>compatible_profiles</code>. Затем <code>python3 scripts/build-plugins.py</code> — пак станет плагином маркетплейса.</p>
+<p>Для пака из одних скиллов укажи <code>&quot;agents&quot;: []</code> в <code>pack.json</code> и пустой объект <code>agents</code> в <code>codex/catalog.json</code>. Каталоги агентов для такого пака необязательны.</p>
 <h3 id="пресет"><a class="anchor" href="#пресет" aria-hidden="true">#</a>Пресет</h3>
 <p><code>presets/&lt;name&gt;.json</code>: <code>name</code>, <code>label</code>, <code>description</code>, <code>profiles</code>, <code>packs</code>. Smoke-тесты CI сами прогоняют каждый пресет.</p>
 <h3 id="хук"><a class="anchor" href="#хук" aria-hidden="true">#</a>Хук</h3>

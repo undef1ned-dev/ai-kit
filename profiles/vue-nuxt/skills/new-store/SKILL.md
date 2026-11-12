@@ -15,6 +15,7 @@ example_prompt: "/new-store notifications"
 
 ## Перед созданием
 
+- Определи фактический `srcDir` по версии Nuxt, `nuxt.config.*` и соседним файлам. Пути UI ниже относительны к нему.
 - Изучи существующие `stores/`, `composables/` и похожие файлы проекта
 - Проверь, не решается ли задача существующим store или composable
 

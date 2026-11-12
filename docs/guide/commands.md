@@ -94,6 +94,7 @@
 | `vue-nuxt` | `/new-page`, `/new-component`, `/new-composable`, `/new-store`, `/new-middleware`, `/new-plugin`, `/new-server-route`, `/add-tests`, `/design-review` |
 | `forge-1-12-java` | `/forge-1-12-new-block`, `/forge-1-12-new-item`, `/forge-1-12-new-tile-entity`, `/forge-1-12-new-packet`, `/forge-1-12-new-config`, `/forge-1-12-new-command`, `/forge-1-12-add-tests`, `/forge-1-12-mod-docs`, `/forge-1-12-setup-checkstyle` |
 | пак `devops` | `/dockerize`, `/setup-ci` |
+| пак `nuxt-postgres` | `/nuxt-prisma-migration` — изменение схемы и подготовка миграции, `/nuxt-postgres-check` — проверка Nitro API с тестовой БД |
 
 Описание каждого — в [каталоге](../site/catalog.html).
 

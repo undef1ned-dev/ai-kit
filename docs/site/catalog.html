@@ -26,9 +26,9 @@
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
   <div><b>23</b><span>агенты</span></div>
-  <div><b>38</b><span>скиллы</span></div>
+  <div><b>40</b><span>скиллы</span></div>
   <div><b>2</b><span>профили</span></div>
-  <div><b>1</b><span>паки</span></div>
+  <div><b>2</b><span>паки</span></div>
 </div>
 <p>Термины — на странице <a href="glossary.html">Термины</a>, как подключить — в <a href="getting-started.html">Установке и обновлении</a>.</p>
 <h2 id="presets"><a class="anchor" href="#presets" aria-hidden="true">#</a>Пресеты</h2>
@@ -38,10 +38,15 @@
   <p>Vue/Nuxt frontend setup with delivery tooling.</p>
   <div class="chips"><span class="chip chip-profile">vue-nuxt</span><span class="chip chip-pack">devops</span></div>
   <div class="entry-example"><code>bash .aikit-config/scripts/attach.sh --preset frontend-team</code><button class="copy-btn" type="button" data-copy="bash .aikit-config/scripts/attach.sh --preset frontend-team">Копировать</button></div>
+</div><div class="preset-card" id="preset-nuxt-fullstack">
+  <div class="preset-name">Nuxt Fullstack <code>nuxt-fullstack</code></div>
+  <p>Nuxt 3 or 4 with Nitro, Prisma, PostgreSQL, and delivery tooling.</p>
+  <div class="chips"><span class="chip chip-profile">vue-nuxt</span><span class="chip chip-pack">nuxt-postgres</span><span class="chip chip-pack">devops</span></div>
+  <div class="entry-example"><code>bash .aikit-config/scripts/attach.sh --preset nuxt-fullstack</code><button class="copy-btn" type="button" data-copy="bash .aikit-config/scripts/attach.sh --preset nuxt-fullstack">Копировать</button></div>
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="forge-1-12-java" style="--accent-local:#b45309">Forge 1.12.2 Java<span class="count">16</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="forge-1-12-java" style="--accent-local:#b45309">Forge 1.12.2 Java<span class="count">16</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button><button class="tab" type="button" data-tab="pack-nuxt-postgres" style="--accent-local:#d97706">Pack: Nuxt PostgreSQL<span class="count">2</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -374,15 +379,15 @@
 </article></div>
 </section>
 <section class="catalog-panel" id="vue-nuxt" data-panel style="--accent-local:#00a876">
-  <div class="panel-head"><h2>Vue Nuxt</h2><p>Vue 3, Nuxt 3, Pinia, VueUse</p></div>
+  <div class="panel-head"><h2>Vue Nuxt</h2><p>Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse</p></div>
   <div class="contract">
   <h3>Цепочка агентов</h3>
   <div class="flow"><div class="flow-node"><span class="flow-title">vue-architect</span><span class="flow-text">архитектор</span></div><span class="flow-arrow" aria-hidden="true">→</span><div class="flow-node"><span class="flow-title">vue-coder</span><span class="flow-text">кодер</span></div><span class="flow-arrow" aria-hidden="true">→</span><div class="flow-parallel"><div class="flow-node"><span class="flow-title">vue-tester</span><span class="flow-text">тестировщик</span></div><div class="flow-node"><span class="flow-title">vue-reviewer</span><span class="flow-text">ревьюер</span></div></div></div>
   <div class="contract-grid">
     <div><span class="label">Роль в системе</span><span>web</span></div>
-    <div><span class="label">Стек</span><span>Vue 3, Nuxt 3, Pinia, VueUse</span></div>
+    <div><span class="label">Стек</span><span>Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse</span></div>
     <div><span class="label">Маркеры папки (root_markers)</span><span><span class="chip mono">nuxt.config.ts</span><span class="chip mono">nuxt.config.js</span><span class="chip mono">nuxt.config.mjs</span></span></div>
-    <div><span class="label">Пути профиля (path_signals)</span><span><span class="chip mono">pages/</span><span class="chip mono">components/</span><span class="chip mono">composables/</span><span class="chip mono">stores/</span><span class="chip mono">server/api/</span><span class="chip mono">middleware/</span><span class="chip mono">plugins/</span><span class="chip mono">layouts/</span><span class="chip mono">app.vue</span><span class="chip mono">nuxt.config.</span><span class="chip mono">vitest.config.</span><span class="chip mono">playwright.config.</span><span class="chip mono">eslint.config.</span></span></div>
+    <div><span class="label">Пути профиля (path_signals)</span><span><span class="chip mono">app/</span><span class="chip mono">pages/</span><span class="chip mono">components/</span><span class="chip mono">composables/</span><span class="chip mono">stores/</span><span class="chip mono">server/</span><span class="chip mono">shared/</span><span class="chip mono">middleware/</span><span class="chip mono">plugins/</span><span class="chip mono">layouts/</span><span class="chip mono">app.vue</span><span class="chip mono">nuxt.config.</span><span class="chip mono">vitest.config.</span><span class="chip mono">playwright.config.</span><span class="chip mono">eslint.config.</span></span></div>
     <div><span class="label">Файлы кода для хуков (code_extensions)</span><span><span class="chip mono">.vue</span><span class="chip mono">.ts</span><span class="chip mono">.tsx</span><span class="chip mono">.js</span><span class="chip mono">.jsx</span><span class="chip mono">.mjs</span><span class="chip mono">.cjs</span></span></div>
   </div>
   <h3>Команды проекта</h3>
@@ -483,9 +488,9 @@
   <div class="entry-example"><span>/new-plugin analytics.client</span><button class="copy-btn" type="button" data-copy="/new-plugin analytics.client">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-plugin/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-plugin/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/skills/new-plugin/SKILL.md">profiles/vue-nuxt/skills/new-plugin/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-new-server-route" data-filter="new-server-route создать nitro server route для bff или proxy-логики с валидацией запроса и безопасной обработкой ответа. используй, когда нужен эндпоинт в server/api.">
+</article><article class="entry-card entry-skill" id="skill-new-server-route" data-filter="new-server-route создать nitro-эндпоинт для собственного api или bff с валидацией запроса и серверной авторизацией. используй, когда нужен эндпоинт nuxt.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/new-server-route</span></header>
-  <p>Создать Nitro server route для BFF или proxy-логики с валидацией запроса и безопасной обработкой ответа. Используй, когда нужен эндпоинт в server/api.</p>
+  <p>Создать Nitro-эндпоинт для собственного API или BFF с валидацией запроса и серверной авторизацией. Используй, когда нужен эндпоинт Nuxt.</p>
 
   <div class="entry-example"><span>/new-server-route notifications/index.get</span><button class="copy-btn" type="button" data-copy="/new-server-route notifications/index.get">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/profiles/vue-nuxt/codex/skills/new-server-route/SKILL.md">Codex: profiles/vue-nuxt/codex/skills/new-server-route/SKILL.md</a>
@@ -517,13 +522,33 @@
   <div class="entry-example"><span>/dockerize</span><button class="copy-btn" type="button" data-copy="/dockerize">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/codex/skills/dockerize/SKILL.md">Codex: packs/devops/codex/skills/dockerize/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/dockerize/SKILL.md">packs/devops/skills/dockerize/SKILL.md</a>
-</article><article class="entry-card entry-skill" id="skill-setup-ci" data-filter="setup-ci создать или улучшить ci/cd-пайплайн (github actions или gitlab ci): проверки командами профиля, сборка docker-образа, деплой на staging и production. используй, когда пользователь просит настроить ci/cd.">
+</article><article class="entry-card entry-skill" id="skill-setup-ci" data-filter="setup-ci создать или улучшить ci/cd-пайплайн (github actions или gitlab ci): проверки командами профиля, сборка и деплой по схеме проекта. используй, когда пользователь просит настроить ci/cd.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/setup-ci</span></header>
-  <p>Создать или улучшить CI/CD-пайплайн (GitHub Actions или GitLab CI): проверки командами профиля, сборка Docker-образа, деплой на staging и production. Используй, когда пользователь просит настроить CI/CD.</p>
+  <p>Создать или улучшить CI/CD-пайплайн (GitHub Actions или GitLab CI): проверки командами профиля, сборка и деплой по схеме проекта. Используй, когда пользователь просит настроить CI/CD.</p>
 
   <div class="entry-example"><span>/setup-ci</span><button class="copy-btn" type="button" data-copy="/setup-ci">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/codex/skills/setup-ci/SKILL.md">Codex: packs/devops/codex/skills/setup-ci/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/devops/skills/setup-ci/SKILL.md">packs/devops/skills/setup-ci/SKILL.md</a>
+</article></div>
+</section>
+<section class="catalog-panel" id="pack-nuxt-postgres" data-panel style="--accent-local:#d97706">
+  <div class="panel-head"><h2>Pack: Nuxt PostgreSQL</h2><p>Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД</p></div>
+  <p class="muted">Подходит к профилям: <span class="chip">vue-nuxt</span></p>
+
+  <h3>Скиллы <span class="count">2</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-nuxt-postgres-check" data-filter="nuxt-postgres-check проверить сценарий nuxt nitro api с prisma и postgresql. используй, когда результат зависит от сохранения данных, ограничений бд или транзакций.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/nuxt-postgres-check</span></header>
+  <p>Проверить сценарий Nuxt Nitro API с Prisma и PostgreSQL. Используй, когда результат зависит от сохранения данных, ограничений БД или транзакций.</p>
+
+  <div class="entry-example"><span>/nuxt-postgres-check проверь создание статьи и конфликт slug</span><button class="copy-btn" type="button" data-copy="/nuxt-postgres-check проверь создание статьи и конфликт slug">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/nuxt-postgres/codex/skills/nuxt-postgres-check/SKILL.md">Codex: packs/nuxt-postgres/codex/skills/nuxt-postgres-check/SKILL.md</a>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/nuxt-postgres/skills/nuxt-postgres-check/SKILL.md">packs/nuxt-postgres/skills/nuxt-postgres-check/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-nuxt-prisma-migration" data-filter="nuxt-prisma-migration подготовить изменение схемы prisma и миграцию postgresql для nuxt. используй по явному запросу на изменение моделей, связей, ограничений или индексов.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/nuxt-prisma-migration</span></header>
+  <p>Подготовить изменение схемы Prisma и миграцию PostgreSQL для Nuxt. Используй по явному запросу на изменение моделей, связей, ограничений или индексов.</p>
+  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
+  <div class="entry-example"><span>/nuxt-prisma-migration добавь уникальный slug для статей</span><button class="copy-btn" type="button" data-copy="/nuxt-prisma-migration добавь уникальный slug для статей">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/nuxt-postgres/codex/skills/nuxt-prisma-migration/SKILL.md">Codex: packs/nuxt-postgres/codex/skills/nuxt-prisma-migration/SKILL.md</a>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/packs/nuxt-postgres/skills/nuxt-prisma-migration/SKILL.md">packs/nuxt-postgres/skills/nuxt-prisma-migration/SKILL.md</a>
 </article></div>
 </section>
     </article>

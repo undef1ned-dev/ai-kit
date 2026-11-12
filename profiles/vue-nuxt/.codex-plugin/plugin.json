@@ -1,7 +1,7 @@
 {
   "name": "vue-nuxt",
   "version": "1.1.1",
-  "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "description": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
   "keywords": [
     "aikit",
     "vue-nuxt"
@@ -21,7 +21,7 @@
   },
   "interface": {
     "displayName": "AIKit: Vue Nuxt",
-    "shortDescription": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+    "shortDescription": "Профиль AIKit Vue Nuxt (Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
     "developerName": "undef1ned-dev",
     "category": "Coding",
     "websiteURL": "https://github.com/undef1ned-dev/ai-kit"

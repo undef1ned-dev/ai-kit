@@ -1,0 +1,17 @@
+{
+  "name": "nuxt-postgres",
+  "version": "1.1.1",
+  "description": "Pack: Nuxt PostgreSQL для AIKit — Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД",
+  "keywords": [
+    "aikit",
+    "nuxt-postgres"
+  ],
+  "skills": "./codex/skills/",
+  "interface": {
+    "displayName": "AIKit: Pack: Nuxt PostgreSQL",
+    "shortDescription": "Pack: Nuxt PostgreSQL для AIKit — Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}
