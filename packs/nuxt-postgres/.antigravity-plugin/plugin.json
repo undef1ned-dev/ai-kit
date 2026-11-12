@@ -1,7 +1,7 @@
 {
   "name": "nuxt-postgres",
   "displayName": "AIKit: Pack: Nuxt PostgreSQL",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Pack: Nuxt PostgreSQL для AIKit — Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД",
   "author": {
     "name": "undef1ned-dev"

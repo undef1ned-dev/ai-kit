@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.2.0] - 2026-11-12
+
+### Added
+- profiles: добавлен пресет Nuxt Fullstack
+
 ## [1.1.1] - 2026-11-01
 
 ### Fixed
