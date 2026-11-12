@@ -4,6 +4,17 @@
 
 ## Установка
 
+### Какой пресет выбрать для Nuxt
+
+| Проект | Пресет | Состав |
+|---|---|---|
+| Nuxt 3 или 4 с внешним API (например, Django) или без собственного API | `frontend-team` | `vue-nuxt` + `devops` |
+| Nuxt 3 или 4 с собственным Nitro API, Prisma и PostgreSQL | `nuxt-fullstack` | `vue-nuxt` + `nuxt-postgres` + `devops` |
+
+Для `nuxt-fullstack` установи также плагин `nuxt-postgres@aikit` и передай имя пресета в `setup`. Пресет подключает инструкции и скиллы AIKit к существующему приложению. Зависимости, база и миграции настраиваются командами проекта. Если проект использует Bun, pnpm или свои скрипты, укажи команды в `.aikit/profiles.json`. AIKit сохраняет их при обновлении.
+
+Профиль `vue-nuxt` учитывает фактический `srcDir` и серверный каталог проекта. При внешнем API он использует уже выбранный способ интеграции. [Структура каталогов Nuxt](https://nuxt.com/docs/4.x/getting-started/upgrade#new-directory-structure)
+
 ### Claude Code
 
 Каждый профиль и пак — отдельный плагин маркетплейса `aikit`, ядро — плагин `aikit`.

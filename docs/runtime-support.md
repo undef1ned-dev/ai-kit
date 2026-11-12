@@ -47,7 +47,7 @@ Codex имеет самостоятельные источники агенто�
 
 | Возможность | Claude Code (`attach.sh`) | Codex | OpenCode |
 |---|---|---|---|
-| Установка всех пресетов | ✅ | ✅ | ✅ |
+| Установка пресетов, включая `frontend-team` и `nuxt-fullstack` | ✅ | ✅ | ✅ |
 | Правила проекта | ✅ `CLAUDE.md` | ✅ блок AIKit в `AGENTS.md`, текст пользователя вне блока сохраняется | ✅ тот же `AGENTS.md` |
 | Скиллы | ✅ `.claude/skills/<name>/SKILL.md` — все скиллы base, профилей и паков | ✅ `.agents/skills/<name>/SKILL.md` | ✅ `.agents/skills/<name>/SKILL.md` |
 | Скиллы только по явному вызову (`capture-memory`, `optimize-memory`, `set-model`) | ✅ `disable-model-invocation` | ✅ `agents/openai.yaml` | ⚠️ могут сработать автоматически |

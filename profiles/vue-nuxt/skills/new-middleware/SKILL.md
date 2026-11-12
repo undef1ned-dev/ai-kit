@@ -19,6 +19,7 @@ example_prompt: "/new-middleware auth"
 
 ## Перед созданием
 
+- Определи фактический `srcDir` по версии Nuxt, `nuxt.config.*` и соседним файлам. Пути UI ниже относительны к нему.
 - Изучи существующие `middleware/`, `stores/`, `composables/` и страницы, которые middleware будет защищать
 - Проверь, нет ли уже похожего guard: auth-проверки, redirect-правила, глобального middleware
 

@@ -1,19 +1,19 @@
 # Vue Nuxt Profile
 
-Профиль для frontend-разработки на Vue 3 + Nuxt 3. Расширяет базовые правила команды.
+Профиль для приложений на Vue 3 и Nuxt 3/4. Подходит для UI со своим Nitro API, с внешним API и для проектов без серверных эндпоинтов.
 
 ---
 
 ## Стек
 
-- **Node.js 20+**
-- **Vue 3** + **Nuxt 3/4-ready** — SSR, SSG, file-based routing, server routes
+- **Vue 3** + **Nuxt 3 или 4** — SSR, SSG, file-based routing, server routes
+- Версию Node.js и пакетный менеджер бери из проекта. Команды запускай из контракта профиля.
 - **TypeScript** — обязателен для нового кода
 - **Composition API** + **`<script setup lang="ts">`**
 - **Pinia** — глобальное клиентское состояние
 - **VueUse** — composables и утилиты, не писать велосипед
 - **useFetch / useAsyncData** — загрузка данных в Nuxt
-- **Nitro server routes** — BFF/edge-логика при необходимости
+- **Nitro server routes** — собственный API или BFF, если они предусмотрены проектом
 - **Vitest** + **@vue/test-utils** — unit/component тесты
 - **Playwright** — E2E и визуальная проверка
 - **Figma MCP** — сверка реализации с макетами и UI kit контекст
@@ -24,6 +24,8 @@
 ## Архитектура
 
 ### Типичная структура проекта
+
+Перед правкой проверь версию Nuxt, `nuxt.config.*` и соседние файлы. Пути UI в примерах относительны к фактическому `srcDir`: обычно это корень приложения в Nuxt 3 и `app/` в Nuxt 4. Учитывай настройки директорий, режим совместимости и существующую структуру. Пути Nitro определяй отдельно по `serverDir` и существующим серверным файлам. Общие контракты размещай там, где их хранит проект, например в `shared/`, если установленная версия и настройки его поддерживают.
 
 ```text
 app.vue
@@ -61,7 +63,7 @@ tests/
 ### Слои
 
 ```text
-Page → Feature Components → Composables / Store → API Client / useFetch → server/api (если нужен BFF)
+Page → Feature Components → Composables / Store → API Client / useFetch → Nitro API или внешний API
 ```
 
 ### Правила распределения логики
@@ -75,7 +77,9 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 - `stores/` — cross-page состояние, кэш, optimistic update, auth/session
 - `middleware/` — route guards, auth gates, redirects, navigation policies
 - `plugins/` — интеграции Nuxt app level, provide/inject, client/server scoped setup
-- `server/api/` — прокси, агрегация API, скрытие токенов и BFF-логика
+- `server/api/` — HTTP-граница Nitro: валидация входа, авторизация, вызов серверной логики и формирование ответа. Переиспользуй существующие сервисы и утилиты.
+- При внешнем API (например, Django) используй его контракт и существующий клиент проекта. Добавляй Nitro-прокси, когда нужна серверная граница для секретов, SSR, агрегации или совместимости.
+- Общие схемы и типы для UI и Nitro должны работать в обоих окружениях. Подключения к БД, серверные зависимости и секреты остаются в серверном коде и приватном runtime config.
 
 ### Динамическая экспертиза агентов
 
@@ -91,7 +95,7 @@ Page → Feature Components → Composables / Store → API Client / useFetch �
 - Если задача затрагивает `stores/*.ts` — агент обязан включить режим Pinia: ownership of state, actions, optimistic updates, persistence
 - Если задача затрагивает `middleware/**/*.ts` — агент обязан включить режим route middleware: redirect loops, auth boundaries, SSR/client navigation safety
 - Если задача затрагивает `plugins/**/*.ts` — агент обязан включить режим Nuxt plugin: runtime injection, client/server scoping, side-effect hygiene
-- Если задача затрагивает `server/api/**/*.ts` — агент обязан включить режим Nitro/BFF: auth propagation, request validation, proxy safety, response shaping
+- Если задача затрагивает Nitro — агент проверяет валидацию, серверную авторизацию, контракт ответа и границу с хранилищем или внешним API. Для прокси отдельно проверяет пересылку cookies и заголовков.
 - Если задача затрагивает `vitest/playwright/eslint config` — агент обязан включить режим tooling config: test stability, aliases, environment consistency
 
 Агент не должен требовать отдельного выбора "узкого специалиста", если тип файлов уже делает нужный режим очевидным.
@@ -157,7 +161,8 @@ const { data, pending, error, refresh } = await useAsyncData(
 
 ## Тесты
 
-- **Vitest** — composables, stores, utils, component logic
+- **Vitest** — composables, stores, utils, component logic и серверная логика
+- **Nitro/API** — проверять валидацию, авторизацию и контракт ответа. Если поведение зависит от реального хранилища, использовать изолированное тестовое окружение проекта.
 - **@vue/test-utils** — props, emits, slots, conditional rendering
 - **Playwright** — happy path, формы, навигация, SSR/CSR flows
 - Тестировать поведение, а не внутреннюю реализацию
@@ -171,7 +176,7 @@ const { data, pending, error, refresh } = await useAsyncData(
 - `new-composable` — создать composable с корректной реактивностью и использованием VueUse
 - `new-middleware` — создать route middleware для auth, redirect или navigation policy
 - `new-plugin` — создать Nuxt plugin для интеграции app-level зависимостей
-- `new-server-route` — создать Nitro server route для BFF/proxy-логики
+- `new-server-route` — создать Nitro-эндпоинт собственного API или BFF
 - `new-store` — создать Pinia store для состояния фичи
 - `add-tests` — написать Vitest/VTU тесты для существующего кода
 - `design-review` — проверить реализацию на соответствие UI kit, токенам и Figma

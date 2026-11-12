@@ -23,6 +23,7 @@ description: "Создать composable для Vue/Nuxt с корректной 
 
 ## Перед созданием
 
+- Определи фактический `srcDir` по версии Nuxt, `nuxt.config.*` и соседним файлам. Пути UI ниже относительны к нему.
 - Изучи существующие `composables/`, `stores/` и похожие файлы проекта
 - Проверь, нет ли готового решения во VueUse: debounce, storage, media query, async state, браузерные API
 

@@ -94,6 +94,8 @@
 
 Папка `packs/<name>/` с `pack.json`: `name`, `label`, `description`, `agents`, `skills` и, если пак подходит не ко всем стекам, `compatible_profiles`. Затем `python3 scripts/build-plugins.py` — пак станет плагином маркетплейса.
 
+Для пака из одних скиллов укажи `"agents": []` в `pack.json` и пустой объект `agents` в `codex/catalog.json`. Каталоги агентов для такого пака необязательны.
+
 ### Пресет
 
 `presets/<name>.json`: `name`, `label`, `description`, `profiles`, `packs`. Smoke-тесты CI сами прогоняют каждый пресет.

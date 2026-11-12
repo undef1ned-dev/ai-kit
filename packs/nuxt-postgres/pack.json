@@ -1,0 +1,9 @@
+{
+  "name": "nuxt-postgres",
+  "label": "Pack: Nuxt PostgreSQL",
+  "version": "1.0.0",
+  "description": "Изменение схемы Prisma, миграции PostgreSQL и проверка Nitro API с тестовой БД",
+  "compatible_profiles": ["vue-nuxt"],
+  "agents": [],
+  "skills": ["nuxt-prisma-migration", "nuxt-postgres-check"]
+}

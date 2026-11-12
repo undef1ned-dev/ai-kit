@@ -23,6 +23,7 @@ description: "Создать Nuxt plugin для app-level интеграции, 
 
 ## Перед созданием
 
+- Определи фактический `srcDir` по версии Nuxt, `nuxt.config.*` и соседним файлам. Пути UI ниже относительны к нему.
 - Изучи существующие `plugins/`, `composables/` и `nuxt.config.*`
 - Проверь, нет ли уже такой интеграции: plugin, модуль Nuxt или composable с тем же `provide`
 

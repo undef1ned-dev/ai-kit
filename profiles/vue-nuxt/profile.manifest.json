@@ -2,7 +2,7 @@
   "profile": "vue-nuxt",
   "label": "Vue Nuxt",
   "role": "web",
-  "stack": "Vue 3, Nuxt 3, Pinia, VueUse",
+  "stack": "Vue 3, Nuxt 3 and 4, Nitro, Pinia, VueUse",
   "agents": {
     "architect": "vue-architect",
     "coder": "vue-coder",
@@ -42,11 +42,13 @@
     "nuxt.config.mjs"
   ],
   "path_signals": [
+    "app/",
     "pages/",
     "components/",
     "composables/",
     "stores/",
-    "server/api/",
+    "server/",
+    "shared/",
     "middleware/",
     "plugins/",
     "layouts/",

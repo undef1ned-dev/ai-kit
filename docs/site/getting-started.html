@@ -25,6 +25,10 @@
 <h1 class="page-title">Установка и обновление</h1>
 <p>Как подключить и обновлять AIKit в проекте для Claude Code, Codex и Antigravity.</p>
 <h2 id="установка"><a class="anchor" href="#установка" aria-hidden="true">#</a>Установка</h2>
+<h3 id="какой-пресет-выбрать-для-nuxt"><a class="anchor" href="#какой-пресет-выбрать-для-nuxt" aria-hidden="true">#</a>Какой пресет выбрать для Nuxt</h3>
+<div class="table-wrap"><table><thead><tr><th>Проект</th><th>Пресет</th><th>Состав</th></tr></thead><tbody><tr><td>Nuxt 3 или 4 с внешним API (например, Django) или без собственного API</td><td><code>frontend-team</code></td><td><code>vue-nuxt</code> + <code>devops</code></td></tr><tr><td>Nuxt 3 или 4 с собственным Nitro API, Prisma и PostgreSQL</td><td><code>nuxt-fullstack</code></td><td><code>vue-nuxt</code> + <code>nuxt-postgres</code> + <code>devops</code></td></tr></tbody></table></div>
+<p>Для <code>nuxt-fullstack</code> установи также плагин <code>nuxt-postgres@aikit</code> и передай имя пресета в <code>setup</code>. Пресет подключает инструкции и скиллы AIKit к существующему приложению. Зависимости, база и миграции настраиваются командами проекта. Если проект использует Bun, pnpm или свои скрипты, укажи команды в <code>.aikit/profiles.json</code>. AIKit сохраняет их при обновлении.</p>
+<p>Профиль <code>vue-nuxt</code> учитывает фактический <code>srcDir</code> и серверный каталог проекта. При внешнем API он использует уже выбранный способ интеграции. <a href="https://nuxt.com/docs/4.x/getting-started/upgrade#new-directory-structure" target="_blank" rel="noopener">Структура каталогов Nuxt</a></p>
 <h3 id="claude-code"><a class="anchor" href="#claude-code" aria-hidden="true">#</a>Claude Code</h3>
 <p>Каждый профиль и пак — отдельный плагин маркетплейса <code>aikit</code>, ядро — плагин <code>aikit</code>.</p>
 <ol class="steps"><li><p><strong>Добавь маркетплейс и поставь плагины</strong> — в Claude Code:</p>
@@ -78,7 +82,7 @@ python3 scripts/install-antigravity-plugins.py --all</code></pre></div></li><li>
     <nav class="pager"><a class="pager-prev" href="glossary.html"><span>Назад</span>Термины</a><a class="pager-next" href="how-it-works.html"><span>Дальше</span>Как это работает</a></nav>
     <footer class="page-footer">Исходник страницы: <a href="https://github.com/undef1ned-dev/ai-kit/blob/main/docs/guide/getting-started.md">docs/guide/getting-started.md</a> — правь его, затем <code>python3 scripts/generate-docs.py</code></footer>
   </main>
-  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#установка">Установка</a></li><li class="toc-l3"><a href="#claude-code">Claude Code</a></li><li class="toc-l3"><a href="#codex">Codex</a></li><li class="toc-l3"><a href="#antigravity">Antigravity</a></li><li class="toc-l2"><a href="#обновление">Обновление</a></li><li class="toc-l3"><a href="#claude-code-2">Claude Code</a></li><li class="toc-l3"><a href="#codex-2">Codex</a></li><li class="toc-l3"><a href="#antigravity-2">Antigravity</a></li></ul></aside>
+  <aside class="toc" aria-label="Содержание"><div class="toc-title">На этой странице</div><ul><li class="toc-l2"><a href="#установка">Установка</a></li><li class="toc-l3"><a href="#какой-пресет-выбрать-для-nuxt">Какой пресет выбрать для Nuxt</a></li><li class="toc-l3"><a href="#claude-code">Claude Code</a></li><li class="toc-l3"><a href="#codex">Codex</a></li><li class="toc-l3"><a href="#antigravity">Antigravity</a></li><li class="toc-l2"><a href="#обновление">Обновление</a></li><li class="toc-l3"><a href="#claude-code-2">Claude Code</a></li><li class="toc-l3"><a href="#codex-2">Codex</a></li><li class="toc-l3"><a href="#antigravity-2">Antigravity</a></li></ul></aside>
 </div>
 <div class="toast" role="status" data-toast>Скопировано</div>
 <script src="assets/search-index.js"></script>

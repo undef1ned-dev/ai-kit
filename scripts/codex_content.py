@@ -34,11 +34,16 @@ def read_agent(path: Path) -> dict:
     return agent
 
 
+def is_skill_only_pack(source: Path) -> bool:
+    manifest = source / "pack.json"
+    return manifest.is_file() and json.loads(manifest.read_text(encoding="utf-8")).get("agents") == []
+
+
 def agents(sources: list[Path]) -> dict[str, Path]:
     found = {}
     for source in sources:
         directory = source / "codex/agents"
-        if not directory.is_dir():
+        if not directory.is_dir() and not is_skill_only_pack(source):
             raise ValueError(f"Missing native Codex agents: {directory}; no fallback to another runtime")
         for path in sorted(directory.glob("*.toml")):
             read_agent(path)

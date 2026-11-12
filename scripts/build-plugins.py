@@ -250,7 +250,7 @@ def broken_references() -> list[str]:
             codex_content.skills([layer], plugin=True)
         except (OSError, ValueError) as error:
             problems.append(str(error))
-        if not spec["core"] and not (folder / "agents").is_dir():
+        if not spec["core"] and not (folder / "agents").is_dir() and not codex_content.is_skill_only_pack(folder):
             problems.append(f"{spec['name']}: нет папки агентов")
     if not (ROOT / HOOK_SCRIPT).exists():
         problems.append(f"нет скрипта хуков {HOOK_SCRIPT}")

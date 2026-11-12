@@ -170,6 +170,12 @@ for name, contract in contracts.items():
     assert contract["commands"].get("lint"), f"{name}: нет команды lint"
     expected_root = "web" if name == "vue-nuxt" else "."
     assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
+    if name == "vue-nuxt":
+        root = project / contract["root"]
+        for path in [*root.rglob("*.vue"), *root.rglob("*.ts")]:
+            relative = path.relative_to(root).as_posix()
+            assert relative.startswith(tuple(contract["path_signals"])), f"путь Nuxt не покрыт контрактом: {relative}"
+        assert contract["role"] == "web", "роль Vue Nuxt нужна для интеграции с внешним backend"
 if edited:
     first = contracts[expected[0]]["commands"]
     assert first.get("test") == "custom-test", "правка команды test затёрта"
@@ -268,6 +274,17 @@ check_runtime_files() {
   check "AGENTS.md: блок AIKit один, правила пользователя сохранены$stage" check_agents_md
   check "скиллы в .agents/skills: name = папка, есть description$stage" check_native_skills
   check "скилл git-commit установлен$stage" test -f "$PROJECT_DIR/.agents/skills/git-commit/SKILL.md"
+  case "$PRESET" in
+    frontend-team)
+      check "frontend-team: скиллы Prisma отсутствуют$stage" test ! -e "$PROJECT_DIR/.agents/skills/nuxt-prisma-migration" -a ! -e "$PROJECT_DIR/.agents/skills/nuxt-postgres-check"
+      ;;
+    nuxt-fullstack)
+      check "nuxt-fullstack: скиллы миграции и проверки БД установлены$stage" test -f "$PROJECT_DIR/.agents/skills/nuxt-prisma-migration/SKILL.md" -a -f "$PROJECT_DIR/.agents/skills/nuxt-postgres-check/SKILL.md"
+      if [[ "$ADAPTER" == codex ]]; then
+        check "миграция Prisma в Codex вызывается явно$stage" grep -q 'allow_implicit_invocation: false' "$PROJECT_DIR/.agents/skills/nuxt-prisma-migration/agents/openai.yaml"
+      fi
+      ;;
+  esac
   check "в скиллах нет \$ARGUMENTS и нераскрытых шаблонов$stage" check_no_raw_placeholders
   case "$ADAPTER" in
     codex)
@@ -295,6 +312,16 @@ check_runtime_files() {
 echo "▶ Адаптер $ADAPTER, пресет $PRESET → $PROJECT_DIR"
 # Монорепо: Nuxt-приложение в web/ — установщик должен найти папку профиля
 mkdir -p "$PROJECT_DIR/web" && touch "$PROJECT_DIR/web/nuxt.config.ts"
+case "$PRESET" in
+  frontend-team)
+    mkdir -p "$PROJECT_DIR/web/pages" "$PROJECT_DIR/backend"
+    touch "$PROJECT_DIR/web/pages/index.vue" "$PROJECT_DIR/backend/manage.py"
+    ;;
+  nuxt-fullstack)
+    mkdir -p "$PROJECT_DIR/web/app/pages" "$PROJECT_DIR/web/server/api" "$PROJECT_DIR/web/shared"
+    touch "$PROJECT_DIR/web/app/pages/index.vue" "$PROJECT_DIR/web/server/api/health.get.ts" "$PROJECT_DIR/web/shared/health.ts"
+    ;;
+esac
 
 echo "▶ install-adapter-package.py"
 INSTALL_LOG="$WORK_DIR/$ADAPTER-$PRESET-install.log"

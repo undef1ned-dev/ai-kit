@@ -1,0 +1,7 @@
+{
+  "name": "nuxt-fullstack",
+  "label": "Nuxt Fullstack",
+  "description": "Nuxt 3 or 4 with Nitro, Prisma, PostgreSQL, and delivery tooling.",
+  "profiles": ["vue-nuxt"],
+  "packs": ["nuxt-postgres", "devops"]
+}
