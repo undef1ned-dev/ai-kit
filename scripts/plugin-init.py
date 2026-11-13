@@ -11,7 +11,7 @@ Plugins bring agents, skills, hooks and MCP servers; what belongs to the project
     settings     — .aikit/settings.json: team settings, such as asking for the commit message or committing by the rules
     claude       — .claude/settings.json: kit permissions and attribution, the aikit marketplace
                    and the enabled plugins, so teammates get the same set after trusting the folder
-    codex        — .codex/agents/*.toml: Codex plugins cannot ship agents, so they are written here
+    codex        — .codex/agents/*.toml and project plugin enablement in .codex/config.toml
 
 The script runs from the core plugin (its root is the AIKit repository) via the /aikit:setup skill.
 State of the previous run is kept in .aikit/plugin-init.json: agents it wrote and are no longer needed are removed.
@@ -242,6 +242,9 @@ def main() -> int:
     state_path = workspace / STATE_FILE
     state = read_json(state_path)
 
+    if args.runtime == "codex":
+        runtime_settings.install_codex_plugins(workspace, [f"{name}@{MARKETPLACE_NAME}" for name in [CORE_PLUGIN, *profiles, *packs]])
+
     print(f"Правила: {merge_rules(workspace, args.runtime, profiles)}")
     print(f"Контракты профилей: {', '.join(profile_contract.install(workspace, profiles))}")
     ensure_memory(workspace)
@@ -254,6 +257,7 @@ def main() -> int:
         print(f".claude/settings.json: права кита, плагины {', '.join(f'{name}@{MARKETPLACE_NAME}' for name in plugins)}")
     elif args.runtime == "codex":
         runtime_settings.install_codex(workspace)
+        print(".codex/config.toml: плагины AIKit включены на уровне проекта; пользовательские настройки плагинов сохраняются")
         codex_agents = write_codex_agents(workspace, profiles, packs, codex_agents)
         ensure_update_script(workspace)
         print(f"Агенты Codex: .codex/agents/ ({len(codex_agents)} шт), .aikit/scripts/update-agents.sh")

@@ -19,6 +19,28 @@ import runtime_settings
 
 
 class RuntimeSettingsTests(unittest.TestCase):
+    def test_project_plugins_replace_only_the_managed_selection(self):
+        with tempfile.TemporaryDirectory() as folder:
+            workspace = Path(folder)
+            path = workspace / ".codex/config.toml"
+            path.parent.mkdir()
+            original = b'sandbox_mode = "read-only"\r\n\r\n[plugins."team@local"]\r\nenabled = true\r\n[plugins."devops@aikit"]\r\nenabled = false\r\n'
+            path.write_bytes(original)
+            first = ["aikit@aikit", "vue-nuxt@aikit", "devops@aikit"]
+            runtime_settings.install_codex_plugins(workspace, first)
+            configured = path.read_bytes()
+            self.assertTrue(configured.startswith(original))
+            runtime_settings.install_codex_plugins(workspace, first)
+            self.assertEqual(path.read_bytes(), configured)
+            runtime_settings.install_codex_plugins(workspace, ["aikit@aikit", "forge-1-12-java@aikit"])
+            self.assertTrue(path.read_bytes().startswith(original))
+            self.assertEqual(tomllib.loads(path.read_text(encoding="utf-8"))["plugins"], {
+                "team@local": {"enabled": True},
+                "devops@aikit": {"enabled": False},
+                "aikit@aikit": {"enabled": True},
+                "forge-1-12-java@aikit": {"enabled": True},
+            })
+
     def test_permissions_are_available_but_never_selected(self):
         with tempfile.TemporaryDirectory() as folder:
             workspace = Path(folder)

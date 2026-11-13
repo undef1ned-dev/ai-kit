@@ -6,18 +6,18 @@ AIKit — переиспользуемый набор AI-агентов и ск�
 
 ### Плагинами — Claude Code, Codex и Antigravity
 
-В Claude Code:
+В Claude Code установи плагины один раз на машину:
 
-```text
-/plugin marketplace add undef1ned-dev/ai-kit
-/plugin install aikit@aikit
-/plugin install vue-nuxt@aikit
-/aikit:setup frontend-team
+```bash
+claude plugin marketplace add undef1ned-dev/ai-kit
+claude plugin install aikit@aikit --scope user
+claude plugin install vue-nuxt@aikit --scope user
+claude plugin install devops@aikit --scope user
 ```
 
-Ядро — плагин `aikit`, каждый профиль (`vue-nuxt`, `forge-1-12-java`) и пак (`devops`) — свой плагин. `/aikit:setup` записывает в проект блок правил в `CLAUDE.md`, контракты профилей в `.aikit/profiles.json`, память в `.aikit/memory/` и включённые плагины в `.claude/settings.json` — команда получит тот же набор.
+В сессии Claude Code вызови `/aikit:setup frontend-team`. Он запишет в проект правила, контракты, память и включённые плагины. Затем отключи пользовательское включение плагинов AIKit через `claude plugin disable <плагин>@aikit --scope user`.
 
-В Codex: `codex plugin marketplace add undef1ned-dev/ai-kit`, `codex plugin add aikit@aikit` и плагины профилей, затем скилл `$setup`. Агентов плагины Codex не поставляют — `$setup` пишет их в `.codex/agents/`.
+В Codex добавь маркетплейс `codex plugin marketplace add undef1ned-dev/ai-kit` и один раз установи нужные плагины в общий кэш. `$aikit:setup` включает их в проекте и пишет агентов в `.codex/agents/`. После подключения нужных проектов выключи глобальное включение плагинов AIKit в пользовательском конфиге. [Установка и миграция](docs/guide/getting-started.md#codex)
 
 В Antigravity (Antigravity 2.0, IDE, CLI): установи плагины в `~/.gemini/config/plugins/` через `python3 scripts/install-antigravity-plugins.py --preset frontend-team` (или `--all`) и подключи проект скиллом `/setup` (`python3 scripts/plugin-init.py --runtime antigravity --preset frontend-team`). Агенты проекта записываются в `.agents/agents/`.
 

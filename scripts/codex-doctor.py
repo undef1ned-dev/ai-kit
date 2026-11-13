@@ -170,6 +170,24 @@ def diagnose(workspace: Path, *, codex_home: Path | None = None, now: dt.datetim
     add("codex.cli", "ok" if codex else "unknown", "Codex CLI найден" if codex else "Codex CLI не найден; эффективные плагины и MCP не проверены")
     records = None
     selected = ["aikit", *profiles, *packs] if plugin_mode and not repository else ["aikit"] if repository else []
+    def check_plugin_scope():
+        global_plugins = (config or {}).get("plugins", {})
+        enabled_globally = sorted(
+            name for name, settings in global_plugins.items()
+            if name.endswith("@aikit") and isinstance(settings, dict) and settings.get("enabled") is True
+        )
+        if enabled_globally:
+            add("plugins.global", "warning", "AIKit включён и вне подключённых проектов в пользовательском config.toml",
+                "Сначала повтори setup во всех проектах AIKit, затем поставь enabled = false для плагинов @aikit в пользовательском config.toml и открой новую сессию",
+                plugins=enabled_globally)
+        if plugin_mode:
+            project_plugins = read_toml(workspace / ".codex/config.toml").get("plugins", {})
+            missing = [f"{name}@aikit" for name in selected if project_plugins.get(f"{name}@aikit", {}).get("enabled") is not True]
+            if missing:
+                add("plugins.project", "warning", "Часть плагинов AIKit не включена в конфиге проекта",
+                    "Повтори setup для этого проекта и проверь явные настройки плагинов команды", plugins=missing)
+
+    inspect("plugins.scope", check_plugin_scope)
     if codex and selected:
         response = inspect("plugins.cli", lambda: cli_json(codex, ["plugin", "list", "--marketplace", "aikit", "--json"], workspace))
         if isinstance(response, dict) and isinstance(response.get("installed"), list):

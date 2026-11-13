@@ -122,6 +122,12 @@ check "свой агент команды в .codex/agents остался markdo
 check "AGENTS.md: блок правил базы и профилей, текст команды сохранён" check_rules AGENTS.md
 check "AGENTS.md: собственные инструкции Codex и локальные имена агентов" grep -qF 'Имена из `.aikit/profiles.json` используй без префикса плагина' "$PROJECT_DIR/AGENTS.md"
 check ".codex/agents/: агенты базы и профилей в TOML, правила проекта — AGENTS.md" check_codex_agents
+check ".codex/config.toml: ядро, профили и паки включены на уровне проекта" "$PYTHON_BIN" -c '
+import json, pathlib, sys, tomllib
+preset = json.loads(pathlib.Path(sys.argv[2]).read_text(encoding="utf-8"))
+expected = {f"{name}@aikit": {"enabled": True} for name in ["aikit", *preset["profiles"], *preset["packs"]]}
+assert tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))["plugins"] == expected
+' "$PROJECT_DIR/.codex/config.toml" "$PRESET_FILE"
 check ".aikit/scripts/update-agents.sh: скрипт обновления поставлен в проект" test -f "$PROJECT_DIR/.aikit/scripts/update-agents.sh"
 check "запуск без --commit сохраняет выбор команды" grep -q '"commit": "auto"' "$PROJECT_DIR/.aikit/settings.json"
 check "plugin-init.json: runtimes хранит оба runtime, запуск в одном не затирает другой" "$PYTHON_BIN" -c "import json,sys; sys.exit(json.load(open(sys.argv[1]))['runtimes'] != ['claude', 'codex'])" "$PROJECT_DIR/.aikit/plugin-init.json"
@@ -132,6 +138,7 @@ check "повторный запуск: CLAUDE.md не дублирует бло
 init --runtime codex --profiles vue-nuxt
 check "смена набора: агенты Codex убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.codex/agents/vue-coder.toml' && ! ls '$PROJECT_DIR'/.codex/agents/devops-*.toml"
 check "смена набора: свой агент команды не тронут" check_local_agent
+check "смена набора: в конфиге остались только ядро и vue-nuxt" "$PYTHON_BIN" -c 'import pathlib, sys, tomllib; assert set(tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))["plugins"]) == {"aikit@aikit", "vue-nuxt@aikit"}' "$PROJECT_DIR/.codex/config.toml"
 
 echo "▶ plugin-init.py --runtime codex --refresh-agents"
 printf '{"agents": {"vue-coder": {"codex": "opus"}}}\n' > "$PROJECT_DIR/.aikit/models.json"
