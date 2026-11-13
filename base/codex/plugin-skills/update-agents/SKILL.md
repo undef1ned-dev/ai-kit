@@ -55,4 +55,4 @@ python3 "<корень>/scripts/plugin-init.py" --runtime codex --refresh-agents
 python3 "<корень>/scripts/agent_models.py" show --runtime codex --workspace .
 ```
 
-Если нужно сменить набор профилей или паков, обновить правила в `AGENTS.md` или контракты, — это `$aikit:setup`. Новые агенты подхватятся в новой сессии Codex; проект должен быть доверенным.
+Для миграций проектных файлов используй `$aikit:update`. Для смены набора профилей или паков используй `$aikit:setup`. Новые агенты подхватятся в новой сессии Codex; проект должен быть доверенным.

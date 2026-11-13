@@ -477,7 +477,10 @@ def collect_data(root: Path) -> dict:
             "color": BASE_COLOR,
             "description": "Ядро кита: ставится в любой проект вместе с любым профилем",
             "agents": read_entries(root / "base" / "agents", "agent"),
-            "skills": read_entries(root / "base" / "skills", "skill"),
+            "skills": [
+                *read_entries(root / "base" / "skills", "skill"),
+                *read_entries(root / "base" / "plugin-skills", "skill"),
+            ],
         }
     }
     for profile_dir in sorted(p for p in (root / "profiles").iterdir() if p.is_dir()):

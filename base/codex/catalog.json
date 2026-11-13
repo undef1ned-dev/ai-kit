@@ -114,6 +114,10 @@
     "update-agents": {
       "argument-hint": "[--with-plugins]",
       "example_prompt": "$aikit:update-agents"
+    },
+    "update": {
+      "argument-hint": "[--dry-run]",
+      "example_prompt": "$aikit:update --dry-run"
     }
   }
 }

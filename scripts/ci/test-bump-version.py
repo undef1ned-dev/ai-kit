@@ -103,8 +103,9 @@ def commit(repo: Path, path: str, message: str) -> None:
 def make_repo(root: Path) -> Path:
     repo = root / "kit"
     (repo / "scripts").mkdir(parents=True)
-    for name in ("bump-version.py", "release_utils.py"):
+    for name in ("bump-version.py", "release_utils.py", "project_updates.py"):
         shutil.copyfile(KIT_ROOT / "scripts" / name, repo / "scripts" / name)
+    (repo / "scripts/project-updates.json").write_bytes(b'{"Unreleased": []}\n')
     (repo / "VERSION").write_bytes(b"0.1.0\n")
     (repo / "CHANGELOG.md").write_bytes(CHANGELOG.encode("utf-8"))
     git(repo, "init", "-q", "-b", "main")
@@ -187,6 +188,10 @@ def main() -> int:
             result.stdout + result.stderr,
         )
         commit(repo, "base/skills/x/SKILL.md", "fix(skills): правка скилла")
+        commit(repo, "profiles/p/profile.manifest.json", "fix(profiles): обновлён контракт")
+        commit(repo, "profiles/p/codex/agents/coder.toml", "fix(profiles): обновлён агент")
+        journal = repo / "scripts/project-updates.json"
+        journal.write_bytes(b'{"Unreleased": [{"action": "codex-plugins", "note": "Project enablement"}]}\n')
         commit(repo, "deck/catalog.js", "feat(deck): новая группа")
         git(repo, "checkout", "-q", "-b", "feat/x")
         commit(repo, "profiles/p/agents/a.md", "refactor(profiles): агент")
@@ -206,6 +211,16 @@ def main() -> int:
             changelog,
         )
         expect("файлы с LF", b"\r" not in (repo / "CHANGELOG.md").read_bytes() + (repo / "VERSION").read_bytes())
+        updates = bump.project_updates.read(repo)
+        expect("журнал релиза: изменения выведены из diff, ручная запись получила версию", updates == {
+            "Unreleased": [],
+            "0.2.0": [
+                {"action": "codex-plugins", "note": "Project enablement"},
+                {"action": "antigravity-agents", "profile": "p"},
+                {"action": "codex-agents", "profile": "p"},
+                {"action": "contracts", "profile": "p"},
+            ],
+        }, str(updates))
         git(repo, "add", "-A")
         git(repo, "commit", "-q", "-m", "chore(release): v0.2.0")
         result = run(repo, "--write")

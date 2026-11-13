@@ -17,7 +17,7 @@ The range starts at the last commit that changed VERSION, so a run that failed i
 
 Usage:
     python3 scripts/bump-version.py                 # print the level and the next version, change nothing
-    python3 scripts/bump-version.py --write         # also write VERSION and a CHANGELOG.md section
+    python3 scripts/bump-version.py --write         # also write VERSION, CHANGELOG.md and the project update journal
     python3 scripts/bump-version.py --base <ref>    # count commits after <ref> instead
 
 With --write the version, level and changelog section go to $GITHUB_OUTPUT when it is set.
@@ -35,6 +35,7 @@ import sys
 from pathlib import Path
 
 from release_utils import is_semver, read_version, version_tuple
+import project_updates
 
 ROOT = Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "VERSION"
@@ -194,7 +195,8 @@ def main() -> int:
     if not is_semver(current):
         print(f"В VERSION не semver X.Y.Z: «{current}»", file=sys.stderr)
         return 2
-    messages = plugin_commits(args.base if args.base is not None else default_base())
+    base = default_base()
+    messages = plugin_commits(args.base if args.base is not None else base)
     level = bump_level(messages)
     if level is None:
         print(f"Версия {current} не меняется: после прошлого релиза нет коммитов, которые попадают в плагины")
@@ -205,6 +207,8 @@ def main() -> int:
     print(f"{current} → {version} ({level}, коммитов: {len(messages)})")
     print(section)
     if args.write:
+        paths = git("diff", "--name-only", "--no-renames", base, "HEAD") if base else git("ls-tree", "-r", "--name-only", "HEAD")
+        project_updates.release(ROOT, version, paths.splitlines())
         VERSION_FILE.write_bytes(f"{version}\n".encode("utf-8"))
         changelog = CHANGELOG_FILE.read_text(encoding="utf-8") if CHANGELOG_FILE.exists() else "# Changelog\n"
         CHANGELOG_FILE.write_bytes(insert_section(changelog, section).encode("utf-8"))

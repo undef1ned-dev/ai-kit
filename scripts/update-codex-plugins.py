@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 from pathlib import Path
 import re
 import shutil
@@ -14,6 +13,7 @@ import sys
 import tempfile
 
 from release_utils import is_semver
+from update_files import atomic_write
 
 MARKETPLACE = "aikit"
 STATE_FILE = Path(".aikit/plugin-init.json")
@@ -95,17 +95,6 @@ def updated_source(records: dict[str, dict], profiles: list[str], packs: list[st
             if not (root / kind / name / manifest).is_file():
                 raise UpdateError(f"В обновлённом ядре нет {kind}/{name}; сначала скорректируй setup")
     return root
-
-
-def atomic_write(path: Path, data: bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(dir=path.parent, prefix=".aikit-update-", delete=False) as output:
-        temporary = Path(output.name)
-    try:
-        temporary.write_bytes(data)
-        os.replace(temporary, path)
-    finally:
-        temporary.unlink(missing_ok=True)
 
 
 def promote(workspace: Path, stage: Path, old_names: list[str], new_names: list[str], state: dict) -> None:

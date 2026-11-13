@@ -135,6 +135,15 @@ def convert_agent_markdown(source: Path, model: str | None = None) -> str:
     return frontmatter_document(frontmatter, rewrite_antigravity_body(body))
 
 
+def workspace_agent_sources(profiles: list[str], packs: list[str]) -> dict[str, Path]:
+    sources = [
+        ROOT / "base",
+        *(ROOT / "profiles" / name for name in profiles),
+        *(ROOT / "packs" / name for name in packs),
+    ]
+    return {path.stem: path for layer in sources for path in sorted((layer / "agents").glob("*.md"))}
+
+
 def install_workspace_agents(
     workspace: Path,
     profiles: list[str],
@@ -143,15 +152,7 @@ def install_workspace_agents(
 ) -> list[str]:
     """Write managed Antigravity subagents into <workspace>/.agents/agents/*.md and apply project models."""
     agents_dir = workspace / ".agents" / "agents"
-    sources = [
-        ROOT / "base",
-        *(ROOT / "profiles" / name for name in profiles),
-        *(ROOT / "packs" / name for name in packs),
-    ]
-    available: dict[str, Path] = {}
-    for layer in sources:
-        for path in sorted((layer / "agents").glob("*.md")):
-            available[path.stem] = path
+    available = workspace_agent_sources(profiles, packs)
 
     for name in set(previous) - available.keys():
         (agents_dir / f"{name}.md").unlink(missing_ok=True)

@@ -26,7 +26,7 @@
 <p class="lead">Всё, что есть в ките: ядро (base), профили стеков, паки и пресеты. Страница собирается из исходников кита — описание каждого агента и скилла взято из его файла.</p>
 <div class="stats">
   <div><b>23</b><span>агенты</span></div>
-  <div><b>40</b><span>скиллы</span></div>
+  <div><b>43</b><span>скиллы</span></div>
   <div><b>2</b><span>профили</span></div>
   <div><b>2</b><span>паки</span></div>
 </div>
@@ -46,7 +46,7 @@
 </div></div>
 <h2 id="catalog-sections"><a class="anchor" href="#catalog-sections" aria-hidden="true">#</a>Ядро, профили и паки</h2>
 <div class="catalog-tools">
-  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">27</span></button><button class="tab" type="button" data-tab="forge-1-12-java" style="--accent-local:#b45309">Forge 1.12.2 Java<span class="count">16</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button><button class="tab" type="button" data-tab="pack-nuxt-postgres" style="--accent-local:#d97706">Pack: Nuxt PostgreSQL<span class="count">2</span></button></div>
+  <div class="tabs" role="tablist"><button class="tab" type="button" data-tab="base" style="--accent-local:#4f46e5">Base<span class="count">30</span></button><button class="tab" type="button" data-tab="forge-1-12-java" style="--accent-local:#b45309">Forge 1.12.2 Java<span class="count">16</span></button><button class="tab" type="button" data-tab="vue-nuxt" style="--accent-local:#00a876">Vue Nuxt<span class="count">15</span></button><button class="tab" type="button" data-tab="pack-devops" style="--accent-local:#d97706">Pack: DevOps<span class="count">3</span></button><button class="tab" type="button" data-tab="pack-nuxt-postgres" style="--accent-local:#d97706">Pack: Nuxt PostgreSQL<span class="count">2</span></button></div>
   <input class="filter-input" type="search" placeholder="Фильтр по агентам и скиллам…" data-catalog-filter aria-label="Фильтр каталога">
 </div>
 <p class="muted filter-empty" hidden>Ничего не найдено в этом разделе.</p>
@@ -117,7 +117,7 @@
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/ux-writer.toml">Codex: base/codex/agents/ux-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/ux-writer.md">base/agents/ux-writer.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">18</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">21</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
   <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
@@ -243,6 +243,27 @@
   <div class="entry-example"><span>/write-ui-texts экран онбординга нового пользователя</span><button class="copy-btn" type="button" data-copy="/write-ui-texts экран онбординга нового пользователя">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/write-ui-texts/SKILL.md">Codex: base/codex/skills/write-ui-texts/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/write-ui-texts/SKILL.md">base/skills/write-ui-texts/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-setup" data-filter="setup подключить проект к aikit плагинами или проверить готовность codex через --check без изменения файлов: python, агенты и модели, версии, mcp, доверие и история хуков. без --check выбрать профили, записать правила, контракты, память и настройки команды.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/setup</span></header>
+  <p>Подключить проект к AIKit плагинами или проверить готовность Codex через --check без изменения файлов: Python, агенты и модели, версии, MCP, доверие и история хуков. Без --check выбрать профили, записать правила, контракты, память и настройки команды.</p>
+
+  <div class="entry-example"><span>/aikit:setup vue-nuxt</span><button class="copy-btn" type="button" data-copy="/aikit:setup vue-nuxt">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/plugin-skills/setup/SKILL.md">Codex: base/codex/plugin-skills/setup/SKILL.md</a>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/plugin-skills/setup/SKILL.md">base/plugin-skills/setup/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-update" data-filter="update обновить уже подключённый проект aikit по журналу релизов, сохранив профили, паки и настройки команды.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/update</span></header>
+  <p>Обновить уже подключённый проект AIKit по журналу релизов, сохранив профили, паки и настройки команды.</p>
+  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
+  <div class="entry-example"><span>/aikit:update --dry-run</span><button class="copy-btn" type="button" data-copy="/aikit:update --dry-run">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/plugin-skills/update/SKILL.md">Codex: base/codex/plugin-skills/update/SKILL.md</a>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/plugin-skills/update/SKILL.md">base/plugin-skills/update/SKILL.md</a>
+</article><article class="entry-card entry-skill" id="skill-update-agents" data-filter="update-agents обновить aikit в codex: --with-plugins обновляет маркетплейс aikit и пересобирает агентов из свежего источника одной командой; без флага — только пересобрать агентов после обновления плагинов. правила, контракты, память и настройки команды сохраняются.">
+  <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/update-agents</span></header>
+  <p>Обновить AIKit в Codex: --with-plugins обновляет маркетплейс aikit и пересобирает агентов из свежего источника одной командой; без флага — только пересобрать агентов после обновления плагинов. Правила, контракты, память и настройки команды сохраняются.</p>
+  <div class="chips"><span class="chip chip-warn">только явный вызов</span></div>
+  <div class="entry-example"><span>$aikit:update-agents</span><button class="copy-btn" type="button" data-copy="$aikit:update-agents">Копировать</button></div>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/plugin-skills/update-agents/SKILL.md">Codex: base/codex/plugin-skills/update-agents/SKILL.md</a>
+  <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/plugin-skills/update-agents/SKILL.md">base/plugin-skills/update-agents/SKILL.md</a>
 </article></div>
 </section>
 <section class="catalog-panel" id="forge-1-12-java" data-panel style="--accent-local:#b45309">
