@@ -25,5 +25,16 @@
       "action": "antigravity-agents",
       "note": "Пересобрать локальные агенты Antigravity из текущих профилей и паков."
     }
+  ],
+  "1.3.0": [
+    {
+      "action": "codex-agents"
+    },
+    {
+      "action": "antigravity-agents"
+    },
+    {
+      "action": "contracts"
+    }
   ]
 }

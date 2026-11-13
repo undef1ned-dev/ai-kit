@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.3.0] - 2026-11-13
+
+### Added
+- plugins: добавлено обновление AIKit в подключённых проектах
+
 ## [1.2.1] - 2026-11-13
 
 ### Fixed
