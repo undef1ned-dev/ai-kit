@@ -1,6 +1,6 @@
 {
   "name": "aikit",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Ядро AIKit: правила команды, агенты планирования и памяти, оркестрация /implement-feature, хуки (Conventional Commits, секреты, линтер, тесты) и /aikit:setup для подключения проекта.",
   "keywords": [
     "aikit"
