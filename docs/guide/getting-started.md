@@ -20,13 +20,13 @@
 Каждый профиль и пак — отдельный плагин маркетплейса `aikit`, ядро — плагин `aikit`.
 
 <!-- steps -->
-1. **Добавь маркетплейс и поставь плагины** — в Claude Code:
+1. **Добавь маркетплейс и поставь плагины один раз на машину**:
 
    ```text
-   /plugin marketplace add undef1ned-dev/ai-kit
-   /plugin install aikit@aikit
-   /plugin install vue-nuxt@aikit
-   /plugin install devops@aikit
+   claude plugin marketplace add undef1ned-dev/ai-kit
+   claude plugin install aikit@aikit --scope user
+   claude plugin install vue-nuxt@aikit --scope user
+   claude plugin install devops@aikit --scope user
    ```
 
    Ставь плагины профилей и паков своего набора (например, пресет `frontend-team` включает профиль `vue-nuxt` и пак `devops`).
@@ -39,30 +39,41 @@
 
    Аргумент — пресет или профили через `+`. Без аргумента скилл определит стек по проекту и предложит выбор, а также спросит режим оформления коммитов (`ask` или `auto`, [подробнее](commands.md#коммиты-с-вопросом-или-без)).
 
-3. **Заполни `PRODUCT.md` и закоммить результат.** В `PRODUCT.md` опиши продукт, стек и бизнес-правила — агенты читают его перед решениями. В `.claude/settings.json` записаны маркетплейс и включённые плагины: участники команды получат их, когда откроют проект и доверят папку.
+3. **Выключи глобальное включение AIKit.** После подключения нужных репозиториев выполни `claude plugin disable <плагин>@aikit --scope user` для каждого плагина AIKit. Общая установка остаётся, а включение в `.claude/settings.json` имеет приоритет. Для следующего проекта вызови установщик из установленного ядра через `python3 "<корень плагина>/scripts/plugin-init.py" --runtime claude --preset frontend-team`. Путь к ядру указан как `installPath` в `claude plugin list --json`. [Области установки Claude Code](https://code.claude.com/docs/en/discover-plugins#choose-an-install-scope)
+
+4. **Заполни `PRODUCT.md` и закоммить результат.** В `PRODUCT.md` опиши продукт, стек и бизнес-правила. В `.claude/settings.json` записаны маркетплейс и включённые плагины. На новой машине каждый участник один раз устанавливает этот набор.
 
 Скиллы плагинов вызываются как `/name` или с префиксом плагина (`/aikit:implement-feature`, `/vue-nuxt:new-page`). Сбоку открывается [панель AIKit Deck](commands.md#панель-aikit-deck) (повторное открытие — `/deck`).
 
 ### Codex
 
 <!-- steps -->
-1. **Добавь маркетплейс и плагины:**
+1. **Добавь маркетплейс и установи плагины в общий кэш Codex один раз на машину.** Для `frontend-team`:
 
    ```bash
    codex plugin marketplace add undef1ned-dev/ai-kit
    codex plugin add aikit@aikit
    codex plugin add vue-nuxt@aikit
+   codex plugin add devops@aikit
    ```
 
-2. **Подключи проект** — в корне проекта вызови скилл `$setup` с пресетом или профилями:
+2. **Подключи проект** — в корне проекта вызови скилл `$aikit:setup` с пресетом или профилями:
 
    ```text
    $aikit:setup frontend-team
    ```
 
-   Плагины Codex не умеют поставлять агентов, поэтому скилл записывает их в `.codex/agents/`, правила проекта — блоком в `AGENTS.md`, а скрипт обновления — в `.aikit/scripts/update-agents.sh`.
+   Setup включает ядро и выбранные профили и паки в проектном `.codex/config.toml`, записывает агентов в `.codex/agents/`, правила в `AGENTS.md` и скрипт обновления в `.aikit/scripts/update-agents.sh`.
 
-3. **Заполни `PRODUCT.md` и закоммить результат.**
+   Если AIKit уже выключен глобально, для следующего проекта сразу запусти тот же установщик из корня нового проекта. Подставь версию установленного ядра из `codex plugin list --marketplace aikit`:
+
+   ```bash
+   python3 "${CODEX_HOME:-$HOME/.codex}/plugins/cache/aikit/aikit/<версия>/scripts/plugin-init.py" --runtime codex --preset frontend-team
+   ```
+
+3. **Выключи глобальное включение AIKit.** `codex plugin add` включает плагин в пользовательском конфиге. После запуска обновлённого setup во всех проектах AIKit выставь `enabled = false` в каждой секции `[plugins."…@aikit"]` пользовательского `~/.codex/config.toml` (или `$CODEX_HOME/config.toml`). Кэш и маркетплейс остаются общими. В новой сессии доверенный проект применит своё `enabled = true`. [Настройки плагинов в Codex](https://developers.openai.com/plugins/build/plugins#enable-or-disable-a-plugin-for-a-repo)
+
+4. **Заполни `PRODUCT.md` и закоммить результат**, включая проектный `.codex/config.toml`.
 
 > [!IMPORTANT]
 > Codex требует Python 3.11+ и применяет агентов, MCP и хуки из `.codex/` только в **доверенном** проекте. Отметь проект доверенным при первом запуске и одобри хуки в `/hooks`. Figma и Sentry в Codex авторизуются командой `codex mcp login <name>`. Проверить готовность конфигурации без изменения файлов можно командой `$aikit:setup --check`.
@@ -102,10 +113,11 @@
 
 Обнови каталог маркетплейса и установленные плагины:
 
-```text
-/plugin marketplace update aikit
-/plugin update aikit@aikit
-/plugin update vue-nuxt@aikit
+```bash
+claude plugin marketplace update aikit
+claude plugin update aikit@aikit --scope user
+claude plugin update vue-nuxt@aikit --scope user
+claude plugin update devops@aikit --scope user
 ```
 
 Также обновить кит и профили можно кнопками «Обновить кит» и «Обновить профиль» в панели [AIKit Deck](commands.md#панель-aikit-deck). Изменения подхватываются после перезапуска сессии.
@@ -128,7 +140,7 @@ $aikit:update-agents --with-plugins
 
 **Нюансы обновления в Codex:**
 
-- **Почему нужно обновлять агентов отдельно от плагинов:** сам Codex обновляет плагины при смене версии в маркетплейсе (`codex plugin marketplace upgrade aikit`), но плагины Codex не умеют поставлять агентов — файлы в `.codex/agents/` остаются прежними, пока их не пересоберёт скрипт или скилл.
+- **Общий кэш и агенты проектов:** `codex plugin marketplace upgrade aikit` обновляет установленные плагины в общем кэше одной командой. Агенты лежат в каждом проекте. После общего обновления при необходимости пересобери их в нужном проекте.
 - **Если плагины уже обновлены вручную:** запусти `bash .aikit/scripts/update-agents.sh --agents-only` (или скилл `$aikit:update-agents` без флага `--with-plugins`) — это только пересоберёт агентов в `.codex/agents/`. Чтобы обновить только Codex в проекте с несколькими runtime, передай аргумент `codex`: `bash .aikit/scripts/update-agents.sh codex`.
 - **Что сохраняется:** правила в `AGENTS.md`, контракты `.aikit/profiles.json`, память, настройки команды и собственные агенты проекта не меняются (для обновления правил или смены профилей используй `$aikit:setup`).
 - **После обновления:** открой новую сессию Codex, а если изменились хуки — одобри их повторно в `/hooks`.

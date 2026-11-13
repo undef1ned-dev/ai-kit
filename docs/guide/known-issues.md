@@ -13,6 +13,10 @@
 
 ## Установка
 
+### Скиллы AIKit появляются в постороннем проекте
+
+`codex plugin add` и установка Claude Code со scope `user` включают плагин для всех проектов. В Codex повтори setup в проектах AIKit, затем отключи записи `@aikit` в пользовательском конфиге через `enabled = false`. Обновлять общий кэш по-прежнему можно одной командой `codex plugin marketplace upgrade aikit`. В Claude Code повтори setup в нужных репозиториях, затем выполни `claude plugin disable <плагин>@aikit --scope user`. Плагины останутся в общем кэше. После миграции открой новую сессию. [Порядок установки и миграции](getting-started.md#установка)
+
 ### Windows: нет команды python3
 
 **Что происходит.** `attach.sh` предупреждает «python3 не найден» и продолжает. В результате нет `.aikit/profiles.json` и MCP-серверов, а `/implement-feature` потом пишет, что AIKit не установлен. На Windows Python часто доступен только как `python` или `py`.

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Ship an opt-in native policy template without changing the active Codex configuration."""
+"""Write project plugin settings and ship the opt-in native policy template."""
 
+import json
 from pathlib import Path
 import re
 import sys
@@ -10,6 +11,33 @@ SOURCE = ROOT / "base/codex/settings.toml"
 TARGET = Path(".codex/aikit-permissions.example.toml")
 BEGIN = "# BEGIN AIKIT SETTINGS — managed by AIKit installer"
 END = "# END AIKIT SETTINGS"
+PLUGINS_BEGIN = "# BEGIN AIKIT PLUGINS — managed by AIKit setup"
+PLUGINS_END = "# END AIKIT PLUGINS"
+
+
+def install_codex_plugins(workspace: Path, plugin_ids: list[str]) -> None:
+    import tomllib
+
+    path = workspace / ".codex/config.toml"
+    original = path.read_bytes().decode("utf-8") if path.exists() else ""
+    pattern = re.compile(rf"^{re.escape(PLUGINS_BEGIN)}[^\S\r\n]*\r?\n.*?^{re.escape(PLUGINS_END)}[^\S\r\n]*(?:\r?\n|$)", re.S | re.M)
+    user_text = pattern.sub("", original)
+    plugins = tomllib.loads(user_text).get("plugins", {})
+    if not isinstance(plugins, dict):
+        raise ValueError("Ожидалась таблица plugins в .codex/config.toml")
+    entries = [f"[plugins.{json.dumps(plugin_id)}]\nenabled = true" for plugin_id in plugin_ids if plugin_id not in plugins]
+    updated = user_text
+    if entries:
+        block = "\n\n".join(entries)
+        separator = "" if not user_text or user_text.endswith("\n\n") else "\n" if user_text.endswith("\n") else "\n\n"
+        updated = f"{user_text}{separator}{PLUGINS_BEGIN}\n{block}\n{PLUGINS_END}\n"
+    try:
+        tomllib.loads(updated)
+    except tomllib.TOMLDecodeError as error:
+        raise ValueError("Не удалось добавить плагины в .codex/config.toml. Используй отдельные таблицы [plugins.\"имя@aikit\"]") from error
+    if updated != original:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(updated.encode("utf-8"))
 
 
 def install_codex(workspace: Path) -> bool:

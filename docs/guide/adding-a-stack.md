@@ -130,7 +130,7 @@ bash scripts/ci/run-all.sh         # всё целиком, включая ус�
 python3 scripts/run-evals.py java-spring --quick
 ```
 
-Профиль — это и плагин маркетплейса: после слияния в `main` его ставят как `/plugin install java-spring@aikit` и подключают `/aikit:setup vue-nuxt+java-spring`.
+Профиль — это и плагин маркетплейса: после слияния в `main` его ставят через `claude plugin install java-spring@aikit --scope user`, подключают в проекте через `/aikit:setup vue-nuxt+java-spring` и выключают его глобальное включение. [Установка Claude Code](getting-started.md#claude-code)
 
 Через установщик — отдельно или вместе с другими профилями:
 

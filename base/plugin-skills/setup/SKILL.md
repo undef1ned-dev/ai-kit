@@ -81,8 +81,8 @@ python3 "<корень>/scripts/plugin-init.py" --runtime <claude|codex|antigrav
 ## 4. Проверь плагины профилей
 
 Плагины профилей и паков должны быть установлены:
-- Claude Code — `/plugin install <профиль>@aikit` для каждого профиля и пака. Скрипт уже включил их в `.claude/settings.json`: участники команды получат их после доверия папке проекта.
-- Codex — `codex plugin add <профиль>@aikit`. Агенты Codex скрипт записал в `.codex/agents/`.
+- Claude Code — проверь общий набор через `claude plugin list --json`. Для недостающих плагинов используй `claude plugin install <плагин>@aikit --scope user` один раз на машину. Скрипт записал включение в `.claude/settings.json`. После подключения нужных проектов выключи пользовательское включение через `claude plugin disable <плагин>@aikit --scope user`. Плагины останутся установлены и будут включены настройками проекта.
+- Codex — используй нативный скилл setup из `base/codex/plugin-skills/setup/SKILL.md`. Он включает выбранные плагины в конфиге проекта.
 - Antigravity — `python3 "<корень>/scripts/install-antigravity-plugins.py" --workspace .` (устанавливает ядро `aikit`, выбранные профили и паки в `~/.gemini/config/plugins/`). Агенты проекта скрипт записал в `.agents/agents/`.
 
 ## 5. Отчёт

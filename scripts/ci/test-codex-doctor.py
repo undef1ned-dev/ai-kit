@@ -112,6 +112,16 @@ class CodexDoctorTests(unittest.TestCase):
         self.assertEqual(checks["plugin.vue-nuxt"]["status"], "error")
         self.assertEqual(checks["trust"]["status"], "error")
 
+    def test_global_enablement_is_reported_even_when_project_plugins_work(self):
+        path = self.home / "config.toml"
+        with path.open("a", encoding="utf-8") as config:
+            config.write('\n[plugins."aikit@aikit"]\nenabled=true\n[plugins."vue-nuxt@aikit"]\nenabled=false\n')
+        checks = self.checks()
+        self.assertEqual(checks["plugins.global"]["plugins"], ["aikit@aikit"])
+        self.assertEqual(checks["plugins.project"]["plugins"], ["aikit@aikit", "vue-nuxt@aikit"])
+        self.write(".codex/config.toml", '[plugins."aikit@aikit"]\nenabled=true\n[plugins."vue-nuxt@aikit"]\nenabled=true\n')
+        self.assertNotIn("plugins.project", self.checks())
+
     def test_stale_versions_require_an_update(self):
         self.plugins[0]["version"] = "999.0.0"
         self.assertEqual(self.checks()["agents.version"]["status"], "warning")
