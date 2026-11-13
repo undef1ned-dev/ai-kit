@@ -2,7 +2,8 @@ name: Version
 
 # After a merge into main: scripts/bump-version.py picks major, minor or patch from the Conventional Commits
 # of the merge (no model is called), writes VERSION and a CHANGELOG.md section, the plugin manifests and the
-# site are rebuilt, and github-actions[bot] commits "chore(release): vX.Y.Z". Claude Code and Codex update
+# site are rebuilt, and github-actions[bot] commits "chore(release): vX.Y.Z". Project migrations are
+# recorded in scripts/project-updates.json by the same bump. Claude Code and Codex update
 # installed plugins when "version" in their manifests changes.
 #
 # How the commit reaches main (the ruleset of main requires green CI, so a plain bot push is rejected):
@@ -86,6 +87,6 @@ jobs:
           branch="release/v$VERSION"
           git push origin "HEAD:refs/heads/$branch"
           gh pr create --base main --head "$branch" --title "chore(release): v$VERSION" \
-            --body "Версия $VERSION: VERSION, CHANGELOG.md, манифесты плагинов и сайт. Собрано scripts/bump-version.py после слияния в main."
+            --body "Версия $VERSION: VERSION, CHANGELOG.md, журнал обновлений проектов, манифесты плагинов и сайт. Собрано scripts/bump-version.py после слияния в main."
           gh pr merge "$branch" --auto --squash
           gh workflow run ci.yml --ref "$branch"

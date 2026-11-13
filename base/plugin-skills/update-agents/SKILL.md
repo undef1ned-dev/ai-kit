@@ -53,4 +53,4 @@ python3 "<корень>/scripts/plugin-init.py" --runtime <codex|antigravity> --
 python3 "<корень>/scripts/agent_models.py" show --runtime <codex|antigravity> --workspace .
 ```
 
-Если нужно сменить набор профилей или паков, обновить правила в `AGENTS.md` или контракты, — это `$aikit:setup`. Новые агенты подхватятся в новой сессии Codex; проект должен быть доверенным.
+Для миграций файлов проекта используй `$aikit:update` в Codex или `/update` в Antigravity. Для смены профилей или паков используй setup. Новые агенты подхватятся в новой сессии.

@@ -229,6 +229,7 @@ echo "▶ Плагины: манифесты Claude Code и Codex собраны
 
 echo "▶ Версия: bump по Conventional Commits (scripts/bump-version.py)"
 "$PYTHON_BIN" scripts/ci/test-bump-version.py || FAILURES=$((FAILURES + 1))
+"$PYTHON_BIN" scripts/ci/test-project-update.py || FAILURES=$((FAILURES + 1))
 
 echo "▶ Хуки: сценарии base/hooks/aikit_hook.py"
 "$PYTHON_BIN" scripts/ci/test-hooks.py || FAILURES=$((FAILURES + 1))

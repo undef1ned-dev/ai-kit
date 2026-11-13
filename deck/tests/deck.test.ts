@@ -36,6 +36,7 @@ const SKILLS: Record<string, string> = {
   'base/skills/memory-status': 'example_prompt: "/memory-status"',
   'base/skills/git-commit': 'user-invocable: false',
   'base/plugin-skills/setup': 'argument-hint: "[профили или пресет]"',
+  'base/plugin-skills/update': 'argument-hint: "[--dry-run]"',
   'base/plugin-skills/update-agents': 'example_prompt: "$aikit:update-agents"',
   'profiles/vue-nuxt/skills/new-page': 'argument-hint: "<маршрут>"',
   // The project's own skills: the kit repository's improve-aikit and run-evals, a leftover copy of a kit skill
@@ -47,6 +48,7 @@ const COMMANDS = [
   { name: 'implement-feature', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'memory-status', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'aikit:setup', description: '', source: 'plugin', plugin: 'aikit' },
+  { name: 'aikit:update', description: '', source: 'plugin', plugin: 'aikit' },
   { name: 'new-page', description: '', source: 'plugin', plugin: 'vue-nuxt' },
   { name: 'improve-aikit', description: '', source: 'project' },
   { name: 'run-evals', description: '', source: 'project' },
@@ -215,6 +217,7 @@ test('the pane shows base and profile commands, hides convention and Codex-only 
   const ui = await $.ui.mount({ ...PANE, surface: 'terminal' })
   expect(await ui.find({ key: 'cmd-aikit-implement-feature' })).toBeDefined()
   expect(await ui.find({ key: 'cmd-aikit-setup' })).toBeDefined()
+  expect(await ui.find({ key: 'cmd-aikit-update' })).toBeDefined()
   expect(await ui.find({ key: 'cmd-vue-nuxt-new-page' })).toBeDefined()
   expect(await ui.find({ key: 'cmd-aikit-git-commit' })).toBeUndefined()
   expect(await ui.find({ key: 'cmd-aikit-update-agents' })).toBeUndefined()

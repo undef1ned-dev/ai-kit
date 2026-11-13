@@ -51,7 +51,7 @@ def read_json(path: Path) -> dict | None:
 
 def write_json(path: Path, data: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    path.write_bytes((json.dumps(data, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
 
 
 def load_contract(profile: str) -> dict:
@@ -123,7 +123,7 @@ def previous_kit_values(record: object) -> tuple[dict | None, str | None, dict |
     return record, None, None
 
 
-def install(workspace: Path, profiles: list[str]) -> list[str]:
+def install(workspace: Path, profiles: list[str], *, project_root: Path | None = None) -> list[str]:
     """Write .aikit/profiles.json for the given profiles. Returns "profile (root)" for each profile written."""
     profiles_path = workspace / PROFILES_FILE
     defaults_path = workspace / DEFAULTS_FILE
@@ -139,7 +139,7 @@ def install(workspace: Path, profiles: list[str]) -> list[str]:
     for profile in profiles:
         contract = load_contract(profile)
         kit_commands = contract.get("commands", {})
-        kit_root = detect_root(workspace, contract.get("root_markers", []))
+        kit_root = detect_root(project_root or workspace, contract.get("root_markers", []))
         previous_commands, previous_root, previous_actions = previous_kit_values(previous_defaults.get(profile))
         current = current_profiles.get(profile, {})
         current = current if isinstance(current, dict) else {}
