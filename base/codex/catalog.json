@@ -44,7 +44,7 @@
   "skills": {
     "analyze-mvp": {
       "argument-hint": "<идея фичи>",
-      "example_prompt": "$analyze-mvp добавить систему реферальных ссылок"
+      "example_prompt": "$analyze-mvp добавить резервное копирование личных заметок"
     },
     "capture-memory": {
       "argument-hint": "[что зафиксировать]",

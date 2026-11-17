@@ -81,9 +81,9 @@
 
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/memory-writer.toml">Codex: base/codex/agents/memory-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/memory-writer.md">base/agents/memory-writer.md</a>
-</article><article class="entry-card entry-agent" id="agent-mvp-analyst" data-filter="mvp-analyst mvp-аналитик уровня зрелого продукта. принимает описание идеи и формирует структурированный анализ в docs/mvp/. учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. читает product.md для контекста продукта. используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.">
+</article><article class="entry-card entry-agent" id="agent-mvp-analyst" data-filter="mvp-analyst оценивает идеи для личных проектов и небольшой аудитории. сравнивает подходы по пользе, усилиям и поддержке, описывает первую версию и проверку результата в docs/mvp/. используй после интервью analyze-mvp.">
   <header><span class="entry-icon" aria-hidden="true">🤖</span><span class="entry-name">mvp-analyst</span></header>
-  <p>MVP-аналитик уровня зрелого продукта. Принимает описание идеи и формирует структурированный анализ в docs/mvp/. Учитывает бизнес-кейс, существующую аудиторию, конкурентный контекст, rollout-стратегию и операционную готовность. Читает PRODUCT.md для контекста продукта. Используй через /analyze-mvp, когда ответы интервью об идее собраны и нужны варианты подхода или полный анализ.</p>
+  <p>Оценивает идеи для личных проектов и небольшой аудитории. Сравнивает подходы по пользе, усилиям и поддержке, описывает первую версию и проверку результата в docs/mvp/. Используй после интервью analyze-mvp.</p>
   <div class="chips"><span class="chip chip-out">→ MVP_ANALYSIS</span><span class="chip" title="Модель в Claude Code">Claude: sonnet</span><span class="chip" title="Модель в Codex">Codex: gpt-6.1-sol · medium</span></div>
   <div class="entry-example"><span>Проанализируй идею: добавить экспорт отчётов в PDF</span><button class="copy-btn" type="button" data-copy="Проанализируй идею: добавить экспорт отчётов в PDF">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/mvp-analyst.toml">Codex: base/codex/agents/mvp-analyst.toml</a>
@@ -117,11 +117,11 @@
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/agents/ux-writer.toml">Codex: base/codex/agents/ux-writer.toml</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/agents/ux-writer.md">base/agents/ux-writer.md</a>
 </article></div>
-  <h3>Скиллы <span class="count">21</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и rice score; результат — документ в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
+  <h3>Скиллы <span class="count">21</span></h3><div class="entry-grid"><article class="entry-card entry-skill" id="skill-analyze-mvp" data-filter="analyze-mvp проанализировать идею для личного проекта или небольшой аудитории. уточняет сценарий, сравнивает подходы при необходимости и описывает минимальную версию, критерии проверки и риски в docs/mvp/. используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.">
   <header><span class="entry-icon" aria-hidden="true">⚡</span><span class="entry-name">/analyze-mvp</span></header>
-  <p>Проанализировать идею фичи перед разработкой: интервью, варианты продуктового подхода, бизнес-кейс, риски, rollout и RICE score; результат — документ в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
+  <p>Проанализировать идею для личного проекта или небольшой аудитории. Уточняет сценарий, сравнивает подходы при необходимости и описывает минимальную версию, критерии проверки и риски в docs/mvp/. Используй, когда пользователь приносит идею фичи или просит оценить, стоит ли её делать.</p>
 
-  <div class="entry-example"><span>/analyze-mvp добавить систему реферальных ссылок</span><button class="copy-btn" type="button" data-copy="/analyze-mvp добавить систему реферальных ссылок">Копировать</button></div>
+  <div class="entry-example"><span>/analyze-mvp добавить резервное копирование личных заметок</span><button class="copy-btn" type="button" data-copy="/analyze-mvp добавить резервное копирование личных заметок">Копировать</button></div>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/codex/skills/analyze-mvp/SKILL.md">Codex: base/codex/skills/analyze-mvp/SKILL.md</a>
   <a class="entry-source" href="https://github.com/undef1ned-dev/ai-kit/blob/main/base/skills/analyze-mvp/SKILL.md">base/skills/analyze-mvp/SKILL.md</a>
 </article><article class="entry-card entry-skill" id="skill-capture-memory" data-filter="capture-memory зафиксировать командную память после задачи: решения, паттерны и коррекции агентов в .aikit/memory/ (агент memory-writer). запускай только по явной просьбе пользователя.">
