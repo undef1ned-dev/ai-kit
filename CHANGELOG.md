@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.4.0] - 2026-11-17
+
+### Added
+- упрощён анализ MVP и настроено согласование агентов Codex
+
 ## [1.3.0] - 2026-11-13
 
 ### Added

@@ -36,5 +36,17 @@
     {
       "action": "contracts"
     }
+  ],
+  "1.4.0": [
+    {
+      "action": "rules",
+      "runtime": "codex"
+    },
+    {
+      "action": "antigravity-agents"
+    },
+    {
+      "action": "codex-agents"
+    }
   ]
 }
