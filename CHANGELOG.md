@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.5.1] - 2026-11-18
+
+### Fixed
+- update: исправлено обновление в песочнице Windows
+
 ## [1.5.0] - 2026-11-18
 
 ### Added
