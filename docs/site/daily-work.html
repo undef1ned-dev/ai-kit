@@ -65,6 +65,7 @@
 <p>Или скилл профиля, если он есть: <code>/add-tests</code> в <code>vue-nuxt</code>. В других профилях — тестировщик профиля (<code>agents.tester</code> в <code>.aikit/profiles.json</code>).</p>
 <h3 id="ревью-перед-pr"><a class="anchor" href="#ревью-перед-pr" aria-hidden="true">#</a>Ревью перед PR</h3>
 <div class="code-block wrap"><div class="code-head"><span></span><button class="copy-btn" type="button" data-copy-code>Копировать</button></div><pre><code>Используй агента vue-reviewer: проверь изменения в этой ветке</code></pre></div>
+<p>В профиле <code>vue-nuxt</code> кодер перед реализацией изучает 2–3 устоявшихся компонента вне текущей фичи, а ревьюер сверяет с ними результат. Оба учитывают читаемость <code>script</code> и <code>template</code>, хранение статических UI-текстов в файлах контента/констант проекта, явный интерфейс props с JSDoc у каждого поля, типизацию событий и слотов и переиспользование UI kit. После форматирования кодер просматривает код и diff: успешный линтер не заменяет проверку конвенций проекта.</p>
 <p><code>/security-check</code> — отдельный аудит безопасности: OWASP Top 10, секреты, авторизация. Запускай его перед релизом и после крупных изменений.</p>
 <h3 id="сохранить-опыт-команды"><a class="anchor" href="#сохранить-опыт-команды" aria-hidden="true">#</a>Сохранить опыт команды</h3>
 <p>После значимой задачи:</p>

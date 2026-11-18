@@ -28,7 +28,7 @@ developer_instructions = '''
 1. Найди блок ARCHITECT_PLAN в истории
 2. Прочитай `AGENTS.md`
 3. Прочитай каждый файл из `MODIFY_FILES` перед изменением
-4. Найди похожую реализацию как образец
+4. Изучи 2–3 устоявшихся компонента вне текущей фичи как образец структуры, форматирования, именования и хранения текстов
 
 ## Шаг 0.1 — Определи активные режимы реализации
 
@@ -154,6 +154,18 @@ developer_instructions = '''
 - Смешивать server-only и client-only код без guard
 - Хардкодить строки API и auth headers в UI-компонентах
 
+## Читаемость и соблюдение конвенций проекта
+
+- Используй изученные компоненты как образец; новые соседние файлы текущей фичи не заменяют устоявшиеся конвенции проекта.
+- Разделяй логические блоки `script` пустыми строками: объявления типов, props, emits, состояние, computed, watch и методы. Между самостоятельными computed, watch и методами тоже оставляй пустые строки.
+- В `template` разделяй логические блоки пустыми строками. Вложенные компоненты и соседние ячейки таблицы не размещай одной длинной строкой.
+- Разворачивай сложные выражения, объекты и массивы в читаемую структуру. Для сложных условий предпочитай понятные промежуточные значения и guard clauses.
+- Короткие обращения к константам и простые интерполяции оставляй целиком. Не разрывай доступ к свойству между строками.
+- Статические UI-тексты выноси в принятые в проекте файлы контента/констант: заголовки, подписи, placeholders, кнопки, подсказки, ошибки, `aria-label` и названия вариантов. Локальный словарь внутри `script` компонента не заменяет такой вынос.
+- Описывай props явным интерфейсом. Каждое поле props должно иметь краткий содержательный JSDoc с назначением; при необходимости указывай единицы измерения, ограничения и смысл состояния.
+- Повторяющийся интерфейс выноси в общий компонент UI kit. Типизируй props, emits и slots; изменяемый текст передавай через props или slots. Согласуй размеры и отступы одинаковых контролов.
+- После форматирования просмотри фактический код и diff. Прохождение линтера не гарантирует читаемость и соответствие стилю проекта.
+
 ## Режимные чеклисты
 
 ### Для `page mode`
@@ -213,11 +225,16 @@ developer_instructions = '''
 
 ## Шаблоны
 
+Пути импорта контента в примерах условные: используй принятые в проекте файлы контента/констант.
+
 ### Page
 ```vue
 <script setup lang="ts">
+import { featureContent } from "~/content/feature"
+
 const route = useRoute()
-useSeoMeta({ title: "Feature" })
+
+useSeoMeta({ title: featureContent.title })
 
 const { data, pending, error, refresh } = await useAsyncData(
   () => `feature:${route.fullPath}`,
@@ -239,7 +256,10 @@ const { data, pending, error, refresh } = await useAsyncData(
 ```vue
 <script setup lang="ts">
 interface Props {
+  /** Heading displayed above the component content. */
   title: string
+
+  /** Whether a request is pending and loading feedback is shown. */
   loading?: boolean
 }
 
@@ -255,6 +275,8 @@ const emit = defineEmits<{
 
 ### Store
 ```ts
+import { featureContent } from "~/content/feature"
+
 export const useFeatureStore = defineStore("feature", () => {
   const items = ref<FeatureItem[]>([])
   const pending = ref(false)
@@ -266,7 +288,7 @@ export const useFeatureStore = defineStore("feature", () => {
     try {
       items.value = await $fetch("/api/feature")
     } catch (err) {
-      error.value = err instanceof Error ? err.message : "Unknown error"
+      error.value = err instanceof Error ? err.message : featureContent.loadError
     } finally {
       pending.value = false
     }
