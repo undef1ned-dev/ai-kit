@@ -3,11 +3,14 @@
 
 import importlib.util
 import json
+import os
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
 from unittest.mock import patch
+import uuid
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
@@ -18,9 +21,9 @@ spec.loader.exec_module(init)
 
 class ProjectUpdateTests(unittest.TestCase):
     def setUp(self):
-        temp = tempfile.TemporaryDirectory()
-        self.addCleanup(temp.cleanup)
-        self.project = Path(temp.name).resolve()
+        self.project = ROOT / f".project-update-test-{uuid.uuid4().hex}"
+        self.project.mkdir()
+        self.addCleanup(shutil.rmtree, self.project)
 
     def write(self, relative, text):
         path = self.project / relative
@@ -32,6 +35,39 @@ class ProjectUpdateTests(unittest.TestCase):
 
     def files(self):
         return {path.relative_to(self.project): path.read_bytes() for path in self.project.rglob("*") if path.is_file()}
+
+    def test_cli_makes_workspace_absolute_before_resolving(self):
+        resolve = Path.resolve
+
+        def absolute_resolve(path, *args, **kwargs):
+            self.assertTrue(path.is_absolute(), "Relative resolve can duplicate the working directory in the Windows sandbox")
+            return resolve(path, *args, **kwargs)
+
+        previous_cwd = os.getcwd()
+        try:
+            os.chdir(self.project)
+            for workspace in (".", "subdir/..", str(self.project)):
+                with self.subTest(workspace=workspace):
+                    with patch.object(Path, "resolve", absolute_resolve), patch.object(init, "update_project") as update:
+                        with patch.object(sys, "argv", ["plugin-init.py", "--runtime", "codex", "--update", "--workspace", workspace]):
+                            self.assertEqual(init.main(), 0)
+                        update.assert_called_once_with(self.project, "codex", preview=False)
+        finally:
+            os.chdir(previous_cwd)
+
+    def test_full_update_does_not_require_system_temp(self):
+        self.state(runtimes=["codex"], profiles=["vue-nuxt"], packs=["nuxt-postgres", "devops"],
+                   project_versions={"codex": "1.3.0"}, codex_agents_version="1.3.0")
+        self.write("AGENTS.md", "# Team rules\n")
+        with patch.object(tempfile, "gettempdir", side_effect=PermissionError("System temp unavailable")):
+            with patch.object(tempfile, "TemporaryDirectory", side_effect=PermissionError("System temp unavailable")):
+                init.update_project(self.project, "codex", preview=False)
+        state = init.read_json(self.project / init.STATE_FILE)
+        self.assertEqual(state["project_versions"]["codex"], (ROOT / "VERSION").read_text().strip())
+        self.assertEqual(state["codex_agents_version"], state["project_versions"]["codex"])
+        self.assertTrue((self.project / ".codex/agents/vue-coder.toml").is_file())
+        self.assertTrue((self.project / "AGENTS.md").read_bytes().startswith(b"# Team rules\n"))
+        self.assertFalse(list(self.project.glob(".aikit-update-*")))
 
     def test_legacy_codex_project_uses_installed_selection_and_preserves_team_files(self):
         self.state(runtimes=["claude", "codex"], profiles=["vue-nuxt"], packs=["devops"], codex_agents=["retired"])
@@ -108,8 +144,13 @@ class ProjectUpdateTests(unittest.TestCase):
         self.assertEqual(self.files(), before)
 
     def test_refuses_unconnected_and_newer_projects(self):
-        with self.assertRaisesRegex(ValueError, "нет установки"):
+        with self.assertRaisesRegex(ValueError, "Не найден.*plugin-init.json"):
             init.update_project(self.project, "codex", preview=False)
+        self.state(runtime="claude", profiles=["vue-nuxt"])
+        with self.assertRaisesRegex(ValueError, "нет подключения AIKit для codex") as error:
+            init.update_project(self.project, "codex", preview=False)
+        self.assertIn(str(self.project / init.STATE_FILE), str(error.exception))
+        self.assertNotIn("адаптер", str(error.exception))
         self.state(runtime="codex", profiles=["vue-nuxt"], project_versions={"codex": "999.0.0"})
         before = self.files()
         with self.assertRaisesRegex(ValueError, "999.0.0"):

@@ -10,10 +10,9 @@ import re
 import shutil
 import subprocess
 import sys
-import tempfile
 
 from release_utils import is_semver
-from update_files import atomic_write
+from update_files import atomic_write, resolve_workspace, staging_directory
 
 MARKETPLACE = "aikit"
 STATE_FILE = Path(".aikit/plugin-init.json")
@@ -150,8 +149,7 @@ def update(workspace: Path, codex: str) -> dict:
         if tuple(map(int, after[name]["version"].split("."))) < tuple(map(int, before[name]["version"].split("."))):
             raise UpdateError(f"Версия {name} понизилась; агенты не обновлены")
     root = updated_source(after, profiles, packs)
-    with tempfile.TemporaryDirectory(prefix="aikit-codex-update-") as folder:
-        stage = Path(folder)
+    with staging_directory(workspace) as stage:
         (stage / ".aikit").mkdir()
         (stage / STATE_FILE).write_bytes((workspace / STATE_FILE).read_bytes())
         overrides = workspace / ".aikit/models.json"
@@ -194,7 +192,7 @@ def main() -> int:
     if not codex:
         parser.error("Codex CLI не найден в PATH")
     try:
-        update(Path(args.workspace).resolve(), codex)
+        update(resolve_workspace(args.workspace), codex)
     except (UpdateError, OSError, ValueError) as error:
         print(f"AIKit: обновление не завершено: {error}", file=sys.stderr)
         return 1

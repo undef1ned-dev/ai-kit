@@ -32,7 +32,6 @@ import re
 import shutil
 import stat
 import sys
-import tempfile
 from pathlib import Path
 
 import agent_models
@@ -45,7 +44,7 @@ import project_updates
 from release_utils import version_tuple
 import rules
 import runtime_settings
-from update_files import atomic_write
+from update_files import atomic_write, resolve_workspace, staging_directory
 
 ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_NAME = "aikit"
@@ -264,9 +263,11 @@ def promote_project_update(workspace: Path, stage: Path, before: dict, paths: li
 
 def update_project(workspace: Path, runtime: str, *, preview: bool) -> None:
     state_path = workspace / STATE_FILE
+    if not state_path.is_file():
+        raise ValueError(f"Не найден файл подключения {state_path}. Проверь рабочую папку (--workspace).")
     state = read_json(state_path)
     if runtime not in merge_runtimes(state, ""):
-        raise ValueError(f"В {STATE_FILE} нет установки AIKit для {runtime}. Для установки адаптером используй его обновление.")
+        raise ValueError(f"В {state_path} нет подключения AIKit для {runtime}.")
     profiles, packs = saved_names(state, "profiles"), saved_names(state, "packs")
     if not profiles:
         raise ValueError(f"В {STATE_FILE} нет профилей проекта")
@@ -337,8 +338,7 @@ def update_project(workspace: Path, runtime: str, *, preview: bool) -> None:
         for name in sorted(agents.keys() - set(previous)):
             if before[agent_dir / f"{name}{extension}"] is not None:
                 raise ValueError(f"Агент {name} уже существует и не принадлежит установке AIKit")
-    with tempfile.TemporaryDirectory(prefix="aikit-project-update-") as folder:
-        stage = Path(folder)
+    with staging_directory(workspace) as stage:
         for path, data in before.items():
             if data is not None:
                 (stage / path).parent.mkdir(parents=True, exist_ok=True)
@@ -412,7 +412,7 @@ def main() -> int:
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
     args = parse_args()
-    workspace = Path(args.workspace).resolve()
+    workspace = resolve_workspace(args.workspace)
     if args.update:
         if args.runtime not in project_updates.RUNTIMES or any((args.refresh_agents, args.profiles, args.preset, args.packs, args.commit)):
             raise SystemExit("--update берёт профили, паки и режим коммитов из проекта. Запусти его без аргументов установки или пересборки агентов.")
