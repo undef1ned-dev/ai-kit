@@ -348,6 +348,7 @@ CI (`.github/workflows/ci.yml`) запускает то же самое на Lin
 
 - Нужна команда `python3` (в Codex на Windows хуки зовут `python`) — см. [Известные ошибки](known-issues.md#windows-нет-команды-python3).
 - Вывод скриптов с кириллицей: `export PYTHONIOENCODING=utf-8`.
+- Скрипты обновления используют `resolve_workspace` и `staging_directory` из `scripts/update_files.py`: относительный путь сначала становится абсолютным, подготовка идёт внутри проекта. В песочнице Codex прямой `Path.resolve()` для `.` мог дублировать имя папки, а приватные Windows ACL каталога `tempfile` делали его недоступным. Проверяй полный цикл с записью и откатом: успешный `--dry-run` не проверяет подготовку и перенос файлов.
 - Скрипты пишут файлы с переводом строки `\n`. Не сохраняй `.sh` с CRLF — bash на них падает.
 - Python на Windows по умолчанию пишет CRLF, и smoke-проверки на Linux падают. Пиши файлы через `Path.write_bytes(text.encode("utf-8"))` или `open(..., newline="\n")`. `.gitattributes` приводит файлы к LF при коммите; проверить индекс — `git grep -lI --cached $'\r'`.
 

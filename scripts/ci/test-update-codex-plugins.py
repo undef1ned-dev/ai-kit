@@ -24,9 +24,7 @@ spec.loader.exec_module(updater)
 
 class CodexPluginUpdateTests(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temporary.cleanup)
-        self.workspace = Path(self.temporary.name) / "project with spaces"
+        self.workspace = self.enterContext(updater.staging_directory(ROOT)) / "project with spaces"
         self.workspace.mkdir()
         self.version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
         self.state = {"runtimes": ["claude", "codex"], "profiles": ["vue-nuxt"], "packs": ["devops"], "codex_agents": ["vue-coder", "retired-agent"], "team-field": "keep"}
@@ -64,6 +62,7 @@ class CodexPluginUpdateTests(unittest.TestCase):
         if argv[0] != "fake-codex":
             self.assertEqual(Path(argv[1]), ROOT / "scripts/plugin-init.py")
             self.assertNotEqual(workspace, self.workspace)
+            self.assertEqual(workspace.parent, self.workspace)
             if self.fail_rebuild:
                 raise updater.UpdateError("test: rebuild failed after marketplace upgrade")
             result = self.original_command(argv, workspace)
@@ -94,7 +93,9 @@ class CodexPluginUpdateTests(unittest.TestCase):
 
     def test_updates_from_fresh_source_and_preserves_team_files(self):
         before = self.snapshot()
-        versions = self.run_update()
+        with patch.object(tempfile, "gettempdir", side_effect=PermissionError("System temp unavailable")):
+            with patch.object(tempfile, "TemporaryDirectory", side_effect=PermissionError("System temp unavailable")):
+                versions = self.run_update()
         self.assertEqual(versions, {name: self.version for name in ("aikit", "vue-nuxt", "devops")})
         self.assertEqual(len(self.calls), 4)
         self.assertFalse((self.workspace / ".codex/agents/retired-agent.toml").exists())
@@ -114,6 +115,7 @@ class CodexPluginUpdateTests(unittest.TestCase):
         self.assertEqual(coder["model"], models["runtimes"]["codex"]["haiku"]["model"])
         self.assertIn("0.0.1 → " + self.version, self.output.getvalue())
         self.assertIn("новую сессию", self.output.getvalue())
+        self.assertFalse(list(self.workspace.glob(".aikit-update-*")))
 
     def test_cli_failure_does_not_change_agents_or_state(self):
         self.fail_upgrade = True
