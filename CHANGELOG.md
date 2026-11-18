@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.5.0] - 2026-11-18
+
+### Added
+- vue-nuxt: добавлены требования к читаемости и конвенциям агентов
+
 ## [1.4.0] - 2026-11-17
 
 ### Added

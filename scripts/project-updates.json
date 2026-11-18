@@ -48,5 +48,15 @@
     {
       "action": "codex-agents"
     }
+  ],
+  "1.5.0": [
+    {
+      "action": "antigravity-agents",
+      "profile": "vue-nuxt"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "vue-nuxt"
+    }
   ]
 }
