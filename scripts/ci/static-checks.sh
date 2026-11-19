@@ -102,7 +102,8 @@ sys.exit(1 if missing or empty else 0)
 echo "▶ Контракт профиля: обязательные поля, агенты по ролям существуют, известные команды"
 "$PYTHON_BIN" -c '
 import json, pathlib, re, sys
-ROLES = {"architect", "coder", "tester", "reviewer"}
+REQUIRED_ROLES = {"architect", "coder", "reviewer"}
+ALLOWED_ROLES = REQUIRED_ROLES | {"tester"}
 COMMANDS = {"install", "lint", "format", "test", "build", "run"}
 REQUIRED = {"profile", "label", "role", "stack", "agents", "commands", "root_markers", "path_signals"}
 REVIEW_VERDICT = "VERDICT: APPROVE | APPROVE_WITH_COMMENTS | REQUEST_CHANGES"
@@ -118,8 +119,9 @@ for manifest in sorted(pathlib.Path("profiles").glob("*/profile.manifest.json"))
         continue
     if data["profile"] != profile.name:
         errors.append(f"{manifest}: profile не совпадает с папкой")
-    if set(data["agents"]) != ROLES:
-        errors.append(f"{manifest}: agents должны быть ровно по ролям {sorted(ROLES)}")
+    roles = set(data["agents"])
+    if not REQUIRED_ROLES <= roles <= ALLOWED_ROLES:
+        errors.append(f"{manifest}: обязательные роли {sorted(REQUIRED_ROLES)}, допустимые {sorted(ALLOWED_ROLES)}")
     errors += [f"{manifest}: нет агента {name}" for name in data["agents"].values() if not agent_exists(name)]
     reviewer = profile / "agents" / (data["agents"].get("reviewer", "") + ".md")
     if reviewer.is_file() and REVIEW_VERDICT not in reviewer.read_text(encoding="utf-8"):

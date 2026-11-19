@@ -1,0 +1,17 @@
+{
+  "name": "mappet-scripts",
+  "version": "1.5.1",
+  "description": "Профиль AIKit Mappet Scripts (EOC Mappet Scripts, TypeScript 5, ES5, Rhino compatibility, Java 8, Minecraft Forge 1.12.2): агенты architect → coder → reviewer, скиллы и MCP стека.",
+  "keywords": [
+    "aikit",
+    "mappet-scripts"
+  ],
+  "skills": "./codex/skills/",
+  "interface": {
+    "displayName": "AIKit: Mappet Scripts",
+    "shortDescription": "Профиль AIKit Mappet Scripts (EOC Mappet Scripts, TypeScript 5, ES5, Rhino compatibility, Java 8, Minecraft Forge 1.12.2): агенты architect → coder → reviewer, скиллы и MCP стека.",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

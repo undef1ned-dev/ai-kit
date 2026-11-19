@@ -101,11 +101,12 @@ def plugin_specs() -> list[dict]:
     specs = [{"name": CORE_PLUGIN, "dir": Path("."), "label": "AIKit", "description": CORE_DESCRIPTION, "core": True}]
     for manifest in sorted((ROOT / "profiles").glob("*/profile.manifest.json")):
         contract = read_json(manifest)
+        roles = " → ".join(role for role in ("architect", "coder", "tester", "reviewer") if role in contract["agents"])
         specs.append({
             "name": contract["profile"],
             "dir": manifest.parent.relative_to(ROOT),
             "label": f"AIKit: {contract['label']}",
-            "description": f"Профиль AIKit {contract['label']} ({contract['stack']}): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+            "description": f"Профиль AIKit {contract['label']} ({contract['stack']}): агенты {roles}, скиллы и MCP стека.",
             "core": False,
         })
     for manifest in sorted((ROOT / "packs").glob("*/pack.json")):

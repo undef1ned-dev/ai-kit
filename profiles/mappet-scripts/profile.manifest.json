@@ -1,0 +1,34 @@
+{
+  "profile": "mappet-scripts",
+  "label": "Mappet Scripts",
+  "role": "mod",
+  "stack": "EOC Mappet Scripts, TypeScript 5, ES5, Rhino compatibility, Java 8, Minecraft Forge 1.12.2",
+  "agents": {
+    "architect": "mappet-scripts-architect",
+    "coder": "mappet-scripts-coder",
+    "reviewer": "mappet-scripts-reviewer"
+  },
+  "specialists": {
+    "gui": {
+      "agent": "mappet-scripts-gui",
+      "when": "фича или исправление меняет экран src/gui/, его разметку, callbacks, переходы, синхронизацию UI или жизненный цикл guiId"
+    },
+    "quality": {
+      "agent": "mappet-scripts-quality",
+      "when": "нужна оценка существующих проверок или технического долга (/coverage-check, /tech-debt)"
+    }
+  },
+  "pipelines": {
+    "docs": {
+      "when": "нужно написать, сверить или обновить Markdown-документацию игрового проекта в docs/",
+      "steps": ["mappet-scripts-doc-writer"]
+    }
+  },
+  "commands": {
+    "install": "npm ci",
+    "test": "npx --no-install tsc --noEmit && node tests/combat/run.js && node tests/combat/metadata.js"
+  },
+  "code_extensions": [".ts"],
+  "root_markers": ["src/@types/mappet.d.ts"],
+  "path_signals": ["src/@types/mappet.d.ts", "src/gui/", "src/handlers/", "src/classes/", "src/libs/", "src/utils/", "tests/combat/"]
+}

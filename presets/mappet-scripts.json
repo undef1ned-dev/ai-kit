@@ -1,0 +1,7 @@
+{
+  "name": "mappet-scripts",
+  "label": "Mappet Scripts",
+  "description": "EOC TypeScript scripts for Mappet on Minecraft 1.12.2.",
+  "profiles": ["mappet-scripts"],
+  "packs": []
+}

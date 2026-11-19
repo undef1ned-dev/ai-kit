@@ -1,0 +1,56 @@
+{
+  "agents": {
+    "mappet-scripts-architect": {
+      "output_block": "ARCHITECT_PLAN",
+      "example_prompt": "Спроектируй экран истории операций банка"
+    },
+    "mappet-scripts-coder": {
+      "output_block": "CODER_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "BUG_REPORT",
+        "MAPPET_GUI_RESULT"
+      ],
+      "example_prompt": "Добавь обработчик по ARCHITECT_PLAN"
+    },
+    "mappet-scripts-reviewer": {
+      "output_block": "REVIEW_RESULT",
+      "context_blocks": [
+        "CODER_RESULT",
+        "MAPPET_GUI_RESULT"
+      ],
+      "example_prompt": "Проверь GUI после изменения установки ставки налога"
+    },
+    "mappet-scripts-gui": {
+      "output_block": "MAPPET_GUI_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "BUG_REPORT"
+      ],
+      "example_prompt": "Сделай экран выбора счёта по образцу банковских GUI"
+    },
+    "mappet-scripts-doc-writer": {
+      "output_block": "DOCS_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "CODER_RESULT",
+        "MAPPET_GUI_RESULT"
+      ],
+      "example_prompt": "Обнови описание переходов боевых GUI и сохранения состояния"
+    },
+    "mappet-scripts-quality": {
+      "output_block": "QUALITY_REPORT",
+      "example_prompt": "Оцени, что проверяют боевые фикстуры и где остались пробелы"
+    }
+  },
+  "skills": {
+    "mappet-scripts-gui-builder": {
+      "argument-hint": "<экран или задача>",
+      "example_prompt": "$mappet-scripts-gui-builder экран выбора банковского счёта"
+    },
+    "mappet-scripts-gui-layout": {
+      "argument-hint": "<экран или секция>",
+      "example_prompt": "$mappet-scripts-gui-layout список операций с длинными строками"
+    }
+  }
+}

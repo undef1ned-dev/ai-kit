@@ -15,6 +15,16 @@
 
 Профиль `vue-nuxt` учитывает фактический `srcDir` и серверный каталог проекта. При внешнем API он использует уже выбранный способ интеграции. [Структура каталогов Nuxt](https://nuxt.com/docs/4.x/getting-started/upgrade#new-directory-structure)
 
+### Профиль Mappet Scripts
+
+В Antigravity установи плагины из checkout AIKit командой `python3 scripts/install-antigravity-plugins.py --preset mappet-scripts`. Перезапусти сессию и выполни `/setup mappet-scripts` из корня скриптов. Агент GUI доступен как `mappet-scripts-gui`, скиллы — `/mappet-scripts-gui-builder` и `/mappet-scripts-gui-layout`.
+
+Для репозитория EOC `mappet-scripts` выбери профиль `mappet-scripts` без паков. В Codex используй `$aikit:setup mappet-scripts`, в Claude Code — `/aikit:setup mappet-scripts`. Для установки через скрипт используй `bash .aikit-config/scripts/attach.sh mappet-scripts`.
+
+В новой сессии проверь регистрацию агентов и скиллов. При миграции сохрани свои предметные заметки из прежнего `AGENTS.md` и `docs/AGENTS.md`. Подключение сохраняет пользовательский текст вне блока AIKit. Сверь дублирующиеся старые инструкции, агентов и скиллы перед их удалением.
+
+В профиль входят архитектор, кодер, ревьюер, специалист GUI, автор документации и аналитик качества. Команда `test` проверяет TypeScript без вывода файлов, затем запускает существующие combat/metadata сценарии. Проверка разметки и взаимодействия с GUI требует запущенного Minecraft. Штатный `build` пишет в каталог мира, поэтому в автоматических командах профиля его нет.
+
 ### Claude Code
 
 Каждый профиль и пак — отдельный плагин маркетплейса `aikit`, ядро — плагин `aikit`.

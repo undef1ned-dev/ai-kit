@@ -562,12 +562,12 @@ def render_contract(manifest: dict) -> str:
     agents = manifest.get("agents", {})
     flow_nodes = [
         f'<div class="flow-node"><span class="flow-title">{h(agents.get(role, "?"))}</span><span class="flow-text">{ROLE_LABELS[role]}</span></div>'
-        for role in PROFILE_ROLES
+        for role in PROFILE_ROLES if role in agents
     ]
     arrow = '<span class="flow-arrow" aria-hidden="true">→</span>'
     flow = (
         f'<div class="flow">{flow_nodes[0]}{arrow}{flow_nodes[1]}{arrow}'
-        f'<div class="flow-parallel">{flow_nodes[2]}{flow_nodes[3]}</div></div>'
+        f'<div class="flow-parallel">{"".join(flow_nodes[2:])}</div></div>'
     )
     commands = "".join(
         f"<tr><td><code>{h(name)}</code></td><td><code>{h(command)}</code></td></tr>"
