@@ -159,6 +159,25 @@ check "свой агент команды в .agents/agents не изменён"
 check "AGENTS.md: инструкции Antigravity и invoke_subagent" grep -qF 'инструмент `invoke_subagent`' "$PROJECT_DIR/AGENTS.md"
 check ".agents/agents/: агенты базы и профилей в Markdown с subagent: true" check_antigravity_agents
 check "plugin-init.json: runtimes хранит все три runtime" "$PYTHON_BIN" -c "import json,sys; sys.exit(json.load(open(sys.argv[1]))['runtimes'] != ['claude', 'codex', 'antigravity'])" "$PROJECT_DIR/.aikit/plugin-init.json"
+AGY_PLUGINS_DIR="$WORK_DIR/agy-plugins-$PRESET"
+"$PYTHON_BIN" "$KIT_ROOT/scripts/install-antigravity-plugins.py" --workspace "$PROJECT_DIR" --target-dir "$AGY_PLUGINS_DIR" >/dev/null
+check "плагины профилей пресета Antigravity поставляют всех агентов и скиллы" "$PYTHON_BIN" - "$KIT_ROOT" "$PRESET_FILE" "$AGY_PLUGINS_DIR" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+kit, preset, plugins = map(Path, sys.argv[1:])
+for name in json.loads(preset.read_text(encoding="utf-8"))["profiles"]:
+    source, installed = kit / "profiles" / name, plugins / name
+    assert (installed / "plugin.json").is_file(), name
+    for path in source.glob("agents/*.md"):
+        agent = installed / path.relative_to(source)
+        assert "subagent: true" in agent.read_text(encoding="utf-8"), agent
+    for path in source.glob("skills/*/SKILL.md"):
+        skill = installed / path.relative_to(source)
+        assert skill.is_file(), skill
+PY
+
 init --runtime antigravity --profiles vue-nuxt
 check "смена набора Antigravity: агенты убранных паков удалены" bash -c "test -f '$PROJECT_DIR/.agents/agents/vue-coder.md' && ! ls '$PROJECT_DIR'/.agents/agents/devops-*.md 2>/dev/null"
 printf '{"agents": {"vue-coder": {"antigravity": "haiku"}}}\n' > "$PROJECT_DIR/.aikit/models.json"
@@ -168,7 +187,6 @@ check "refresh-agents Antigravity: агент пересобран с модел
 check "refresh-agents Antigravity: свой агент команды не тронут" check_local_agy_agent
 
 echo "▶ install-antigravity-plugins.py --workspace"
-AGY_PLUGINS_DIR="$WORK_DIR/agy-plugins-$PRESET"
 "$PYTHON_BIN" "$KIT_ROOT/scripts/install-antigravity-plugins.py" --workspace "$PROJECT_DIR" --target-dir "$AGY_PLUGINS_DIR" >/dev/null
 check "плагин ядра aikit установлен с plugin.json, hooks.json и scripts/plugin-init.py" test -f "$AGY_PLUGINS_DIR/aikit/plugin.json" -a -f "$AGY_PLUGINS_DIR/aikit/hooks.json" -a -f "$AGY_PLUGINS_DIR/aikit/scripts/plugin-init.py"
 check "плагин профиля vue-nuxt установлен со скиллами, агентами и MCP" test -f "$AGY_PLUGINS_DIR/vue-nuxt/plugin.json" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/agents/vue-coder.md" -a -f "$AGY_PLUGINS_DIR/vue-nuxt/mcp_config.json"

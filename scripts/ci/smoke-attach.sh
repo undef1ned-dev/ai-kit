@@ -106,8 +106,11 @@ expected = json.loads(preset.read_text(encoding="utf-8"))["profiles"]
 contracts = json.loads((project / ".aikit" / "profiles.json").read_text(encoding="utf-8"))["profiles"]
 assert list(contracts) == expected, f"профили {list(contracts)} вместо {expected}"
 for name, contract in contracts.items():
-    assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
-    assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+    manifest_path = preset.parent.parent / "profiles" / name / "profile.manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert contract["agents"] == manifest["agents"], f"{name}: роли агентов изменились"
+    if not edited:
+        assert contract["commands"] == manifest["commands"], f"{name}: команды профиля изменились"
     expected_root = "web" if name == "vue-nuxt" else "."
     assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
 if edited:
@@ -182,7 +185,13 @@ check "PRODUCT.md создан" test -s PRODUCT.md
 check ".claude/settings.json корректен" check_settings
 check "агенты установлены" test "$(count_files .claude/agents '*.md')" -gt 0
 check "у всех агентов есть frontmatter с name" check_agents_frontmatter
-check "модели агентов: уровень из frontmatter кита" grep -q "^model: opus$" .claude/agents/vue-architect.md
+read -r ARCHITECT CODER < <("$PYTHON_BIN" -c '
+import json
+profiles = json.load(open(".aikit/profiles.json", encoding="utf-8"))["profiles"]
+agents = next(iter(profiles.values()))["agents"]
+print(agents["architect"], agents["coder"])
+' | tr -d '\r')
+check "модели агентов: уровень из frontmatter кита" grep -q "^model: opus$" ".claude/agents/$ARCHITECT.md"
 check "скиллы установлены: name = папка, есть description" check_skills
 check "общий implement-feature: один на проект, без копий с префиксом профиля" bash -c "test -f .claude/skills/implement-feature/SKILL.md && ! ls -d .claude/skills/*-implement-feature 2>/dev/null"
 check "нет устаревшей папки .claude/commands" test ! -e .claude/commands
@@ -210,7 +219,7 @@ printf "node_modules/\n\n# Claude Code (локальные настройки MC
 sed -i.bak 's/^skills=/skills=legacy-kit-skill /' .claude/.config-version && rm -f .claude/.config-version.bak
 edit_profile_contract
 # Команда переопределила модель агента (/set-model)
-echo '{"agents": {"vue-coder": "haiku"}}' > .aikit/models.json
+printf '{"agents": {"%s": "haiku"}}\n' "$CODER" > .aikit/models.json
 "$PYTHON_BIN" -c 'import json; p = ".claude/settings.json"; d = json.load(open(p, encoding="utf-8")); d["hooks"]["PreToolUse"].append({"matcher": "Bash", "hooks": [{"type": "command", "command": "my-hook"}]}); json.dump(d, open(p, "w", encoding="utf-8"))'
 
 echo "▶ update.sh --auto"
@@ -222,9 +231,9 @@ else
 fi
 check ".claude/settings.json корректен после обновления" check_settings
 check "агенты на месте после обновления" test "$(count_files .claude/agents '*.md')" -gt 0
-check "модель агента из .aikit/models.json применена после обновления" grep -q "^model: haiku$" .claude/agents/vue-coder.md
-check "effort агента сохранён после смены модели" grep -q "^effort: medium$" .claude/agents/vue-coder.md
-check "effort архитектора — high" grep -q "^effort: high$" .claude/agents/vue-architect.md
+check "модель агента из .aikit/models.json применена после обновления" grep -q "^model: haiku$" ".claude/agents/$CODER.md"
+check "effort агента сохранён после смены модели" grep -q "^effort: medium$" ".claude/agents/$CODER.md"
+check "effort архитектора — high" grep -q "^effort: high$" ".claude/agents/$ARCHITECT.md"
 check "скиллы корректны после обновления" check_skills
 check "старые скиллы и команды кита убраны" test ! -e .claude/skills/legacy-kit-skill -a ! -e .claude/commands/security-check.md
 check "своя команда пользователя сохранена" test -f .claude/commands/my-own.md

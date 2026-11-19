@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --no-install tsc --noEmit)",
+      "Bash(node tests/combat/run.js)",
+      "Bash(node tests/combat/metadata.js)"
+    ]
+  }
+}

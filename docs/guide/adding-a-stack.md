@@ -42,7 +42,7 @@
 | `profile` | Имя профиля, совпадает с папкой | установщики |
 | `label`, `stack` | Название и стек для людей и для выбора профиля по задаче | `/implement-feature`, каталог |
 | `role` | Часть системы: `backend`, `web` или своя (`mobile`, `mod`…). В мульти-профиле backend идёт первым — он фиксирует API | `/implement-feature`, `tech-planner` |
-| `agents` | Агенты по ролям: ровно `architect`, `coder`, `tester`, `reviewer` | все оркестраторы |
+| `agents` | Обязательные роли `architect`, `coder`, `reviewer`; `tester` добавляется при необходимости. Команда `test` выполняется и без этой роли | все оркестраторы |
 | `specialists` | Дополнительные агенты: `{"<имя>": {"agent": "<агент>", "when": "<когда звать>"}}`. Специалист `quality` есть у каждого профиля — его зовут `/coverage-check` и `/tech-debt`. Необязательный специалист `security` проверяет то, что видно только со знанием стека, — его `/security-check` зовёт вместе с общим `security-auditor` (пример — `forge-1-12-java-security-auditor`) | `/implement-feature` |
 | `pipelines` | Необязательные цепочки, кроме кода: `{"<имя>": {"when": "<когда>", "steps": ["<агент>", …]}}` | `/implement-feature` |
 | `commands` | `install`, `lint`, `format`, `test` (обязательна), `build`, `run`. `{files}` — изменённые файлы. `run` запускает приложение в `/check-feature` | `/implement-feature`, `/fix-bug`, `/check-feature`, агенты, хуки |
@@ -97,7 +97,7 @@ profiles/java-spring/
 
 Для каждого нового шага добавь Codex TOML и его выходной блок в `codex/catalog.json`, наряду с определением агента Claude.
 
-Четыре роли (`architect`, `coder`, `tester`, `reviewer`) — обязательная цепочка кода. Если профилю нужна другая работа — модели и текстуры для мода, документация, локализация, — опиши её пайплайном: своими агентами в `agents/` и записью в контракте.
+Цепочка кода включает `architect`, `coder`, `reviewer` и, если он объявлен, `tester`. Если профилю нужна другая работа (модели и текстуры, документация, локализация), опиши её пайплайном с агентами в `agents/` и записью в контракте.
 
 ```json
 "pipelines": {

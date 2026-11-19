@@ -94,7 +94,7 @@
 Используй агента vue-tester: напиши тесты для composables/useAuth.ts
 ```
 
-Или скилл профиля, если он есть: `/add-tests` в `vue-nuxt`. В других профилях — тестировщик профиля (`agents.tester` в `.aikit/profiles.json`).
+Или скилл профиля, если он есть: `/add-tests` в `vue-nuxt`. Роль `agents.tester` в `.aikit/profiles.json` указывает, есть ли отдельный агент. В `mappet-scripts` выполняются существующие проверки, а игровое поведение GUI проверяется в Minecraft.
 
 ### Ревью перед PR
 

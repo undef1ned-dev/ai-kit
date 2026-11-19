@@ -166,8 +166,11 @@ expected = json.loads(preset.read_text(encoding="utf-8"))["profiles"]
 contracts = json.loads((project / ".aikit" / "profiles.json").read_text(encoding="utf-8"))["profiles"]
 assert list(contracts) == expected, f"профили {list(contracts)} вместо {expected}"
 for name, contract in contracts.items():
-    assert set(contract["agents"]) == {"architect", "coder", "tester", "reviewer"}, f"{name}: нет агентов по ролям"
-    assert contract["commands"].get("lint"), f"{name}: нет команды lint"
+    manifest_path = preset.parent.parent / "profiles" / name / "profile.manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert contract["agents"] == manifest["agents"], f"{name}: роли агентов изменились"
+    if not edited:
+        assert contract["commands"] == manifest["commands"], f"{name}: команды профиля изменились"
     expected_root = "web" if name == "vue-nuxt" else "."
     assert contract.get("root") == expected_root, f"{name}: root {contract.get('root')!r} вместо {expected_root!r}"
     if name == "vue-nuxt":
