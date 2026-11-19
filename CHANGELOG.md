@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.6.0] - 2026-11-19
+
+### Added
+- mappet-scripts: добавлен профиль скриптов EOC
+
 ## [1.5.1] - 2026-11-18
 
 ### Fixed

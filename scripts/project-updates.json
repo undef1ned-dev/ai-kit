@@ -58,5 +58,27 @@
       "action": "codex-agents",
       "profile": "vue-nuxt"
     }
+  ],
+  "1.6.0": [
+    {
+      "action": "rules",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "antigravity-agents",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "contracts",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "claude-settings",
+      "profile": "mappet-scripts"
+    }
   ]
 }

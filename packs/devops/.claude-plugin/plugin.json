@@ -1,6 +1,6 @@
 {
   "name": "devops",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Pack: DevOps для AIKit — Docker, CI/CD (GitHub Actions или GitLab CI) и деплой под стек профиля",
   "author": {
     "name": "undef1ned-dev"
