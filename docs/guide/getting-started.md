@@ -15,6 +15,14 @@
 
 Профиль `vue-nuxt` учитывает фактический `srcDir` и серверный каталог проекта. При внешнем API он использует уже выбранный способ интеграции. [Структура каталогов Nuxt](https://nuxt.com/docs/4.x/getting-started/upgrade#new-directory-structure)
 
+### Профиль Minecraft Plugins
+
+Подключи `minecraft-plugins` через `$aikit:setup minecraft-plugins` в Codex, `/aikit:setup minecraft-plugins` в Claude Code или `bash .aikit-config/scripts/attach.sh minecraft-plugins` при установке скриптом. Профиль также доступен как плагин `minecraft-plugins@aikit`.
+
+Укажи для проекта версию Minecraft, ядро и Java. Для CatServer 1.12.2 на Java 8 профиль использует Spigot API 1.12.2. Для Paper 1.20.1 можно использовать Spigot API 1.20.1 или выбрать Paper API, если нужны расширения Paper. Для другой версии профиль сверяет API и Java с требованиями целевого ядра.
+
+Команды сборки и тестов по умолчанию используют Gradle Wrapper. В Maven-проекте задай `commands.test` и `commands.build` в `.aikit/profiles.json`, например `./mvnw test` и `./mvnw package`. Для проверки в игре задай `commands.run` для своего тестового сервера.
+
 ### Профиль Mappet Scripts
 
 В Antigravity установи плагины из checkout AIKit командой `python3 scripts/install-antigravity-plugins.py --preset mappet-scripts`. Перезапусти сессию и выполни `/setup mappet-scripts` из корня скриптов. Агент GUI доступен как `mappet-scripts-gui`, скиллы — `/mappet-scripts-gui-builder` и `/mappet-scripts-gui-layout`.

@@ -1,0 +1,16 @@
+{
+  "name": "minecraft-plugins",
+  "version": "1.6.1",
+  "description": "Профиль AIKit Minecraft Plugins (Java, серверные плагины Minecraft, Bukkit/Spigot API или Paper API): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+  "keywords": [
+    "aikit",
+    "minecraft-plugins"
+  ],
+  "interface": {
+    "displayName": "AIKit: Minecraft Plugins",
+    "shortDescription": "Профиль AIKit Minecraft Plugins (Java, серверные плагины Minecraft, Bukkit/Spigot API или Paper API): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+    "developerName": "undef1ned-dev",
+    "category": "Coding",
+    "websiteURL": "https://github.com/undef1ned-dev/ai-kit"
+  }
+}

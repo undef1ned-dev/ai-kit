@@ -1,0 +1,41 @@
+{
+  "agents": {
+    "minecraft-plugins-architect": {
+      "output_block": "ARCHITECT_PLAN"
+    },
+    "minecraft-plugins-coder": {
+      "output_block": "CODER_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "BUG_REPORT"
+      ],
+      "depends_on": [
+        "minecraft-plugins-architect"
+      ]
+    },
+    "minecraft-plugins-tester": {
+      "output_block": "TESTER_RESULT",
+      "context_blocks": [
+        "ARCHITECT_PLAN",
+        "CODER_RESULT",
+        "BUG_REPORT"
+      ],
+      "depends_on": [
+        "minecraft-plugins-coder"
+      ]
+    },
+    "minecraft-plugins-reviewer": {
+      "output_block": "REVIEW_RESULT",
+      "context_blocks": [
+        "CODER_RESULT"
+      ],
+      "depends_on": [
+        "minecraft-plugins-coder"
+      ]
+    },
+    "minecraft-plugins-quality-analyst": {
+      "output_block": "QUALITY_REPORT"
+    }
+  },
+  "skills": {}
+}

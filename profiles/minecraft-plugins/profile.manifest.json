@@ -1,0 +1,38 @@
+{
+  "profile": "minecraft-plugins",
+  "label": "Minecraft Plugins",
+  "role": "plugin",
+  "stack": "Java, серверные плагины Minecraft, Bukkit/Spigot API или Paper API",
+  "agents": {
+    "architect": "minecraft-plugins-architect",
+    "coder": "minecraft-plugins-coder",
+    "tester": "minecraft-plugins-tester",
+    "reviewer": "minecraft-plugins-reviewer"
+  },
+  "specialists": {
+    "quality": {
+      "agent": "minecraft-plugins-quality-analyst",
+      "when": "нужна оценка покрытия тестами или технического долга (/coverage-check, /tech-debt)"
+    }
+  },
+  "pipelines": {},
+  "commands": {
+    "test": "./gradlew test",
+    "build": "./gradlew build"
+  },
+  "code_extensions": [
+    ".java",
+    ".yml",
+    ".yaml"
+  ],
+  "root_markers": [
+    "src/main/resources/plugin.yml",
+    "src/main/resources/paper-plugin.yml"
+  ],
+  "path_signals": [
+    "src/main/resources/plugin.yml",
+    "src/main/resources/paper-plugin.yml",
+    "src/main/java/",
+    "src/test/java/"
+  ]
+}
