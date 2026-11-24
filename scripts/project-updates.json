@@ -128,5 +128,27 @@
       "action": "contracts",
       "profile": "vue-nuxt"
     }
+  ],
+  "1.7.0": [
+    {
+      "action": "rules",
+      "profile": "minecraft-plugins"
+    },
+    {
+      "action": "antigravity-agents",
+      "profile": "minecraft-plugins"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "minecraft-plugins"
+    },
+    {
+      "action": "contracts",
+      "profile": "minecraft-plugins"
+    },
+    {
+      "action": "claude-settings",
+      "profile": "minecraft-plugins"
+    }
   ]
 }
