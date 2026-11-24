@@ -27,6 +27,13 @@
       "category": "development"
     },
     {
+      "name": "minecraft-plugins",
+      "source": "./profiles/minecraft-plugins",
+      "version": "1.6.1",
+      "description": "Профиль AIKit Minecraft Plugins (Java, серверные плагины Minecraft, Bukkit/Spigot API или Paper API): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
+      "category": "development"
+    },
+    {
       "name": "vue-nuxt",
       "source": "./profiles/vue-nuxt",
       "version": "1.6.1",

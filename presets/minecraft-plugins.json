@@ -1,0 +1,9 @@
+{
+  "name": "minecraft-plugins",
+  "label": "Minecraft Plugins",
+  "description": "Java server plugins for Minecraft using Bukkit/Spigot or Paper.",
+  "profiles": [
+    "minecraft-plugins"
+  ],
+  "packs": []
+}
