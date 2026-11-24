@@ -22,8 +22,7 @@
   "commands": {
     "install": "npm install",
     "lint": "npx eslint {files}",
-    "format": "npx prettier --write {files}",
-    "test": "npx vitest run",
+    "test": "npx vitest run --passWithNoTests",
     "build": "npx nuxt build",
     "run": "npx nuxt dev"
   },

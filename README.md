@@ -46,8 +46,8 @@ bash .aikit-config/scripts/attach.sh vue-nuxt+<backend-профиль>
 
 ## Основные команды
 
-- `/implement-feature` — реализация фичи через цепочку architect → coder → tester + reviewer; `--tdd` — сначала тесты, `--no-test` и `--no-review` — без тестировщика и ревьюера.
-- `/fix-bug` — исправление бага: тест, который ловит баг, затем фикс; `--no-test` и `--no-review` — без теста на баг и без ревьюера.
+- `/implement-feature` — реализация фичи цепочкой architect → coder → reviewer. Тестировщик подключается по запросу, с `--with-tester` или `--tdd`.
+- `/fix-bug` — воспроизведение, исправление и обязательное ревью. `--with-tester` добавляет тест на баг перед фиксом.
 - `/check-feature` — запуск приложения и проверка фичи в браузере.
 - `/design-review` — проверка реализации на соответствие UI kit и макету.
 - `/security-check` — аудит безопасности.
