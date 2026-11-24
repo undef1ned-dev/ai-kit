@@ -80,5 +80,53 @@
       "action": "claude-settings",
       "profile": "mappet-scripts"
     }
+  ],
+  "1.6.1": [
+    {
+      "action": "rules",
+      "runtime": "codex"
+    },
+    {
+      "action": "rules"
+    },
+    {
+      "action": "codex-agents"
+    },
+    {
+      "action": "antigravity-agents",
+      "profile": "forge-1-12-java"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "forge-1-12-java"
+    },
+    {
+      "action": "rules",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "antigravity-agents",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "rules",
+      "profile": "vue-nuxt"
+    },
+    {
+      "action": "antigravity-agents",
+      "profile": "vue-nuxt"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "vue-nuxt"
+    },
+    {
+      "action": "contracts",
+      "profile": "vue-nuxt"
+    }
   ]
 }
