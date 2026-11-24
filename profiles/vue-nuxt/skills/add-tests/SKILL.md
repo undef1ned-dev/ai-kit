@@ -9,11 +9,11 @@ orchestrates: ["vue-tester"]
 example_prompt: "/add-tests pages/account/index.vue и stores/auth.ts"
 ---
 
-Запусти агент `vue-tester` для написания тестов.
+Выполни задачу в основном потоке. Запусти `vue-tester`, только если пользователь прямо попросил привлечь тестировщика. Отдельного подтверждения не запрашивай.
 
 $ARGUMENTS
 
-Агент должен:
+Порядок работы:
 1. Найти существующие компоненты, stores, composables или pages
 2. Определить критические сценарии: success / loading / error / emits
 3. Написать Vitest и @vue/test-utils тесты

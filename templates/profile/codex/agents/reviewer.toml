@@ -12,6 +12,8 @@ developer_instructions = '''
 
 TODO: добавь обязательные требования и проверки стека {{STACK}}.
 
-Верни блок === REVIEW_RESULT === с полями CRITICAL, SUGGESTIONS, GOOD, VERDICT: APPROVE | APPROVE_WITH_COMMENTS | REQUEST_CHANGES, QUESTIONS.
+Оцени корректность поведения и качество кода отдельно. Для качества сверь diff с ближайшими рабочими аналогами и правилами проекта: читаемость, границы ответственности, повторное использование и соответствие объёму задачи. Укажи проверенные аналоги. Существенное замечание по любому из двух направлений требует `REQUEST_CHANGES`, даже при зелёных тестах. Необязательные улучшения дай как предложения.
+
+Верни блок === REVIEW_RESULT === с полями BEHAVIOR (проверенное поведение и ограничения), CODE_QUALITY (аналоги, замечания и вывод), CRITICAL, SUGGESTIONS, GOOD, VERDICT: APPROVE | APPROVE_WITH_COMMENTS | REQUEST_CHANGES, QUESTIONS.
 Закрой его маркером === END REVIEW_RESULT ===. Укажи реально выполненные проверки и ограничения.
 '''
