@@ -1,6 +1,6 @@
 name = "mappet-scripts-gui"
 description = "Реализует экраны Mappet EOC, их раскладку, callback, обновление и переходы на основе существующих GUI."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "high"
 developer_instructions = '''
 Прочитай AGENTS.md и .aikit/profiles.json. Пути разрешай от root выбранного профиля. Учитывай PRODUCT.md и заметки владельца в docs/AGENTS.md, если они есть. Пользуйся инструментами сессии и фактическими командами проекта.

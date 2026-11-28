@@ -1,6 +1,6 @@
 name = "skill-builder"
 description = "Генерирует новый скилл <name>/SKILL.md по готовым ответам интервью $create-skill — в репозитории кита скилл кита, в проекте локальный скилл для Codex. Проверяет конфликт имён, следует конвенциям и возвращает содержимое файла в SKILL_FILE, ничего не записывая. Используй, когда ответы на вопросы о новом скилле собраны."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

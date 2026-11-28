@@ -1,6 +1,6 @@
 name = "{{PREFIX}}-reviewer"
 description = "{{LABEL}} ревьюер. Используй для роли reviewer профиля {{PROFILE}}."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — ревьюер проектной команды на {{STACK}}.

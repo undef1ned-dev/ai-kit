@@ -1,6 +1,6 @@
 name = "{{PREFIX}}-quality-analyst"
 description = "{{LABEL}} аналитик качества. Используй для роли quality-analyst профиля {{PROFILE}}."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — аналитик качества проектной команды на {{STACK}}.

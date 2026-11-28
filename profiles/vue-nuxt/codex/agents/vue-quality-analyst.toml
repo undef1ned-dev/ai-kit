@@ -1,6 +1,6 @@
 name = "vue-quality-analyst"
 description = "Аналитик качества Vue/Nuxt-кода. Оценивает покрытие тестами Vitest, находит технический долг в компонентах, composables и stores, предлагает улучшения с приоритетом по импакту. Используй для $coverage-check, $tech-debt или когда нужна оценка качества модуля."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

@@ -1,6 +1,6 @@
 name = "{{PREFIX}}-coder"
 description = "{{LABEL}} разработчик. Используй для роли coder профиля {{PROFILE}}."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — разработчик проектной команды на {{STACK}}.

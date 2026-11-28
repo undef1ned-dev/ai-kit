@@ -97,7 +97,7 @@
     },
     "set-model": {
       "argument-hint": "[агент] [id модели или совместимый уровень]",
-      "example_prompt": "$set-model security-auditor gpt-6.1-sol"
+      "example_prompt": "$set-model security-auditor gpt-6.2-sol"
     },
     "tech-debt": {
       "argument-hint": "[путь]",

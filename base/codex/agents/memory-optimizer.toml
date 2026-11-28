@@ -1,6 +1,6 @@
 name = "memory-optimizer"
 description = "Консолидирует командную память .aikit/memory/ — сжимает INDEX до 60 строк, объединяет дубли, убирает устаревшее, переносит решения из логов задач прежних версий. Git не трогает и без согласия ничего не удаляет — согласие и сохранение ведёт скилл. Запускай через $optimize-memory, когда $memory-status показывает предупреждение."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

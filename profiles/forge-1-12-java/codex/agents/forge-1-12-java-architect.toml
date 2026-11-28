@@ -1,6 +1,6 @@
 name = "forge-1-12-java-architect"
 description = "Архитектор Java-кода мода Minecraft 1.12.2 на Forge. Проектирует фичу до кода — блоки, предметы, TileEntity, сущности, capability, сеть, команды, конфиг — со стороной (клиент или сервер), слоями и ООП-границами. Используй перед новой механикой, блоком, машиной, пакетом или изменением сохранённых данных мода."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

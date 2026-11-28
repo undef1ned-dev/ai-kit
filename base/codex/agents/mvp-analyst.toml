@@ -1,6 +1,6 @@
 name = "mvp-analyst"
 description = "Оценивает идеи для личных проектов и небольшой аудитории. Сравнивает подходы по пользе, усилиям и поддержке, описывает первую версию и проверку результата в docs/mvp/. Используй после интервью analyze-mvp."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex
