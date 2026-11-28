@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.7.1] - 2026-11-28
+
+### Fixed
+- workflows: убраны повторные согласования запуска агентов
+
 ## [1.7.0] - 2026-11-24
 
 ### Added

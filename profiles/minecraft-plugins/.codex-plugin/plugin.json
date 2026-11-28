@@ -1,6 +1,6 @@
 {
   "name": "minecraft-plugins",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Профиль AIKit Minecraft Plugins (Java, серверные плагины Minecraft, Bukkit/Spigot API или Paper API): агенты architect → coder → tester → reviewer, скиллы и MCP стека.",
   "keywords": [
     "aikit",

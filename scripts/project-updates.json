@@ -1,10 +1,5 @@
 {
-  "Unreleased": [
-    {
-      "action": "rules",
-      "note": "Обновить правило запуска агентов при явном запросе на реализацию."
-    }
-  ],
+  "Unreleased": [],
   "1.2.1": [
     {
       "action": "rules",
@@ -154,6 +149,16 @@
     {
       "action": "claude-settings",
       "profile": "minecraft-plugins"
+    }
+  ],
+  "1.7.1": [
+    {
+      "action": "rules",
+      "note": "Обновить правило запуска агентов при явном запросе на реализацию."
+    },
+    {
+      "action": "rules",
+      "runtime": "codex"
     }
   ]
 }
