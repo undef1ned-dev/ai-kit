@@ -1,6 +1,6 @@
 name = "{{PREFIX}}-architect"
 description = "{{LABEL}} архитектор. Используй для роли architect профиля {{PROFILE}}."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — архитектор проектной команды на {{STACK}}.

@@ -1,6 +1,6 @@
 name = "vue-coder"
 description = "Vue/Nuxt разработчик. Реализует файлы по ARCHITECT_PLAN. Используй после получения плана от vue-architect."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

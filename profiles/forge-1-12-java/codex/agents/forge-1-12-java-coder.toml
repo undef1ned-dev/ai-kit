@@ -1,6 +1,6 @@
 name = "forge-1-12-java-coder"
 description = "Java-разработчик мода Minecraft 1.12.2 на Forge. Реализует классы по ARCHITECT_PLAN — регистрация через RegistryEvent, разделение клиента и сервера, безопасные пакеты, защитное чтение NBT, ООП без god-классов. Используй после плана архитектора профиля или для точечной правки Java-кода мода."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

@@ -1,6 +1,6 @@
 name = "minecraft-plugins-coder"
 description = "Minecraft Plugins разработчик. Используй для роли coder профиля minecraft-plugins."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — разработчик команды Java-плагина для Minecraft.

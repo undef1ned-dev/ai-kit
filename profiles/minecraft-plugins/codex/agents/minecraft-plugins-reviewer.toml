@@ -1,6 +1,6 @@
 name = "minecraft-plugins-reviewer"
 description = "Minecraft Plugins ревьюер. Используй для роли reviewer профиля minecraft-plugins."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 Ты — ревьюер команды Java-плагина для Minecraft.

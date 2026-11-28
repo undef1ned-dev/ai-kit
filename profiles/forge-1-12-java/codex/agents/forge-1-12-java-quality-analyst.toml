@@ -1,6 +1,6 @@
 name = "forge-1-12-java-quality-analyst"
 description = "Аналитик качества Java-кода мода Minecraft 1.12.2 на Forge. Оценивает покрытие тестами domain-логики, находит технический долг — god-классы, логику в блоках, клиентский код в общем, небезопасные пакеты, тяжёлые тики — и предлагает улучшения с приоритетом по импакту. Используй для $coverage-check, $tech-debt или когда нужна оценка качества мода."
-model = "gpt-6.1-sol"
+model = "gpt-6.2-sol"
 model_reasoning_effort = "medium"
 developer_instructions = '''
 ## Работа агента в Codex

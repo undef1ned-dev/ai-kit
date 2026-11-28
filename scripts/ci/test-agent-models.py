@@ -54,7 +54,7 @@ def main() -> int:
     check("effort агентов кита: архитекторы high, остальные medium", bool(efforts) and not wrong, str(wrong))
 
     opus = kit["runtimes"]["codex"]["opus"]
-    native_architect = {"model": "gpt-6.1-sol", "model_reasoning_effort": "medium"}
+    native_architect = {"model": "gpt-6.2-sol", "model_reasoning_effort": "medium"}
     check("Codex: default модели берётся из нативного TOML", agent_models.resolve("vue-architect", "opus", "codex", {}) == native_architect)
     project = {
         "agents": {"vue-coder": "opus", "vue-tester": {"codex": "gpt-test", "claude": "haiku"}},
@@ -78,9 +78,9 @@ def main() -> int:
           agent_models.resolve("forge-1-12-java-architect", "opus", "codex", {"agents": {"forge-1-12-java-architect": "opus"}}) == opus)
 
     toml = 'name = "a"\ndescription = "d"\nmodel = "old"\ndeveloper_instructions = """\ntext\n"""\n'
-    updated = agent_models.set_toml_fields(toml, {"model": "gpt-6.1-sol", "model_reasoning_effort": "high"})
+    updated = agent_models.set_toml_fields(toml, {"model": "gpt-6.2-sol", "model_reasoning_effort": "high"})
     check("TOML Codex: модель после description, старая убрана",
-          updated.startswith('name = "a"\ndescription = "d"\nmodel = "gpt-6.1-sol"\nmodel_reasoning_effort = "high"\ndeveloper_instructions'), updated)
+          updated.startswith('name = "a"\ndescription = "d"\nmodel = "gpt-6.2-sol"\nmodel_reasoning_effort = "high"\ndeveloper_instructions'), updated)
     markdown = "---\nname: a\nmodel: sonnet\n---\nbody model: x\n"
     check("frontmatter: модель заменена только в шапке",
           agent_models.set_frontmatter_model(markdown, "haiku") == "---\nname: a\nmodel: haiku\n---\nbody model: x\n")
