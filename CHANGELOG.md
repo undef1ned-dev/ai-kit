@@ -13,6 +13,11 @@
 ### Added
 - Support analytics and release candidate evidence triage for local review. No release is published by this entry.
 
+## [1.7.2] - 2026-11-28
+
+### Changed
+- codex: модель Sol обновлена до GPT-6.2
+
 ## [1.7.1] - 2026-11-28
 
 ### Fixed

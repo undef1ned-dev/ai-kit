@@ -160,5 +160,33 @@
       "action": "rules",
       "runtime": "codex"
     }
+  ],
+  "1.7.2": [
+    {
+      "action": "codex-agents"
+    },
+    {
+      "action": "antigravity-agents"
+    },
+    {
+      "action": "codex-agents",
+      "pack": "devops"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "forge-1-12-java"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "mappet-scripts"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "minecraft-plugins"
+    },
+    {
+      "action": "codex-agents",
+      "profile": "vue-nuxt"
+    }
   ]
 }

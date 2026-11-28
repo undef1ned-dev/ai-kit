@@ -1,7 +1,7 @@
 {
   "name": "mappet-scripts",
   "displayName": "AIKit: Mappet Scripts",
-  "version": "1.7.1",
+  "version": "1.7.2",
   "description": "Профиль AIKit Mappet Scripts (EOC Mappet Scripts, TypeScript 5, ES5, Rhino compatibility, Java 8, Minecraft Forge 1.12.2): агенты architect → coder → reviewer, скиллы и MCP стека.",
   "author": {
     "name": "undef1ned-dev"
